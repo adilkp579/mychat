@@ -6,45 +6,30 @@
   <title>Web • Live Chat • iPhone style glass navbar</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       background: #000000;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-      min-height: 100vh;
-      min-height: 100dvh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0;
-      padding: 0;
+      min-height: 100vh; min-height: 100dvh;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0; padding: 0;
     }
 
     .page {
-      width: 100%;
-      height: 100vh;
-      height: 100dvh;
+      width: 100%; height: 100vh; height: 100dvh;
       background: #000000;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      overflow: hidden;
+      display: flex; flex-direction: column;
+      position: relative; overflow: hidden;
     }
 
     .content {
       flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-start;
       color: #f0f0f0;
-      padding: 0.5rem 1rem 5.5rem 1rem;
-      text-align: center;
-      gap: 0.4rem;
+      padding: 0.5rem 1rem 6rem 1rem;
+      text-align: center; gap: 0.3rem;
       overflow-y: auto;
     }
 
@@ -52,494 +37,169 @@
       0%, 100% { opacity: 1; }
       50% { opacity: 0.3; }
     }
-
     @keyframes pulse {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.5; }
     }
 
     .online-counter {
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-      color: #4ade80;
-      font-size: 0.65rem;
-      letter-spacing: 0.5px;
-      padding: 0.3rem 0;
+      display: flex; align-items: center; gap: 0.3rem;
+      color: #4ade80; font-size: 0.65rem; letter-spacing: 0.5px; padding: 0.2rem 0;
     }
-
-    .online-dot {
-      width: 5px;
-      height: 5px;
-      background: #4ade80;
-      border-radius: 50%;
-      animation: blink 2s infinite;
-    }
+    .online-dot { width: 5px; height: 5px; background: #4ade80; border-radius: 50%; animation: blink 2s infinite; }
 
     .camera-container {
-      display: flex;
-      gap: 0.5rem;
-      align-items: flex-start;
-      justify-content: center;
-      width: 100%;
-      max-width: 500px;
-      flex: 1;
-      min-height: 0;
+      display: flex; gap: 0.5rem; align-items: flex-start; justify-content: center;
+      width: 100%; max-width: 500px; flex: 1; min-height: 0;
     }
 
     .stranger-camera {
-      width: 75%;
-      height: 100%;
-      max-height: 64vh;
-      background: #111;
-      border: 2px solid rgba(255, 255, 255, 0.2);
-      border-radius: 1.2rem;
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
-      position: relative;
-      overflow: hidden;
-      transition: all 0.5s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 75%; height: 100%; max-height: 62vh;
+      background: #111; border: 2px solid rgba(255,255,255,0.2); border-radius: 1.2rem;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+      position: relative; overflow: hidden; transition: all 0.5s ease;
+      display: flex; align-items: center; justify-content: center;
     }
-
     .stranger-camera.connected {
-      border-color: rgba(74, 222, 128, 0.6);
-      box-shadow: 0 0 30px rgba(74, 222, 128, 0.3), 0 15px 40px rgba(0, 0, 0, 0.6);
+      border-color: rgba(74,222,128,0.6);
+      box-shadow: 0 0 30px rgba(74,222,128,0.3), 0 15px 40px rgba(0,0,0,0.6);
     }
 
     #strangerFeed {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: none;
-      background: #000;
-      transform: rotateY(180deg);
-      -webkit-transform: rotateY(180deg);
+      width: 100%; height: 100%; object-fit: cover;
+      display: none; background: #000;
+      transform: rotateY(180deg); -webkit-transform: rotateY(180deg);
     }
 
     .stranger-placeholder {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0.3rem;
-      color: rgba(255, 255, 255, 0.25);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 0.3rem; color: rgba(255,255,255,0.25);
     }
-
-    .stranger-placeholder i {
-      font-size: 3rem;
-    }
-
-    .stranger-placeholder span {
-      font-size: 0.7rem;
-      letter-spacing: 1px;
-    }
+    .stranger-placeholder i { font-size: 3rem; }
+    .stranger-placeholder span { font-size: 0.7rem; letter-spacing: 1px; }
 
     .my-camera {
-      width: 22%;
-      max-height: 150px;
-      aspect-ratio: 3/4;
-      background: #111;
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      border-radius: 0.8rem;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
-      position: relative;
-      overflow: hidden;
-      transition: all 0.3s ease;
+      width: 22%; max-height: 150px; aspect-ratio: 3/4;
+      background: #111; border: 2px solid rgba(255,255,255,0.3); border-radius: 0.8rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+      position: relative; overflow: hidden; transition: all 0.3s ease;
     }
-
-    .my-camera.active {
-      border-color: rgba(255, 0, 0, 0.6);
-      box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
-    }
+    .my-camera.active { border-color: rgba(255,0,0,0.6); box-shadow: 0 0 15px rgba(255,0,0,0.3); }
 
     #myFeed {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: none;
-      background: #000;
-      transform: rotateY(180deg);
-      -webkit-transform: rotateY(180deg);
+      width: 100%; height: 100%; object-fit: cover;
+      display: none; background: #000;
+      transform: rotateY(180deg); -webkit-transform: rotateY(180deg);
     }
 
     .my-placeholder {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0.15rem;
-      color: rgba(255, 255, 255, 0.35);
-      font-size: 0.6rem;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 0.15rem; color: rgba(255,255,255,0.35); font-size: 0.6rem;
     }
-
-    .my-placeholder i {
-      font-size: 1.3rem;
-    }
+    .my-placeholder i { font-size: 1.3rem; }
 
     .camera-labels {
-      display: flex;
-      justify-content: space-between;
-      width: 100%;
-      max-width: 500px;
-      padding: 0 0.2rem;
-      margin-bottom: -0.2rem;
+      display: flex; justify-content: space-between;
+      width: 100%; max-width: 500px; padding: 0 0.2rem; margin-bottom: -0.2rem;
     }
-
-    .stranger-label-outside {
-      color: #777;
-      font-size: 0.6rem;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-left: 0.3rem;
-    }
-
-    .you-label-outside {
-      color: #777;
-      font-size: 0.6rem;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-right: 0.3rem;
-    }
+    .stranger-label-outside { color: #777; font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; margin-left: 0.3rem; }
+    .you-label-outside { color: #777; font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; margin-right: 0.3rem; }
 
     .recording-indicator {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      background: rgba(0,0,0,0.8);
-      padding: 3px 8px;
-      border-radius: 10px;
-      z-index: 10;
-      opacity: 0;
-      transition: all 0.3s ease;
+      position: absolute; top: 8px; right: 8px;
+      display: flex; align-items: center; gap: 4px;
+      background: rgba(0,0,0,0.8); padding: 3px 8px; border-radius: 10px;
+      z-index: 10; opacity: 0; transition: all 0.3s ease;
     }
-
-    .recording-indicator.active {
-      opacity: 1;
-    }
-
-    .rec-dot {
-      width: 6px;
-      height: 6px;
-      background: #ff0000;
-      border-radius: 50%;
-      animation: blink 1s infinite;
-    }
-
-    .rec-text {
-      color: #ff0000;
-      font-size: 0.55rem;
-      font-weight: 600;
-      letter-spacing: 1px;
-    }
+    .recording-indicator.active { opacity: 1; }
+    .rec-dot { width: 6px; height: 6px; background: #ff0000; border-radius: 50%; animation: blink 1s infinite; }
+    .rec-text { color: #ff0000; font-size: 0.55rem; font-weight: 600; letter-spacing: 1px; }
 
     .timer-display {
-      position: absolute;
-      bottom: 8px;
-      left: 50%;
-      transform: translateX(-50%);
-      color: #fff;
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 1px;
-      z-index: 10;
-      font-family: 'Courier New', monospace;
-      background: rgba(0,0,0,0.7);
-      padding: 2px 8px;
-      border-radius: 8px;
-      opacity: 0;
-      transition: all 0.3s ease;
+      position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      color: #fff; font-size: 0.75rem; font-weight: 600; letter-spacing: 1px;
+      z-index: 10; font-family: 'Courier New', monospace;
+      background: rgba(0,0,0,0.7); padding: 2px 8px; border-radius: 8px;
+      opacity: 0; transition: all 0.3s ease;
     }
-
-    .timer-display.active {
-      opacity: 1;
-    }
+    .timer-display.active { opacity: 1; }
 
     .user-info {
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-      background: rgba(255,255,255,0.06);
-      padding: 0.3rem 0.7rem;
-      border-radius: 1rem;
-      font-size: 0.7rem;
-      color: #ccc;
-      opacity: 0;
-      transition: all 0.3s ease;
-      border: 1px solid rgba(255,255,255,0.08);
+      display: flex; align-items: center; gap: 0.3rem;
+      background: rgba(255,255,255,0.06); padding: 0.25rem 0.6rem; border-radius: 1rem;
+      font-size: 0.7rem; color: #ccc; opacity: 0; transition: all 0.3s ease;
+      border: 1px solid rgba(255,255,255,0.08); margin: 0;
     }
+    .user-info.active { opacity: 1; }
+    .user-flag { font-size: 0.9rem; }
 
-    .user-info.active {
-      opacity: 1;
-    }
-
-    .user-flag {
-      font-size: 0.9rem;
-    }
-
+    /* Buttons container - MOVED HIGHER */
     .buttons-container {
-      display: flex;
-      gap: 0.6rem;
-      flex-wrap: wrap;
-      justify-content: center;
-      padding: 0.3rem 0;
+      display: flex; gap: 0.6rem; flex-wrap: wrap; justify-content: center;
+      padding: 0.2rem 0 0 0;
+      margin-top: -0.2rem;
     }
 
     .btn {
-      height: 38px;
-      border-radius: 2rem;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.3rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      user-select: none;
-      border: none;
-      outline: none;
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      padding: 0 1rem;
+      height: 36px; border-radius: 2rem;
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      display: flex; align-items: center; justify-content: center; gap: 0.3rem;
+      cursor: pointer; transition: all 0.3s ease; user-select: none;
+      border: none; outline: none; font-size: 0.75rem; font-weight: 600;
+      letter-spacing: 0.5px; padding: 0 1rem;
     }
+    .btn:active { transform: scale(0.95); }
 
-    .btn:active {
-      transform: scale(0.95);
-    }
+    .start-button { width: 90px; background: rgba(74,222,128,0.15); border: 1px solid rgba(74,222,128,0.4); color: #4ade80; }
+    .start-button:hover { background: rgba(74,222,128,0.3); }
+    .start-button.searching { background: rgba(251,191,36,0.2); border-color: rgba(251,191,36,0.5); color: #fbbf24; animation: pulse 1s infinite; }
 
-    .start-button {
-      width: 90px;
-      background: rgba(74, 222, 128, 0.15);
-      border: 1px solid rgba(74, 222, 128, 0.4);
-      color: #4ade80;
-    }
+    .stop-button { width: 80px; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: #ef4444; display: none; }
+    .stop-button:hover { background: rgba(239,68,68,0.3); }
+    .stop-button.visible { display: flex; }
 
-    .start-button:hover {
-      background: rgba(74, 222, 128, 0.3);
-    }
+    .next-button { width: 80px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #ccc; display: none; }
+    .next-button:hover { background: rgba(255,255,255,0.15); }
+    .next-button.visible { display: flex; }
 
-    .start-button.searching {
-      background: rgba(251, 191, 36, 0.2);
-      border-color: rgba(251, 191, 36, 0.5);
-      color: #fbbf24;
-      animation: pulse 1s infinite;
-    }
+    .record-button { width: 80px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #aaa; }
+    .record-button:hover { background: rgba(255,255,255,0.12); }
+    .record-button.recording { background: rgba(255,0,0,0.2); border-color: rgba(255,0,0,0.5); color: #ff4444; box-shadow: 0 0 20px rgba(255,0,0,0.3); animation: pulse 1.5s infinite; }
 
-    .stop-button {
-      width: 80px;
-      background: rgba(239, 68, 68, 0.15);
-      border: 1px solid rgba(239, 68, 68, 0.4);
-      color: #ef4444;
-      display: none;
-    }
-
-    .stop-button:hover {
-      background: rgba(239, 68, 68, 0.3);
-    }
-
-    .stop-button.visible {
-      display: flex;
-    }
-
-    .next-button {
-      width: 80px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: #ccc;
-      display: none;
-    }
-
-    .next-button:hover {
-      background: rgba(255, 255, 255, 0.15);
-    }
-
-    .next-button.visible {
-      display: flex;
-    }
-
-    .record-button {
-      width: 80px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: #aaa;
-    }
-
-    .record-button:hover {
-      background: rgba(255, 255, 255, 0.12);
-    }
-
-    .record-button.recording {
-      background: rgba(255, 0, 0, 0.2);
-      border-color: rgba(255, 0, 0, 0.5);
-      color: #ff4444;
-      box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
-      animation: pulse 1.5s infinite;
-    }
-
-    /* ===== NAVBAR - SAME AS INDEX.HTML ===== */
+    /* NAVBAR */
     .floating-nav {
-      position: absolute;
-      bottom: max(1.5rem, env(safe-area-inset-bottom, 1.5rem));
-      left: 50%;
-      transform: translateX(-50%);
-      width: 92%;
-      max-width: 500px;
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(30px) saturate(200%);
-      -webkit-backdrop-filter: blur(30px) saturate(200%);
-      border-radius: 2.5rem;
-      padding: 0.7rem 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08) inset, 0 1px 0 rgba(255, 255, 255, 0.05) inset;
-      z-index: 100;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: absolute; bottom: max(1.5rem, env(safe-area-inset-bottom,1.5rem));
+      left: 50%; transform: translateX(-50%);
+      width: 92%; max-width: 500px;
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(30px) saturate(200%); -webkit-backdrop-filter: blur(30px) saturate(200%);
+      border-radius: 2.5rem; padding: 0.7rem 1.5rem;
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08) inset, 0 1px 0 rgba(255,255,255,0.05) inset;
+      z-index: 100; transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
     }
+    .floating-nav:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.18); }
 
-    .floating-nav:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.18);
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.1) inset, 0 1px 0 rgba(255, 255, 255, 0.08) inset;
-    }
-
-    .nav-center {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      max-width: 380px;
-      gap: 0.3rem;
-    }
-
+    .nav-center { display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 380px; gap: 0.3rem; }
     .nav-center a {
-      color: rgba(255, 255, 255, 0.6);
-      font-size: 1.3rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 2.5rem;
-      height: 2.5rem;
-      border-radius: 50%;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      text-decoration: none;
-      position: relative;
-      flex-shrink: 0;
-      -webkit-tap-highlight-color: transparent;
-      background: transparent;
+      color: rgba(255,255,255,0.6); font-size: 1.3rem;
+      display: flex; align-items: center; justify-content: center;
+      width: 2.5rem; height: 2.5rem; border-radius: 50%;
+      transition: all 0.3s; text-decoration: none; position: relative;
+      flex-shrink: 0; -webkit-tap-highlight-color: transparent; background: transparent;
     }
+    .nav-center a::before { content: ''; position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%) scale(0); width: 4px; height: 4px; border-radius: 50%; background: #fff; transition: all 0.3s; }
+    .nav-center a.active::before { transform: translateX(-50%) scale(1); }
+    .nav-center a:active { transform: scale(0.85); background: rgba(255,255,255,0.1); }
+    .nav-center a.active { color: #fff; background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); font-weight: 500; text-shadow: 0 0 20px rgba(255,255,255,0.5); box-shadow: 0 4px 12px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.15) inset; }
 
-    .nav-center a::before {
-      content: '';
-      position: absolute;
-      bottom: -2px;
-      left: 50%;
-      transform: translateX(-50%) scale(0);
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: #ffffff;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .nav-center a.active::before {
-      transform: translateX(-50%) scale(1);
-    }
-
-    .nav-center a:active {
-      transform: scale(0.85);
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    .nav-center a.active {
-      color: #ffffff;
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      font-weight: 500;
-      text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.15) inset;
-    }
-
-    /* ===== RESPONSIVE NAVBAR - SAME AS INDEX.HTML ===== */
-    @media (max-width: 767px) {
-      .floating-nav {
-        width: 92%;
-        max-width: 500px;
-        padding: 0.7rem 1.5rem;
-        border-radius: 2.5rem;
-      }
-      .nav-center {
-        max-width: 380px;
-      }
-      .nav-center a {
-        font-size: 1.3rem;
-        width: 2.5rem;
-        height: 2.5rem;
-      }
-    }
-
-    @media (max-width: 380px) {
-      .content { padding: 0.3rem 0.6rem 5rem 0.6rem; }
-      .stranger-camera { max-height: 62vh; }
-      .my-camera { max-height: 110px; }
-      .btn { height: 34px; font-size: 0.7rem; padding: 0 0.7rem; }
-      .start-button, .stop-button, .next-button, .record-button { width: 68px; }
-      
-      .nav-center { gap: 0.2rem; }
-      .nav-center a { font-size: 1.1rem; width: 2rem; height: 2rem; }
-      .floating-nav { width: 94%; padding: 0.55rem 0.8rem; border-radius: 2rem; bottom: 1rem; }
-    }
-
-    @media (min-width: 381px) and (max-width: 767px) {
-      .stranger-camera { max-height: 66vh; }
-      .my-camera { max-height: 140px; }
-    }
-
-    @media (min-width: 768px) and (max-width: 1023px) {
-      .content { padding: 0.8rem 2rem 5.5rem 2rem; }
-      .stranger-camera { max-height: 68vh; border-radius: 1.5rem; }
-      .my-camera { max-height: 170px; border-radius: 1rem; }
-      .btn { height: 44px; font-size: 0.85rem; padding: 0 1.2rem; }
-      .start-button { width: 100px; }
-      .stop-button, .next-button, .record-button { width: 90px; }
-      .buttons-container { gap: 1rem; }
-
-      .floating-nav { width: 65%; max-width: 550px; padding: 0.8rem 2rem; border-radius: 2.8rem; }
-      .nav-center { max-width: 420px; gap: 0.8rem; }
-      .nav-center a { font-size: 1.4rem; width: 2.7rem; height: 2.7rem; }
-    }
-
-    @media (min-width: 1024px) {
-      .content { padding: 0.5rem 3rem 5.5rem 3rem; }
-      .stranger-camera { max-height: 70vh; border-radius: 1.8rem; }
-      .my-camera { max-height: 180px; }
-      .btn { height: 46px; font-size: 0.85rem; }
-      .start-button { width: 110px; }
-      .stop-button, .next-button, .record-button { width: 95px; }
-
-      .floating-nav { width: 45%; max-width: 550px; padding: 0.9rem 2.2rem; bottom: 2.5rem; border-radius: 3rem; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); }
-      .nav-center { max-width: 450px; gap: 1rem; }
-      .nav-center a { font-size: 1.5rem; width: 2.8rem; height: 2.8rem; }
-      .nav-center a:hover { color: rgba(255, 255, 255, 0.9); background: rgba(255, 255, 255, 0.1); transform: translateY(-2px); }
-      .nav-center a.active:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
-    }
-
-    @media (min-width: 1440px) {
-      .stranger-camera { max-height: 72vh; }
-      .my-camera { max-height: 200px; }
-
-      .floating-nav { width: 38%; max-width: 600px; padding: 1rem 2.8rem; border-radius: 3.2rem; }
-      .nav-center { max-width: 500px; gap: 1.5rem; }
-      .nav-center a { font-size: 1.7rem; width: 3rem; height: 3rem; }
-    }
+    @media (max-width:767px) { .floating-nav { width:92%; max-width:500px; padding:0.7rem 1.5rem; border-radius:2.5rem; } .nav-center{max-width:380px;} .nav-center a{font-size:1.3rem;width:2.5rem;height:2.5rem;} }
+    @media (max-width:380px) { .content{padding:0.3rem 0.6rem 5rem 0.6rem;} .stranger-camera{max-height:58vh;} .my-camera{max-height:100px;} .btn{height:32px;font-size:0.7rem;padding:0 0.6rem;} .start-button{width:65px;} .stop-button,.next-button,.record-button{width:62px;} .buttons-container{gap:0.4rem;} .nav-center{gap:0.2rem;} .nav-center a{font-size:1.1rem;width:2rem;height:2rem;} .floating-nav{width:94%;padding:0.55rem 0.8rem;border-radius:2rem;bottom:1rem;} }
+    @media (min-width:381px) and (max-width:767px) { .stranger-camera{max-height:62vh;} .my-camera{max-height:130px;} }
+    @media (min-width:768px) and (max-width:1023px) { .content{padding:0.6rem 2rem 5.5rem 2rem;} .stranger-camera{max-height:65vh;border-radius:1.5rem;} .my-camera{max-height:160px;border-radius:1rem;} .btn{height:42px;font-size:0.85rem;padding:0 1.2rem;} .start-button{width:100px;} .stop-button,.next-button,.record-button{width:90px;} .buttons-container{gap:1rem;} .floating-nav{width:65%;max-width:550px;padding:0.8rem 2rem;border-radius:2.8rem;} .nav-center{max-width:420px;gap:0.8rem;} .nav-center a{font-size:1.4rem;width:2.7rem;height:2.7rem;} }
+    @media (min-width:1024px) { .content{padding:0.5rem 3rem 5.5rem 3rem;} .stranger-camera{max-height:67vh;border-radius:1.8rem;} .my-camera{max-height:170px;} .btn{height:44px;font-size:0.85rem;} .start-button{width:110px;} .stop-button,.next-button,.record-button{width:95px;} .floating-nav{width:45%;max-width:550px;padding:0.9rem 2.2rem;bottom:2.5rem;border-radius:3rem;} .nav-center{max-width:450px;gap:1rem;} .nav-center a{font-size:1.5rem;width:2.8rem;height:2.8rem;} .nav-center a:hover{color:rgba(255,255,255,0.9);background:rgba(255,255,255,0.1);transform:translateY(-2px);} }
+    @media (min-width:1440px) { .stranger-camera{max-height:69vh;} .my-camera{max-height:190px;} .floating-nav{width:38%;max-width:600px;padding:1rem 2.8rem;border-radius:3.2rem;} .nav-center{max-width:500px;gap:1.5rem;} .nav-center a{font-size:1.7rem;width:3rem;height:3rem;} }
   </style>
 </head>
 <body>
@@ -547,7 +207,7 @@
     <div class="content">
       <div class="online-counter">
         <div class="online-dot"></div>
-        <span id="onlineCount">12,847 strangers online</span>
+        <span id="onlineCount">0 strangers online</span>
       </div>
 
       <div class="camera-labels">
@@ -580,208 +240,199 @@
 
       <div class="user-info" id="userInfo">
         <span class="user-flag" id="userFlag">🌍</span>
-        <span id="userCountry">Connecting...</span>
+        <span id="userCountry">Waiting...</span>
       </div>
 
       <div class="buttons-container">
-        <button class="btn start-button" id="startButton" onclick="startChat()">
+        <button class="btn start-button" id="startButton" onclick="window.videoChat.start()">
           <i class="fas fa-play"></i>
           <span>Start</span>
         </button>
-        <button class="btn stop-button" id="stopButton" onclick="stopChat()">
+        <button class="btn stop-button" id="stopButton" onclick="window.videoChat.stop()">
           <i class="fas fa-stop"></i>
           <span>Stop</span>
         </button>
-        <button class="btn next-button" id="nextButton" onclick="nextStranger()">
+        <button class="btn next-button" id="nextButton" onclick="window.videoChat.next()">
           <i class="fas fa-forward"></i>
           <span>Next</span>
         </button>
-        <button class="btn record-button" id="recordButton" onclick="toggleRecording()">
+        <button class="btn record-button" id="recordButton" onclick="window.videoChat.toggleRecord()">
           <i class="fas fa-circle" id="recordIcon"></i>
           <span id="recordText">Record</span>
         </button>
       </div>
     </div>
 
-    <!-- NAVBAR - SAME AS INDEX.HTML -->
-    <nav class="floating-nav" role="navigation" aria-label="Main navigation">
+    <nav class="floating-nav" role="navigation">
       <div class="nav-center">
-        <a href="index.html" data-page="index" title="home"><i class="fas fa-home"></i></a>
-        <a href="web.html" class="active" data-page="web" title="web" aria-current="page"><i class="fas fa-globe"></i></a>
-        <a href="reel.html" data-page="reel" title="reel"><i class="fas fa-film"></i></a>
-        <a href="chat.html" data-page="chat" title="chat"><i class="fas fa-comment-dots"></i></a>
-        <a href="profile.html" data-page="profile" title="profile"><i class="fas fa-user"></i></a>
+        <a href="index.html"><i class="fas fa-home"></i></a>
+        <a href="web.html" class="active"><i class="fas fa-globe"></i></a>
+        <a href="reel.html"><i class="fas fa-film"></i></a>
+        <a href="chat.html"><i class="fas fa-comment-dots"></i></a>
+        <a href="profile.html"><i class="fas fa-user"></i></a>
       </div>
     </nav>
   </div>
 
+  <script type="module" src="app.js"></script>
+
   <script>
-    let isConnected = false;
-    let isSearching = false;
-    let isRecording = false;
-    let timerInterval;
-    let seconds = 0;
-    let minutes = 0;
-    let myStream = null;
+    window.videoChat = {
+      myStream: null,
+      isRecording: false,
+      timerInterval: null,
+      seconds: 0,
+      minutes: 0,
 
-    const strangers = [
-      { flag: '🇺🇸', country: 'United States' }, { flag: '🇬🇧', country: 'United Kingdom' },
-      { flag: '🇯🇵', country: 'Japan' }, { flag: '🇧🇷', country: 'Brazil' },
-      { flag: '🇩🇪', country: 'Germany' }, { flag: '🇫🇷', country: 'France' },
-      { flag: '🇮🇳', country: 'India' }, { flag: '🇨🇦', country: 'Canada' },
-      { flag: '🇦🇺', country: 'Australia' }, { flag: '🇰🇷', country: 'South Korea' },
-    ];
+      elements: {
+        get startBtn() { return document.getElementById('startButton'); },
+        get stopBtn() { return document.getElementById('stopButton'); },
+        get nextBtn() { return document.getElementById('nextButton'); },
+        get recordBtn() { return document.getElementById('recordButton'); },
+        get myFeed() { return document.getElementById('myFeed'); },
+        get myPlaceholder() { return document.getElementById('myPlaceholder'); },
+        get myCamera() { return document.getElementById('myCamera'); },
+        get strangerFeed() { return document.getElementById('strangerFeed'); },
+        get strangerPlaceholder() { return document.getElementById('strangerPlaceholder'); },
+        get strangerCamera() { return document.getElementById('strangerCamera'); },
+        get timerDisplay() { return document.getElementById('timerDisplay'); },
+        get recIndicator() { return document.getElementById('recIndicator'); },
+        get recordIcon() { return document.getElementById('recordIcon'); },
+        get recordText() { return document.getElementById('recordText'); },
+        get userFlag() { return document.getElementById('userFlag'); },
+        get userCountry() { return document.getElementById('userCountry'); },
+        get userInfo() { return document.getElementById('userInfo'); },
+        get onlineCount() { return document.getElementById('onlineCount'); },
+      },
 
-    const startBtn = document.getElementById('startButton');
-    const stopBtn = document.getElementById('stopButton');
-    const nextBtn = document.getElementById('nextButton');
+      showConnected() {
+        this.elements.startBtn.style.display = 'none';
+        this.elements.stopBtn.classList.add('visible');
+        this.elements.nextBtn.classList.add('visible');
+      },
 
-    function showConnectedButtons() {
-      startBtn.style.display = 'none';
-      stopBtn.classList.add('visible');
-      nextBtn.classList.add('visible');
-    }
+      showDisconnected() {
+        this.elements.startBtn.style.display = 'flex';
+        this.elements.stopBtn.classList.remove('visible');
+        this.elements.nextBtn.classList.remove('visible');
+        this.elements.startBtn.classList.remove('searching');
+      },
 
-    function showDisconnectedButtons() {
-      startBtn.style.display = 'flex';
-      stopBtn.classList.remove('visible');
-      nextBtn.classList.remove('visible');
-      startBtn.classList.remove('searching');
-    }
+      setSearching(active) {
+        const btn = this.elements.startBtn;
+        if (active) {
+          btn.classList.add('searching');
+          btn.querySelector('span').textContent = 'Searching';
+          btn.querySelector('i').className = 'fas fa-spinner fa-spin';
+        } else {
+          btn.classList.remove('searching');
+          btn.querySelector('span').textContent = 'Start';
+          btn.querySelector('i').className = 'fas fa-play';
+        }
+      },
 
-    async function startMyCamera() {
-      try {
-        if (myStream) { myStream.getTracks().forEach(track => track.stop()); }
-        const myFeed = document.getElementById('myFeed');
-        const myPlaceholder = document.getElementById('myPlaceholder');
-        const myCamera = document.getElementById('myCamera');
-        myStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: true });
-        myFeed.srcObject = myStream;
-        await myFeed.play();
-        myFeed.style.display = 'block';
-        myPlaceholder.style.display = 'none';
-        myCamera.classList.add('active');
-        return true;
-      } catch (error) {
-        alert('Camera access needed for video chat. Please allow camera permissions.');
-        return false;
-      }
-    }
+      async startCamera() {
+        try {
+          if (this.myStream) { this.myStream.getTracks().forEach(t => t.stop()); }
+          this.myStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: true });
+          this.elements.myFeed.srcObject = this.myStream;
+          await this.elements.myFeed.play();
+          this.elements.myFeed.style.display = 'block';
+          this.elements.myPlaceholder.style.display = 'none';
+          this.elements.myCamera.classList.add('active');
+          return this.myStream;
+        } catch (err) {
+          alert('Camera access needed. Please allow permissions.');
+          return null;
+        }
+      },
 
-    function stopMyCamera() {
-      if (myStream) { myStream.getTracks().forEach(track => track.stop()); myStream = null; }
-      document.getElementById('myFeed').style.display = 'none';
-      document.getElementById('myFeed').srcObject = null;
-      document.getElementById('myPlaceholder').style.display = 'flex';
-      document.getElementById('myCamera').classList.remove('active');
-    }
+      stopCamera() {
+        if (this.myStream) { this.myStream.getTracks().forEach(t => t.stop()); this.myStream = null; }
+        this.elements.myFeed.style.display = 'none';
+        this.elements.myFeed.srcObject = null;
+        this.elements.myPlaceholder.style.display = 'flex';
+        this.elements.myCamera.classList.remove('active');
+      },
 
-    function simulateStrangerConnection() {
-      const strangerFeed = document.getElementById('strangerFeed');
-      const strangerPlaceholder = document.getElementById('strangerPlaceholder');
-      const strangerCamera = document.getElementById('strangerCamera');
-      if (myStream) {
-        strangerFeed.srcObject = myStream;
-        strangerFeed.style.display = 'block';
-        strangerPlaceholder.style.display = 'none';
-        strangerCamera.classList.add('connected');
-      }
-      const rs = strangers[Math.floor(Math.random() * strangers.length)];
-      document.getElementById('userFlag').textContent = rs.flag;
-      document.getElementById('userCountry').textContent = rs.country;
-      document.getElementById('userInfo').classList.add('active');
-    }
+      setStrangerFeed(stream) {
+        if (stream) {
+          this.elements.strangerFeed.srcObject = stream;
+          this.elements.strangerFeed.style.display = 'block';
+          this.elements.strangerPlaceholder.style.display = 'none';
+          this.elements.strangerCamera.classList.add('connected');
+        } else {
+          this.elements.strangerFeed.style.display = 'none';
+          this.elements.strangerFeed.srcObject = null;
+          this.elements.strangerPlaceholder.style.display = 'flex';
+          this.elements.strangerCamera.classList.remove('connected');
+        }
+      },
 
-    function disconnectStranger() {
-      document.getElementById('strangerFeed').style.display = 'none';
-      document.getElementById('strangerFeed').srcObject = null;
-      document.getElementById('strangerPlaceholder').style.display = 'flex';
-      document.getElementById('strangerCamera').classList.remove('connected');
-      document.getElementById('userInfo').classList.remove('active');
-      if (isRecording) toggleRecording();
-    }
+      setStrangerInfo(flag, country) {
+        if (flag && country) {
+          this.elements.userFlag.textContent = flag;
+          this.elements.userCountry.textContent = country;
+          this.elements.userInfo.classList.add('active');
+        } else {
+          this.elements.userInfo.classList.remove('active');
+        }
+      },
 
-    function startTimer() {
-      seconds = 0; minutes = 0;
-      document.getElementById('timerDisplay').textContent = '00:00';
-      document.getElementById('timerDisplay').classList.add('active');
-      timerInterval = setInterval(() => {
-        seconds++;
-        if (seconds === 60) { seconds = 0; minutes++; }
-        document.getElementById('timerDisplay').textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-      }, 1000);
-    }
+      startTimer() {
+        this.seconds = 0; this.minutes = 0;
+        this.elements.timerDisplay.textContent = '00:00';
+        this.elements.timerDisplay.classList.add('active');
+        this.timerInterval = setInterval(() => {
+          this.seconds++;
+          if (this.seconds === 60) { this.seconds = 0; this.minutes++; }
+          this.elements.timerDisplay.textContent = `${String(this.minutes).padStart(2,'0')}:${String(this.seconds).padStart(2,'0')}`;
+        }, 1000);
+      },
 
-    function stopTimer() {
-      clearInterval(timerInterval);
-      document.getElementById('timerDisplay').classList.remove('active');
-      document.getElementById('timerDisplay').textContent = '00:00';
-    }
+      stopTimer() {
+        clearInterval(this.timerInterval);
+        this.elements.timerDisplay.classList.remove('active');
+        this.elements.timerDisplay.textContent = '00:00';
+      },
 
-    async function startChat() {
-      if (isSearching) return;
-      const cameraReady = await startMyCamera();
-      if (!cameraReady) return;
-      isSearching = true;
-      startBtn.classList.add('searching');
-      startBtn.querySelector('span').textContent = 'Searching';
-      startBtn.querySelector('i').className = 'fas fa-spinner fa-spin';
-      setTimeout(() => {
-        isSearching = false; isConnected = true;
-        startBtn.classList.remove('searching');
-        startBtn.querySelector('span').textContent = 'Start';
-        startBtn.querySelector('i').className = 'fas fa-play';
-        showConnectedButtons();
-        simulateStrangerConnection();
-        startTimer();
-      }, 2000 + Math.random() * 2000);
-    }
+      setRecording(active) {
+        this.isRecording = active;
+        if (active) {
+          this.elements.recordBtn.classList.add('recording');
+          this.elements.recordIcon.className = 'fas fa-stop';
+          this.elements.recordText.textContent = 'Stop';
+          this.elements.recIndicator.classList.add('active');
+        } else {
+          this.elements.recordBtn.classList.remove('recording');
+          this.elements.recordIcon.className = 'fas fa-circle';
+          this.elements.recordText.textContent = 'Record';
+          this.elements.recIndicator.classList.remove('active');
+        }
+      },
 
-    function stopChat() {
-      disconnectStranger(); stopTimer(); stopMyCamera();
-      isConnected = false; isSearching = false;
-      showDisconnectedButtons();
-    }
+      setNextSearching(active) {
+        const btn = this.elements.nextBtn;
+        if (active) {
+          btn.querySelector('span').textContent = 'Searching';
+          btn.querySelector('i').className = 'fas fa-spinner fa-spin';
+          Object.assign(btn.style, { color:'#fbbf24', borderColor:'rgba(251,191,36,0.5)', background:'rgba(251,191,36,0.2)', animation:'pulse 1s infinite' });
+        } else {
+          btn.querySelector('span').textContent = 'Next';
+          btn.querySelector('i').className = 'fas fa-forward';
+          Object.assign(btn.style, { color:'#ccc', borderColor:'rgba(255,255,255,0.2)', background:'rgba(255,255,255,0.08)', animation:'' });
+        }
+      },
 
-    async function nextStranger() {
-      if (!isConnected) return;
-      disconnectStranger(); stopTimer(); isConnected = false;
-      nextBtn.querySelector('span').textContent = 'Searching';
-      nextBtn.querySelector('i').className = 'fas fa-spinner fa-spin';
-      Object.assign(nextBtn.style, { color: '#fbbf24', borderColor: 'rgba(251,191,36,0.5)', background: 'rgba(251,191,36,0.2)', animation: 'pulse 1s infinite' });
-      setTimeout(() => {
-        isConnected = true;
-        nextBtn.querySelector('span').textContent = 'Next';
-        nextBtn.querySelector('i').className = 'fas fa-forward';
-        Object.assign(nextBtn.style, { color: '#ccc', borderColor: 'rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.08)', animation: '' });
-        simulateStrangerConnection();
-        startTimer();
-      }, 1500 + Math.random() * 2000);
-    }
+      setOnlineCount(count) {
+        this.elements.onlineCount.textContent = `${count} strangers online`;
+      },
 
-    function toggleRecording() {
-      const rb = document.getElementById('recordButton');
-      if (!isConnected) { alert('Connect with a stranger first to start recording!'); return; }
-      if (!isRecording) {
-        isRecording = true;
-        rb.classList.add('recording');
-        document.getElementById('recordIcon').className = 'fas fa-stop';
-        document.getElementById('recordText').textContent = 'Stop';
-        document.getElementById('recIndicator').classList.add('active');
-      } else {
-        isRecording = false;
-        rb.classList.remove('recording');
-        document.getElementById('recordIcon').className = 'fas fa-circle';
-        document.getElementById('recordText').textContent = 'Record';
-        document.getElementById('recIndicator').classList.remove('active');
-      }
-    }
-
-    setInterval(() => {
-      document.getElementById('onlineCount').textContent = `${Math.floor(10000 + Math.random() * 15000).toLocaleString()} strangers online`;
-    }, 5000);
-
-    window.addEventListener('beforeunload', () => { if (isConnected) stopChat(); });
+      start() { console.log('start() - waiting for app.js'); },
+      stop() { console.log('stop() - waiting for app.js'); },
+      next() { console.log('next() - waiting for app.js'); },
+      toggleRecord() { console.log('toggleRecord() - waiting for app.js'); },
+    };
   </script>
 </body>
 </html>

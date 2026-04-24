@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>Web • iPhone style glass navbar</title>
+  <title>Web • Live Chat • iPhone style glass navbar</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     * {
@@ -108,101 +108,182 @@
       color: #f0f0f0;
       padding: 3rem 1.5rem 7rem 1.5rem;
       text-align: center;
-      gap: 1.5rem;
+      gap: 1.2rem;
     }
 
-    .camera-interface {
-      width: 300px;
-      height: 350px;
+    /* Status text */
+    .status-text {
+      font-size: 0.9rem;
+      color: #aaa;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      min-height: 1.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .status-text.connected {
+      color: #4ade80;
+    }
+
+    .status-text.searching {
+      color: #fbbf24;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Camera interface with dual screen effect */
+    .camera-container {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* Main stranger camera - big */
+    .stranger-camera {
+      width: 280px;
+      height: 320px;
       background: #111;
       border: 2px solid rgba(255, 255, 255, 0.2);
-      border-radius: 2rem;
+      border-radius: 1.5rem;
       box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
       position: relative;
       overflow: hidden;
       transition: all 0.5s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    #cameraFeed {
+    .stranger-camera.connected {
+      border-color: rgba(74, 222, 128, 0.6);
+      box-shadow: 0 0 30px rgba(74, 222, 128, 0.3), 0 15px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    #strangerFeed {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      display: block;
-      border-radius: 2rem;
+      display: none;
+      border-radius: 1.5rem;
       background: #000;
     }
 
-    .camera-placeholder {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+    .stranger-placeholder {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: rgba(0, 0, 0, 0.8);
-      z-index: 2;
+      gap: 0.5rem;
+      color: rgba(255, 255, 255, 0.4);
     }
 
-    .camera-placeholder.hidden {
-      display: none;
+    .stranger-placeholder i {
+      font-size: 4rem;
     }
 
-    .camera-icon {
-      font-size: 5rem;
-      color: rgba(255, 255, 255, 0.6);
-      margin-bottom: 0.8rem;
+    .stranger-placeholder span {
+      font-size: 0.85rem;
+      letter-spacing: 1px;
     }
 
-    .camera-text {
-      color: rgba(255, 255, 255, 0.7);
-      font-size: 1.1rem;
-      font-weight: 500;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-    }
-
-    .camera-interface.active {
-      border-color: rgba(255, 0, 0, 0.8);
-      box-shadow: 0 0 50px rgba(255, 0, 0, 0.4), 0 15px 40px rgba(0, 0, 0, 0.6);
-      animation: recordingPulse 2s infinite;
-    }
-
-    @keyframes recordingPulse {
-      0%, 100% {
-        border-color: rgba(255, 0, 0, 0.8);
-        box-shadow: 0 0 50px rgba(255, 0, 0, 0.4), 0 15px 40px rgba(0, 0, 0, 0.6);
-      }
-      50% {
-        border-color: rgba(255, 0, 0, 0.4);
-        box-shadow: 0 0 80px rgba(255, 0, 0, 0.6), 0 15px 40px rgba(0, 0, 0, 0.6);
-      }
-    }
-
-    .recording-indicator {
+    .stranger-label {
       position: absolute;
-      top: 20px;
+      top: 10px;
       left: 50%;
       transform: translateX(-50%);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      opacity: 0;
-      z-index: 10;
-      background: rgba(0,0,0,0.5);
-      padding: 5px 12px;
-      border-radius: 20px;
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      letter-spacing: 1px;
+      z-index: 5;
     }
 
-    .camera-interface.active .recording-indicator {
+    /* My camera - small PIP */
+    .my-camera {
+      width: 100px;
+      height: 130px;
+      background: #111;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 1rem;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .my-camera.active {
+      border-color: rgba(255, 0, 0, 0.6);
+      box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+    }
+
+    #myFeed {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+      border-radius: 1rem;
+      background: #000;
+    }
+
+    .my-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3rem;
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 0.7rem;
+    }
+
+    .my-placeholder i {
+      font-size: 1.8rem;
+    }
+
+    .my-label {
+      position: absolute;
+      bottom: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 8px;
+      font-size: 0.6rem;
+      letter-spacing: 1px;
+      z-index: 5;
+    }
+
+    /* Recording indicator */
+    .recording-indicator {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(0,0,0,0.7);
+      padding: 4px 10px;
+      border-radius: 12px;
+      z-index: 10;
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    .recording-indicator.active {
       opacity: 1;
     }
 
     .rec-dot {
-      width: 12px;
-      height: 12px;
+      width: 8px;
+      height: 8px;
       background: #ff0000;
       border-radius: 50%;
       animation: blink 1s infinite;
@@ -215,49 +296,76 @@
 
     .rec-text {
       color: #ff0000;
-      font-size: 0.8rem;
+      font-size: 0.7rem;
       font-weight: 600;
       letter-spacing: 1px;
     }
 
+    /* Timer */
     .timer-display {
       position: absolute;
-      bottom: 20px;
+      bottom: 10px;
       left: 50%;
       transform: translateX(-50%);
       color: #fff;
-      font-size: 1.2rem;
+      font-size: 0.9rem;
       font-weight: 600;
-      letter-spacing: 2px;
-      opacity: 0;
+      letter-spacing: 1px;
       z-index: 10;
       font-family: 'Courier New', monospace;
-      background: rgba(0,0,0,0.5);
-      padding: 5px 12px;
-      border-radius: 20px;
+      background: rgba(0,0,0,0.6);
+      padding: 3px 10px;
+      border-radius: 12px;
+      opacity: 0;
+      transition: all 0.3s ease;
     }
 
-    .camera-interface.active .timer-display {
+    .timer-display.active {
       opacity: 1;
     }
 
-    .buttons-container {
+    /* Connected user info */
+    .user-info {
       display: flex;
-      gap: 2rem;
-      margin-top: 0.5rem;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255,255,255,0.08);
+      padding: 0.5rem 1rem;
+      border-radius: 1.5rem;
+      font-size: 0.8rem;
+      color: #ccc;
+      opacity: 0;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255,255,255,0.1);
     }
 
+    .user-info.active {
+      opacity: 1;
+    }
+
+    .user-flag {
+      font-size: 1.2rem;
+    }
+
+    /* Buttons container */
+    .buttons-container {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 0.3rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    /* Start / Next button */
     .start-button {
-      width: 100px;
-      height: 100px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 1.5rem;
+      width: 110px;
+      height: 50px;
+      background: rgba(74, 222, 128, 0.15);
+      border: 1px solid rgba(74, 222, 128, 0.4);
+      border-radius: 2rem;
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 0.5rem;
@@ -267,66 +375,99 @@
       user-select: none;
       border: none;
       outline: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
     }
 
     .start-button:hover {
-      background: rgba(74, 222, 128, 0.2);
-      transform: scale(1.08);
+      background: rgba(74, 222, 128, 0.3);
+      transform: scale(1.05);
+      box-shadow: 0 0 25px rgba(74, 222, 128, 0.3);
     }
 
-    .start-button.recording {
-      background: rgba(255, 0, 0, 0.2);
-      color: #ff4444;
-      box-shadow: 0 0 30px rgba(255, 0, 0, 0.4);
+    .start-button:active {
+      transform: scale(0.95);
+    }
+
+    .start-button.searching {
+      background: rgba(251, 191, 36, 0.2);
+      border-color: rgba(251, 191, 36, 0.5);
+      color: #fbbf24;
+      animation: pulse 1s infinite;
+    }
+
+    .start-button.connected {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: rgba(239, 68, 68, 0.5);
+      color: #ef4444;
     }
 
     .start-button i {
-      font-size: 2.2rem;
+      font-size: 1.1rem;
     }
 
-    .start-button span {
-      font-size: 0.9rem;
-      font-weight: 600;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-
-    .cancel-button {
-      width: 100px;
-      height: 100px;
+    /* Record button */
+    .record-button {
+      width: 110px;
+      height: 50px;
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 1.5rem;
+      border-radius: 2rem;
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 0.5rem;
       cursor: pointer;
       transition: all 0.3s ease;
-      color: #ef4444;
+      color: #ccc;
       user-select: none;
       border: none;
       outline: none;
-    }
-
-    .cancel-button:hover {
-      background: rgba(239, 68, 68, 0.2);
-      transform: scale(1.08);
-    }
-
-    .cancel-button i {
-      font-size: 2.2rem;
-    }
-
-    .cancel-button span {
       font-size: 0.9rem;
       font-weight: 600;
-      letter-spacing: 1px;
-      text-transform: uppercase;
+      letter-spacing: 0.5rem;
+    }
+
+    .record-button:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: scale(1.05);
+    }
+
+    .record-button:active {
+      transform: scale(0.95);
+    }
+
+    .record-button.recording {
+      background: rgba(255, 0, 0, 0.2);
+      border-color: rgba(255, 0, 0, 0.5);
+      color: #ff4444;
+      box-shadow: 0 0 25px rgba(255, 0, 0, 0.3);
+      animation: pulse 1.5s infinite;
+    }
+
+    .record-button i {
+      font-size: 1.1rem;
+    }
+
+    /* Online counter */
+    .online-counter {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: #4ade80;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+
+    .online-dot {
+      width: 8px;
+      height: 8px;
+      background: #4ade80;
+      border-radius: 50%;
+      animation: blink 2s infinite;
     }
 
     .floating-nav {
@@ -380,19 +521,63 @@
       -webkit-backdrop-filter: blur(10px);
     }
 
+    @media (max-width: 380px) {
+      .stranger-camera {
+        width: 240px;
+        height: 280px;
+      }
+      .my-camera {
+        width: 80px;
+        height: 110px;
+      }
+      .start-button, .record-button {
+        width: 100px;
+        height: 45px;
+        font-size: 0.8rem;
+      }
+    }
+
+    @media (min-width: 768px) {
+      .stranger-camera {
+        width: 340px;
+        height: 380px;
+      }
+      .my-camera {
+        width: 120px;
+        height: 150px;
+      }
+      .start-button, .record-button {
+        width: 130px;
+        height: 55px;
+        font-size: 1rem;
+      }
+    }
+
     @media (min-width: 1024px) {
       .top-left-corner a, .top-right-corner a {
         width: 3.2rem;
         height: 3.2rem;
         font-size: 1.4rem;
       }
-      .camera-interface {
+      .stranger-camera {
         width: 380px;
-        height: 440px;
+        height: 420px;
+        border-radius: 2rem;
       }
-      .start-button, .cancel-button {
-        width: 120px;
-        height: 120px;
+      #strangerFeed {
+        border-radius: 2rem;
+      }
+      .my-camera {
+        width: 130px;
+        height: 160px;
+        border-radius: 1.2rem;
+      }
+      #myFeed {
+        border-radius: 1.2rem;
+      }
+      .start-button, .record-button {
+        width: 140px;
+        height: 55px;
       }
       .floating-nav {
         width: 45%;
@@ -412,34 +597,68 @@
     <div class="top-left-corner">
       <a href="upload.html" title="upload"><i class="fas fa-plus"></i></a>
     </div>
-    <!-- Search icon in top right -->
     <div class="top-right-corner">
       <a href="search.html" title="search"><i class="fas fa-search"></i></a>
     </div>
+
     <div class="content">
-      <div class="camera-interface" id="cameraInterface">
-        <video id="cameraFeed" autoplay playsinline muted></video>
-        <div class="camera-placeholder" id="cameraPlaceholder">
-          <i class="fas fa-camera camera-icon"></i>
-          <span class="camera-text">Camera</span>
-        </div>
-        <div class="recording-indicator">
-          <div class="rec-dot"></div>
-          <span class="rec-text">REC</span>
-        </div>
-        <div class="timer-display" id="timerDisplay">00:00</div>
+      <!-- Status -->
+      <div class="status-text" id="statusText">tap to start chatting</div>
+      
+      <!-- Online counter -->
+      <div class="online-counter">
+        <div class="online-dot"></div>
+        <span id="onlineCount">12,847 strangers online</span>
       </div>
+
+      <!-- Camera container -->
+      <div class="camera-container">
+        <!-- Stranger camera (big) -->
+        <div class="stranger-camera" id="strangerCamera">
+          <div class="stranger-label">STRANGER</div>
+          <video id="strangerFeed" autoplay playsinline muted></video>
+          <div class="stranger-placeholder" id="strangerPlaceholder">
+            <i class="fas fa-user-secret"></i>
+            <span>???</span>
+          </div>
+          <div class="recording-indicator" id="recIndicator">
+            <div class="rec-dot"></div>
+            <span class="rec-text">REC</span>
+          </div>
+          <div class="timer-display" id="timerDisplay">00:00</div>
+        </div>
+
+        <!-- My camera (small PIP) -->
+        <div class="my-camera" id="myCamera">
+          <div class="my-label">YOU</div>
+          <video id="myFeed" autoplay playsinline muted></video>
+          <div class="my-placeholder" id="myPlaceholder">
+            <i class="fas fa-video"></i>
+            <span>off</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Connected user info -->
+      <div class="user-info" id="userInfo">
+        <span class="user-flag" id="userFlag">🌍</span>
+        <span id="userCountry">Connecting...</span>
+      </div>
+
+      <!-- Buttons -->
       <div class="buttons-container">
-        <button class="start-button" id="startButton" onclick="toggleCamera()">
+        <button class="start-button" id="startButton" onclick="toggleChat()">
           <i class="fas fa-play" id="startIcon"></i>
           <span id="startText">Start</span>
         </button>
-        <button class="cancel-button" onclick="cancelCamera()">
-          <i class="fas fa-times"></i>
-          <span>Cancel</span>
+        
+        <button class="record-button" id="recordButton" onclick="toggleRecording()">
+          <i class="fas fa-circle" id="recordIcon"></i>
+          <span id="recordText">Record</span>
         </button>
       </div>
     </div>
+
     <nav class="floating-nav">
       <div class="nav-center">
         <a href="index.html" data-page="index" title="home"><i class="fas fa-home"></i></a>
@@ -450,98 +669,250 @@
       </div>
     </nav>
   </div>
+
   <script>
+    let isConnected = false;
+    let isSearching = false;
     let isRecording = false;
     let timerInterval;
     let seconds = 0;
     let minutes = 0;
-    let mediaStream = null;
+    let myStream = null;
+    let strangerStream = null;
 
-    async function startCamera() {
+    // Simulated stranger data
+    const strangers = [
+      { flag: '🇺🇸', country: 'United States' },
+      { flag: '🇬🇧', country: 'United Kingdom' },
+      { flag: '🇯🇵', country: 'Japan' },
+      { flag: '🇧🇷', country: 'Brazil' },
+      { flag: '🇩🇪', country: 'Germany' },
+      { flag: '🇫🇷', country: 'France' },
+      { flag: '🇮🇳', country: 'India' },
+      { flag: '🇨🇦', country: 'Canada' },
+      { flag: '🇦🇺', country: 'Australia' },
+      { flag: '🇰🇷', country: 'South Korea' },
+    ];
+
+    // Start my camera
+    async function startMyCamera() {
       try {
-        if (mediaStream) {
-          mediaStream.getTracks().forEach(track => track.stop());
+        if (myStream) {
+          myStream.getTracks().forEach(track => track.stop());
         }
-        const videoElement = document.getElementById('cameraFeed');
-        const cameraPlaceholder = document.getElementById('cameraPlaceholder');
-        mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-        videoElement.srcObject = mediaStream;
-        await videoElement.play();
-        cameraPlaceholder.classList.add('hidden');
+        const myFeed = document.getElementById('myFeed');
+        const myPlaceholder = document.getElementById('myPlaceholder');
+        const myCamera = document.getElementById('myCamera');
+        
+        myStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        myFeed.srcObject = myStream;
+        await myFeed.play();
+        myFeed.style.display = 'block';
+        myPlaceholder.style.display = 'none';
+        myCamera.classList.add('active');
         return true;
       } catch (error) {
-        alert('Camera access denied. Please allow camera permissions.');
+        alert('Camera access needed for video chat. Please allow camera permissions.');
         return false;
       }
     }
 
-    function stopCamera() {
-      if (mediaStream) {
-        mediaStream.getTracks().forEach(track => track.stop());
-        mediaStream = null;
+    function stopMyCamera() {
+      if (myStream) {
+        myStream.getTracks().forEach(track => track.stop());
+        myStream = null;
       }
-      document.getElementById('cameraFeed').srcObject = null;
-      document.getElementById('cameraPlaceholder').classList.remove('hidden');
+      const myFeed = document.getElementById('myFeed');
+      const myPlaceholder = document.getElementById('myPlaceholder');
+      const myCamera = document.getElementById('myCamera');
+      
+      myFeed.style.display = 'none';
+      myFeed.srcObject = null;
+      myPlaceholder.style.display = 'flex';
+      myCamera.classList.remove('active');
     }
 
-    async function toggleCamera() {
-      const cameraInterface = document.getElementById('cameraInterface');
+    // Simulate connecting to stranger
+    function simulateStrangerConnection() {
+      const strangerFeed = document.getElementById('strangerFeed');
+      const strangerPlaceholder = document.getElementById('strangerPlaceholder');
+      const strangerCamera = document.getElementById('strangerCamera');
+      
+      // Show stranger camera feed (use my stream as simulated stranger)
+      if (myStream) {
+        strangerFeed.srcObject = myStream;
+        strangerFeed.style.display = 'block';
+        strangerPlaceholder.style.display = 'none';
+        strangerCamera.classList.add('connected');
+      }
+      
+      // Random stranger info
+      const randomStranger = strangers[Math.floor(Math.random() * strangers.length)];
+      document.getElementById('userFlag').textContent = randomStranger.flag;
+      document.getElementById('userCountry').textContent = randomStranger.country;
+      document.getElementById('userInfo').classList.add('active');
+    }
+
+    function disconnectStranger() {
+      const strangerFeed = document.getElementById('strangerFeed');
+      const strangerPlaceholder = document.getElementById('strangerPlaceholder');
+      const strangerCamera = document.getElementById('strangerCamera');
+      
+      strangerFeed.style.display = 'none';
+      strangerFeed.srcObject = null;
+      strangerPlaceholder.style.display = 'flex';
+      strangerCamera.classList.remove('connected');
+      document.getElementById('userInfo').classList.remove('active');
+    }
+
+    // Main toggle chat function
+    async function toggleChat() {
       const startButton = document.getElementById('startButton');
       const startIcon = document.getElementById('startIcon');
       const startText = document.getElementById('startText');
-      const timerDisplay = document.getElementById('timerDisplay');
+      const statusText = document.getElementById('statusText');
 
-      if (!isRecording) {
-        startButton.disabled = true;
-        startText.textContent = 'Starting...';
-        const cameraStarted = await startCamera();
-        if (cameraStarted) {
-          isRecording = true;
-          cameraInterface.classList.add('active');
-          startButton.classList.add('recording');
-          startIcon.className = 'fas fa-stop';
-          startText.textContent = 'Stop';
-          seconds = 0;
-          minutes = 0;
-          timerDisplay.textContent = '00:00';
-          timerInterval = setInterval(() => {
-            seconds++;
-            if (seconds === 60) { seconds = 0; minutes++; }
-            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-          }, 1000);
-        } else {
-          startText.textContent = 'Start';
-        }
-        startButton.disabled = false;
-      } else {
-        isRecording = false;
-        cameraInterface.classList.remove('active');
-        startButton.classList.remove('recording');
-        startIcon.className = 'fas fa-play';
-        startText.textContent = 'Start';
-        stopCamera();
-        clearInterval(timerInterval);
+      if (!isConnected && !isSearching) {
+        // Start searching
+        const cameraReady = await startMyCamera();
+        if (!cameraReady) return;
+
+        isSearching = true;
+        startButton.classList.add('searching');
+        startIcon.className = 'fas fa-spinner fa-spin';
+        startText.textContent = 'Searching...';
+        statusText.textContent = 'looking for a stranger...';
+        statusText.className = 'status-text searching';
+
+        // Simulate search delay
+        setTimeout(() => {
+          if (isSearching) {
+            isSearching = false;
+            isConnected = true;
+            startButton.classList.remove('searching');
+            startButton.classList.add('connected');
+            startIcon.className = 'fas fa-forward';
+            startText.textContent = 'Next';
+            statusText.textContent = 'you are now chatting!';
+            statusText.className = 'status-text connected';
+            
+            simulateStrangerConnection();
+            startTimer();
+          }
+        }, 2000 + Math.random() * 2000);
+
+      } else if (isConnected) {
+        // Next stranger
+        disconnectStranger();
+        stopTimer();
+        isConnected = false;
+        startButton.classList.remove('connected');
+        startButton.classList.add('searching');
+        startIcon.className = 'fas fa-spinner fa-spin';
+        startText.textContent = 'Searching...';
+        statusText.textContent = 'looking for a new stranger...';
+        statusText.className = 'status-text searching';
+
+        setTimeout(() => {
+          if (!isConnected) {
+            isConnected = true;
+            startButton.classList.remove('searching');
+            startButton.classList.add('connected');
+            startIcon.className = 'fas fa-forward';
+            startText.textContent = 'Next';
+            statusText.textContent = 'you are now chatting!';
+            statusText.className = 'status-text connected';
+            
+            simulateStrangerConnection();
+            startTimer();
+          }
+        }, 1500 + Math.random() * 2000);
       }
     }
 
-    function cancelCamera() {
-      if (isRecording) {
-        isRecording = false;
-        document.getElementById('cameraInterface').classList.remove('active');
-        document.getElementById('startButton').classList.remove('recording');
-        document.getElementById('startIcon').className = 'fas fa-play';
-        document.getElementById('startText').textContent = 'Start';
-        clearInterval(timerInterval);
-      }
+    // Timer functions
+    function startTimer() {
+      seconds = 0;
+      minutes = 0;
+      document.getElementById('timerDisplay').textContent = '00:00';
+      document.getElementById('timerDisplay').classList.add('active');
+      timerInterval = setInterval(() => {
+        seconds++;
+        if (seconds === 60) { seconds = 0; minutes++; }
+        document.getElementById('timerDisplay').textContent = 
+          `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      }, 1000);
+    }
+
+    function stopTimer() {
+      clearInterval(timerInterval);
+      document.getElementById('timerDisplay').classList.remove('active');
       document.getElementById('timerDisplay').textContent = '00:00';
       seconds = 0;
       minutes = 0;
-      stopCamera();
     }
 
+    // Recording function
+    function toggleRecording() {
+      const recordButton = document.getElementById('recordButton');
+      const recordIcon = document.getElementById('recordIcon');
+      const recordText = document.getElementById('recordText');
+      const recIndicator = document.getElementById('recIndicator');
+
+      if (!isConnected) {
+        alert('Connect with a stranger first to start recording!');
+        return;
+      }
+
+      if (!isRecording) {
+        isRecording = true;
+        recordButton.classList.add('recording');
+        recordIcon.className = 'fas fa-stop';
+        recordText.textContent = 'Stop';
+        recIndicator.classList.add('active');
+        console.log('🔴 Recording started - saving video chat');
+      } else {
+        isRecording = false;
+        recordButton.classList.remove('recording');
+        recordIcon.className = 'fas fa-circle';
+        recordText.textContent = 'Record';
+        recIndicator.classList.remove('active');
+        console.log('⏹️ Recording stopped');
+      }
+    }
+
+    // Disconnect everything
+    function disconnectAll() {
+      if (isConnected) {
+        disconnectStranger();
+        stopTimer();
+        isConnected = false;
+        isSearching = false;
+        
+        const startButton = document.getElementById('startButton');
+        startButton.classList.remove('connected', 'searching');
+        document.getElementById('startIcon').className = 'fas fa-play';
+        document.getElementById('startText').textContent = 'Start';
+        document.getElementById('statusText').textContent = 'tap to start chatting';
+        document.getElementById('statusText').className = 'status-text';
+      }
+      
+      if (isRecording) {
+        toggleRecording();
+      }
+      
+      stopMyCamera();
+    }
+
+    // Update online count randomly
+    setInterval(() => {
+      const count = Math.floor(10000 + Math.random() * 15000);
+      document.getElementById('onlineCount').textContent = `${count.toLocaleString()} strangers online`;
+    }, 5000);
+
+    // Clean up
     window.addEventListener('beforeunload', () => {
-      if (mediaStream) mediaStream.getTracks().forEach(track => track.stop());
-      clearInterval(timerInterval);
+      disconnectAll();
     });
   </script>
 </body>

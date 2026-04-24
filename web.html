@@ -3,133 +3,53 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>Web • Live Chat</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <title>Chat Test</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      background: #000000;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-      min-height: 100vh; min-height: 100dvh;
-      display: flex; align-items: center; justify-content: center;
-      margin: 0; padding: 0;
-    }
-    .page {
-      width: 100%; height: 100vh; height: 100dvh;
-      background: #000000;
-      display: flex; flex-direction: column;
-      position: relative; overflow: hidden;
-    }
-    .content {
-      flex: 1;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: flex-start;
-      color: #f0f0f0;
-      padding: 0.5rem 1rem 6rem 1rem;
-      text-align: center; gap: 0.3rem;
-      overflow-y: auto;
-    }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
-    .online-counter { display:flex;align-items:center;gap:0.3rem;color:#4ade80;font-size:0.65rem;letter-spacing:0.5px;padding:0.2rem 0; }
-    .online-dot { width:5px;height:5px;background:#4ade80;border-radius:50%;animation:blink 2s infinite; }
-    .camera-container { display:flex;gap:0.5rem;align-items:flex-start;justify-content:center;width:100%;max-width:500px;flex:1;min-height:0; }
-    .stranger-camera {
-      width:75%;height:100%;max-height:62vh;
-      background:#111;border:2px solid rgba(255,255,255,0.2);border-radius:1.2rem;
-      box-shadow:0 15px 40px rgba(0,0,0,0.6);
-      position:relative;overflow:hidden;transition:all 0.5s ease;
-      display:flex;align-items:center;justify-content:center;
-    }
-    .stranger-camera.connected { border-color:rgba(74,222,128,0.6);box-shadow:0 0 30px rgba(74,222,128,0.3),0 15px 40px rgba(0,0,0,0.6); }
-    #strangerFeed { width:100%;height:100%;object-fit:cover;display:none;background:#000;transform:rotateY(180deg);-webkit-transform:rotateY(180deg); }
-    .stranger-placeholder { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.3rem;color:rgba(255,255,255,0.25); }
-    .stranger-placeholder i { font-size:3rem; }
-    .stranger-placeholder span { font-size:0.7rem;letter-spacing:1px; }
-    .my-camera {
-      width:22%;max-height:150px;aspect-ratio:3/4;
-      background:#111;border:2px solid rgba(255,255,255,0.3);border-radius:0.8rem;
-      box-shadow:0 8px 20px rgba(0,0,0,0.6);
-      position:relative;overflow:hidden;transition:all 0.3s ease;
-    }
-    .my-camera.active { border-color:rgba(255,0,0,0.6);box-shadow:0 0 15px rgba(255,0,0,0.3); }
-    #myFeed { width:100%;height:100%;object-fit:cover;display:none;background:#000;transform:rotateY(180deg);-webkit-transform:rotateY(180deg); }
-    .my-placeholder { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.15rem;color:rgba(255,255,255,0.35);font-size:0.6rem; }
-    .my-placeholder i { font-size:1.3rem; }
-    .camera-labels { display:flex;justify-content:space-between;width:100%;max-width:500px;padding:0 0.2rem;margin-bottom:-0.2rem; }
-    .stranger-label-outside { color:#777;font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;margin-left:0.3rem; }
-    .you-label-outside { color:#777;font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;margin-right:0.3rem; }
-    .recording-indicator { position:absolute;top:8px;right:8px;display:flex;align-items:center;gap:4px;background:rgba(0,0,0,0.8);padding:3px 8px;border-radius:10px;z-index:10;opacity:0;transition:all 0.3s ease; }
-    .recording-indicator.active { opacity:1; }
-    .rec-dot { width:6px;height:6px;background:#ff0000;border-radius:50%;animation:blink 1s infinite; }
-    .rec-text { color:#ff0000;font-size:0.55rem;font-weight:600;letter-spacing:1px; }
-    .timer-display { position:absolute;bottom:8px;left:50%;transform:translateX(-50%);color:#fff;font-size:0.75rem;font-weight:600;letter-spacing:1px;z-index:10;font-family:'Courier New',monospace;background:rgba(0,0,0,0.7);padding:2px 8px;border-radius:8px;opacity:0;transition:all 0.3s ease; }
-    .timer-display.active { opacity:1; }
-    .user-info { display:flex;align-items:center;gap:0.3rem;background:rgba(255,255,255,0.06);padding:0.25rem 0.6rem;border-radius:1rem;font-size:0.7rem;color:#ccc;opacity:0;transition:all 0.3s ease;border:1px solid rgba(255,255,255,0.08);margin:0; }
-    .user-info.active { opacity:1; }
-    .user-flag { font-size:0.9rem; }
-    .buttons-container { display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;padding:0.2rem 0 0 0;margin-top:-0.2rem; }
-    .btn { height:36px;border-radius:2rem;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;gap:0.3rem;cursor:pointer;transition:all 0.3s ease;user-select:none;border:none;outline:none;font-size:0.75rem;font-weight:600;letter-spacing:0.5px;padding:0 1rem; }
-    .btn:active { transform:scale(0.95); }
-    .start-button { width:90px;background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.4);color:#4ade80; }
-    .start-button:hover { background:rgba(74,222,128,0.3); }
-    .start-button.searching { background:rgba(251,191,36,0.2);border-color:rgba(251,191,36,0.5);color:#fbbf24;animation:pulse 1s infinite; }
-    .stop-button { width:80px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#ef4444;display:none; }
-    .stop-button:hover { background:rgba(239,68,68,0.3); }
-    .stop-button.visible { display:flex; }
-    .next-button { width:80px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:#ccc;display:none; }
-    .next-button:hover { background:rgba(255,255,255,0.15); }
-    .next-button.visible { display:flex; }
-    .record-button { width:80px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#aaa; }
-    .record-button:hover { background:rgba(255,255,255,0.12); }
-    .record-button.recording { background:rgba(255,0,0,0.2);border-color:rgba(255,0,0,0.5);color:#ff4444;box-shadow:0 0 20px rgba(255,0,0,0.3);animation:pulse 1.5s infinite; }
-    .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px) saturate(200%);-webkit-backdrop-filter:blur(30px) saturate(200%);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.08) inset,0 1px 0 rgba(255,255,255,0.05) inset;z-index:100;transition:all 0.4s; }
-    .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
-    .nav-center a { color:rgba(255,255,255,0.6);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;position:relative;flex-shrink:0;-webkit-tap-highlight-color:transparent;background:transparent; }
-    .nav-center a::before { content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:4px;height:4px;border-radius:50%;background:#fff;transition:all 0.3s; }
-    .nav-center a.active::before { transform:translateX(-50%) scale(1); }
-    .nav-center a:active { transform:scale(0.85);background:rgba(255,255,255,0.1); }
-    .nav-center a.active { color:#fff;background:rgba(255,255,255,0.15);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-weight:500;text-shadow:0 0 20px rgba(255,255,255,0.5);box-shadow:0 4px 12px rgba(0,0,0,0.3),0 0 0 1px rgba(255,255,255,0.15) inset; }
-    @media (max-width:380px) { .content{padding:0.3rem 0.6rem 5rem 0.6rem}.stranger-camera{max-height:56vh}.my-camera{max-height:100px}.btn{height:32px;font-size:0.65rem;padding:0 0.5rem}.start-button{width:60px}.stop-button,.next-button,.record-button{width:55px}.buttons-container{gap:0.3rem}.nav-center a{font-size:1.1rem;width:2rem;height:2rem}.floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem} }
-    @media (min-width:768px) { .stranger-camera{max-height:65vh;border-radius:1.5rem}.my-camera{max-height:160px}.btn{height:42px;font-size:0.85rem}.start-button{width:100px}.stop-button,.next-button,.record-button{width:90px}.floating-nav{width:65%;max-width:550px;padding:0.8rem 2rem} }
-    @media (min-width:1024px) { .stranger-camera{max-height:67vh;border-radius:1.8rem}.my-camera{max-height:170px}.btn{height:44px}.start-button{width:110px}.stop-button,.next-button,.record-button{width:95px}.floating-nav{width:45%;padding:0.9rem 2.2rem;bottom:2.5rem} }
+    body { background: #000; color: #fff; font-family: sans-serif; min-height: 100vh; padding: 1rem; }
+    .container { max-width: 500px; margin: 0 auto; }
+    h2 { text-align: center; margin: 1rem 0; color: #4ade80; }
+    .debug { background: #111; border: 1px solid #333; border-radius: 8px; padding: 1rem; margin: 1rem 0; font-family: monospace; font-size: 0.8rem; max-height: 200px; overflow-y: auto; color: #0f0; }
+    .videos { display: flex; gap: 0.5rem; margin: 1rem 0; }
+    .vid { flex: 1; aspect-ratio: 3/4; background: #111; border: 2px solid #333; border-radius: 12px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; max-height: 250px; }
+    .vid video { width: 100%; height: 100%; object-fit: cover; display: none; }
+    .vid .off { color: #555; text-align: center; }
+    .vid.connected { border-color: #4ade80; }
+    .label { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); padding: 2px 10px; border-radius: 10px; font-size: 0.7rem; z-index: 5; }
+    .btn { padding: 12px 30px; border-radius: 25px; border: none; font-size: 1rem; font-weight: 600; cursor: pointer; margin: 5px; }
+    .btn-green { background: #4ade80; color: #000; }
+    .btn-red { background: #ef4444; color: #fff; }
+    .btn-blue { background: #3b82f6; color: #fff; }
+    .btn:disabled { opacity: 0.5; }
+    .status { text-align: center; color: #aaa; margin: 0.5rem; }
   </style>
 </head>
 <body>
-  <div class="page">
-    <div class="content">
-      <div class="online-counter"><div class="online-dot"></div><span id="onlineCount">0 online</span></div>
-      <div class="camera-labels"><span class="stranger-label-outside">STRANGER</span><span class="you-label-outside">YOU</span></div>
-      <div class="camera-container">
-        <div class="stranger-camera" id="strangerCamera">
-          <video id="strangerFeed" autoplay playsinline muted></video>
-          <div class="stranger-placeholder" id="strangerPlaceholder"><i class="fas fa-user-secret"></i><span>???</span></div>
-          <div class="recording-indicator" id="recIndicator"><div class="rec-dot"></div><span class="rec-text">REC</span></div>
-          <div class="timer-display" id="timerDisplay">00:00</div>
-        </div>
-        <div class="my-camera" id="myCamera">
-          <video id="myFeed" autoplay playsinline muted></video>
-          <div class="my-placeholder" id="myPlaceholder"><i class="fas fa-video"></i><span>off</span></div>
-        </div>
+  <div class="container">
+    <h2>🎥 Random Video Chat</h2>
+    <div class="debug" id="debug">Waiting...</div>
+    <div class="status" id="status">Press Start</div>
+    
+    <div class="videos">
+      <div class="vid" id="myVid">
+        <div class="label">YOU</div>
+        <video id="myVideo" autoplay playsinline muted></video>
+        <div class="off" id="myOff"><br>📷<br>off</div>
       </div>
-      <div class="user-info" id="userInfo"><span class="user-flag" id="userFlag">🌍</span><span id="userCountry">Waiting...</span></div>
-      <div class="buttons-container">
-        <button class="btn start-button" id="startButton"> <i class="fas fa-play"></i><span>Start</span></button>
-        <button class="btn stop-button" id="stopButton"> <i class="fas fa-stop"></i><span>Stop</span></button>
-        <button class="btn next-button" id="nextButton"> <i class="fas fa-forward"></i><span>Next</span></button>
-        <button class="btn record-button" id="recordButton"> <i class="fas fa-circle" id="recordIcon"></i><span id="recordText">Record</span></button>
+      <div class="vid" id="strangerVid">
+        <div class="label">STRANGER</div>
+        <video id="strangerVideo" autoplay playsinline muted></video>
+        <div class="off" id="strangerOff"><br>👤<br>???</div>
       </div>
     </div>
-    <nav class="floating-nav"><div class="nav-center">
-      <a href="index.html"><i class="fas fa-home"></i></a>
-      <a href="web.html" class="active"><i class="fas fa-globe"></i></a>
-      <a href="reel.html"><i class="fas fa-film"></i></a>
-      <a href="chat.html"><i class="fas fa-comment-dots"></i></a>
-      <a href="profile.html"><i class="fas fa-user"></i></a>
-    </div></nav>
+    
+    <div style="text-align:center">
+      <button class="btn btn-green" id="startBtn">Start</button>
+      <button class="btn btn-red" id="stopBtn" style="display:none">Stop</button>
+      <button class="btn btn-blue" id="nextBtn" style="display:none">Next</button>
+    </div>
   </div>
 
-  <!-- Firebase + App Combined -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, addDoc, onSnapshot, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
@@ -143,239 +63,340 @@
       appId: "1:206620858913:web:e8171ed8c1a2dbda3da160"
     };
 
-    const fbApp = initializeApp(firebaseConfig);
-    const db = getFirestore(fbApp);
-    console.log('✅ Firebase ready');
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-    // ============ UI Elements ============
-    const startBtn = document.getElementById('startButton');
-    const stopBtn = document.getElementById('stopButton');
-    const nextBtn = document.getElementById('nextButton');
-    const recordBtn = document.getElementById('recordButton');
-    const myFeed = document.getElementById('myFeed');
-    const myPlaceholder = document.getElementById('myPlaceholder');
-    const myCamera = document.getElementById('myCamera');
-    const strangerFeed = document.getElementById('strangerFeed');
-    const strangerPlaceholder = document.getElementById('strangerPlaceholder');
-    const strangerCamera = document.getElementById('strangerCamera');
-    const timerDisplay = document.getElementById('timerDisplay');
-    const recIndicator = document.getElementById('recIndicator');
-    const recordIcon = document.getElementById('recordIcon');
-    const recordText = document.getElementById('recordText');
-    const userFlag = document.getElementById('userFlag');
-    const userCountry = document.getElementById('userCountry');
-    const userInfo = document.getElementById('userInfo');
-    const onlineCount = document.getElementById('onlineCount');
+    const debugEl = document.getElementById('debug');
+    const statusEl = document.getElementById('status');
+    const myVideo = document.getElementById('myVideo');
+    const myOff = document.getElementById('myOff');
+    const myVid = document.getElementById('myVid');
+    const strangerVideo = document.getElementById('strangerVideo');
+    const strangerOff = document.getElementById('strangerOff');
+    const strangerVid = document.getElementById('strangerVid');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const nextBtn = document.getElementById('nextBtn');
 
-    // ============ State ============
-    let pc, localStream, roomId, unsubRoom, unsubCandidates;
-    let isRecording = false;
-    let timerInterval, seconds = 0, minutes = 0;
-    const userId = crypto.randomUUID();
-    console.log('🆔 My ID:', userId.substring(0,8));
-
-    const servers = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
-
-    // ============ UI Functions ============
-    function showConnected() {
-      startBtn.style.display = 'none';
-      stopBtn.classList.add('visible');
-      nextBtn.classList.add('visible');
-    }
-    function showDisconnected() {
-      startBtn.style.display = 'flex';
-      stopBtn.classList.remove('visible');
-      nextBtn.classList.remove('visible');
-      startBtn.classList.remove('searching');
-      startBtn.querySelector('span').textContent = 'Start';
-      startBtn.querySelector('i').className = 'fas fa-play';
-    }
-    function setSearching(v) {
-      if(v){ startBtn.classList.add('searching'); startBtn.querySelector('span').textContent='Searching'; startBtn.querySelector('i').className='fas fa-spinner fa-spin'; }
-      else { startBtn.classList.remove('searching'); startBtn.querySelector('span').textContent='Start'; startBtn.querySelector('i').className='fas fa-play'; }
-    }
-    function startTimerUI() {
-      seconds=0;minutes=0;timerDisplay.textContent='00:00';timerDisplay.classList.add('active');
-      timerInterval=setInterval(()=>{seconds++;if(seconds===60){seconds=0;minutes++;}timerDisplay.textContent=String(minutes).padStart(2,'0')+':'+String(seconds).padStart(2,'0');},1000);
-    }
-    function stopTimerUI() { clearInterval(timerInterval); timerDisplay.classList.remove('active'); timerDisplay.textContent='00:00'; }
-    function setRecording(v) {
-      isRecording=v;
-      if(v){ recordBtn.classList.add('recording'); recordIcon.className='fas fa-stop'; recordText.textContent='Stop'; recIndicator.classList.add('active'); }
-      else { recordBtn.classList.remove('recording'); recordIcon.className='fas fa-circle'; recordText.textContent='Record'; recIndicator.classList.remove('active'); }
-    }
-    function setNextSearching(v) {
-      if(v){ nextBtn.querySelector('span').textContent='Searching'; nextBtn.querySelector('i').className='fas fa-spinner fa-spin'; nextBtn.style.cssText='color:#fbbf24;border-color:rgba(251,191,36,0.5);background:rgba(251,191,36,0.2);animation:pulse 1s infinite'; }
-      else { nextBtn.querySelector('span').textContent='Next'; nextBtn.querySelector('i').className='fas fa-forward'; nextBtn.style.cssText='color:#ccc;border-color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);animation:""'; }
+    function log(msg) {
+      console.log(msg);
+      debugEl.innerHTML += '> ' + msg + '<br>';
+      debugEl.scrollTop = debugEl.scrollHeight;
     }
 
-    // ============ Camera ============
-    async function initCamera() {
+    log('✅ Firebase ready');
+    
+    const myId = crypto.randomUUID();
+    log('ID: ' + myId.substring(0,8));
+
+    let localStream = null;
+    let pc = null;
+    let roomId = null;
+    let unsubs = [];
+
+    // Camera
+    async function startCamera() {
+      log('📷 Starting camera...');
       try {
-        if(localStream){ localStream.getTracks().forEach(t=>t.stop()); }
-        localStream = await navigator.mediaDevices.getUserMedia({ video:{facingMode:'user'}, audio:true });
-        myFeed.srcObject = localStream;
-        await myFeed.play();
-        myFeed.style.display='block';
-        myPlaceholder.style.display='none';
-        myCamera.classList.add('active');
-        console.log('📷 Camera on');
-        return localStream;
-      } catch(e) { alert('Camera needed!'); throw e; }
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        myVideo.srcObject = localStream;
+        await myVideo.play();
+        myVideo.style.display = 'block';
+        myOff.style.display = 'none';
+        myVid.classList.add('connected');
+        log('✅ Camera ready');
+        return true;
+      } catch(e) {
+        log('❌ Camera: ' + e.message);
+        return false;
+      }
     }
+
     function stopCamera() {
-      if(localStream){ localStream.getTracks().forEach(t=>t.stop()); localStream=null; }
-      myFeed.style.display='none'; myFeed.srcObject=null;
-      myPlaceholder.style.display='flex'; myCamera.classList.remove('active');
+      if(localStream) {
+        localStream.getTracks().forEach(t => t.stop());
+        localStream = null;
+      }
+      myVideo.style.display = 'none';
+      myVideo.srcObject = null;
+      myOff.style.display = '';
+      myVid.classList.remove('connected');
     }
 
-    // ============ Queue ============
-    async function joinQueue() {
-      console.log('🔍 Joining queue...');
-      const waitingDoc = doc(db,"queue","waiting");
+    function resetStranger() {
+      strangerVideo.style.display = 'none';
+      strangerVideo.srcObject = null;
+      strangerOff.style.display = '';
+      strangerVid.classList.remove('connected');
+    }
+
+    // Wait - write to "waiting" collection
+    async function startWaiting() {
+      log('⏳ Adding to waiting list...');
+      statusEl.textContent = 'Looking for someone...';
+      
       try {
-        const snap = await getDoc(waitingDoc);
-        console.log('Queue exists:', snap.exists());
-        if(!snap.exists()) {
-          await setDoc(waitingDoc, { userId, created: serverTimestamp() });
-          console.log('⏳ Waiting...');
-          listenForMatch();
-        } else {
-          const data = snap.data();
-          if(data.userId && data.userId !== userId) {
-            console.log('🔗 Found:', data.userId.substring(0,8));
-            await deleteDoc(waitingDoc);
-            await createRoom(data.userId, true);
-          }
-        }
-      } catch(e) { console.error('Queue error:',e); setSearching(false); showDisconnected(); }
+        // Write myself as waiting
+        await setDoc(doc(db, "waiting", myId), {
+          userId: myId,
+          created: serverTimestamp()
+        });
+        log('✅ Added to waiting list');
+        
+        // Listen for someone to pick me up
+        listenForInvite();
+        
+        // Also check if someone else is already waiting
+        checkForOthers();
+      } catch(e) {
+        log('❌ Waiting error: ' + e.message);
+      }
     }
 
-    function listenForMatch() {
-      const waitingDoc = doc(db,"queue","waiting");
-      unsubRoom = onSnapshot(waitingDoc, async (snap) => {
-        if(!snap.exists()) return;
-        const data = snap.data();
-        if(data && data.userId && data.userId !== userId) {
-          console.log('🎯 Match!', data.userId.substring(0,8));
-          if(unsubRoom){ unsubRoom(); unsubRoom=null; }
-          await deleteDoc(waitingDoc).catch(()=>{});
-          await createRoom(data.userId, false);
+    // Check if others are waiting
+    async function checkForOthers() {
+      log('🔍 Checking for others...');
+      try {
+        const snap = await getDoc(doc(db, "waiting", "check"));
+        // We'll use a simple approach - just wait for incoming invite
+        log('Listening for connections...');
+      } catch(e) {
+        log('❌ Check error: ' + e.message);
+      }
+    }
+
+    // Listen for someone inviting me
+    function listenForInvite() {
+      log('👂 Listening for invites...');
+      
+      const unsub = onSnapshot(doc(db, "invites", myId), async (snap) => {
+        if(snap.exists()) {
+          const data = snap.data();
+          log('📩 Got invite from: ' + data.from?.substring(0,8));
+          
+          // Remove myself from waiting
+          await deleteDoc(doc(db, "waiting", myId)).catch(()=>{});
+          
+          // Create room - I am the answerer (not caller)
+          await createRoom(data.from, false, data.offer);
+          
+          // Delete invite
+          await deleteDoc(doc(db, "invites", myId));
+          unsub();
         }
       });
+      unsubs.push(unsub);
     }
 
-    // ============ WebRTC Room ============
-    async function createRoom(otherUser, isCaller) {
-      console.log('🏠 Room, caller:', isCaller);
-      roomId = [userId, otherUser].sort().join("_");
-      const roomRef = doc(db,"rooms",roomId);
+    // Create room and connect
+    async function createRoom(otherId, isCaller, remoteOffer) {
+      log('🏠 Creating room, isCaller=' + isCaller);
+      statusEl.textContent = 'Connected!';
       
-      showConnected();
-      startTimerUI();
-      userFlag.textContent='🌍'; userCountry.textContent='Connected!'; userInfo.classList.add('active');
+      roomId = [myId, otherId].sort().join("_");
+      log('Room: ' + roomId.substring(0,16));
+      
+      startBtn.style.display = 'none';
+      stopBtn.style.display = 'inline-block';
+      nextBtn.style.display = 'inline-block';
 
-      pc = new RTCPeerConnection(servers);
-      localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));
+      pc = new RTCPeerConnection({
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+      });
 
-      pc.ontrack = (e) => {
-        console.log('📥 Remote stream');
-        strangerFeed.srcObject = e.streams[0];
-        strangerFeed.style.display='block';
-        strangerPlaceholder.style.display='none';
-        strangerCamera.classList.add('connected');
-      };
-
-      pc.onicecandidate = async (e) => {
-        if(e.candidate) await addDoc(collection(roomRef,"candidates"), e.candidate.toJSON());
-      };
-
-      pc.onconnectionstatechange = () => console.log('State:', pc.connectionState);
-
-      if(isCaller) {
-        const offer = await pc.createOffer();
-        await pc.setLocalDescription(offer);
-        await setDoc(roomRef, { offer: { type: offer.type, sdp: offer.sdp }, created: serverTimestamp() });
-        console.log('📞 Offer sent');
+      // Add local tracks
+      if(localStream) {
+        localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
       }
 
-      onSnapshot(roomRef, async (snap) => {
-        const data = snap.data();
-        if(!data) return;
-        try {
-          if(data.offer && !pc.currentRemoteDescription && !isCaller) {
-            console.log('📩 Got offer');
-            await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
-            const answer = await pc.createAnswer();
-            await pc.setLocalDescription(answer);
-            await updateDoc(roomRef, { answer: { type: answer.type, sdp: answer.sdp } });
-            console.log('📞 Answer sent');
-          }
-          if(data.answer && !pc.currentRemoteDescription && isCaller) {
-            console.log('📩 Got answer');
-            await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
-            console.log('✅ Connected!');
-          }
-        } catch(e) { console.error('Signal error:',e); }
-      });
+      // Handle remote stream
+      pc.ontrack = (e) => {
+        log('📥 Got remote stream!');
+        strangerVideo.srcObject = e.streams[0];
+        strangerVideo.style.display = 'block';
+        strangerOff.style.display = 'none';
+        strangerVid.classList.add('connected');
+      };
 
-      unsubCandidates = onSnapshot(collection(roomRef,"candidates"), (snap) => {
+      // ICE candidates
+      pc.onicecandidate = async (e) => {
+        if(e.candidate) {
+          await addDoc(collection(db, "rooms", roomId, "ice"), {
+            from: myId,
+            candidate: e.candidate.toJSON()
+          });
+        }
+      };
+
+      pc.onconnectionstatechange = () => {
+        log('State: ' + pc.connectionState);
+        if(pc.connectionState === 'connected') {
+          log('✅✅✅ CONNECTED!');
+          statusEl.textContent = '🎉 Connected!';
+        }
+        if(pc.connectionState === 'failed') {
+          log('❌ Connection failed');
+          statusEl.textContent = 'Connection failed';
+        }
+      };
+
+      const roomRef = doc(db, "rooms", roomId);
+
+      if(isCaller) {
+        // I am caller - create offer
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        
+        // Save offer and invite the other person
+        await setDoc(roomRef, {
+          offer: { type: offer.type, sdp: offer.sdp },
+          created: serverTimestamp()
+        });
+        
+        // Send invite to the waiting person
+        await setDoc(doc(db, "invites", otherId), {
+          from: myId,
+          offer: { type: offer.type, sdp: offer.sdp }
+        });
+        
+        log('📞 Offer sent + invite sent');
+        
+        // Listen for answer
+        const unsubRoom = onSnapshot(roomRef, async (snap) => {
+          const data = snap.data();
+          if(data && data.answer && !pc.currentRemoteDescription) {
+            log('📩 Got answer');
+            await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
+            log('✅ Connected!');
+            unsubRoom();
+          }
+        });
+        unsubs.push(unsubRoom);
+      } else {
+        // I am answerer
+        if(remoteOffer) {
+          await pc.setRemoteDescription(new RTCSessionDescription(remoteOffer));
+          const answer = await pc.createAnswer();
+          await pc.setLocalDescription(answer);
+          
+          await setDoc(roomRef, {
+            answer: { type: answer.type, sdp: answer.sdp }
+          }, { merge: true });
+          
+          log('📞 Answer sent');
+        }
+        
+        // Listen for offer updates
+        const unsubRoom = onSnapshot(roomRef, async (snap) => {
+          const data = snap.data();
+          if(data && data.iceCandidates) {
+            // ICE will be handled separately
+          }
+        });
+        unsubs.push(unsubRoom);
+      }
+
+      // Listen for ICE from other person
+      const unsubIce = onSnapshot(collection(db, "rooms", roomId, "ice"), (snap) => {
         snap.docChanges().forEach(async (c) => {
-          if(c.type==="added") try { await pc.addIceCandidate(new RTCIceCandidate(c.doc.data())); } catch(e){}
+          if(c.type === 'added') {
+            const iceData = c.doc.data();
+            if(iceData.from !== myId) {
+              try {
+                await pc.addIceCandidate(new RTCIceCandidate(iceData.candidate));
+              } catch(e) {}
+            }
+          }
         });
       });
+      unsubs.push(unsubIce);
     }
 
-    // ============ Actions ============
-    async function startChat() {
-      setSearching(true);
-      try { await initCamera(); await joinQueue(); } 
-      catch(e) { setSearching(false); showDisconnected(); }
+    // Find a waiting person and connect
+    async function findAndConnect() {
+      log('🔍 Looking for waiting people...');
+      
+      try {
+        // Get all waiting people
+        const { getDocs: getDocsFS } = await import("https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js");
+        const waitingSnap = await getDocsFS(collection(db, "waiting"));
+        
+        let foundId = null;
+        waitingSnap.forEach(doc => {
+          const data = doc.data();
+          if(data.userId && data.userId !== myId && !foundId) {
+            foundId = data.userId;
+            log('🔗 Found: ' + foundId.substring(0,8));
+          }
+        });
+        
+        if(foundId) {
+          // Remove both from waiting
+          await deleteDoc(doc(db, "waiting", myId)).catch(()=>{});
+          await deleteDoc(doc(db, "waiting", foundId)).catch(()=>{});
+          
+          // Create room - I am caller
+          await createRoom(foundId, true, null);
+        } else {
+          log('⏳ No one waiting yet, I will wait...');
+        }
+      } catch(e) {
+        log('❌ Find error: ' + e.message);
+      }
     }
 
-    function stopChat() {
-      cleanup();
-      stopTimerUI();
-      showDisconnected();
-      userInfo.classList.remove('active');
-      strangerFeed.style.display='none'; strangerFeed.srcObject=null;
-      strangerPlaceholder.style.display='flex'; strangerCamera.classList.remove('connected');
+    // Public functions
+    window.startChat = async function() {
+      log('▶️ Starting...');
+      startBtn.disabled = true;
+      
+      const camOk = await startCamera();
+      if(!camOk) {
+        startBtn.disabled = false;
+        return;
+      }
+      
+      // First try to find someone
+      await findAndConnect();
+      
+      // If no one found, start waiting
+      await startWaiting();
+      
+      startBtn.disabled = false;
+    };
+
+    window.stopChat = function() {
+      log('⏹️ Stopping');
+      
+      // Cleanup
+      if(pc) { pc.close(); pc = null; }
+      unsubs.forEach(u => u());
+      unsubs = [];
+      
+      if(roomId) {
+        deleteDoc(doc(db, "rooms", roomId)).catch(()=>{});
+        roomId = null;
+      }
+      
+      // Remove from waiting
+      deleteDoc(doc(db, "waiting", myId)).catch(()=>{});
+      
+      resetStranger();
       stopCamera();
-      setRecording(false);
-      setSearching(false);
-    }
+      
+      startBtn.style.display = 'inline-block';
+      stopBtn.style.display = 'none';
+      nextBtn.style.display = 'none';
+      statusEl.textContent = 'Press Start';
+    };
 
-    async function nextStranger() {
-      setNextSearching(true);
-      cleanup();
-      setTimeout(async () => {
-        await joinQueue();
-        setNextSearching(false);
-      }, 300);
-    }
+    window.nextStranger = function() {
+      log('⏭️ Next');
+      window.stopChat();
+      setTimeout(() => window.startChat(), 500);
+    };
 
-    function toggleRecord() {
-      if(!pc || pc.connectionState!=='connected') { alert('Connect first!'); return; }
-      setRecording(!isRecording);
-    }
-
-    function cleanup() {
-      if(pc){ pc.close(); pc=null; }
-      if(unsubRoom){ unsubRoom(); unsubRoom=null; }
-      if(unsubCandidates){ unsubCandidates(); unsubCandidates=null; }
-      if(roomId){ deleteDoc(doc(db,"rooms",roomId)).catch(()=>{}); roomId=null; }
-    }
-
-    // ============ Event Listeners ============
-    startBtn.addEventListener('click', startChat);
-    stopBtn.addEventListener('click', stopChat);
-    nextBtn.addEventListener('click', nextStranger);
-    recordBtn.addEventListener('click', toggleRecord);
-
-    // Online count simulation
-    setInterval(() => { onlineCount.textContent = Math.floor(Math.random()*1000+500)+' online'; }, 3000);
-
-    console.log('✅ App ready!');
+    log('✅ Ready! Click Start in 2 browsers.');
   </script>
 </body>
 </html>

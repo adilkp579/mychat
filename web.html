@@ -35,58 +35,6 @@
       overflow: hidden;
     }
 
-    .top-left-corner {
-      position: absolute;
-      top: max(1rem, env(safe-area-inset-top, 1rem));
-      left: max(1rem, env(safe-area-inset-left, 1rem));
-      z-index: 200;
-    }
-
-    .top-left-corner a {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 2.4rem;
-      height: 2.4rem;
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
-      border-radius: 50%;
-      color: #ffffff;
-      font-size: 1.1rem;
-      text-decoration: none;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-      transition: all 0.3s;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .top-right-corner {
-      position: absolute;
-      top: max(1rem, env(safe-area-inset-top, 1rem));
-      right: max(1rem, env(safe-area-inset-right, 1rem));
-      z-index: 200;
-    }
-
-    .top-right-corner a {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 2.4rem;
-      height: 2.4rem;
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
-      border-radius: 50%;
-      color: #ffffff;
-      font-size: 1.1rem;
-      text-decoration: none;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-      transition: all 0.3s;
-      -webkit-tap-highlight-color: transparent;
-    }
-
     .content {
       flex: 1;
       display: flex;
@@ -94,28 +42,10 @@
       align-items: center;
       justify-content: flex-start;
       color: #f0f0f0;
-      padding: 4rem 1rem 6rem 1rem;
+      padding: 0.5rem 1rem 5.5rem 1rem;
       text-align: center;
-      gap: 0.6rem;
+      gap: 0.4rem;
       overflow-y: auto;
-    }
-
-    /* Online counter */
-    .online-counter {
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-      color: #4ade80;
-      font-size: 0.7rem;
-      letter-spacing: 0.5px;
-    }
-
-    .online-dot {
-      width: 6px;
-      height: 6px;
-      background: #4ade80;
-      border-radius: 50%;
-      animation: blink 2s infinite;
     }
 
     @keyframes blink {
@@ -128,24 +58,42 @@
       50% { opacity: 0.5; }
     }
 
-    /* Camera container */
+    .online-counter {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      color: #4ade80;
+      font-size: 0.65rem;
+      letter-spacing: 0.5px;
+      padding: 0.3rem 0;
+    }
+
+    .online-dot {
+      width: 5px;
+      height: 5px;
+      background: #4ade80;
+      border-radius: 50%;
+      animation: blink 2s infinite;
+    }
+
     .camera-container {
       display: flex;
-      gap: 0.6rem;
+      gap: 0.5rem;
       align-items: flex-start;
       justify-content: center;
       width: 100%;
       max-width: 500px;
+      flex: 1;
+      min-height: 0;
     }
 
-    /* Stranger camera - big box */
     .stranger-camera {
       width: 75%;
-      aspect-ratio: 3/4;
-      max-height: 380px;
+      height: 100%;
+      max-height: 55vh;
       background: #111;
       border: 2px solid rgba(255, 255, 255, 0.2);
-      border-radius: 1.5rem;
+      border-radius: 1.2rem;
       box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
       position: relative;
       overflow: hidden;
@@ -173,52 +121,26 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 0.4rem;
-      color: rgba(255, 255, 255, 0.3);
+      gap: 0.3rem;
+      color: rgba(255, 255, 255, 0.25);
     }
 
     .stranger-placeholder i {
-      font-size: 3.5rem;
+      font-size: 3rem;
     }
 
     .stranger-placeholder span {
-      font-size: 0.8rem;
+      font-size: 0.7rem;
       letter-spacing: 1px;
     }
 
-    /* Labels outside boxes */
-    .camera-labels {
-      display: flex;
-      justify-content: space-between;
-      width: 100%;
-      max-width: 500px;
-      padding: 0 0.3rem;
-    }
-
-    .stranger-label-outside {
-      color: #aaa;
-      font-size: 0.7rem;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-left: 0.5rem;
-    }
-
-    .you-label-outside {
-      color: #aaa;
-      font-size: 0.7rem;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-right: 0.5rem;
-    }
-
-    /* My camera - small box */
     .my-camera {
       width: 22%;
+      max-height: 140px;
       aspect-ratio: 3/4;
-      max-height: 160px;
       background: #111;
       border: 2px solid rgba(255, 255, 255, 0.3);
-      border-radius: 1rem;
+      border-radius: 0.8rem;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
       position: relative;
       overflow: hidden;
@@ -243,16 +165,40 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 0.2rem;
-      color: rgba(255, 255, 255, 0.4);
-      font-size: 0.65rem;
+      gap: 0.15rem;
+      color: rgba(255, 255, 255, 0.35);
+      font-size: 0.6rem;
     }
 
     .my-placeholder i {
-      font-size: 1.5rem;
+      font-size: 1.3rem;
     }
 
-    /* Recording indicator */
+    .camera-labels {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 500px;
+      padding: 0 0.2rem;
+      margin-bottom: -0.2rem;
+    }
+
+    .stranger-label-outside {
+      color: #777;
+      font-size: 0.6rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-left: 0.3rem;
+    }
+
+    .you-label-outside {
+      color: #777;
+      font-size: 0.6rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-right: 0.3rem;
+    }
+
     .recording-indicator {
       position: absolute;
       top: 8px;
@@ -273,8 +219,8 @@
     }
 
     .rec-dot {
-      width: 7px;
-      height: 7px;
+      width: 6px;
+      height: 6px;
       background: #ff0000;
       border-radius: 50%;
       animation: blink 1s infinite;
@@ -282,19 +228,18 @@
 
     .rec-text {
       color: #ff0000;
-      font-size: 0.6rem;
+      font-size: 0.55rem;
       font-weight: 600;
       letter-spacing: 1px;
     }
 
-    /* Timer */
     .timer-display {
       position: absolute;
       bottom: 8px;
       left: 50%;
       transform: translateX(-50%);
       color: #fff;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 600;
       letter-spacing: 1px;
       z-index: 10;
@@ -310,15 +255,14 @@
       opacity: 1;
     }
 
-    /* Connected user info */
     .user-info {
       display: flex;
       align-items: center;
-      gap: 0.4rem;
+      gap: 0.3rem;
       background: rgba(255,255,255,0.06);
-      padding: 0.4rem 0.8rem;
-      border-radius: 1.2rem;
-      font-size: 0.75rem;
+      padding: 0.3rem 0.7rem;
+      border-radius: 1rem;
+      font-size: 0.7rem;
       color: #ccc;
       opacity: 0;
       transition: all 0.3s ease;
@@ -330,50 +274,52 @@
     }
 
     .user-flag {
-      font-size: 1rem;
+      font-size: 0.9rem;
     }
 
     /* Buttons container */
     .buttons-container {
       display: flex;
-      gap: 1rem;
-      margin-top: 0.3rem;
+      gap: 0.6rem;
       flex-wrap: wrap;
       justify-content: center;
-      padding-bottom: 0.5rem;
+      padding: 0.3rem 0;
     }
 
-    /* Start button */
-    .start-button {
-      width: 100px;
-      height: 42px;
-      background: rgba(74, 222, 128, 0.15);
-      border: 1px solid rgba(74, 222, 128, 0.4);
+    /* All buttons base style */
+    .btn {
+      height: 38px;
       border-radius: 2rem;
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.4rem;
+      gap: 0.3rem;
       cursor: pointer;
       transition: all 0.3s ease;
-      color: #4ade80;
       user-select: none;
       border: none;
       outline: none;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 600;
       letter-spacing: 0.5px;
     }
 
-    .start-button:hover {
-      background: rgba(74, 222, 128, 0.3);
-      transform: scale(1.05);
+    .btn:active {
+      transform: scale(0.95);
     }
 
-    .start-button:active {
-      transform: scale(0.95);
+    /* Start button */
+    .start-button {
+      width: 90px;
+      background: rgba(74, 222, 128, 0.15);
+      border: 1px solid rgba(74, 222, 128, 0.4);
+      color: #4ade80;
+    }
+
+    .start-button:hover {
+      background: rgba(74, 222, 128, 0.3);
     }
 
     .start-button.searching {
@@ -383,47 +329,50 @@
       animation: pulse 1s infinite;
     }
 
-    .start-button.connected {
-      background: rgba(239, 68, 68, 0.2);
-      border-color: rgba(239, 68, 68, 0.5);
+    /* Stop button - hidden by default */
+    .stop-button {
+      width: 80px;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
       color: #ef4444;
+      display: none;
     }
 
-    .start-button i {
-      font-size: 1rem;
+    .stop-button:hover {
+      background: rgba(239, 68, 68, 0.3);
+    }
+
+    .stop-button.visible {
+      display: flex;
+    }
+
+    /* Next button - hidden by default */
+    .next-button {
+      width: 80px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ccc;
+      display: none;
+    }
+
+    .next-button:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .next-button.visible {
+      display: flex;
     }
 
     /* Record button */
     .record-button {
-      width: 100px;
-      height: 42px;
+      width: 80px;
       background: rgba(255, 255, 255, 0.06);
       border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 2rem;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.4rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
       color: #aaa;
-      user-select: none;
-      border: none;
-      outline: none;
-      font-size: 0.8rem;
-      font-weight: 600;
-      letter-spacing: 0.5px;
     }
 
     .record-button:hover {
       background: rgba(255, 255, 255, 0.12);
-      transform: scale(1.05);
-    }
-
-    .record-button:active {
-      transform: scale(0.95);
     }
 
     .record-button.recording {
@@ -434,14 +383,9 @@
       animation: pulse 1.5s infinite;
     }
 
-    .record-button i {
-      font-size: 0.7rem;
-    }
-
-    /* Navbar */
-    .floating-nav {
+    .navbar {
       position: absolute;
-      bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
+      bottom: max(0.8rem, env(safe-area-inset-bottom, 0.8rem));
       left: 50%;
       transform: translateX(-50%);
       width: 92%;
@@ -490,78 +434,65 @@
       -webkit-backdrop-filter: blur(10px);
     }
 
-    /* Responsive */
     @media (max-width: 380px) {
       .content {
-        padding: 3.5rem 0.8rem 5.5rem 0.8rem;
-        gap: 0.4rem;
+        padding: 0.3rem 0.6rem 5rem 0.6rem;
       }
       .stranger-camera {
-        width: 72%;
-        max-height: 280px;
+        max-height: 50vh;
       }
       .my-camera {
-        width: 24%;
-        max-height: 120px;
+        max-height: 100px;
       }
-      .start-button, .record-button {
-        width: 85px;
-        height: 38px;
-        font-size: 0.75rem;
+      .btn {
+        height: 34px;
+        font-size: 0.7rem;
+        padding: 0 0.8rem;
+      }
+      .start-button, .stop-button, .next-button, .record-button {
+        width: 70px;
       }
     }
 
     @media (min-width: 768px) {
       .content {
-        padding: 5rem 2rem 6rem 2rem;
-        gap: 0.8rem;
+        padding: 0.8rem 2rem 5.5rem 2rem;
       }
       .stranger-camera {
-        max-height: 420px;
+        max-height: 60vh;
+        border-radius: 1.5rem;
+      }
+      .my-camera {
+        max-height: 160px;
+        border-radius: 1rem;
+      }
+      .btn {
+        height: 44px;
+        font-size: 0.85rem;
+      }
+      .start-button { width: 100px; }
+      .stop-button, .next-button, .record-button { width: 90px; }
+      .buttons-container { gap: 1rem; }
+    }
+
+    @media (min-width: 1024px) {
+      .content {
+        padding: 0.5rem 3rem 5.5rem 3rem;
+      }
+      .stranger-camera {
+        max-height: 62vh;
+        border-radius: 1.8rem;
       }
       .my-camera {
         max-height: 170px;
       }
-      .start-button, .record-button {
-        width: 120px;
-        height: 48px;
-        font-size: 0.9rem;
+      .btn {
+        height: 46px;
+        font-size: 0.85rem;
       }
-      .buttons-container {
-        gap: 1.5rem;
-        margin-top: 0.5rem;
-      }
-    }
-
-    @media (min-width: 1024px) {
-      .top-left-corner a, .top-right-corner a {
-        width: 3rem;
-        height: 3rem;
-        font-size: 1.3rem;
-      }
-      .content {
-        padding: 5rem 3rem 6rem 3rem;
-      }
-      .stranger-camera {
-        max-height: 440px;
-        border-radius: 2rem;
-      }
-      #strangerFeed {
-        border-radius: 2rem;
-      }
-      .my-camera {
-        max-height: 180px;
-        border-radius: 1.2rem;
-      }
-      #myFeed {
-        border-radius: 1.2rem;
-      }
-      .start-button, .record-button {
-        width: 130px;
-        height: 50px;
-        font-size: 0.9rem;
-      }
-      .floating-nav {
+      .start-button { width: 110px; }
+      .stop-button, .next-button, .record-button { width: 95px; }
+      .navbar {
         width: 45%;
         max-width: 550px;
         padding: 0.8rem 2rem;
@@ -576,29 +507,18 @@
 </head>
 <body>
   <div class="page">
-    <div class="top-left-corner">
-      <a href="upload.html" title="upload"><i class="fas fa-plus"></i></a>
-    </div>
-    <div class="top-right-corner">
-      <a href="search.html" title="search"><i class="fas fa-search"></i></a>
-    </div>
-
     <div class="content">
-      <!-- Online counter -->
       <div class="online-counter">
         <div class="online-dot"></div>
         <span id="onlineCount">12,847 strangers online</span>
       </div>
 
-      <!-- Labels outside camera boxes -->
       <div class="camera-labels">
         <span class="stranger-label-outside">STRANGER</span>
         <span class="you-label-outside">YOU</span>
       </div>
 
-      <!-- Camera container -->
       <div class="camera-container">
-        <!-- Stranger camera (big) -->
         <div class="stranger-camera" id="strangerCamera">
           <video id="strangerFeed" autoplay playsinline muted></video>
           <div class="stranger-placeholder" id="strangerPlaceholder">
@@ -612,7 +532,6 @@
           <div class="timer-display" id="timerDisplay">00:00</div>
         </div>
 
-        <!-- My camera (small) -->
         <div class="my-camera" id="myCamera">
           <video id="myFeed" autoplay playsinline muted></video>
           <div class="my-placeholder" id="myPlaceholder">
@@ -622,27 +541,39 @@
         </div>
       </div>
 
-      <!-- Connected user info -->
       <div class="user-info" id="userInfo">
         <span class="user-flag" id="userFlag">🌍</span>
         <span id="userCountry">Connecting...</span>
       </div>
 
-      <!-- Buttons -->
       <div class="buttons-container">
-        <button class="start-button" id="startButton" onclick="toggleChat()">
-          <i class="fas fa-play" id="startIcon"></i>
-          <span id="startText">Start</span>
+        <!-- Start button - visible when not connected -->
+        <button class="btn start-button" id="startButton" onclick="startChat()">
+          <i class="fas fa-play"></i>
+          <span>Start</span>
         </button>
         
-        <button class="record-button" id="recordButton" onclick="toggleRecording()">
+        <!-- Stop button - visible when connected -->
+        <button class="btn stop-button" id="stopButton" onclick="stopChat()">
+          <i class="fas fa-stop"></i>
+          <span>Stop</span>
+        </button>
+        
+        <!-- Next button - visible when connected -->
+        <button class="btn next-button" id="nextButton" onclick="nextStranger()">
+          <i class="fas fa-forward"></i>
+          <span>Next</span>
+        </button>
+        
+        <!-- Record button -->
+        <button class="btn record-button" id="recordButton" onclick="toggleRecording()">
           <i class="fas fa-circle" id="recordIcon"></i>
           <span id="recordText">Record</span>
         </button>
       </div>
     </div>
 
-    <nav class="floating-nav">
+    <nav class="navbar">
       <div class="nav-center">
         <a href="index.html" data-page="index" title="home"><i class="fas fa-home"></i></a>
         <a href="web.html" class="active" data-page="web" title="web" aria-current="page"><i class="fas fa-globe"></i></a>
@@ -675,6 +606,23 @@
       { flag: '🇰🇷', country: 'South Korea' },
     ];
 
+    const startBtn = document.getElementById('startButton');
+    const stopBtn = document.getElementById('stopButton');
+    const nextBtn = document.getElementById('nextButton');
+
+    function showConnectedButtons() {
+      startBtn.style.display = 'none';
+      stopBtn.classList.add('visible');
+      nextBtn.classList.add('visible');
+    }
+
+    function showDisconnectedButtons() {
+      startBtn.style.display = 'flex';
+      stopBtn.classList.remove('visible');
+      nextBtn.classList.remove('visible');
+      startBtn.classList.remove('searching');
+    }
+
     async function startMyCamera() {
       try {
         if (myStream) {
@@ -702,14 +650,10 @@
         myStream.getTracks().forEach(track => track.stop());
         myStream = null;
       }
-      const myFeed = document.getElementById('myFeed');
-      const myPlaceholder = document.getElementById('myPlaceholder');
-      const myCamera = document.getElementById('myCamera');
-      
-      myFeed.style.display = 'none';
-      myFeed.srcObject = null;
-      myPlaceholder.style.display = 'flex';
-      myCamera.classList.remove('active');
+      document.getElementById('myFeed').style.display = 'none';
+      document.getElementById('myFeed').srcObject = null;
+      document.getElementById('myPlaceholder').style.display = 'flex';
+      document.getElementById('myCamera').classList.remove('active');
     }
 
     function simulateStrangerConnection() {
@@ -740,57 +684,9 @@
       strangerPlaceholder.style.display = 'flex';
       strangerCamera.classList.remove('connected');
       document.getElementById('userInfo').classList.remove('active');
-    }
-
-    async function toggleChat() {
-      const startButton = document.getElementById('startButton');
-      const startIcon = document.getElementById('startIcon');
-      const startText = document.getElementById('startText');
-
-      if (!isConnected && !isSearching) {
-        const cameraReady = await startMyCamera();
-        if (!cameraReady) return;
-
-        isSearching = true;
-        startButton.classList.add('searching');
-        startIcon.className = 'fas fa-spinner fa-spin';
-        startText.textContent = 'Searching';
-
-        setTimeout(() => {
-          if (isSearching) {
-            isSearching = false;
-            isConnected = true;
-            startButton.classList.remove('searching');
-            startButton.classList.add('connected');
-            startIcon.className = 'fas fa-forward';
-            startText.textContent = 'Next';
-            
-            simulateStrangerConnection();
-            startTimer();
-          }
-        }, 2000 + Math.random() * 2000);
-
-      } else if (isConnected) {
-        disconnectStranger();
-        stopTimer();
-        isConnected = false;
-        startButton.classList.remove('connected');
-        startButton.classList.add('searching');
-        startIcon.className = 'fas fa-spinner fa-spin';
-        startText.textContent = 'Searching';
-
-        setTimeout(() => {
-          if (!isConnected) {
-            isConnected = true;
-            startButton.classList.remove('searching');
-            startButton.classList.add('connected');
-            startIcon.className = 'fas fa-forward';
-            startText.textContent = 'Next';
-            
-            simulateStrangerConnection();
-            startTimer();
-          }
-        }, 1500 + Math.random() * 2000);
+      
+      if (isRecording) {
+        toggleRecording();
       }
     }
 
@@ -815,8 +711,70 @@
       minutes = 0;
     }
 
+    async function startChat() {
+      if (isSearching) return;
+      
+      const cameraReady = await startMyCamera();
+      if (!cameraReady) return;
+
+      isSearching = true;
+      startBtn.classList.add('searching');
+      startBtn.querySelector('span').textContent = 'Searching';
+      startBtn.querySelector('i').className = 'fas fa-spinner fa-spin';
+
+      setTimeout(() => {
+        isSearching = false;
+        isConnected = true;
+        startBtn.classList.remove('searching');
+        startBtn.querySelector('span').textContent = 'Start';
+        startBtn.querySelector('i').className = 'fas fa-play';
+        
+        showConnectedButtons();
+        simulateStrangerConnection();
+        startTimer();
+      }, 2000 + Math.random() * 2000);
+    }
+
+    function stopChat() {
+      disconnectStranger();
+      stopTimer();
+      stopMyCamera();
+      isConnected = false;
+      isSearching = false;
+      showDisconnectedButtons();
+    }
+
+    async function nextStranger() {
+      if (!isConnected) return;
+      
+      disconnectStranger();
+      stopTimer();
+      isConnected = false;
+      
+      // Show searching on next button
+      nextBtn.querySelector('span').textContent = 'Searching';
+      nextBtn.querySelector('i').className = 'fas fa-spinner fa-spin';
+      nextBtn.style.color = '#fbbf24';
+      nextBtn.style.borderColor = 'rgba(251, 191, 36, 0.5)';
+      nextBtn.style.background = 'rgba(251, 191, 36, 0.2)';
+      nextBtn.style.animation = 'pulse 1s infinite';
+
+      setTimeout(() => {
+        isConnected = true;
+        nextBtn.querySelector('span').textContent = 'Next';
+        nextBtn.querySelector('i').className = 'fas fa-forward';
+        nextBtn.style.color = '#ccc';
+        nextBtn.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+        nextBtn.style.background = 'rgba(255, 255, 255, 0.08)';
+        nextBtn.style.animation = '';
+        
+        simulateStrangerConnection();
+        startTimer();
+      }, 1500 + Math.random() * 2000);
+    }
+
     function toggleRecording() {
-      const recordButton = document.getElementById('recordButton');
+      const recordBtn = document.getElementById('recordButton');
       const recordIcon = document.getElementById('recordIcon');
       const recordText = document.getElementById('recordText');
       const recIndicator = document.getElementById('recIndicator');
@@ -828,37 +786,17 @@
 
       if (!isRecording) {
         isRecording = true;
-        recordButton.classList.add('recording');
+        recordBtn.classList.add('recording');
         recordIcon.className = 'fas fa-stop';
         recordText.textContent = 'Stop';
         recIndicator.classList.add('active');
       } else {
         isRecording = false;
-        recordButton.classList.remove('recording');
+        recordBtn.classList.remove('recording');
         recordIcon.className = 'fas fa-circle';
         recordText.textContent = 'Record';
         recIndicator.classList.remove('active');
       }
-    }
-
-    function disconnectAll() {
-      if (isConnected) {
-        disconnectStranger();
-        stopTimer();
-        isConnected = false;
-        isSearching = false;
-        
-        const startButton = document.getElementById('startButton');
-        startButton.classList.remove('connected', 'searching');
-        document.getElementById('startIcon').className = 'fas fa-play';
-        document.getElementById('startText').textContent = 'Start';
-      }
-      
-      if (isRecording) {
-        toggleRecording();
-      }
-      
-      stopMyCamera();
     }
 
     setInterval(() => {
@@ -867,7 +805,7 @@
     }, 5000);
 
     window.addEventListener('beforeunload', () => {
-      disconnectAll();
+      if (isConnected) stopChat();
     });
   </script>
 </body>

@@ -133,7 +133,6 @@
     .user-info.active { opacity: 1; }
     .user-flag { font-size: 0.9rem; }
 
-    /* Buttons container - MOVED HIGHER */
     .buttons-container {
       display: flex; gap: 0.6rem; flex-wrap: wrap; justify-content: center;
       padding: 0.2rem 0 0 0;
@@ -166,7 +165,6 @@
     .record-button:hover { background: rgba(255,255,255,0.12); }
     .record-button.recording { background: rgba(255,0,0,0.2); border-color: rgba(255,0,0,0.5); color: #ff4444; box-shadow: 0 0 20px rgba(255,0,0,0.3); animation: pulse 1.5s infinite; }
 
-    /* NAVBAR */
     .floating-nav {
       position: absolute; bottom: max(1.5rem, env(safe-area-inset-bottom,1.5rem));
       left: 50%; transform: translateX(-50%);
@@ -274,6 +272,32 @@
     </nav>
   </div>
 
+  <!-- Firebase SDK & Config -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-analytics.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",
+      authDomain: "mychat-a97bf.firebaseapp.com",
+      projectId: "mychat-a97bf",
+      storageBucket: "mychat-a97bf.firebasestorage.app",
+      messagingSenderId: "206620858913",
+      appId: "1:206620858913:web:e8171ed8c1a2dbda3da160",
+      measurementId: "G-83M844EY7B"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    
+    // Make Firebase available globally
+    window.firebaseApp = app;
+    window.firebaseAnalytics = analytics;
+    
+    console.log('✅ Firebase initialized successfully');
+  </script>
+
+  <!-- Backend Connection -->
   <script type="module" src="app.js"></script>
 
   <script>

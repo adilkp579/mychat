@@ -108,12 +108,15 @@
       box-shadow: 0 0 30px rgba(74, 222, 128, 0.3), 0 15px 40px rgba(0, 0, 0, 0.6);
     }
 
+    /* BOTH cameras: rotateY(180deg) for natural face view */
     #strangerFeed {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: none;
       background: #000;
+      transform: rotateY(180deg);
+      -webkit-transform: rotateY(180deg);
     }
 
     .stranger-placeholder {
@@ -152,7 +155,7 @@
       box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
     }
 
-    /* FIX: Mirror flip so right side of face shows on right side of screen */
+    /* YOUR camera: rotateY(180deg) for natural face view */
     #myFeed {
       width: 100%;
       height: 100%;
@@ -433,92 +436,42 @@
     }
 
     @media (max-width: 380px) {
-      .content {
-        padding: 0.3rem 0.6rem 5rem 0.6rem;
-      }
-      .stranger-camera {
-        max-height: 62vh;
-      }
-      .my-camera {
-        max-height: 110px;
-      }
-      .btn {
-        height: 34px;
-        font-size: 0.7rem;
-        padding: 0 0.7rem;
-      }
-      .start-button, .stop-button, .next-button, .record-button {
-        width: 68px;
-      }
+      .content { padding: 0.3rem 0.6rem 5rem 0.6rem; }
+      .stranger-camera { max-height: 62vh; }
+      .my-camera { max-height: 110px; }
+      .btn { height: 34px; font-size: 0.7rem; padding: 0 0.7rem; }
+      .start-button, .stop-button, .next-button, .record-button { width: 68px; }
     }
 
     @media (min-width: 381px) and (max-width: 767px) {
-      .stranger-camera {
-        max-height: 66vh;
-      }
-      .my-camera {
-        max-height: 140px;
-      }
+      .stranger-camera { max-height: 66vh; }
+      .my-camera { max-height: 140px; }
     }
 
     @media (min-width: 768px) {
-      .content {
-        padding: 0.8rem 2rem 5.5rem 2rem;
-      }
-      .stranger-camera {
-        max-height: 68vh;
-        border-radius: 1.5rem;
-      }
-      .my-camera {
-        max-height: 170px;
-        border-radius: 1rem;
-      }
-      .btn {
-        height: 44px;
-        font-size: 0.85rem;
-        padding: 0 1.2rem;
-      }
+      .content { padding: 0.8rem 2rem 5.5rem 2rem; }
+      .stranger-camera { max-height: 68vh; border-radius: 1.5rem; }
+      .my-camera { max-height: 170px; border-radius: 1rem; }
+      .btn { height: 44px; font-size: 0.85rem; padding: 0 1.2rem; }
       .start-button { width: 100px; }
       .stop-button, .next-button, .record-button { width: 90px; }
       .buttons-container { gap: 1rem; }
     }
 
     @media (min-width: 1024px) {
-      .content {
-        padding: 0.5rem 3rem 5.5rem 3rem;
-      }
-      .stranger-camera {
-        max-height: 70vh;
-        border-radius: 1.8rem;
-      }
-      .my-camera {
-        max-height: 180px;
-      }
-      .btn {
-        height: 46px;
-        font-size: 0.85rem;
-      }
+      .content { padding: 0.5rem 3rem 5.5rem 3rem; }
+      .stranger-camera { max-height: 70vh; border-radius: 1.8rem; }
+      .my-camera { max-height: 180px; }
+      .btn { height: 46px; font-size: 0.85rem; }
       .start-button { width: 110px; }
       .stop-button, .next-button, .record-button { width: 95px; }
-      .navbar {
-        width: 45%;
-        max-width: 550px;
-        padding: 0.8rem 2rem;
-      }
-      .nav-center a {
-        font-size: 1.5rem;
-        width: 2.8rem;
-        height: 2.8rem;
-      }
+      .navbar { width: 45%; max-width: 550px; padding: 0.8rem 2rem; }
+      .nav-center a { font-size: 1.5rem; width: 2.8rem; height: 2.8rem; }
     }
 
     @media (min-width: 1440px) {
-      .stranger-camera {
-        max-height: 72vh;
-      }
-      .my-camera {
-        max-height: 200px;
-      }
+      .stranger-camera { max-height: 72vh; }
+      .my-camera { max-height: 200px; }
     }
   </style>
 </head>
@@ -537,6 +490,7 @@
 
       <div class="camera-container">
         <div class="stranger-camera" id="strangerCamera">
+          <!-- Stranger feed - rotateY(180deg) for natural face -->
           <video id="strangerFeed" autoplay playsinline muted></video>
           <div class="stranger-placeholder" id="strangerPlaceholder">
             <i class="fas fa-user-secret"></i>
@@ -550,7 +504,7 @@
         </div>
 
         <div class="my-camera" id="myCamera">
-          <!-- rotateY(180deg) fixes mirror: right face = right screen -->
+          <!-- Your feed - rotateY(180deg) for natural face -->
           <video id="myFeed" autoplay playsinline muted></video>
           <div class="my-placeholder" id="myPlaceholder">
             <i class="fas fa-video"></i>
@@ -569,17 +523,14 @@
           <i class="fas fa-play"></i>
           <span>Start</span>
         </button>
-        
         <button class="btn stop-button" id="stopButton" onclick="stopChat()">
           <i class="fas fa-stop"></i>
           <span>Stop</span>
         </button>
-        
         <button class="btn next-button" id="nextButton" onclick="nextStranger()">
           <i class="fas fa-forward"></i>
           <span>Next</span>
         </button>
-        
         <button class="btn record-button" id="recordButton" onclick="toggleRecording()">
           <i class="fas fa-circle" id="recordIcon"></i>
           <span id="recordText">Record</span>

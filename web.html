@@ -51,10 +51,10 @@
   </div>
 
   <script type="module">
+    // ALL imports in one line
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, addDoc, onSnapshot, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-    // ===== Firebase Init =====
     const firebaseConfig = {
       apiKey: "AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",
       authDomain: "mychat-a97bf.firebaseapp.com",
@@ -67,7 +67,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // ===== DOM Elements =====
     const debugEl = document.getElementById('debug');
     const statusEl = document.getElementById('status');
     const myVideo = document.getElementById('myVideo');
@@ -88,7 +87,6 @@
 
     log('Firebase initialized');
 
-    // ===== State =====
     const myId = crypto.randomUUID();
     log('My ID: ' + myId.substring(0, 8));
 
@@ -97,17 +95,11 @@
     let roomId = null;
     let unsubs = [];
 
-    // ===== Camera =====
     async function startCamera() {
       log('Requesting camera...');
       try {
-        if (localStream) {
-          localStream.getTracks().forEach(t => t.stop());
-        }
-        localStream = await navigator.mediaDevices.getUserMedia({ 
-          video: { facingMode: 'user' }, 
-          audio: true 
-        });
+        if (localStream) { localStream.getTracks().forEach(t => t.stop()); }
+        localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: true });
         myVideo.srcObject = localStream;
         await myVideo.play();
         myVideo.style.display = 'block';
@@ -123,10 +115,7 @@
     }
 
     function stopCamera() {
-      if (localStream) {
-        localStream.getTracks().forEach(t => t.stop());
-        localStream = null;
-      }
+      if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
       myVideo.style.display = 'none';
       myVideo.srcObject = null;
       myOff.style.display = '';
@@ -140,41 +129,53 @@
       strangerVid.classList.remove('connected');
     }
 
-    function showConnectedUI() {
+    function showConnected() {
       startBtn.style.display = 'none';
       stopBtn.style.display = 'inline-block';
       nextBtn.style.display = 'inline-block';
     }
 
-    function showDisconnectedUI() {
+    function showDisconnected() {
       startBtn.style.display = 'inline-block';
       stopBtn.style.display = 'none';
       nextBtn.style.display = 'none';
       startBtn.disabled = false;
     }
 
-    // ===== WebRTC Room =====
+    // Test Firestore connection first
+    async function testFirestore() {
+      log('Testing Firestore...');
+      try {
+        const testDoc = doc(db, 'test', 'connection');
+        await setDoc(testDoc, { test: true, time: serverTimestamp() });
+        log('✅ Firestore write OK');
+        const snap = await getDoc(testDoc);
+        if (snap.exists()) {
+          log('✅ Firestore read OK');
+        }
+        await deleteDoc(testDoc);
+        log('✅ Firestore working!');
+        return true;
+      } catch (e) {
+        log('❌ Firestore error: ' + e.message);
+        log('⚠️ Check Firebase Console → Firestore → Rules');
+        log('⚠️ Make sure rules are: allow read, write: if true;');
+        return false;
+      }
+    }
+
     async function createRoom(otherId, isCaller) {
       log('Creating room... isCaller=' + isCaller);
       statusEl.textContent = 'Connecting...';
-      
       roomId = [myId, otherId].sort().join('_');
-      const roomRef = doc(db, 'rooms', roomId);
+      showConnected();
 
-      showConnectedUI();
+      pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
 
-      pc = new RTCPeerConnection({
-        iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
-      });
-
-      // Add local tracks
       if (localStream) {
-        localStream.getTracks().forEach(track => {
-          pc.addTrack(track, localStream);
-        });
+        localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
       }
 
-      // Handle incoming stream
       pc.ontrack = (event) => {
         log('Received remote stream!');
         if (event.streams[0]) {
@@ -185,72 +186,47 @@
         }
       };
 
-      // ICE candidates
       pc.onicecandidate = async (event) => {
         if (event.candidate) {
-          try {
-            await addDoc(collection(db, 'rooms', roomId, 'ice'), {
-              sender: myId,
-              candidate: JSON.parse(JSON.stringify(event.candidate))
-            });
-          } catch (e) {
-            log('ICE save error: ' + e.message);
-          }
+          await addDoc(collection(db, 'rooms', roomId, 'ice'), {
+            sender: myId,
+            candidate: JSON.parse(JSON.stringify(event.candidate))
+          }).catch(() => {});
         }
       };
 
-      // Connection state
       pc.onconnectionstatechange = () => {
-        log('Connection: ' + pc.connectionState);
-        if (pc.connectionState === 'connected') {
-          statusEl.textContent = '🎉 Connected!';
-        } else if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
-          statusEl.textContent = 'Disconnected';
-        }
+        log('State: ' + pc.connectionState);
+        if (pc.connectionState === 'connected') statusEl.textContent = '🎉 Connected!';
+        if (pc.connectionState === 'failed') statusEl.textContent = 'Connection failed';
       };
 
-      // Store offer in invites for the other person
       if (isCaller) {
         const offer = await pc.createOffer();
         await pc.setLocalDescription(offer);
-        
-        // Save the offer as an invite
         await setDoc(doc(db, 'invites', otherId), {
           from: myId,
-          offer: { type: offer.type, sdp: offer.sdp },
-          timestamp: serverTimestamp()
+          offer: { type: offer.type, sdp: offer.sdp }
         });
-        
-        log('Offer sent to: ' + otherId.substring(0, 8));
-        
-        // Listen for answer on the invite doc
-        const unsubInvite = onSnapshot(doc(db, 'invites', otherId), async (snap) => {
+        log('Offer sent');
+
+        const unsub = onSnapshot(doc(db, 'invites', otherId), async (snap) => {
           const data = snap.data();
           if (data && data.answer && !pc.currentRemoteDescription) {
-            log('Received answer');
             await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
-            log('Connection complete!');
-            unsubInvite();
+            log('Connected!');
+            unsub();
           }
         });
-        unsubs.push(unsubInvite);
-        
-      } else {
-        // I'm the answerer - the remoteOffer will be set before calling this
+        unsubs.push(unsub);
       }
 
-      // Listen for ICE candidates from the other person
       const unsubIce = onSnapshot(collection(db, 'rooms', roomId, 'ice'), (snap) => {
         snap.docChanges().forEach(async (change) => {
           if (change.type === 'added') {
             const data = change.doc.data();
             if (data.sender !== myId && data.candidate) {
-              try {
-                await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
-                log('ICE added');
-              } catch (e) {
-                log('ICE error: ' + e.message);
-              }
+              try { await pc.addIceCandidate(new RTCIceCandidate(data.candidate)); } catch(e) {}
             }
           }
         });
@@ -258,119 +234,90 @@
       unsubs.push(unsubIce);
     }
 
-    // ===== Listen for incoming invites =====
     function listenForInvites() {
       log('Listening for invites...');
-      
       const unsub = onSnapshot(doc(db, 'invites', myId), async (snap) => {
-        if (snap.exists()) {
-          const data = snap.data();
-          log('Got invite from: ' + data.from?.substring(0, 8));
-          
-          // Clean up waiting status
-          await deleteDoc(doc(db, 'waiting', myId)).catch(() => {});
-          
-          // Create peer connection
-          pc = new RTCPeerConnection({
-            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
-          });
+        if (!snap.exists()) return;
+        const data = snap.data();
+        log('Got invite from: ' + data.from?.substring(0,8));
 
-          // Add local tracks
-          if (localStream) {
-            localStream.getTracks().forEach(track => {
-              pc.addTrack(track, localStream);
-            });
-          }
+        await deleteDoc(doc(db, 'waiting', myId)).catch(()=>{});
 
-          // Handle remote stream
-          pc.ontrack = (event) => {
-            log('Received remote stream!');
-            if (event.streams[0]) {
-              strangerVideo.srcObject = event.streams[0];
-              strangerVideo.style.display = 'block';
-              strangerOff.style.display = 'none';
-              strangerVid.classList.add('connected');
-            }
-          };
+        roomId = [myId, data.from].sort().join('_');
+        showConnected();
 
-          // ICE candidates
-          pc.onicecandidate = async (event) => {
-            if (event.candidate) {
-              roomId = [myId, data.from].sort().join('_');
-              await addDoc(collection(db, 'rooms', roomId, 'ice'), {
-                sender: myId,
-                candidate: JSON.parse(JSON.stringify(event.candidate))
-              });
-            }
-          };
+        pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
 
-          pc.onconnectionstatechange = () => {
-            log('Connection: ' + pc.connectionState);
-            if (pc.connectionState === 'connected') {
-              statusEl.textContent = '🎉 Connected!';
-            }
-          };
-
-          // Set remote offer and create answer
-          if (data.offer) {
-            await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
-            const answer = await pc.createAnswer();
-            await pc.setLocalDescription(answer);
-            
-            // Send answer back via invite doc
-            roomId = [myId, data.from].sort().join('_');
-            await setDoc(doc(db, 'rooms', roomId), {
-              created: serverTimestamp()
-            });
-            
-            // Update the invite with answer
-            await setDoc(doc(db, 'invites', myId), {
-              from: data.from,
-              offer: data.offer,
-              answer: { type: answer.type, sdp: answer.sdp }
-            }, { merge: true });
-            
-            log('Answer sent');
-          }
-
-          // Listen for ICE
-          roomId = [myId, data.from].sort().join('_');
-          const unsubIce = onSnapshot(collection(db, 'rooms', roomId, 'ice'), (snap) => {
-            snap.docChanges().forEach(async (change) => {
-              if (change.type === 'added') {
-                const iceData = change.doc.data();
-                if (iceData.sender !== myId && iceData.candidate) {
-                  try {
-                    await pc.addIceCandidate(new RTCIceCandidate(iceData.candidate));
-                  } catch (e) {}
-                }
-              }
-            });
-          });
-          unsubs.push(unsubIce);
-
-          showConnectedUI();
-          unsub();
+        if (localStream) {
+          localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
         }
+
+        pc.ontrack = (event) => {
+          log('Received remote stream!');
+          if (event.streams[0]) {
+            strangerVideo.srcObject = event.streams[0];
+            strangerVideo.style.display = 'block';
+            strangerOff.style.display = 'none';
+            strangerVid.classList.add('connected');
+          }
+        };
+
+        pc.onicecandidate = async (event) => {
+          if (event.candidate) {
+            await addDoc(collection(db, 'rooms', roomId, 'ice'), {
+              sender: myId,
+              candidate: JSON.parse(JSON.stringify(event.candidate))
+            }).catch(()=>{});
+          }
+        };
+
+        pc.onconnectionstatechange = () => {
+          log('State: ' + pc.connectionState);
+          if (pc.connectionState === 'connected') statusEl.textContent = '🎉 Connected!';
+        };
+
+        if (data.offer) {
+          await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
+          const answer = await pc.createAnswer();
+          await pc.setLocalDescription(answer);
+          await setDoc(doc(db, 'invites', myId), {
+            from: data.from, offer: data.offer,
+            answer: { type: answer.type, sdp: answer.sdp }
+          }, { merge: true });
+          log('Answer sent');
+        }
+
+        const unsubIce = onSnapshot(collection(db, 'rooms', roomId, 'ice'), (snap) => {
+          snap.docChanges().forEach(async (change) => {
+            if (change.type === 'added') {
+              const iceData = change.doc.data();
+              if (iceData.sender !== myId && iceData.candidate) {
+                try { await pc.addIceCandidate(new RTCIceCandidate(iceData.candidate)); } catch(e) {}
+              }
+            }
+          });
+        });
+        unsubs.push(unsubIce);
+        unsub();
       });
       unsubs.push(unsub);
     }
 
-    // ===== Main Start Function =====
     async function startChat() {
       log('=== START ===');
       startBtn.disabled = true;
-      statusEl.textContent = 'Starting camera...';
-      
-      // Step 1: Start camera
-      const camReady = await startCamera();
-      if (!camReady) {
+
+      // Test Firestore first
+      const fsOk = await testFirestore();
+      if (!fsOk) {
         startBtn.disabled = false;
+        statusEl.textContent = 'Firestore error - check Rules';
         return;
       }
-      
-      // Step 2: Check if someone is already waiting
-      log('Checking for waiting people...');
+
+      const camReady = await startCamera();
+      if (!camReady) { startBtn.disabled = false; return; }
+
       statusEl.textContent = 'Looking for stranger...';
       
       try {
@@ -383,30 +330,16 @@
             foundId = data.userId;
           }
         });
-        
+
         if (foundId) {
-          // Found someone waiting!
-          log('Found waiting person: ' + foundId.substring(0, 8));
-          
-          // Remove both from waiting
-          await deleteDoc(doc(db, 'waiting', myId)).catch(() => {});
-          await deleteDoc(doc(db, 'waiting', foundId)).catch(() => {});
-          
-          // I am the caller - create room and send offer
+          log('Found: ' + foundId.substring(0,8));
+          await deleteDoc(doc(db, 'waiting', myId)).catch(()=>{});
+          await deleteDoc(doc(db, 'waiting', foundId)).catch(()=>{});
           await createRoom(foundId, true);
-          
         } else {
-          // No one waiting - I will wait
-          log('No one waiting, adding myself...');
+          log('Waiting...');
           statusEl.textContent = 'Waiting for stranger...';
-          
-          // Add myself to waiting list
-          await setDoc(doc(db, 'waiting', myId), {
-            userId: myId,
-            timestamp: serverTimestamp()
-          });
-          
-          // Listen for invites
+          await setDoc(doc(db, 'waiting', myId), { userId: myId, time: serverTimestamp() });
           listenForInvites();
         }
       } catch (e) {
@@ -415,47 +348,27 @@
       }
     }
 
-    // ===== Stop =====
     function stopChat() {
       log('=== STOP ===');
-      
-      // Close peer connection
-      if (pc) {
-        pc.close();
-        pc = null;
-      }
-      
-      // Unsubscribe all listeners
+      if (pc) { pc.close(); pc = null; }
       unsubs.forEach(u => u());
       unsubs = [];
-      
-      // Clean up Firestore
-      if (roomId) {
-        deleteDoc(doc(db, 'rooms', roomId)).catch(() => {});
-        roomId = null;
-      }
-      deleteDoc(doc(db, 'waiting', myId)).catch(() => {});
-      deleteDoc(doc(db, 'invites', myId)).catch(() => {});
-      
-      // Reset UI
+      if (roomId) { deleteDoc(doc(db, 'rooms', roomId)).catch(()=>{}); roomId = null; }
+      deleteDoc(doc(db, 'waiting', myId)).catch(()=>{});
+      deleteDoc(doc(db, 'invites', myId)).catch(()=>{});
       resetStranger();
       stopCamera();
-      showDisconnectedUI();
-      statusEl.textContent = 'Press Start to find stranger';
+      showDisconnected();
+      statusEl.textContent = 'Press Start';
     }
 
-    // ===== Next =====
-    function nextStranger() {
-      stopChat();
-      setTimeout(() => startChat(), 500);
-    }
+    function nextStranger() { stopChat(); setTimeout(() => startChat(), 500); }
 
-    // ===== Button Event Listeners =====
     startBtn.addEventListener('click', startChat);
     stopBtn.addEventListener('click', stopChat);
     nextBtn.addEventListener('click', nextStranger);
 
-    log('✅ App ready! Click START button');
+    log('✅ Ready!');
   </script>
 </body>
 </html>

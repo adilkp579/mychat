@@ -87,7 +87,6 @@
       min-height: 0;
     }
 
-    /* Stranger camera - INCREASED HEIGHT by ~1.5cm (approx 56px on mobile) */
     .stranger-camera {
       width: 75%;
       height: 100%;
@@ -153,13 +152,15 @@
       box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
     }
 
-    /* Selfie camera - NO mirror flip, natural view like mobile selfie camera */
+    /* FIX: Mirror flip so right side of face shows on right side of screen */
     #myFeed {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: none;
       background: #000;
+      transform: rotateY(180deg);
+      -webkit-transform: rotateY(180deg);
     }
 
     .my-placeholder {
@@ -431,7 +432,6 @@
       -webkit-backdrop-filter: blur(10px);
     }
 
-    /* Mobile - increased height */
     @media (max-width: 380px) {
       .content {
         padding: 0.3rem 0.6rem 5rem 0.6rem;
@@ -550,7 +550,7 @@
         </div>
 
         <div class="my-camera" id="myCamera">
-          <!-- Selfie camera - natural view, no mirror flip -->
+          <!-- rotateY(180deg) fixes mirror: right face = right screen -->
           <video id="myFeed" autoplay playsinline muted></video>
           <div class="my-placeholder" id="myPlaceholder">
             <i class="fas fa-video"></i>

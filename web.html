@@ -152,12 +152,15 @@
       box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
     }
 
+    /* FIX: Mirror the selfie camera so left is left, right is right */
     #myFeed {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: none;
       background: #000;
+      transform: scaleX(-1);
+      -webkit-transform: scaleX(-1);
     }
 
     .my-placeholder {
@@ -277,7 +280,6 @@
       font-size: 0.9rem;
     }
 
-    /* Buttons container */
     .buttons-container {
       display: flex;
       gap: 0.6rem;
@@ -286,7 +288,6 @@
       padding: 0.3rem 0;
     }
 
-    /* All buttons base style */
     .btn {
       height: 38px;
       border-radius: 2rem;
@@ -304,13 +305,13 @@
       font-size: 0.75rem;
       font-weight: 600;
       letter-spacing: 0.5px;
+      padding: 0 1rem;
     }
 
     .btn:active {
       transform: scale(0.95);
     }
 
-    /* Start button */
     .start-button {
       width: 90px;
       background: rgba(74, 222, 128, 0.15);
@@ -329,7 +330,6 @@
       animation: pulse 1s infinite;
     }
 
-    /* Stop button - hidden by default */
     .stop-button {
       width: 80px;
       background: rgba(239, 68, 68, 0.15);
@@ -346,7 +346,6 @@
       display: flex;
     }
 
-    /* Next button - hidden by default */
     .next-button {
       width: 80px;
       background: rgba(255, 255, 255, 0.08);
@@ -363,7 +362,6 @@
       display: flex;
     }
 
-    /* Record button */
     .record-button {
       width: 80px;
       background: rgba(255, 255, 255, 0.06);
@@ -447,10 +445,10 @@
       .btn {
         height: 34px;
         font-size: 0.7rem;
-        padding: 0 0.8rem;
+        padding: 0 0.7rem;
       }
       .start-button, .stop-button, .next-button, .record-button {
-        width: 70px;
+        width: 68px;
       }
     }
 
@@ -469,6 +467,7 @@
       .btn {
         height: 44px;
         font-size: 0.85rem;
+        padding: 0 1.2rem;
       }
       .start-button { width: 100px; }
       .stop-button, .next-button, .record-button { width: 90px; }
@@ -533,6 +532,7 @@
         </div>
 
         <div class="my-camera" id="myCamera">
+          <!-- FIXED: Mirror flip applied via CSS transform: scaleX(-1) -->
           <video id="myFeed" autoplay playsinline muted></video>
           <div class="my-placeholder" id="myPlaceholder">
             <i class="fas fa-video"></i>
@@ -547,25 +547,21 @@
       </div>
 
       <div class="buttons-container">
-        <!-- Start button - visible when not connected -->
         <button class="btn start-button" id="startButton" onclick="startChat()">
           <i class="fas fa-play"></i>
           <span>Start</span>
         </button>
         
-        <!-- Stop button - visible when connected -->
         <button class="btn stop-button" id="stopButton" onclick="stopChat()">
           <i class="fas fa-stop"></i>
           <span>Stop</span>
         </button>
         
-        <!-- Next button - visible when connected -->
         <button class="btn next-button" id="nextButton" onclick="nextStranger()">
           <i class="fas fa-forward"></i>
           <span>Next</span>
         </button>
         
-        <!-- Record button -->
         <button class="btn record-button" id="recordButton" onclick="toggleRecording()">
           <i class="fas fa-circle" id="recordIcon"></i>
           <span id="recordText">Record</span>
@@ -632,7 +628,11 @@
         const myPlaceholder = document.getElementById('myPlaceholder');
         const myCamera = document.getElementById('myCamera');
         
-        myStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        // Request front camera (user facing)
+        myStream = await navigator.mediaDevices.getUserMedia({ 
+          video: { facingMode: 'user' }, 
+          audio: true 
+        });
         myFeed.srcObject = myStream;
         await myFeed.play();
         myFeed.style.display = 'block';
@@ -751,7 +751,6 @@
       stopTimer();
       isConnected = false;
       
-      // Show searching on next button
       nextBtn.querySelector('span').textContent = 'Searching';
       nextBtn.querySelector('i').className = 'fas fa-spinner fa-spin';
       nextBtn.style.color = '#fbbf24';

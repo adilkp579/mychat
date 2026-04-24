@@ -505,18 +505,23 @@
 
     <nav class="floating-nav" role="navigation" aria-label="Main navigation">
       <div class="nav-center">
+        <!-- 1. index.html -->
         <a href="index.html" class="active" data-page="index" title="home" aria-current="page">
           <i class="fas fa-home"></i>
         </a>
-        <a href="chat.html" data-page="chat" title="chat">
-          <i class="fas fa-comment-dots"></i>
-        </a>
-        <a href="search.html" data-page="search" title="search">
-          <i class="fas fa-search"></i>
-        </a>
+        <!-- 2. web.html -->
         <a href="web.html" data-page="web" title="web">
           <i class="fas fa-globe"></i>
         </a>
+        <!-- 3. search.html -->
+        <a href="search.html" data-page="search" title="search">
+          <i class="fas fa-search"></i>
+        </a>
+        <!-- 4. chat.html -->
+        <a href="chat.html" data-page="chat" title="chat">
+          <i class="fas fa-comment-dots"></i>
+        </a>
+        <!-- 5. profile.html -->
         <a href="profile.html" data-page="profile" title="profile">
           <i class="fas fa-user"></i>
         </a>
@@ -529,9 +534,9 @@
       const pageMap = {
         index: { icon: 'fa-house', title: 'home', hint: 'index.html' },
         home: { icon: 'fa-house', title: 'home', hint: 'index.html' },
-        chat: { icon: 'fa-comment-dots', title: 'chat', hint: 'chat.html' },
-        search: { icon: 'fa-search', title: 'search', hint: 'search.html' },
         web: { icon: 'fa-globe', title: 'web', hint: 'web.html' },
+        search: { icon: 'fa-search', title: 'search', hint: 'search.html' },
+        chat: { icon: 'fa-comment-dots', title: 'chat', hint: 'chat.html' },
         profile: { icon: 'fa-user', title: 'profile', hint: 'profile.html' }
       };
 
@@ -600,7 +605,7 @@
         });
       });
 
-      console.log('✨ index.html navbar now matches web.html size exactly');
+      console.log('✨ Navbar order: 1.index 2.web 3.search 4.chat 5.profile');
     })();
   </script>
 </body>

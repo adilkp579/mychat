@@ -100,7 +100,6 @@
       color: #ff6b81;
     }
 
-    /* Empty content area */
     .content {
       flex: 1;
       display: flex;
@@ -112,7 +111,6 @@
       text-align: center;
     }
 
-    /* Same navbar as web.html */
     .floating-nav {
       position: absolute;
       bottom: max(1.5rem, env(safe-area-inset-bottom, 1.5rem));
@@ -131,13 +129,6 @@
       border: 1px solid rgba(255, 255, 255, 0.12);
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08) inset, 0 1px 0 rgba(255, 255, 255, 0.05) inset;
       z-index: 100;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .floating-nav:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.18);
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.1) inset, 0 1px 0 rgba(255, 255, 255, 0.08) inset;
     }
 
     .nav-center {
@@ -198,121 +189,21 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.15) inset;
     }
 
-    @media (max-width: 767px) {
-      .floating-nav {
-        width: 92%;
-        max-width: 500px;
-        padding: 0.7rem 1.5rem;
-        border-radius: 2.5rem;
-      }
-    }
-
-    @media (max-width: 380px) {
-      .top-left-corner a,
-      .top-right-corner a {
-        width: 2.2rem;
-        height: 2.2rem;
-        font-size: 1rem;
-      }
-
-      .nav-center {
-        gap: 0.2rem;
-      }
-
-      .nav-center a {
-        font-size: 1.1rem;
-        width: 2rem;
-        height: 2rem;
-      }
-
-      .floating-nav {
-        width: 94%;
-        padding: 0.55rem 0.8rem;
-        border-radius: 2rem;
-        bottom: 1rem;
-      }
-    }
-
-    @media (min-width: 768px) and (max-width: 1023px) {
-      .floating-nav {
-        width: 65%;
-        max-width: 550px;
-        padding: 0.8rem 2rem;
-        border-radius: 2.8rem;
-      }
-
-      .nav-center {
-        max-width: 420px;
-        gap: 0.8rem;
-      }
-
-      .nav-center a {
-        font-size: 1.4rem;
-        width: 2.7rem;
-        height: 2.7rem;
-      }
-    }
-
     @media (min-width: 1024px) {
-      .top-left-corner a,
-      .top-right-corner a {
+      .top-left-corner a, .top-right-corner a {
         width: 3.2rem;
         height: 3.2rem;
         font-size: 1.4rem;
       }
-
       .floating-nav {
         width: 45%;
         max-width: 550px;
         padding: 0.9rem 2.2rem;
-        bottom: 2.5rem;
-        border-radius: 3rem;
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid rgba(255, 255, 255, 0.1);
       }
-
-      .nav-center {
-        max-width: 450px;
-        gap: 1rem;
-      }
-
       .nav-center a {
         font-size: 1.5rem;
         width: 2.8rem;
         height: 2.8rem;
-      }
-
-      .nav-center a:hover {
-        color: rgba(255, 255, 255, 0.9);
-        background: rgba(255, 255, 255, 0.1);
-        transform: translateY(-2px);
-      }
-    }
-
-    @media (min-width: 1440px) {
-      .top-left-corner a,
-      .top-right-corner a {
-        width: 3.5rem;
-        height: 3.5rem;
-        font-size: 1.6rem;
-      }
-
-      .floating-nav {
-        width: 38%;
-        max-width: 600px;
-        padding: 1rem 2.8rem;
-        border-radius: 3.2rem;
-      }
-
-      .nav-center {
-        max-width: 500px;
-        gap: 1.5rem;
-      }
-
-      .nav-center a {
-        font-size: 1.7rem;
-        width: 3rem;
-        height: 3rem;
       }
     }
   </style>
@@ -320,38 +211,20 @@
 <body>
   <div class="page">
     <div class="top-left-corner">
-      <a href="upload.html" title="upload" aria-label="Upload">
-        <i class="fas fa-plus"></i>
-      </a>
+      <a href="upload.html" title="upload"><i class="fas fa-plus"></i></a>
     </div>
-
     <div class="top-right-corner">
-      <a href="like.html" title="like" aria-label="Like">
-        <i class="fas fa-heart"></i>
-      </a>
+      <a href="like.html" title="like"><i class="fas fa-heart"></i></a>
     </div>
-
-    <!-- Empty content area -->
     <div class="content">
     </div>
-
-    <nav class="floating-nav" role="navigation" aria-label="Main navigation">
+    <nav class="floating-nav">
       <div class="nav-center">
-        <a href="index.html" data-page="index" title="home">
-          <i class="fas fa-home"></i>
-        </a>
-        <a href="chat.html" data-page="chat" title="chat">
-          <i class="fas fa-comment-dots"></i>
-        </a>
-        <a href="search.html" class="active" data-page="search" title="search" aria-current="page">
-          <i class="fas fa-search"></i>
-        </a>
-        <a href="web.html" data-page="web" title="web">
-          <i class="fas fa-globe"></i>
-        </a>
-        <a href="profile.html" data-page="profile" title="profile">
-          <i class="fas fa-user"></i>
-        </a>
+        <a href="index.html" data-page="index" title="home"><i class="fas fa-home"></i></a>
+        <a href="web.html" data-page="web" title="web"><i class="fas fa-globe"></i></a>
+        <a href="search.html" class="active" data-page="search" title="search" aria-current="page"><i class="fas fa-search"></i></a>
+        <a href="chat.html" data-page="chat" title="chat"><i class="fas fa-comment-dots"></i></a>
+        <a href="profile.html" data-page="profile" title="profile"><i class="fas fa-user"></i></a>
       </div>
     </nav>
   </div>

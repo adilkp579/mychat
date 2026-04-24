@@ -87,10 +87,11 @@
       min-height: 0;
     }
 
+    /* Stranger camera - INCREASED HEIGHT by ~1.5cm (approx 56px on mobile) */
     .stranger-camera {
       width: 75%;
       height: 100%;
-      max-height: 55vh;
+      max-height: 64vh;
       background: #111;
       border: 2px solid rgba(255, 255, 255, 0.2);
       border-radius: 1.2rem;
@@ -136,7 +137,7 @@
 
     .my-camera {
       width: 22%;
-      max-height: 140px;
+      max-height: 150px;
       aspect-ratio: 3/4;
       background: #111;
       border: 2px solid rgba(255, 255, 255, 0.3);
@@ -152,15 +153,13 @@
       box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
     }
 
-    /* FIX: Mirror the selfie camera so left is left, right is right */
+    /* Selfie camera - NO mirror flip, natural view like mobile selfie camera */
     #myFeed {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: none;
       background: #000;
-      transform: scaleX(-1);
-      -webkit-transform: scaleX(-1);
     }
 
     .my-placeholder {
@@ -432,15 +431,16 @@
       -webkit-backdrop-filter: blur(10px);
     }
 
+    /* Mobile - increased height */
     @media (max-width: 380px) {
       .content {
         padding: 0.3rem 0.6rem 5rem 0.6rem;
       }
       .stranger-camera {
-        max-height: 50vh;
+        max-height: 62vh;
       }
       .my-camera {
-        max-height: 100px;
+        max-height: 110px;
       }
       .btn {
         height: 34px;
@@ -452,16 +452,25 @@
       }
     }
 
+    @media (min-width: 381px) and (max-width: 767px) {
+      .stranger-camera {
+        max-height: 66vh;
+      }
+      .my-camera {
+        max-height: 140px;
+      }
+    }
+
     @media (min-width: 768px) {
       .content {
         padding: 0.8rem 2rem 5.5rem 2rem;
       }
       .stranger-camera {
-        max-height: 60vh;
+        max-height: 68vh;
         border-radius: 1.5rem;
       }
       .my-camera {
-        max-height: 160px;
+        max-height: 170px;
         border-radius: 1rem;
       }
       .btn {
@@ -479,11 +488,11 @@
         padding: 0.5rem 3rem 5.5rem 3rem;
       }
       .stranger-camera {
-        max-height: 62vh;
+        max-height: 70vh;
         border-radius: 1.8rem;
       }
       .my-camera {
-        max-height: 170px;
+        max-height: 180px;
       }
       .btn {
         height: 46px;
@@ -500,6 +509,15 @@
         font-size: 1.5rem;
         width: 2.8rem;
         height: 2.8rem;
+      }
+    }
+
+    @media (min-width: 1440px) {
+      .stranger-camera {
+        max-height: 72vh;
+      }
+      .my-camera {
+        max-height: 200px;
       }
     }
   </style>
@@ -532,7 +550,7 @@
         </div>
 
         <div class="my-camera" id="myCamera">
-          <!-- FIXED: Mirror flip applied via CSS transform: scaleX(-1) -->
+          <!-- Selfie camera - natural view, no mirror flip -->
           <video id="myFeed" autoplay playsinline muted></video>
           <div class="my-placeholder" id="myPlaceholder">
             <i class="fas fa-video"></i>
@@ -628,7 +646,6 @@
         const myPlaceholder = document.getElementById('myPlaceholder');
         const myCamera = document.getElementById('myCamera');
         
-        // Request front camera (user facing)
         myStream = await navigator.mediaDevices.getUserMedia({ 
           video: { facingMode: 'user' }, 
           audio: true 

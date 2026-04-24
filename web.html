@@ -108,7 +108,6 @@
       box-shadow: 0 0 30px rgba(74, 222, 128, 0.3), 0 15px 40px rgba(0, 0, 0, 0.6);
     }
 
-    /* BOTH cameras: rotateY(180deg) for natural face view */
     #strangerFeed {
       width: 100%;
       height: 100%;
@@ -155,7 +154,6 @@
       box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
     }
 
-    /* YOUR camera: rotateY(180deg) for natural face view */
     #myFeed {
       width: 100%;
       height: 100%;
@@ -384,9 +382,10 @@
       animation: pulse 1.5s infinite;
     }
 
-    .navbar {
+    /* ===== NAVBAR - SAME AS INDEX.HTML ===== */
+    .floating-nav {
       position: absolute;
-      bottom: max(0.8rem, env(safe-area-inset-bottom, 0.8rem));
+      bottom: max(1.5rem, env(safe-area-inset-bottom, 1.5rem));
       left: 50%;
       transform: translateX(-50%);
       width: 92%;
@@ -395,13 +394,20 @@
       backdrop-filter: blur(30px) saturate(200%);
       -webkit-backdrop-filter: blur(30px) saturate(200%);
       border-radius: 2.5rem;
-      padding: 0.6rem 1.5rem;
+      padding: 0.7rem 1.5rem;
       display: flex;
       align-items: center;
       justify-content: center;
       border: 1px solid rgba(255, 255, 255, 0.12);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08) inset, 0 1px 0 rgba(255, 255, 255, 0.05) inset;
       z-index: 100;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .floating-nav:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.18);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.1) inset, 0 1px 0 rgba(255, 255, 255, 0.08) inset;
     }
 
     .nav-center {
@@ -422,10 +428,34 @@
       width: 2.5rem;
       height: 2.5rem;
       border-radius: 50%;
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       text-decoration: none;
+      position: relative;
       flex-shrink: 0;
       -webkit-tap-highlight-color: transparent;
+      background: transparent;
+    }
+
+    .nav-center a::before {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      transform: translateX(-50%) scale(0);
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #ffffff;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .nav-center a.active::before {
+      transform: translateX(-50%) scale(1);
+    }
+
+    .nav-center a:active {
+      transform: scale(0.85);
+      background: rgba(255, 255, 255, 0.1);
     }
 
     .nav-center a.active {
@@ -433,6 +463,27 @@
       background: rgba(255, 255, 255, 0.15);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
+      font-weight: 500;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+    }
+
+    /* ===== RESPONSIVE NAVBAR - SAME AS INDEX.HTML ===== */
+    @media (max-width: 767px) {
+      .floating-nav {
+        width: 92%;
+        max-width: 500px;
+        padding: 0.7rem 1.5rem;
+        border-radius: 2.5rem;
+      }
+      .nav-center {
+        max-width: 380px;
+      }
+      .nav-center a {
+        font-size: 1.3rem;
+        width: 2.5rem;
+        height: 2.5rem;
+      }
     }
 
     @media (max-width: 380px) {
@@ -441,6 +492,10 @@
       .my-camera { max-height: 110px; }
       .btn { height: 34px; font-size: 0.7rem; padding: 0 0.7rem; }
       .start-button, .stop-button, .next-button, .record-button { width: 68px; }
+      
+      .nav-center { gap: 0.2rem; }
+      .nav-center a { font-size: 1.1rem; width: 2rem; height: 2rem; }
+      .floating-nav { width: 94%; padding: 0.55rem 0.8rem; border-radius: 2rem; bottom: 1rem; }
     }
 
     @media (min-width: 381px) and (max-width: 767px) {
@@ -448,7 +503,7 @@
       .my-camera { max-height: 140px; }
     }
 
-    @media (min-width: 768px) {
+    @media (min-width: 768px) and (max-width: 1023px) {
       .content { padding: 0.8rem 2rem 5.5rem 2rem; }
       .stranger-camera { max-height: 68vh; border-radius: 1.5rem; }
       .my-camera { max-height: 170px; border-radius: 1rem; }
@@ -456,6 +511,10 @@
       .start-button { width: 100px; }
       .stop-button, .next-button, .record-button { width: 90px; }
       .buttons-container { gap: 1rem; }
+
+      .floating-nav { width: 65%; max-width: 550px; padding: 0.8rem 2rem; border-radius: 2.8rem; }
+      .nav-center { max-width: 420px; gap: 0.8rem; }
+      .nav-center a { font-size: 1.4rem; width: 2.7rem; height: 2.7rem; }
     }
 
     @media (min-width: 1024px) {
@@ -465,13 +524,21 @@
       .btn { height: 46px; font-size: 0.85rem; }
       .start-button { width: 110px; }
       .stop-button, .next-button, .record-button { width: 95px; }
-      .navbar { width: 45%; max-width: 550px; padding: 0.8rem 2rem; }
+
+      .floating-nav { width: 45%; max-width: 550px; padding: 0.9rem 2.2rem; bottom: 2.5rem; border-radius: 3rem; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); }
+      .nav-center { max-width: 450px; gap: 1rem; }
       .nav-center a { font-size: 1.5rem; width: 2.8rem; height: 2.8rem; }
+      .nav-center a:hover { color: rgba(255, 255, 255, 0.9); background: rgba(255, 255, 255, 0.1); transform: translateY(-2px); }
+      .nav-center a.active:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
     }
 
     @media (min-width: 1440px) {
       .stranger-camera { max-height: 72vh; }
       .my-camera { max-height: 200px; }
+
+      .floating-nav { width: 38%; max-width: 600px; padding: 1rem 2.8rem; border-radius: 3.2rem; }
+      .nav-center { max-width: 500px; gap: 1.5rem; }
+      .nav-center a { font-size: 1.7rem; width: 3rem; height: 3rem; }
     }
   </style>
 </head>
@@ -490,7 +557,6 @@
 
       <div class="camera-container">
         <div class="stranger-camera" id="strangerCamera">
-          <!-- Stranger feed - rotateY(180deg) for natural face -->
           <video id="strangerFeed" autoplay playsinline muted></video>
           <div class="stranger-placeholder" id="strangerPlaceholder">
             <i class="fas fa-user-secret"></i>
@@ -504,7 +570,6 @@
         </div>
 
         <div class="my-camera" id="myCamera">
-          <!-- Your feed - rotateY(180deg) for natural face -->
           <video id="myFeed" autoplay playsinline muted></video>
           <div class="my-placeholder" id="myPlaceholder">
             <i class="fas fa-video"></i>
@@ -538,7 +603,8 @@
       </div>
     </div>
 
-    <nav class="navbar">
+    <!-- NAVBAR - SAME AS INDEX.HTML -->
+    <nav class="floating-nav" role="navigation" aria-label="Main navigation">
       <div class="nav-center">
         <a href="index.html" data-page="index" title="home"><i class="fas fa-home"></i></a>
         <a href="web.html" class="active" data-page="web" title="web" aria-current="page"><i class="fas fa-globe"></i></a>
@@ -559,16 +625,11 @@
     let myStream = null;
 
     const strangers = [
-      { flag: '🇺🇸', country: 'United States' },
-      { flag: '🇬🇧', country: 'United Kingdom' },
-      { flag: '🇯🇵', country: 'Japan' },
-      { flag: '🇧🇷', country: 'Brazil' },
-      { flag: '🇩🇪', country: 'Germany' },
-      { flag: '🇫🇷', country: 'France' },
-      { flag: '🇮🇳', country: 'India' },
-      { flag: '🇨🇦', country: 'Canada' },
-      { flag: '🇦🇺', country: 'Australia' },
-      { flag: '🇰🇷', country: 'South Korea' },
+      { flag: '🇺🇸', country: 'United States' }, { flag: '🇬🇧', country: 'United Kingdom' },
+      { flag: '🇯🇵', country: 'Japan' }, { flag: '🇧🇷', country: 'Brazil' },
+      { flag: '🇩🇪', country: 'Germany' }, { flag: '🇫🇷', country: 'France' },
+      { flag: '🇮🇳', country: 'India' }, { flag: '🇨🇦', country: 'Canada' },
+      { flag: '🇦🇺', country: 'Australia' }, { flag: '🇰🇷', country: 'South Korea' },
     ];
 
     const startBtn = document.getElementById('startButton');
@@ -590,17 +651,11 @@
 
     async function startMyCamera() {
       try {
-        if (myStream) {
-          myStream.getTracks().forEach(track => track.stop());
-        }
+        if (myStream) { myStream.getTracks().forEach(track => track.stop()); }
         const myFeed = document.getElementById('myFeed');
         const myPlaceholder = document.getElementById('myPlaceholder');
         const myCamera = document.getElementById('myCamera');
-        
-        myStream = await navigator.mediaDevices.getUserMedia({ 
-          video: { facingMode: 'user' }, 
-          audio: true 
-        });
+        myStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: true });
         myFeed.srcObject = myStream;
         await myFeed.play();
         myFeed.style.display = 'block';
@@ -614,10 +669,7 @@
     }
 
     function stopMyCamera() {
-      if (myStream) {
-        myStream.getTracks().forEach(track => track.stop());
-        myStream = null;
-      }
+      if (myStream) { myStream.getTracks().forEach(track => track.stop()); myStream = null; }
       document.getElementById('myFeed').style.display = 'none';
       document.getElementById('myFeed').srcObject = null;
       document.getElementById('myPlaceholder').style.display = 'flex';
@@ -628,46 +680,35 @@
       const strangerFeed = document.getElementById('strangerFeed');
       const strangerPlaceholder = document.getElementById('strangerPlaceholder');
       const strangerCamera = document.getElementById('strangerCamera');
-      
       if (myStream) {
         strangerFeed.srcObject = myStream;
         strangerFeed.style.display = 'block';
         strangerPlaceholder.style.display = 'none';
         strangerCamera.classList.add('connected');
       }
-      
-      const randomStranger = strangers[Math.floor(Math.random() * strangers.length)];
-      document.getElementById('userFlag').textContent = randomStranger.flag;
-      document.getElementById('userCountry').textContent = randomStranger.country;
+      const rs = strangers[Math.floor(Math.random() * strangers.length)];
+      document.getElementById('userFlag').textContent = rs.flag;
+      document.getElementById('userCountry').textContent = rs.country;
       document.getElementById('userInfo').classList.add('active');
     }
 
     function disconnectStranger() {
-      const strangerFeed = document.getElementById('strangerFeed');
-      const strangerPlaceholder = document.getElementById('strangerPlaceholder');
-      const strangerCamera = document.getElementById('strangerCamera');
-      
-      strangerFeed.style.display = 'none';
-      strangerFeed.srcObject = null;
-      strangerPlaceholder.style.display = 'flex';
-      strangerCamera.classList.remove('connected');
+      document.getElementById('strangerFeed').style.display = 'none';
+      document.getElementById('strangerFeed').srcObject = null;
+      document.getElementById('strangerPlaceholder').style.display = 'flex';
+      document.getElementById('strangerCamera').classList.remove('connected');
       document.getElementById('userInfo').classList.remove('active');
-      
-      if (isRecording) {
-        toggleRecording();
-      }
+      if (isRecording) toggleRecording();
     }
 
     function startTimer() {
-      seconds = 0;
-      minutes = 0;
+      seconds = 0; minutes = 0;
       document.getElementById('timerDisplay').textContent = '00:00';
       document.getElementById('timerDisplay').classList.add('active');
       timerInterval = setInterval(() => {
         seconds++;
         if (seconds === 60) { seconds = 0; minutes++; }
-        document.getElementById('timerDisplay').textContent = 
-          `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        document.getElementById('timerDisplay').textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
       }, 1000);
     }
 
@@ -675,28 +716,21 @@
       clearInterval(timerInterval);
       document.getElementById('timerDisplay').classList.remove('active');
       document.getElementById('timerDisplay').textContent = '00:00';
-      seconds = 0;
-      minutes = 0;
     }
 
     async function startChat() {
       if (isSearching) return;
-      
       const cameraReady = await startMyCamera();
       if (!cameraReady) return;
-
       isSearching = true;
       startBtn.classList.add('searching');
       startBtn.querySelector('span').textContent = 'Searching';
       startBtn.querySelector('i').className = 'fas fa-spinner fa-spin';
-
       setTimeout(() => {
-        isSearching = false;
-        isConnected = true;
+        isSearching = false; isConnected = true;
         startBtn.classList.remove('searching');
         startBtn.querySelector('span').textContent = 'Start';
         startBtn.querySelector('i').className = 'fas fa-play';
-        
         showConnectedButtons();
         simulateStrangerConnection();
         startTimer();
@@ -704,76 +738,50 @@
     }
 
     function stopChat() {
-      disconnectStranger();
-      stopTimer();
-      stopMyCamera();
-      isConnected = false;
-      isSearching = false;
+      disconnectStranger(); stopTimer(); stopMyCamera();
+      isConnected = false; isSearching = false;
       showDisconnectedButtons();
     }
 
     async function nextStranger() {
       if (!isConnected) return;
-      
-      disconnectStranger();
-      stopTimer();
-      isConnected = false;
-      
+      disconnectStranger(); stopTimer(); isConnected = false;
       nextBtn.querySelector('span').textContent = 'Searching';
       nextBtn.querySelector('i').className = 'fas fa-spinner fa-spin';
-      nextBtn.style.color = '#fbbf24';
-      nextBtn.style.borderColor = 'rgba(251, 191, 36, 0.5)';
-      nextBtn.style.background = 'rgba(251, 191, 36, 0.2)';
-      nextBtn.style.animation = 'pulse 1s infinite';
-
+      Object.assign(nextBtn.style, { color: '#fbbf24', borderColor: 'rgba(251,191,36,0.5)', background: 'rgba(251,191,36,0.2)', animation: 'pulse 1s infinite' });
       setTimeout(() => {
         isConnected = true;
         nextBtn.querySelector('span').textContent = 'Next';
         nextBtn.querySelector('i').className = 'fas fa-forward';
-        nextBtn.style.color = '#ccc';
-        nextBtn.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-        nextBtn.style.background = 'rgba(255, 255, 255, 0.08)';
-        nextBtn.style.animation = '';
-        
+        Object.assign(nextBtn.style, { color: '#ccc', borderColor: 'rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.08)', animation: '' });
         simulateStrangerConnection();
         startTimer();
       }, 1500 + Math.random() * 2000);
     }
 
     function toggleRecording() {
-      const recordBtn = document.getElementById('recordButton');
-      const recordIcon = document.getElementById('recordIcon');
-      const recordText = document.getElementById('recordText');
-      const recIndicator = document.getElementById('recIndicator');
-
-      if (!isConnected) {
-        alert('Connect with a stranger first to start recording!');
-        return;
-      }
-
+      const rb = document.getElementById('recordButton');
+      if (!isConnected) { alert('Connect with a stranger first to start recording!'); return; }
       if (!isRecording) {
         isRecording = true;
-        recordBtn.classList.add('recording');
-        recordIcon.className = 'fas fa-stop';
-        recordText.textContent = 'Stop';
-        recIndicator.classList.add('active');
+        rb.classList.add('recording');
+        document.getElementById('recordIcon').className = 'fas fa-stop';
+        document.getElementById('recordText').textContent = 'Stop';
+        document.getElementById('recIndicator').classList.add('active');
       } else {
         isRecording = false;
-        recordBtn.classList.remove('recording');
-        recordIcon.className = 'fas fa-circle';
-        recordText.textContent = 'Record';
-        recIndicator.classList.remove('active');
+        rb.classList.remove('recording');
+        document.getElementById('recordIcon').className = 'fas fa-circle';
+        document.getElementById('recordText').textContent = 'Record';
+        document.getElementById('recIndicator').classList.remove('active');
       }
     }
 
     setInterval(() => {
-      const count = Math.floor(10000 + Math.random() * 15000);
-      document.getElementById('onlineCount').textContent = `${count.toLocaleString()} strangers online`;
+      document.getElementById('onlineCount').textContent = `${Math.floor(10000 + Math.random() * 15000).toLocaleString()} strangers online`;
     }, 5000);
 
-    window.addEventListener('beforeunload', () => {
-      if (isConnected) stopChat();
-    });
+    window.addEventListener('beforeunload', () => { if (isConnected) stopChat(); });
   </script>
 </body>
 </html>

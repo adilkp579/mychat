@@ -21,17 +21,32 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 // WebRTC setup
-let pc, localStream, roomId, unsubRoom;
+let pc, localStream, roomId, unsubRoom, unsubCandidates;
 const userId = crypto.randomUUID();
 
+console.log('🆔 My User ID:', userId);
+
+// Better STUN/TURN servers
 const servers = {
-  iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+  iceServers: [
+    { urls: "stun:stun.l.google.com:19302" },
+    { urls: "stun:stun1.l.google.com:19302" },
+    { urls: "stun:stun2.l.google.com:19302" },
+  ]
 };
 
 // 🎥 Initialize camera
 async function initCamera() {
   try {
-    localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: true });
+    if (localStream) {
+      localStream.getTracks().forEach(t => t.stop());
+    }
+    
+    localStream = await navigator.mediaDevices.getUserMedia({ 
+      video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }, 
+      audio: true 
+    });
+    
     const myFeed = document.getElementById("myFeed");
     const myPlaceholder = document.getElementById("myPlaceholder");
     const myCamera = document.getElementById("myCamera");
@@ -42,9 +57,10 @@ async function initCamera() {
     myPlaceholder.style.display = "none";
     myCamera.classList.add("active");
     
+    console.log('📷 Camera started');
     return localStream;
   } catch (err) {
-    console.error("Camera error:", err);
+    console.error("❌ Camera error:", err);
     alert('Camera access needed. Please allow permissions.');
     throw err;
   }
@@ -52,54 +68,91 @@ async function initCamera() {
 
 // 🚪 Join queue to find stranger
 async function joinQueue() {
-  const queueRef = collection(db, "queue");
-  const waitingDoc = doc(db, "queue", "waiting");
+  console.log('🔍 Joining queue...');
   
   try {
+    const waitingDoc = doc(db, "queue", "waiting");
     const snap = await getDoc(waitingDoc);
 
+    console.log('Queue snapshot exists:', snap.exists());
+    
     if (!snap.exists()) {
       // No one waiting - become the waiter
-      await setDoc(waitingDoc, { userId, created: serverTimestamp() });
-      console.log('⏳ Waiting for stranger...');
-      listenForMatch(waitingDoc);
+      await setDoc(waitingDoc, { 
+        userId: userId, 
+        created: serverTimestamp() 
+      });
+      console.log('⏳ I am waiting for a stranger...');
+      listenForMatch();
     } else {
-      // Someone is waiting - connect with them
-      const other = snap.data().userId;
-      if (other !== userId) {
+      const data = snap.data();
+      console.log('Queue data:', data);
+      
+      if (data.userId && data.userId !== userId) {
+        // Someone is waiting - connect with them
+        const otherUserId = data.userId;
+        console.log('🔗 Found stranger:', otherUserId);
+        
         await deleteDoc(waitingDoc);
-        console.log('🔗 Stranger found! Connecting...');
-        await createRoom(other, true);
+        console.log('🗑️ Deleted queue doc');
+        
+        await createRoom(otherUserId, true);
+      } else if (data.userId === userId) {
+        console.log('⚠️ Found myself in queue, listening...');
+        listenForMatch();
       }
     }
   } catch (err) {
-    console.error("Queue error:", err);
+    console.error("❌ Queue error:", err);
     window.videoChat.setSearching(false);
     window.videoChat.showDisconnected();
+    alert('Connection error. Please try again.');
   }
 }
 
 // 👂 Listen for stranger match
-function listenForMatch(waitingDoc) {
+function listenForMatch() {
+  console.log('👂 Listening for match...');
+  
+  const waitingDoc = doc(db, "queue", "waiting");
+  
   unsubRoom = onSnapshot(waitingDoc, async (snap) => {
+    console.log('📡 Queue snapshot update:', snap.exists() ? snap.data() : 'deleted');
+    
     if (!snap.exists()) {
-      // Document deleted - someone picked us up
+      // Someone deleted it - might be picked up
+      console.log('Queue doc deleted');
       return;
     }
+    
     const data = snap.data();
-    if (data && data.userId !== userId) {
-      // Found a match
-      await deleteDoc(waitingDoc);
-      if (unsubRoom) unsubRoom();
-      console.log('🔗 Match found! Creating room...');
+    if (data && data.userId && data.userId !== userId) {
+      console.log('🎯 Match found with:', data.userId);
+      
+      // Stop listening
+      if (unsubRoom) {
+        unsubRoom();
+        unsubRoom = null;
+      }
+      
+      // Delete queue
+      await deleteDoc(waitingDoc).catch(() => {});
+      
+      // Create room (I am NOT the caller since other person was waiting)
       await createRoom(data.userId, false);
     }
+  }, (err) => {
+    console.error('❌ Listen error:', err);
   });
 }
 
 // 🏠 Create WebRTC room
 async function createRoom(otherUser, isCaller) {
+  console.log('🏠 Creating room with:', otherUser, 'isCaller:', isCaller);
+  
   roomId = [userId, otherUser].sort().join("_");
+  console.log('📁 Room ID:', roomId);
+  
   const roomRef = doc(db, "rooms", roomId);
 
   // Update UI
@@ -110,85 +163,128 @@ async function createRoom(otherUser, isCaller) {
 
   // Create peer connection
   pc = new RTCPeerConnection(servers);
+  console.log('🔗 PeerConnection created');
 
-  localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+  // Add local tracks
+  if (localStream) {
+    localStream.getTracks().forEach(t => {
+      console.log('➕ Adding track:', t.kind);
+      pc.addTrack(t, localStream);
+    });
+  }
 
   // Handle incoming stream
   pc.ontrack = (e) => {
+    console.log('📥 Received remote track, streams:', e.streams.length);
     const strangerFeed = document.getElementById("strangerFeed");
     const strangerPlaceholder = document.getElementById("strangerPlaceholder");
     const strangerCamera = document.getElementById("strangerCamera");
     
-    strangerFeed.srcObject = e.streams[0];
-    strangerFeed.style.display = "block";
-    strangerPlaceholder.style.display = "none";
-    strangerCamera.classList.add("connected");
+    if (e.streams[0]) {
+      strangerFeed.srcObject = e.streams[0];
+      strangerFeed.style.display = "block";
+      strangerPlaceholder.style.display = "none";
+      strangerCamera.classList.add("connected");
+      console.log('✅ Remote stream displayed');
+    }
   };
 
   // ICE candidates
   pc.onicecandidate = async (e) => {
     if (e.candidate) {
+      console.log('🧊 New ICE candidate');
       try {
         await addDoc(collection(roomRef, "candidates"), e.candidate.toJSON());
       } catch (err) {
-        console.error("ICE candidate error:", err);
+        console.error("❌ ICE save error:", err);
       }
+    } else {
+      console.log('🧊 ICE gathering complete');
     }
   };
 
   // Connection state changes
   pc.onconnectionstatechange = () => {
-    console.log('Connection state:', pc.connectionState);
-    if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
+    console.log('🔗 Connection state:', pc.connectionState);
+    if (pc.connectionState === 'connected') {
+      console.log('✅✅✅ Successfully connected!');
+    } else if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
       console.log('❌ Connection lost');
     }
+  };
+
+  pc.oniceconnectionstatechange = () => {
+    console.log('🧊 ICE connection state:', pc.iceConnectionState);
   };
 
   // Caller creates offer
   if (isCaller) {
     try {
+      console.log('📞 Creating offer...');
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
-      await setDoc(roomRef, { offer, created: serverTimestamp() });
-      console.log('📞 Offer sent');
+      await setDoc(roomRef, { 
+        offer: {
+          type: offer.type,
+          sdp: offer.sdp
+        },
+        created: serverTimestamp() 
+      });
+      console.log('📞 Offer saved to Firestore');
     } catch (err) {
-      console.error("Offer error:", err);
+      console.error("❌ Offer error:", err);
     }
   }
 
   // Listen for signaling
   onSnapshot(roomRef, async (snap) => {
     const data = snap.data();
-    if (!data) return;
+    if (!data) {
+      console.log('📡 Room data: empty');
+      return;
+    }
+    
+    console.log('📡 Room data:', Object.keys(data));
 
     try {
-      // Answerer receives offer
+      // I am answerer, I receive offer
       if (data.offer && !pc.currentRemoteDescription && !isCaller) {
+        console.log('📩 Received offer, creating answer...');
         await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
         const answer = await pc.createAnswer();
         await pc.setLocalDescription(answer);
-        await updateDoc(roomRef, { answer });
-        console.log('📞 Answer sent');
+        await updateDoc(roomRef, { 
+          answer: {
+            type: answer.type,
+            sdp: answer.sdp
+          }
+        });
+        console.log('📞 Answer saved to Firestore');
       }
 
-      // Caller receives answer
+      // I am caller, I receive answer
       if (data.answer && !pc.currentRemoteDescription && isCaller) {
+        console.log('📩 Received answer, setting remote...');
         await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
-        console.log('✅ Connection established');
+        console.log('✅ Connection should be established');
       }
     } catch (err) {
-      console.error("Signaling error:", err);
+      console.error("❌ Signaling error:", err);
     }
   });
 
   // Listen for ICE candidates
-  onSnapshot(collection(roomRef, "candidates"), (snap) => {
+  unsubCandidates = onSnapshot(collection(roomRef, "candidates"), (snap) => {
     snap.docChanges().forEach(async (change) => {
       if (change.type === "added") {
+        const candidateData = change.doc.data();
+        console.log('🧊 Received ICE candidate');
         try {
-          await pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
+          if (pc && candidateData) {
+            await pc.addIceCandidate(new RTCIceCandidate(candidateData));
+          }
         } catch (err) {
-          console.error("Add ICE error:", err);
+          console.error("❌ Add ICE error:", err);
         }
       }
     });
@@ -200,11 +296,13 @@ async function nextStranger() {
   console.log('⏭️ Finding next stranger...');
   window.videoChat.setNextSearching(true);
   
-  // Cleanup current connection
   cleanup();
   
-  // Rejoin queue
-  await joinQueue();
+  // Small delay before rejoining
+  setTimeout(async () => {
+    await joinQueue();
+    window.videoChat.setNextSearching(false);
+  }, 500);
 }
 
 // 🛑 Stop chat
@@ -214,6 +312,21 @@ function stopChat() {
   window.videoChat.stopTimer();
   window.videoChat.showDisconnected();
   window.videoChat.setStrangerInfo(null, null);
+  window.videoChat.setSearching(false);
+  
+  // Stop camera
+  if (localStream) {
+    localStream.getTracks().forEach(t => t.stop());
+    localStream = null;
+  }
+  
+  const myFeed = document.getElementById("myFeed");
+  const myPlaceholder = document.getElementById("myPlaceholder");
+  const myCamera = document.getElementById("myCamera");
+  myFeed.style.display = "none";
+  myFeed.srcObject = null;
+  myPlaceholder.style.display = "flex";
+  myCamera.classList.remove("active");
   
   // Reset stranger feed
   const strangerFeed = document.getElementById("strangerFeed");
@@ -235,6 +348,10 @@ function cleanup() {
     unsubRoom();
     unsubRoom = null;
   }
+  if (unsubCandidates && typeof unsubCandidates === 'function') {
+    unsubCandidates();
+    unsubCandidates = null;
+  }
   if (roomId) {
     deleteDoc(doc(db, "rooms", roomId)).catch(() => {});
     roomId = null;
@@ -251,7 +368,7 @@ async function startChat() {
     await initCamera();
     await joinQueue();
   } catch (err) {
-    console.error("Start error:", err);
+    console.error("❌ Start error:", err);
     window.videoChat.setSearching(false);
     window.videoChat.showDisconnected();
   }
@@ -261,12 +378,18 @@ async function startChat() {
 function toggleRecord() {
   if (window.videoChat.isRecording) {
     window.videoChat.setRecording(false);
+    console.log('⏹️ Recording stopped');
   } else {
+    if (!pc || pc.connectionState !== 'connected') {
+      alert('Connect with a stranger first!');
+      return;
+    }
     window.videoChat.setRecording(true);
+    console.log('🔴 Recording started');
   }
 }
 
-// Override the stubs in window.videoChat
+// Override the stubs
 if (window.videoChat) {
   window.videoChat.start = startChat;
   window.videoChat.stop = stopChat;
@@ -274,4 +397,8 @@ if (window.videoChat) {
   window.videoChat.toggleRecord = toggleRecord;
 }
 
-console.log('✅ app.js loaded - Omegle-style video chat ready');
+console.log('✅ app.js loaded - Ready!');
+console.log('📋 Instructions:');
+console.log('1. Make sure Firestore rules allow read/write');
+console.log('2. Open two browser tabs to test');
+console.log('3. Click Start on both tabs');

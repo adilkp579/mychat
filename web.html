@@ -12,15 +12,15 @@
     .content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; color: #f0f0f0; padding: 0.5rem 1rem 6rem 1rem; text-align: center; gap: 0.3rem; overflow-y: auto; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
-    .online-counter { display:flex;align-items:center;gap:0.3rem;color:#4ade80;font-size:0.65rem;letter-spacing:0.5px;padding:0.2rem 0; }
+    .online-counter { display:flex;align-items:center;gap:0.3rem;color:#4ade80;font-size:0.65rem;padding:0.2rem 0; }
     .online-dot { width:5px;height:5px;background:#4ade80;border-radius:50%;animation:blink 2s infinite; }
     .camera-container { display:flex;gap:0.5rem;align-items:flex-start;justify-content:center;width:100%;max-width:500px;flex:1;min-height:0; }
     .stranger-camera { width:75%;height:100%;max-height:62vh;background:#111;border:2px solid rgba(255,255,255,0.2);border-radius:1.2rem;box-shadow:0 15px 40px rgba(0,0,0,0.6);position:relative;overflow:hidden;transition:all 0.5s ease;display:flex;align-items:center;justify-content:center; }
-    .stranger-camera.connected { border-color:rgba(74,222,128,0.6);box-shadow:0 0 30px rgba(74,222,128,0.3),0 15px 40px rgba(0,0,0,0.6); }
+    .stranger-camera.connected { border-color:rgba(74,222,128,0.6);box-shadow:0 0 30px rgba(74,222,128,0.3); }
     #strangerFeed { width:100%;height:100%;object-fit:cover;display:none;background:#000;transform:rotateY(180deg);-webkit-transform:rotateY(180deg); }
     .stranger-placeholder { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.3rem;color:rgba(255,255,255,0.25); }
     .stranger-placeholder i { font-size:3rem; }
-    .stranger-placeholder span { font-size:0.7rem;letter-spacing:1px; }
+    .stranger-placeholder span { font-size:0.7rem; }
     .my-camera { width:22%;max-height:150px;aspect-ratio:3/4;background:#111;border:2px solid rgba(255,255,255,0.3);border-radius:0.8rem;box-shadow:0 8px 20px rgba(0,0,0,0.6);position:relative;overflow:hidden;transition:all 0.3s ease; }
     .my-camera.active { border-color:rgba(255,0,0,0.6);box-shadow:0 0 15px rgba(255,0,0,0.3); }
     #myFeed { width:100%;height:100%;object-fit:cover;display:none;background:#000;transform:rotateY(180deg);-webkit-transform:rotateY(180deg); }
@@ -29,26 +29,23 @@
     .camera-labels { display:flex;justify-content:space-between;width:100%;max-width:500px;padding:0 0.2rem;margin-bottom:-0.2rem; }
     .stranger-label-outside { color:#777;font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;margin-left:0.3rem; }
     .you-label-outside { color:#777;font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;margin-right:0.3rem; }
-    .user-info { display:flex;align-items:center;gap:0.3rem;background:rgba(255,255,255,0.06);padding:0.25rem 0.6rem;border-radius:1rem;font-size:0.7rem;color:#ccc;opacity:0;transition:all 0.3s ease;border:1px solid rgba(255,255,255,0.08);margin:0; }
+    .user-info { display:flex;align-items:center;gap:0.3rem;background:rgba(255,255,255,0.06);padding:0.25rem 0.6rem;border-radius:1rem;font-size:0.7rem;color:#ccc;opacity:0;transition:all 0.3s ease;border:1px solid rgba(255,255,255,0.08); }
     .user-info.active { opacity:1; }
     .user-flag { font-size:0.9rem; }
-    .buttons-container { display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;padding:0.2rem 0 0 0;margin-top:-0.2rem; }
-    .btn { height:36px;border-radius:2rem;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;gap:0.3rem;cursor:pointer;transition:all 0.3s ease;user-select:none;border:none;outline:none;font-size:0.75rem;font-weight:600;letter-spacing:0.5px;padding:0 1rem; }
+    .buttons-container { display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;padding:0.2rem 0 0 0; }
+    .btn { height:36px;border-radius:2rem;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;gap:0.3rem;cursor:pointer;transition:all 0.3s ease;user-select:none;border:none;outline:none;font-size:0.75rem;font-weight:600;padding:0 1rem; }
     .btn:active { transform:scale(0.95); }
     .start-button { width:90px;background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.4);color:#4ade80; }
-    .start-button:hover { background:rgba(74,222,128,0.3); }
     .start-button.searching { background:rgba(251,191,36,0.2);border-color:rgba(251,191,36,0.5);color:#fbbf24;animation:pulse 1s infinite; }
     .stop-button { width:80px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#ef4444;display:none; }
-    .stop-button:hover { background:rgba(239,68,68,0.3); }
     .stop-button.visible { display:flex; }
     .next-button { width:80px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:#ccc;display:none; }
-    .next-button:hover { background:rgba(255,255,255,0.15); }
     .next-button.visible { display:flex; }
-    .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px) saturate(200%);-webkit-backdrop-filter:blur(30px) saturate(200%);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6);z-index:100; }
+    .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px) saturate(200%);-webkit-backdrop-filter:blur(30px) saturate(200%);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.08) inset;z-index:100; }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
     .nav-center a { color:rgba(255,255,255,0.6);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;flex-shrink:0; }
     .nav-center a.active { color:#fff;background:rgba(255,255,255,0.15);backdrop-filter:blur(10px); }
-    @media (max-width:380px) { .content{padding:0.3rem 0.6rem 5rem 0.6rem}.stranger-camera{max-height:56vh}.my-camera{max-height:100px}.btn{height:32px;font-size:0.65rem;padding:0 0.5rem}.start-button{width:60px}.stop-button,.next-button{width:55px}.floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem} }
+    @media (max-width:380px) { .content{padding:0.3rem 0.6rem 5rem 0.6rem}.stranger-camera{max-height:56vh}.my-camera{max-height:100px}.btn{height:32px;font-size:0.65rem;padding:0 0.5rem}.start-button{width:60px}.stop-button,.next-button{width:55px}.buttons-container{gap:0.3rem}.floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem} }
     @media (min-width:768px) { .stranger-camera{max-height:65vh;border-radius:1.5rem}.my-camera{max-height:160px}.btn{height:42px;font-size:0.85rem}.start-button{width:100px}.stop-button,.next-button{width:90px}.floating-nav{width:65%;padding:0.8rem 2rem} }
     @media (min-width:1024px) { .stranger-camera{max-height:67vh;border-radius:1.8rem}.my-camera{max-height:170px}.btn{height:44px}.start-button{width:110px}.stop-button,.next-button{width:95px}.floating-nav{width:45%;padding:0.9rem 2.2rem;bottom:2.5rem} }
   </style>
@@ -70,9 +67,9 @@
       </div>
       <div class="user-info" id="userInfo"><span class="user-flag" id="userFlag">🌍</span><span id="userCountry">Waiting...</span></div>
       <div class="buttons-container">
-        <button class="btn start-button" id="startBtn"> <i class="fas fa-play"></i><span>Start</span></button>
-        <button class="btn stop-button" id="stopBtn"> <i class="fas fa-stop"></i><span>Stop</span></button>
-        <button class="btn next-button" id="nextBtn"> <i class="fas fa-forward"></i><span>Next</span></button>
+        <button class="btn start-button" id="startBtn"><i class="fas fa-play"></i><span>Start</span></button>
+        <button class="btn stop-button" id="stopBtn"><i class="fas fa-stop"></i><span>Stop</span></button>
+        <button class="btn next-button" id="nextBtn"><i class="fas fa-forward"></i><span>Next</span></button>
       </div>
     </div>
     <nav class="floating-nav"><div class="nav-center">
@@ -115,13 +112,14 @@
     const nextBtn = document.getElementById('nextBtn');
 
     const myId = crypto.randomUUID();
-    let localStream, pc, roomId, unsubs=[];
+    let localStream, pc, roomId, unsubs=[], connectionTimeout;
 
     const servers = {
       iceServers: [
         { urls: "stun:stun.l.google.com:19302" },
-        { urls: "stun:stun1.l.google.com:19302" }
-      ]
+        { urls: "stun:stun1.l.google.com:19302" },
+      ],
+      iceCandidatePoolSize: 2
     };
 
     async function startCamera() {
@@ -154,127 +152,147 @@
       startBtn.querySelector('i').className='fas fa-play'; startBtn.disabled=false;
     }
 
-    // ===== FIXED: Single room-based WebRTC =====
-    async function setupWebRTC(roomRef, isCaller) {
-      if(pc){ pc.close(); }
+    async function createRoom(otherId, isCaller) {
+      roomId = [myId, otherId].sort().join('_');
+      const roomRef = doc(db, 'rooms', roomId);
+      showConnected();
+      userFlag.textContent='🌍'; userCountry.textContent='Connected!'; userInfo.classList.add('active');
+
+      if(pc){ pc.close(); pc=null; }
       unsubs.forEach(u=>u()); unsubs=[];
-      
+
       pc = new RTCPeerConnection(servers);
-      
-      localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+      localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));
 
       pc.ontrack = (e) => {
         if(e.streams[0]) {
           strangerVideo.srcObject = e.streams[0];
-          strangerVideo.style.display='block';
-          strangerPlaceholder.style.display='none';
-          strangerCamera.classList.add('connected');
-          userFlag.textContent='🌍'; userCountry.textContent='Connected!'; userInfo.classList.add('active');
+          strangerVideo.style.display='block'; strangerPlaceholder.style.display='none'; strangerCamera.classList.add('connected');
         }
       };
 
       pc.onicecandidate = async (e) => {
-        if(e.candidate) {
-          await addDoc(collection(roomRef, 'ice'), { sender: myId, candidate: e.candidate.toJSON() });
-        }
+        if(e.candidate) await addDoc(collection(roomRef,'ice'),{sender:myId,candidate:e.candidate.toJSON()});
       };
 
       pc.onconnectionstatechange = () => {
         if(pc.connectionState==='failed'||pc.connectionState==='disconnected') resetStranger();
       };
 
-      // Listen for partner's ICE
-      unsubs.push(onSnapshot(collection(roomRef, 'ice'), (snap) => {
+      pc.oniceconnectionstatechange = () => {
+        if(pc.iceConnectionState==='failed'&&pc) pc.restartIce();
+      };
+
+      unsubs.push(onSnapshot(collection(roomRef,'ice'), (snap) => {
         snap.docChanges().forEach(async (c) => {
-          if(c.type==='added' && c.doc.data().sender!==myId && pc) {
-            try { await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate)); } catch(e){}
+          if(c.type==='added'&&c.doc.data().sender!==myId&&pc) {
+            try{ await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate)); }catch(e){}
           }
         });
       }));
 
       if(isCaller) {
-        const offer = await pc.createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: true });
+        const offer = await pc.createOffer({offerToReceiveVideo:true,offerToReceiveAudio:true});
         await pc.setLocalDescription(offer);
-        await setDoc(roomRef, { offer: { type: offer.type, sdp: offer.sdp } });
-
-        unsubs.push(onSnapshot(roomRef, async (snap) => {
-          const d = snap.data();
-          if(d?.answer && !pc.currentRemoteDescription && pc.signalingState!=='closed') {
+        await setDoc(doc(db,'invites',otherId),{from:myId,offer:{type:offer.type,sdp:offer.sdp}});
+        unsubs.push(onSnapshot(doc(db,'invites',otherId), async (snap) => {
+          const d=snap.data();
+          if(d?.answer&&!pc.currentRemoteDescription&&pc.signalingState!=='closed') {
             await pc.setRemoteDescription(new RTCSessionDescription(d.answer));
           }
         }));
-      } else {
-        unsubs.push(onSnapshot(roomRef, async (snap) => {
-          const d = snap.data();
-          if(d?.offer && !pc.currentRemoteDescription && pc.signalingState!=='closed') {
-            await pc.setRemoteDescription(new RTCSessionDescription(d.offer));
-            const answer = await pc.createAnswer();
-            await pc.setLocalDescription(answer);
-            await setDoc(roomRef, { answer: { type: answer.type, sdp: answer.sdp } }, { merge: true });
-          }
-        }));
+        connectionTimeout = setTimeout(() => { if(pc&&pc.connectionState!=='connected') pc.restartIce(); }, 15000);
       }
     }
 
+    function listenForInvites() {
+      unsubs.push(onSnapshot(doc(db,'invites',myId), async (snap) => {
+        if(!snap.exists()) return;
+        const d=snap.data();
+        await deleteDoc(doc(db,'waiting',myId)).catch(()=>{});
+        roomId=[myId,d.from].sort().join('_');
+        const roomRef=doc(db,'rooms',roomId);
+        showConnected();
+        userFlag.textContent='🌍'; userCountry.textContent='Connected!'; userInfo.classList.add('active');
+
+        if(pc){ pc.close(); pc=null; }
+        unsubs.forEach(u=>u()); unsubs=[];
+
+        pc=new RTCPeerConnection(servers);
+        localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));
+
+        pc.ontrack = (e) => {
+          if(e.streams[0]) {
+            strangerVideo.srcObject=e.streams[0];
+            strangerVideo.style.display='block'; strangerPlaceholder.style.display='none'; strangerCamera.classList.add('connected');
+          }
+        };
+
+        pc.onicecandidate = async (e) => {
+          if(e.candidate) await addDoc(collection(roomRef,'ice'),{sender:myId,candidate:e.candidate.toJSON()});
+        };
+
+        pc.onconnectionstatechange = () => {
+          if(pc.connectionState==='failed'||pc.connectionState==='disconnected') resetStranger();
+        };
+
+        pc.oniceconnectionstatechange = () => {
+          if(pc.iceConnectionState==='failed'&&pc) pc.restartIce();
+        };
+
+        if(d.offer&&pc.signalingState!=='closed') {
+          await pc.setRemoteDescription(new RTCSessionDescription(d.offer));
+          const answer = await pc.createAnswer();
+          await pc.setLocalDescription(answer);
+          await setDoc(doc(db,'invites',myId),{from:d.from,offer:d.offer,answer:{type:answer.type,sdp:answer.sdp}},{merge:true});
+        }
+
+        unsubs.push(onSnapshot(collection(roomRef,'ice'), (snap) => {
+          snap.docChanges().forEach(async (c) => {
+            if(c.type==='added'&&c.doc.data().sender!==myId&&pc) {
+              try{ await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate)); }catch(e){}
+            }
+          });
+        }));
+      }));
+    }
+
     async function startChat() {
-      startBtn.disabled=true;
-      startBtn.classList.add('searching');
-      startBtn.querySelector('span').textContent='Searching';
-      startBtn.querySelector('i').className='fas fa-spinner fa-spin';
+      startBtn.disabled=true; startBtn.classList.add('searching');
+      startBtn.querySelector('span').textContent='Searching'; startBtn.querySelector('i').className='fas fa-spinner fa-spin';
 
       if(!(await startCamera())) { showDisconnected(); return; }
 
-      const snap = await getDocs(collection(db, 'waiting'));
-      let found = null;
-      snap.forEach(d => { if(d.data().userId!==myId && !found) found = d.data().userId; });
+      const snap = await getDocs(collection(db,'waiting'));
+      let found=null;
+      snap.forEach(d=>{ if(d.data().userId!==myId&&!found) found=d.data().userId; });
 
       if(found) {
-        await deleteDoc(doc(db, 'waiting', myId)).catch(()=>{});
-        await deleteDoc(doc(db, 'waiting', found)).catch(()=>{});
-        
-        roomId = [myId, found].sort().join('_');
-        const roomRef = doc(db, 'rooms', roomId);
-        showConnected();
-        await setupWebRTC(roomRef, true);
+        await deleteDoc(doc(db,'waiting',myId)).catch(()=>{});
+        await deleteDoc(doc(db,'waiting',found)).catch(()=>{});
+        await createRoom(found,true);
       } else {
-        await setDoc(doc(db, 'waiting', myId), { userId: myId });
-        
-        // Listen for someone to pick me up
-        const unsub = onSnapshot(doc(db, 'waiting', myId), async (snap) => {
-          if(!snap.exists()) {
-            // I was picked up! Now listen for room creation
-            unsub();
-            
-            // Find my room
-            const roomsSnap = await getDocs(collection(db, 'rooms'));
-            roomsSnap.forEach(async (roomDoc) => {
-              if(roomDoc.id.includes(myId) && !pc) {
-                roomId = roomDoc.id;
-                const roomRef = doc(db, 'rooms', roomId);
-                showConnected();
-                await setupWebRTC(roomRef, false);
-              }
-            });
-          }
-        });
-        unsubs.push(unsub);
+        await setDoc(doc(db,'waiting',myId),{userId:myId});
+        listenForInvites();
       }
     }
 
     function stopChat() {
+      if(connectionTimeout) clearTimeout(connectionTimeout);
       if(pc){ pc.close(); pc=null; }
       unsubs.forEach(u=>u()); unsubs=[];
       if(roomId){ deleteDoc(doc(db,'rooms',roomId)).catch(()=>{}); roomId=null; }
       deleteDoc(doc(db,'waiting',myId)).catch(()=>{});
+      deleteDoc(doc(db,'invites',myId)).catch(()=>{});
       resetStranger(); stopCamera(); showDisconnected();
       userInfo.classList.remove('active');
     }
 
     startBtn.addEventListener('click', startChat);
     stopBtn.addEventListener('click', stopChat);
-    nextBtn.addEventListener('click', ()=>{ stopChat(); setTimeout(startChat, 500); });
+    nextBtn.addEventListener('click', ()=>{ stopChat(); setTimeout(startChat,500); });
 
-    setInterval(()=>{ onlineCount.textContent = Math.floor(Math.random()*1000+500)+' online'; }, 3000);
+    setInterval(()=>{ onlineCount.textContent=Math.floor(Math.random()*1000+500)+' online'; },3000);
   </script>
 </body>
 </html>

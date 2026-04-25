@@ -115,46 +115,41 @@
     const myId = crypto.randomUUID();
     let localStream, pc, roomId, unsubs=[], connectionTimeout;
     let isMuted = false;
-    let iceServersConfig = [];
 
-    // Metered API Key
-    const METERED_API_KEY = "b62386e600aa4fd1a57f91dd569043e6d713";
+    // Your Metered TURN + STUN servers (direct credentials)
+    const servers = {
+      iceServers: [
+        {
+          urls: "stun:stun.relay.metered.ca:80",
+        },
+        {
+          urls: "turn:standard.relay.metered.ca:80",
+          username: "a6b2ebd89a4174b7f3843634",
+          credential: "xyEoZGCCUl7ZAQ4h",
+        },
+        {
+          urls: "turn:standard.relay.metered.ca:80?transport=tcp",
+          username: "a6b2ebd89a4174b7f3843634",
+          credential: "xyEoZGCCUl7ZAQ4h",
+        },
+        {
+          urls: "turn:standard.relay.metered.ca:443",
+          username: "a6b2ebd89a4174b7f3843634",
+          credential: "xyEoZGCCUl7ZAQ4h",
+        },
+        {
+          urls: "turns:standard.relay.metered.ca:443?transport=tcp",
+          username: "a6b2ebd89a4174b7f3843634",
+          credential: "xyEoZGCCUl7ZAQ4h",
+        },
+        // Google STUN fallback
+        { urls: "stun:stun.l.google.com:19302" },
+        { urls: "stun:stun1.l.google.com:19302" },
+      ],
+      iceCandidatePoolSize: 2
+    };
 
-    // Fetch TURN credentials from Metered
-    async function fetchTurnServers() {
-      try {
-        console.log('🔄 Fetching TURN credentials from Metered...');
-        const response = await fetch(`https://adilchat.metered.live/api/v1/turn/credentials?apiKey=${METERED_API_KEY}`);
-        const data = await response.json();
-        console.log('✅ TURN credentials received:', data);
-        return Array.isArray(data) ? data : [data];
-      } catch (e) {
-        console.warn('⚠️ Metered fetch failed, using fallback:', e.message);
-        return [
-          { urls: "turn:relay1.expressturn.com:3478", username: "efree", credential: "free" }
-        ];
-      }
-    }
-
-    async function createPeerConnection() {
-      // Fetch fresh TURN credentials
-      if (iceServersConfig.length === 0) {
-        iceServersConfig = await fetchTurnServers();
-      }
-      
-      // Add STUN fallbacks
-      const servers = {
-        iceServers: [
-          ...iceServersConfig,
-          { urls: "stun:stun.l.google.com:19302" },
-          { urls: "stun:stun1.l.google.com:19302" },
-        ],
-        iceCandidatePoolSize: 2
-      };
-      
-      console.log('🔗 Creating PeerConnection with:', servers.iceServers.length, 'servers');
-      return new RTCPeerConnection(servers);
-    }
+    console.log('🔗 ICE Servers:', servers.iceServers.length, 'servers configured');
 
     async function startCamera() {
       try {
@@ -166,7 +161,7 @@
         myFeed.srcObject = localStream;
         await myFeed.play();
         myFeed.style.display='block'; myPlaceholder.style.display='none'; myCamera.classList.add('active');
-        console.log('📷 Camera ready, audio tracks:', localStream.getAudioTracks().length);
+        console.log('📷 Camera ready, audio:', localStream.getAudioTracks().length);
         return true;
       } catch(e) { alert('Camera & Microphone needed!'); return false; }
     }
@@ -198,6 +193,7 @@
         tracks.forEach(t => t.enabled = !isMuted);
         if(isMuted){ micBtn.classList.add('muted'); micBtn.querySelector('i').className='fas fa-microphone-slash'; }
         else { micBtn.classList.remove('muted'); micBtn.querySelector('i').className='fas fa-microphone'; }
+        console.log('🎤', isMuted ? 'Muted' : 'Unmuted');
       }
     }
 
@@ -210,13 +206,14 @@
       if(pc){ pc.close(); pc=null; }
       unsubs.forEach(u=>u()); unsubs=[];
 
-      pc = await createPeerConnection();
+      pc = new RTCPeerConnection(servers);
+      console.log('🔗 PeerConnection created with TURN');
       localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
 
-      pc.ontrack = (e) => { if(e.streams[0]){ strangerFeed.srcObject=e.streams[0]; strangerFeed.style.display='block'; strangerPlaceholder.style.display='none'; strangerCamera.classList.add('connected'); }};
-      pc.onicecandidate = async (e) => { if(e.candidate) await addDoc(collection(roomRef,'ice'),{sender:myId,candidate:e.candidate.toJSON()}); };
-      pc.onconnectionstatechange = () => { if(pc.connectionState==='failed'||pc.connectionState==='disconnected') resetStranger(); };
-      pc.oniceconnectionstatechange = () => { if(pc.iceConnectionState==='failed'&&pc) pc.restartIce(); };
+      pc.ontrack = (e) => { if(e.streams[0]){ strangerFeed.srcObject=e.streams[0]; strangerFeed.style.display='block'; strangerPlaceholder.style.display='none'; strangerCamera.classList.add('connected'); console.log('📥 Remote stream connected'); }};
+      pc.onicecandidate = async (e) => { if(e.candidate){ console.log('🧊 ICE:', e.candidate.type); await addDoc(collection(roomRef,'ice'),{sender:myId,candidate:e.candidate.toJSON()}); }};
+      pc.onconnectionstatechange = () => { console.log('📡 State:', pc.connectionState); if(pc.connectionState==='failed'||pc.connectionState==='disconnected') resetStranger(); };
+      pc.oniceconnectionstatechange = () => { console.log('🧊 ICE State:', pc.iceConnectionState); if(pc.iceConnectionState==='failed'&&pc) pc.restartIce(); };
 
       unsubs.push(onSnapshot(collection(roomRef,'ice'), (snap) => {
         snap.docChanges().forEach(async (c) => { if(c.type==='added'&&c.doc.data().sender!==myId&&pc) try{ await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate)); }catch(e){} });
@@ -226,57 +223,75 @@
         const offer = await pc.createOffer({offerToReceiveVideo:true,offerToReceiveAudio:true});
         await pc.setLocalDescription(offer);
         await setDoc(doc(db,'invites',otherId),{from:myId,offer:{type:offer.type,sdp:offer.sdp}});
+        console.log('📞 Offer sent');
         unsubs.push(onSnapshot(doc(db,'invites',otherId), async (snap) => {
           const d=snap.data();
-          if(d?.answer&&!pc.currentRemoteDescription&&pc.signalingState!=='closed') await pc.setRemoteDescription(new RTCSessionDescription(d.answer));
+          if(d?.answer&&!pc.currentRemoteDescription&&pc.signalingState!=='closed') {
+            await pc.setRemoteDescription(new RTCSessionDescription(d.answer));
+            console.log('✅ Answer received, connected!');
+          }
         }));
-        connectionTimeout = setTimeout(() => { if(pc&&pc.connectionState!=='connected') pc.restartIce(); }, 15000);
+        connectionTimeout = setTimeout(() => { if(pc&&pc.connectionState!=='connected'){ console.log('⏰ Timeout, restarting ICE'); pc.restartIce(); }}, 15000);
       }
     }
 
     function listenForInvites() {
+      console.log('👂 Listening for invites...');
       unsubs.push(onSnapshot(doc(db,'invites',myId), async (snap) => {
         if(!snap.exists()) return;
         const d=snap.data();
+        console.log('📩 Invite from:', d.from?.substring(0,8));
         await deleteDoc(doc(db,'waiting',myId)).catch(()=>{});
         roomId=[myId,d.from].sort().join('_'); const roomRef=doc(db,'rooms',roomId);
         showConnected(); userInfo.classList.add('active');
         if(pc){ pc.close(); pc=null; } unsubs.forEach(u=>u()); unsubs=[];
-        pc = await createPeerConnection();
+        pc = new RTCPeerConnection(servers);
+        console.log('🔗 PeerConnection created with TURN');
         localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));
-        pc.ontrack = (e) => { if(e.streams[0]){ strangerFeed.srcObject=e.streams[0]; strangerFeed.style.display='block'; strangerPlaceholder.style.display='none'; strangerCamera.classList.add('connected'); }};
-        pc.onicecandidate = async (e) => { if(e.candidate) await addDoc(collection(roomRef,'ice'),{sender:myId,candidate:e.candidate.toJSON()}); };
-        if(d.offer&&pc.signalingState!=='closed') { await pc.setRemoteDescription(new RTCSessionDescription(d.offer)); const answer=await pc.createAnswer(); await pc.setLocalDescription(answer); await setDoc(doc(db,'invites',myId),{from:d.from,offer:d.offer,answer:{type:answer.type,sdp:answer.sdp}},{merge:true}); }
+        pc.ontrack = (e) => { if(e.streams[0]){ strangerFeed.srcObject=e.streams[0]; strangerFeed.style.display='block'; strangerPlaceholder.style.display='none'; strangerCamera.classList.add('connected'); console.log('📥 Remote stream connected'); }};
+        pc.onicecandidate = async (e) => { if(e.candidate){ console.log('🧊 ICE:', e.candidate.type); await addDoc(collection(roomRef,'ice'),{sender:myId,candidate:e.candidate.toJSON()}); }};
+        if(d.offer&&pc.signalingState!=='closed') { 
+          await pc.setRemoteDescription(new RTCSessionDescription(d.offer)); 
+          const answer=await pc.createAnswer(); 
+          await pc.setLocalDescription(answer); 
+          await setDoc(doc(db,'invites',myId),{from:d.from,offer:d.offer,answer:{type:answer.type,sdp:answer.sdp}},{merge:true}); 
+          console.log('📞 Answer sent');
+        }
         unsubs.push(onSnapshot(collection(roomRef,'ice'), (snap) => { snap.docChanges().forEach(async (c) => { if(c.type==='added'&&c.doc.data().sender!==myId&&pc) try{ await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate)); }catch(e){} }); }));
       }));
     }
 
     async function startChat() {
       startBtn.disabled=true; startBtn.classList.add('searching'); startBtn.querySelector('span').textContent='Searching'; startBtn.querySelector('i').className='fas fa-spinner fa-spin';
+      console.log('▶️ Starting...');
       if(!(await startCamera())) { showDisconnected(); return; }
       const snap = await getDocs(collection(db,'waiting')); let found=null;
       snap.forEach(d=>{ if(d.data().userId!==myId&&!found) found=d.data().userId; });
-      if(found) { await deleteDoc(doc(db,'waiting',myId)).catch(()=>{}); await deleteDoc(doc(db,'waiting',found)).catch(()=>{}); await createRoom(found,true); }
-      else { await setDoc(doc(db,'waiting',myId),{userId:myId}); listenForInvites(); }
+      if(found) { 
+        console.log('🔗 Found waiting:', found.substring(0,8));
+        await deleteDoc(doc(db,'waiting',myId)).catch(()=>{}); await deleteDoc(doc(db,'waiting',found)).catch(()=>{}); await createRoom(found,true); 
+      } else { 
+        console.log('⏳ Waiting...');
+        await setDoc(doc(db,'waiting',myId),{userId:myId}); listenForInvites(); 
+      }
     }
 
     function stopChat() {
+      console.log('⏹️ Stopping');
       if(connectionTimeout) clearTimeout(connectionTimeout);
       if(pc){ pc.close(); pc=null; } unsubs.forEach(u=>u()); unsubs=[];
       if(roomId){ deleteDoc(doc(db,'rooms',roomId)).catch(()=>{}); roomId=null; }
       deleteDoc(doc(db,'waiting',myId)).catch(()=>{}); deleteDoc(doc(db,'invites',myId)).catch(()=>{});
       resetStranger(); stopCamera(); showDisconnected(); userInfo.classList.remove('active');
-      iceServersConfig = []; // Reset to fetch fresh on next connect
     }
-
-    // Pre-fetch TURN on page load
-    fetchTurnServers().then(servers => { iceServersConfig = servers; console.log('🎬 Ready with', servers.length, 'TURN servers'); });
 
     startBtn.addEventListener('click', startChat);
     stopBtn.addEventListener('click', stopChat);
     nextBtn.addEventListener('click', ()=>{ stopChat(); setTimeout(startChat,500); });
     micBtn.addEventListener('click', toggleMute);
     setInterval(()=>{ onlineCount.textContent=Math.floor(Math.random()*1000+500)+' online'; },3000);
+    
+    console.log('✅ Ready! TURN servers active');
   </script>
 </body>
 </html>

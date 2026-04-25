@@ -55,7 +55,6 @@
     .reel-item .play-icon { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:1.2rem;color:#fff;pointer-events:none;opacity:0.8; }
     .empty-text { color:#444;font-size:0.75rem;text-align:center;padding:2rem 0;width:100%;max-width:400px; }
 
-    /* Modals */
     .modal-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:300;display:none;align-items:center;justify-content:center;padding:1rem; }
     .modal-overlay.show { display:flex; }
     .modal { background:#1a1a1a;border-radius:1rem;padding:1.2rem;width:100%;max-width:380px;max-height:80vh;overflow-y:auto; }
@@ -85,17 +84,16 @@
     .toast { position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:0.5rem 1rem;border-radius:2rem;font-size:0.7rem;z-index:400;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap; }
     .toast.show { opacity:1; }
 
-    /* NAVBAR - EXACT SIZE FROM REFERENCE */
-    .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.08) inset,0 1px 0 rgba(255,255,255,0.05) inset;z-index:100;transition:all 0.4s cubic-bezier(0.4,0,0.2,1); }
-    .floating-nav:hover { background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.18);box-shadow:0 25px 50px rgba(0,0,0,0.7),0 0 0 1px rgba(255,255,255,0.1) inset; }
+    /* ===== NAVBAR - SAME SIZE ACROSS ALL PAGES ===== */
+    .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.08) inset;z-index:100; }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
-    .nav-center a { color:rgba(255,255,255,0.6);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);text-decoration:none;position:relative;flex-shrink:0;-webkit-tap-highlight-color:transparent;background:transparent; }
-    .nav-center a::before { content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:4px;height:4px;border-radius:50%;background:#fff;transition:all 0.3s cubic-bezier(0.4,0,0.2,1); }
+    .nav-center a { color:rgba(255,255,255,0.6);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;position:relative; }
+    .nav-center a::before { content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:4px;height:4px;border-radius:50%;background:#fff;transition:all 0.3s; }
     .nav-center a.active::before { transform:translateX(-50%) scale(1); }
-    .nav-center a:active { transform:scale(0.85);background:rgba(255,255,255,0.1); }
-    .nav-center a.active { color:#fff;background:rgba(255,255,255,0.15);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-weight:500;text-shadow:0 0 20px rgba(255,255,255,0.5);box-shadow:0 4px 12px rgba(0,0,0,0.3),0 0 0 1px rgba(255,255,255,0.15) inset; }
+    .nav-center a.active { color:#fff;background:rgba(255,255,255,0.15);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px); }
     .nav-upload, .nav-search { display:none !important; }
 
+    /* Mobile sizes */
     @media (max-width:767px) {
       .floating-nav { width:92%;max-width:500px;padding:0.7rem 1.5rem;border-radius:2.5rem; }
       .nav-center { max-width:380px; }
@@ -109,29 +107,40 @@
       .nav-center a { font-size:1.1rem;width:2rem;height:2rem; }
       .floating-nav { width:94%;padding:0.55rem 0.8rem;border-radius:2rem;bottom:1rem; }
     }
+    /* Tablet */
     @media (min-width:768px) and (max-width:1023px) {
       .content { padding:4rem 2rem 6rem 2rem; }
       .floating-nav { width:65%;max-width:550px;padding:0.8rem 2rem;border-radius:2.8rem; }
       .nav-center { max-width:420px;gap:0.8rem; }
       .nav-center a { font-size:1.4rem;width:2.7rem;height:2.7rem; }
     }
+    /* Desktop - EXACT SAME LEFT VERTICAL NAVBAR */
     @media (min-width:1024px) {
       .top-left, .top-right { display:none; }
       .nav-upload, .nav-search { display:flex !important; }
-      .floating-nav { top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column; }
+      .floating-nav { 
+        top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);
+        width:3.8rem;height:auto;max-width:none;
+        border-radius:2.5rem;padding:1rem 0.6rem;
+        flex-direction:column;
+      }
       .nav-center { flex-direction:column;gap:1.2rem;max-width:none; }
       .nav-center a { font-size:1.4rem;width:2.6rem;height:2.6rem; }
       .nav-center a::before { bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0); }
       .nav-center a.active::before { transform:translateY(-50%) scale(1); }
       .nav-center a:hover { color:rgba(255,255,255,0.9);background:rgba(255,255,255,0.1);transform:translateY(-2px); }
-      .nav-center a.active:hover { background:rgba(255,255,255,0.2);transform:translateY(-2px); }
+      .nav-center a.active:hover { background:rgba(255,255,255,0.2); }
       .content { padding:2rem 2.5rem 2rem 6rem; }
+      .posts-grid { max-width:500px;grid-template-columns:repeat(4,1fr);gap:2px; }
+      .profile-header,.bio-section,.actions-row,.tabs { max-width:500px; }
     }
+    /* Large Desktop */
     @media (min-width:1440px) {
       .floating-nav { left:2.5rem;width:3.8rem;padding:1rem 0.8rem; }
       .nav-center { gap:1.5rem; }
       .nav-center a { font-size:1.7rem;width:3rem;height:3rem; }
       .content { padding:2rem 3rem 2rem 7rem; }
+      .posts-grid,.profile-header,.bio-section,.actions-row,.tabs { max-width:600px; }
     }
   </style>
 </head>
@@ -158,50 +167,33 @@
           <div class="stat" onclick="showList('besties')"><div class="stat-num" id="bestiesCount">0</div><div class="stat-label">Besties</div></div>
         </div>
       </div>
-
       <div class="bio-section">
         <div class="username" id="displayName"></div>
         <div class="bio-text" id="displayBio"></div>
-        <div class="website" id="displayWebsite">🔗 </div>
+        <div class="website" id="displayWebsite"></div>
       </div>
-
       <div class="actions-row">
         <button class="action-btn primary" onclick="openEditProfile()">Edit Profile</button>
         <button class="action-btn" onclick="shareProfile()"><i class="fas fa-share-alt"></i> Share</button>
       </div>
-
       <div class="tabs">
         <div class="tab active" onclick="switchTab(this,'posts')"><i class="fas fa-grid-2"></i>Posts</div>
         <div class="tab" onclick="switchTab(this,'reels')"><i class="fas fa-film"></i>Reels</div>
       </div>
-
       <div class="posts-grid" id="postsGrid"></div>
       <div class="posts-grid" id="reelsGrid" style="display:none;"></div>
       <div class="empty-text" id="emptyText">No posts yet</div>
     </div>
 
-    <!-- Modals -->
     <div class="modal-overlay" id="cropModal">
-      <div class="modal"><h3>Adjust Photo</h3>
-        <div class="crop-container"><img id="cropImage" src=""></div>
-        <div class="zoom-control"><i class="fas fa-search-minus"></i><input type="range" id="zoomSlider" min="1" max="3" step="0.1" value="1" oninput="zoomImage(this.value)"><i class="fas fa-search-plus"></i></div>
-        <div class="btn-row"><button class="btn-cancel" onclick="closeCropModal()">Cancel</button><button class="btn-save" onclick="saveCrop()">Save</button></div>
-      </div>
+      <div class="modal"><h3>Adjust Photo</h3><div class="crop-container"><img id="cropImage" src=""></div><div class="zoom-control"><i class="fas fa-search-minus"></i><input type="range" id="zoomSlider" min="1" max="3" step="0.1" value="1" oninput="zoomImage(this.value)"><i class="fas fa-search-plus"></i></div><div class="btn-row"><button class="btn-cancel" onclick="closeCropModal()">Cancel</button><button class="btn-save" onclick="saveCrop()">Save</button></div></div>
     </div>
-
     <div class="modal-overlay" id="editModal">
-      <div class="modal"><h3>Edit Profile</h3>
-        <label>Username</label><input type="text" id="editUsername">
-        <label>Bio</label><textarea id="editBio"></textarea>
-        <label>Website</label><input type="text" id="editWebsite">
-        <div class="btn-row"><button class="btn-cancel" onclick="closeEditProfile()">Cancel</button><button class="btn-save" onclick="saveProfile()">Save</button></div>
-      </div>
+      <div class="modal"><h3>Edit Profile</h3><label>Username</label><input type="text" id="editUsername"><label>Bio</label><textarea id="editBio"></textarea><label>Website</label><input type="text" id="editWebsite"><div class="btn-row"><button class="btn-cancel" onclick="closeEditProfile()">Cancel</button><button class="btn-save" onclick="saveProfile()">Save</button></div></div>
     </div>
-
     <div class="list-modal-overlay" id="listModal">
       <div class="list-modal"><h3 id="listTitle"></h3><div id="listContent"></div><div class="list-close" onclick="closeList()">Close ✕</div></div>
     </div>
-
     <div class="toast" id="toast"></div>
 
     <nav class="floating-nav"><div class="nav-center">
@@ -233,58 +225,25 @@
       document.getElementById('postCount').textContent=profile.posts.filter(p=>p.type==='image').length;
       renderContent();
     }
-
-    function toggleAvatarOptions(){
-      const o=document.getElementById('avatarOptions');o.classList.toggle('show');
-      setTimeout(()=>document.addEventListener('click',function c(e){if(!e.target.closest('.avatar-container')){o.classList.remove('show');document.removeEventListener('click',c);}}),100);
-    }
-    function updateAvatar(e){
-      const f=e.target.files[0];if(f){const r=new FileReader();r.onload=function(ev){profile.avatar=ev.target.result;save();updateUI();showToast('Updated!✅');};r.readAsDataURL(f);}
-      document.getElementById('avatarOptions').classList.remove('show');
-    }
+    function toggleAvatarOptions(){const o=document.getElementById('avatarOptions');o.classList.toggle('show');setTimeout(()=>document.addEventListener('click',function c(e){if(!e.target.closest('.avatar-container')){o.classList.remove('show');document.removeEventListener('click',c);}}),100);}
+    function updateAvatar(e){const f=e.target.files[0];if(f){const r=new FileReader();r.onload=function(ev){profile.avatar=ev.target.result;save();updateUI();showToast('Updated!✅');};r.readAsDataURL(f);}document.getElementById('avatarOptions').classList.remove('show');}
     function removeAvatar(){profile.avatar=null;save();updateUI();showToast('Removed');document.getElementById('avatarOptions').classList.remove('show');}
-    function openCropModal(){
-      if(!profile.avatar){showToast('Add photo first');return;}
-      document.getElementById('cropImage').src=profile.avatar;document.getElementById('zoomSlider').value=1;
-      document.getElementById('cropImage').style.transform='scale(1)';document.getElementById('cropModal').classList.add('show');
-      document.getElementById('avatarOptions').classList.remove('show');
-    }
+    function openCropModal(){if(!profile.avatar){showToast('Add photo first');return;}document.getElementById('cropImage').src=profile.avatar;document.getElementById('zoomSlider').value=1;document.getElementById('cropImage').style.transform='scale(1)';document.getElementById('cropModal').classList.add('show');document.getElementById('avatarOptions').classList.remove('show');}
     function closeCropModal(){document.getElementById('cropModal').classList.remove('show');}
     function zoomImage(v){document.getElementById('cropImage').style.transform=`scale(${v})`;}
     function saveCrop(){profile.avatar=document.getElementById('cropImage').src;save();updateUI();closeCropModal();showToast('Adjusted!✅');}
-    function openEditProfile(){
-      document.getElementById('editUsername').value=profile.username;document.getElementById('editBio').value=profile.bio||'';
-      document.getElementById('editWebsite').value=profile.website||'';document.getElementById('editModal').classList.add('show');
-    }
+    function openEditProfile(){document.getElementById('editUsername').value=profile.username;document.getElementById('editBio').value=profile.bio||'';document.getElementById('editWebsite').value=profile.website||'';document.getElementById('editModal').classList.add('show');}
     function closeEditProfile(){document.getElementById('editModal').classList.remove('show');}
-    function saveProfile(){
-      profile.username=document.getElementById('editUsername').value||'@user';
-      profile.bio=document.getElementById('editBio').value;profile.website=document.getElementById('editWebsite').value;
-      save();updateUI();closeEditProfile();showToast('Saved!✅');
-    }
+    function saveProfile(){profile.username=document.getElementById('editUsername').value||'@user';profile.bio=document.getElementById('editBio').value;profile.website=document.getElementById('editWebsite').value;save();updateUI();closeEditProfile();showToast('Saved!✅');}
     function renderContent(){
-      const postsGrid=document.getElementById('postsGrid');const reelsGrid=document.getElementById('reelsGrid');
-      const emptyText=document.getElementById('emptyText');
-      const activeTab=document.querySelector('.tab.active');
-      const isReels=activeTab&&activeTab.textContent.includes('Reels');
-      const imagePosts=profile.posts.filter(p=>p.type==='image');
-      const videoPosts=profile.posts.filter(p=>p.type==='video');
-      if(isReels){
-        postsGrid.style.display='none';
-        if(videoPosts.length===0){reelsGrid.style.display='none';emptyText.style.display='block';emptyText.textContent='No reels yet';}
-        else{reelsGrid.style.display='grid';emptyText.style.display='none';reelsGrid.innerHTML=videoPosts.map(p=>`<div class="reel-item"><video src="${p.src}" muted loop playsinline></video><div class="play-icon"><i class="fas fa-play"></i></div></div>`).join('');}
-      }else{
-        reelsGrid.style.display='none';
-        if(imagePosts.length===0){postsGrid.style.display='none';emptyText.style.display='block';emptyText.textContent='No posts yet';}
-        else{postsGrid.style.display='grid';emptyText.style.display='none';postsGrid.innerHTML=imagePosts.map(p=>`<div class="post-item"><img src="${p.src}" alt="post"></div>`).join('');}
-      }
+      const postsGrid=document.getElementById('postsGrid');const reelsGrid=document.getElementById('reelsGrid');const emptyText=document.getElementById('emptyText');
+      const activeTab=document.querySelector('.tab.active');const isReels=activeTab&&activeTab.textContent.includes('Reels');
+      const imagePosts=profile.posts.filter(p=>p.type==='image');const videoPosts=profile.posts.filter(p=>p.type==='video');
+      if(isReels){postsGrid.style.display='none';if(videoPosts.length===0){reelsGrid.style.display='none';emptyText.style.display='block';emptyText.textContent='No reels yet';}else{reelsGrid.style.display='grid';emptyText.style.display='none';reelsGrid.innerHTML=videoPosts.map(p=>`<div class="reel-item"><video src="${p.src}" muted loop playsinline></video><div class="play-icon"><i class="fas fa-play"></i></div></div>`).join('');}}
+      else{reelsGrid.style.display='none';if(imagePosts.length===0){postsGrid.style.display='none';emptyText.style.display='block';emptyText.textContent='No posts yet';}else{postsGrid.style.display='grid';emptyText.style.display='none';postsGrid.innerHTML=imagePosts.map(p=>`<div class="post-item"><img src="${p.src}" alt="post"></div>`).join('');}}
     }
     function switchTab(el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderContent();}
-    function showList(type){
-      document.getElementById('listTitle').textContent=type==='friends'?'👥 Friends':'⭐ Besties';
-      document.getElementById('listContent').innerHTML=(type==='friends'?profile.friends:profile.besties).map(u=>`<div class="list-item"><div class="mini-avatar"><i class="fas fa-user"></i></div><div><div class="name">${u.name}</div><div class="sub">${type==='friends'?'Follows you':'You follow'}</div></div></div>`).join('');
-      document.getElementById('listModal').classList.add('show');
-    }
+    function showList(type){document.getElementById('listTitle').textContent=type==='friends'?'👥 Friends (Followers)':'⭐ Besties (Following)';document.getElementById('listContent').innerHTML=(type==='friends'?profile.friends:profile.besties).map(u=>`<div class="list-item"><div class="mini-avatar"><i class="fas fa-user"></i></div><div><div class="name">${u.name}</div><div class="sub">${type==='friends'?'Follows you':'You follow'}</div></div></div>`).join('');document.getElementById('listModal').classList.add('show');}
     function closeList(){document.getElementById('listModal').classList.remove('show');}
     function shareProfile(){const u=window.location.href.split('?')[0];navigator.share?navigator.share({title:profile.username,url:u}).then(()=>showToast('Shared!🚀')).catch(()=>copyUrl(u)):copyUrl(u);}
     function copyUrl(t){navigator.clipboard.writeText(t).then(()=>showToast('Copied!📋')).catch(()=>{});}
@@ -293,7 +252,6 @@
     document.getElementById('editModal').addEventListener('click',function(e){if(e.target===this)closeEditProfile();});
     document.getElementById('cropModal').addEventListener('click',function(e){if(e.target===this)closeCropModal();});
     document.getElementById('listModal').addEventListener('click',function(e){if(e.target===this)closeList();});
-
     updateUI();
   </script>
 </body>

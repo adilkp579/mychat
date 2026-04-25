@@ -20,7 +20,6 @@
     #strangerFeed { width:100%;height:100%;object-fit:cover;display:none;background:#000;transform:rotateY(180deg);-webkit-transform:rotateY(180deg); }
     .stranger-placeholder { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.3rem;color:rgba(255,255,255,0.25); }
     .stranger-placeholder i { font-size:3rem; }
-    .stranger-placeholder span { font-size:0.7rem; }
     .my-camera { width:22%;max-height:150px;aspect-ratio:3/4;background:#111;border:2px solid rgba(255,255,255,0.3);border-radius:0.8rem;box-shadow:0 8px 20px rgba(0,0,0,0.6);position:relative;overflow:hidden;transition:all 0.3s ease; }
     .my-camera.active { border-color:rgba(255,0,0,0.6);box-shadow:0 0 15px rgba(255,0,0,0.3); }
     #myFeed { width:100%;height:100%;object-fit:cover;display:none;background:#000;transform:rotateY(180deg);-webkit-transform:rotateY(180deg); }
@@ -31,9 +30,8 @@
     .you-label-outside { color:#777;font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;margin-right:0.3rem; }
     .user-info { display:flex;align-items:center;gap:0.3rem;background:rgba(255,255,255,0.06);padding:0.25rem 0.6rem;border-radius:1rem;font-size:0.7rem;color:#ccc;opacity:0;transition:all 0.3s ease;border:1px solid rgba(255,255,255,0.08); }
     .user-info.active { opacity:1; }
-    .user-flag { font-size:0.9rem; }
-    .buttons-container { display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;padding:0.2rem 0 0 0; }
-    .btn { height:36px;border-radius:2rem;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;gap:0.3rem;cursor:pointer;transition:all 0.3s ease;user-select:none;border:none;outline:none;font-size:0.75rem;font-weight:600;padding:0 1rem; }
+    .buttons-container { display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;padding:0.2rem 0 0 0;align-items:center; }
+    .btn { height:36px;border-radius:2rem;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;gap:0.3rem;cursor:pointer;transition:all 0.3s ease;user-select:none;border:none;outline:none;font-size:0.75rem;font-weight:600;padding:0 1rem;color:#fff; }
     .btn:active { transform:scale(0.95); }
     .start-button { width:90px;background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.4);color:#4ade80; }
     .start-button.searching { background:rgba(251,191,36,0.2);border-color:rgba(251,191,36,0.5);color:#fbbf24;animation:pulse 1s infinite; }
@@ -41,13 +39,16 @@
     .stop-button.visible { display:flex; }
     .next-button { width:80px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:#ccc;display:none; }
     .next-button.visible { display:flex; }
-    .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px) saturate(200%);-webkit-backdrop-filter:blur(30px) saturate(200%);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.08) inset;z-index:100; }
+    .mic-button { width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:#4ade80;display:none;padding:0; }
+    .mic-button.visible { display:flex;align-items:center;justify-content:center; }
+    .mic-button.muted { color:#ef4444;background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.4); }
+    .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px) saturate(200%);-webkit-backdrop-filter:blur(30px) saturate(200%);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6);z-index:100; }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
     .nav-center a { color:rgba(255,255,255,0.6);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;flex-shrink:0; }
     .nav-center a.active { color:#fff;background:rgba(255,255,255,0.15);backdrop-filter:blur(10px); }
-    @media (max-width:380px) { .content{padding:0.3rem 0.6rem 5rem 0.6rem}.stranger-camera{max-height:56vh}.my-camera{max-height:100px}.btn{height:32px;font-size:0.65rem;padding:0 0.5rem}.start-button{width:60px}.stop-button,.next-button{width:55px}.buttons-container{gap:0.3rem}.floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem} }
-    @media (min-width:768px) { .stranger-camera{max-height:65vh;border-radius:1.5rem}.my-camera{max-height:160px}.btn{height:42px;font-size:0.85rem}.start-button{width:100px}.stop-button,.next-button{width:90px}.floating-nav{width:65%;padding:0.8rem 2rem} }
-    @media (min-width:1024px) { .stranger-camera{max-height:67vh;border-radius:1.8rem}.my-camera{max-height:170px}.btn{height:44px}.start-button{width:110px}.stop-button,.next-button{width:95px}.floating-nav{width:45%;padding:0.9rem 2.2rem;bottom:2.5rem} }
+    @media (max-width:380px) { .content{padding:0.3rem 0.6rem 5rem 0.6rem}.stranger-camera{max-height:56vh}.my-camera{max-height:100px}.btn{height:32px;font-size:0.65rem;padding:0 0.5rem}.start-button{width:60px}.stop-button,.next-button{width:55px}.mic-button{width:32px;height:32px}.floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem} }
+    @media (min-width:768px) { .stranger-camera{max-height:65vh;border-radius:1.5rem}.my-camera{max-height:160px}.btn{height:42px;font-size:0.85rem}.start-button{width:100px}.stop-button,.next-button{width:90px}.mic-button{width:42px;height:42px}.floating-nav{width:65%;padding:0.8rem 2rem} }
+    @media (min-width:1024px) { .stranger-camera{max-height:67vh;border-radius:1.8rem}.my-camera{max-height:170px}.btn{height:44px}.start-button{width:110px}.stop-button,.next-button{width:95px}.mic-button{width:44px;height:44px}.floating-nav{width:45%;padding:0.9rem 2.2rem;bottom:2.5rem} }
   </style>
 </head>
 <body>
@@ -65,11 +66,12 @@
           <div class="my-placeholder" id="myPlaceholder"><i class="fas fa-video"></i><span>off</span></div>
         </div>
       </div>
-      <div class="user-info" id="userInfo"><span class="user-flag" id="userFlag">🌍</span><span id="userCountry">Waiting...</span></div>
+      <div class="user-info" id="userInfo"><span>🌍</span><span>Waiting...</span></div>
       <div class="buttons-container">
         <button class="btn start-button" id="startBtn"><i class="fas fa-play"></i><span>Start</span></button>
         <button class="btn stop-button" id="stopBtn"><i class="fas fa-stop"></i><span>Stop</span></button>
         <button class="btn next-button" id="nextBtn"><i class="fas fa-forward"></i><span>Next</span></button>
+        <button class="btn mic-button" id="micBtn" title="Mute"><i class="fas fa-microphone"></i></button>
       </div>
     </div>
     <nav class="floating-nav"><div class="nav-center">
@@ -97,98 +99,127 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const myVideo = document.getElementById('myFeed');
+    const myFeed = document.getElementById('myFeed');
     const myPlaceholder = document.getElementById('myPlaceholder');
     const myCamera = document.getElementById('myCamera');
-    const strangerVideo = document.getElementById('strangerFeed');
+    const strangerFeed = document.getElementById('strangerFeed');
     const strangerPlaceholder = document.getElementById('strangerPlaceholder');
     const strangerCamera = document.getElementById('strangerCamera');
-    const userFlag = document.getElementById('userFlag');
-    const userCountry = document.getElementById('userCountry');
     const userInfo = document.getElementById('userInfo');
     const onlineCount = document.getElementById('onlineCount');
     const startBtn = document.getElementById('startBtn');
     const stopBtn = document.getElementById('stopBtn');
     const nextBtn = document.getElementById('nextBtn');
+    const micBtn = document.getElementById('micBtn');
 
     const myId = crypto.randomUUID();
     let localStream, pc, roomId, unsubs=[], connectionTimeout;
+    let isMuted = false;
+    let iceServersConfig = [];
 
-    const servers = {
-      iceServers: [
-        { urls: "stun:stun.l.google.com:19302" },
-        { urls: "stun:stun1.l.google.com:19302" },
-      ],
-      iceCandidatePoolSize: 2
-    };
+    // Metered API Key
+    const METERED_API_KEY = "b62386e600aa4fd1a57f91dd569043e6d713";
+
+    // Fetch TURN credentials from Metered
+    async function fetchTurnServers() {
+      try {
+        console.log('🔄 Fetching TURN credentials from Metered...');
+        const response = await fetch(`https://adilchat.metered.live/api/v1/turn/credentials?apiKey=${METERED_API_KEY}`);
+        const data = await response.json();
+        console.log('✅ TURN credentials received:', data);
+        return Array.isArray(data) ? data : [data];
+      } catch (e) {
+        console.warn('⚠️ Metered fetch failed, using fallback:', e.message);
+        return [
+          { urls: "turn:relay1.expressturn.com:3478", username: "efree", credential: "free" }
+        ];
+      }
+    }
+
+    async function createPeerConnection() {
+      // Fetch fresh TURN credentials
+      if (iceServersConfig.length === 0) {
+        iceServersConfig = await fetchTurnServers();
+      }
+      
+      // Add STUN fallbacks
+      const servers = {
+        iceServers: [
+          ...iceServersConfig,
+          { urls: "stun:stun.l.google.com:19302" },
+          { urls: "stun:stun1.l.google.com:19302" },
+        ],
+        iceCandidatePoolSize: 2
+      };
+      
+      console.log('🔗 Creating PeerConnection with:', servers.iceServers.length, 'servers');
+      return new RTCPeerConnection(servers);
+    }
 
     async function startCamera() {
       try {
         if(localStream){ localStream.getTracks().forEach(t=>t.stop()); }
-        localStream = await navigator.mediaDevices.getUserMedia({ video:{width:480,height:640,facingMode:'user'}, audio:true });
-        myVideo.srcObject = localStream;
-        await myVideo.play();
-        myVideo.style.display='block'; myPlaceholder.style.display='none'; myCamera.classList.add('active');
+        localStream = await navigator.mediaDevices.getUserMedia({ 
+          video: { width:480, height:640, facingMode:'user' }, 
+          audio: { echoCancellation:true, noiseSuppression:true, autoGainControl:true }
+        });
+        myFeed.srcObject = localStream;
+        await myFeed.play();
+        myFeed.style.display='block'; myPlaceholder.style.display='none'; myCamera.classList.add('active');
+        console.log('📷 Camera ready, audio tracks:', localStream.getAudioTracks().length);
         return true;
-      } catch(e) { alert('Camera needed!'); return false; }
+      } catch(e) { alert('Camera & Microphone needed!'); return false; }
     }
 
     function stopCamera() {
       if(localStream){ localStream.getTracks().forEach(t=>t.stop()); localStream=null; }
-      myVideo.style.display='none'; myVideo.srcObject=null; myPlaceholder.style.display=''; myCamera.classList.remove('active');
+      myFeed.style.display='none'; myFeed.srcObject=null; myPlaceholder.style.display=''; myCamera.classList.remove('active');
     }
 
     function resetStranger() {
-      strangerVideo.style.display='none'; strangerVideo.srcObject=null; strangerPlaceholder.style.display=''; strangerCamera.classList.remove('connected');
+      strangerFeed.style.display='none'; strangerFeed.srcObject=null; strangerPlaceholder.style.display=''; strangerCamera.classList.remove('connected');
     }
 
     function showConnected() {
-      startBtn.style.display='none'; stopBtn.classList.add('visible'); nextBtn.classList.add('visible');
+      startBtn.style.display='none'; stopBtn.classList.add('visible'); nextBtn.classList.add('visible'); micBtn.classList.add('visible');
     }
 
     function showDisconnected() {
-      startBtn.style.display='flex'; stopBtn.classList.remove('visible'); nextBtn.classList.remove('visible');
+      startBtn.style.display='flex'; stopBtn.classList.remove('visible'); nextBtn.classList.remove('visible'); micBtn.classList.remove('visible');
       startBtn.classList.remove('searching'); startBtn.querySelector('span').textContent='Start';
       startBtn.querySelector('i').className='fas fa-play'; startBtn.disabled=false;
+    }
+
+    function toggleMute() {
+      if(!localStream) return;
+      const tracks = localStream.getAudioTracks();
+      if(tracks.length > 0) {
+        isMuted = !isMuted;
+        tracks.forEach(t => t.enabled = !isMuted);
+        if(isMuted){ micBtn.classList.add('muted'); micBtn.querySelector('i').className='fas fa-microphone-slash'; }
+        else { micBtn.classList.remove('muted'); micBtn.querySelector('i').className='fas fa-microphone'; }
+      }
     }
 
     async function createRoom(otherId, isCaller) {
       roomId = [myId, otherId].sort().join('_');
       const roomRef = doc(db, 'rooms', roomId);
       showConnected();
-      userFlag.textContent='🌍'; userCountry.textContent='Connected!'; userInfo.classList.add('active');
+      userInfo.classList.add('active');
 
       if(pc){ pc.close(); pc=null; }
       unsubs.forEach(u=>u()); unsubs=[];
 
-      pc = new RTCPeerConnection(servers);
-      localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));
+      pc = await createPeerConnection();
+      localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
 
-      pc.ontrack = (e) => {
-        if(e.streams[0]) {
-          strangerVideo.srcObject = e.streams[0];
-          strangerVideo.style.display='block'; strangerPlaceholder.style.display='none'; strangerCamera.classList.add('connected');
-        }
-      };
-
-      pc.onicecandidate = async (e) => {
-        if(e.candidate) await addDoc(collection(roomRef,'ice'),{sender:myId,candidate:e.candidate.toJSON()});
-      };
-
-      pc.onconnectionstatechange = () => {
-        if(pc.connectionState==='failed'||pc.connectionState==='disconnected') resetStranger();
-      };
-
-      pc.oniceconnectionstatechange = () => {
-        if(pc.iceConnectionState==='failed'&&pc) pc.restartIce();
-      };
+      pc.ontrack = (e) => { if(e.streams[0]){ strangerFeed.srcObject=e.streams[0]; strangerFeed.style.display='block'; strangerPlaceholder.style.display='none'; strangerCamera.classList.add('connected'); }};
+      pc.onicecandidate = async (e) => { if(e.candidate) await addDoc(collection(roomRef,'ice'),{sender:myId,candidate:e.candidate.toJSON()}); };
+      pc.onconnectionstatechange = () => { if(pc.connectionState==='failed'||pc.connectionState==='disconnected') resetStranger(); };
+      pc.oniceconnectionstatechange = () => { if(pc.iceConnectionState==='failed'&&pc) pc.restartIce(); };
 
       unsubs.push(onSnapshot(collection(roomRef,'ice'), (snap) => {
-        snap.docChanges().forEach(async (c) => {
-          if(c.type==='added'&&c.doc.data().sender!==myId&&pc) {
-            try{ await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate)); }catch(e){}
-          }
-        });
+        snap.docChanges().forEach(async (c) => { if(c.type==='added'&&c.doc.data().sender!==myId&&pc) try{ await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate)); }catch(e){} });
       }));
 
       if(isCaller) {
@@ -197,9 +228,7 @@
         await setDoc(doc(db,'invites',otherId),{from:myId,offer:{type:offer.type,sdp:offer.sdp}});
         unsubs.push(onSnapshot(doc(db,'invites',otherId), async (snap) => {
           const d=snap.data();
-          if(d?.answer&&!pc.currentRemoteDescription&&pc.signalingState!=='closed') {
-            await pc.setRemoteDescription(new RTCSessionDescription(d.answer));
-          }
+          if(d?.answer&&!pc.currentRemoteDescription&&pc.signalingState!=='closed') await pc.setRemoteDescription(new RTCSessionDescription(d.answer));
         }));
         connectionTimeout = setTimeout(() => { if(pc&&pc.connectionState!=='connected') pc.restartIce(); }, 15000);
       }
@@ -210,88 +239,43 @@
         if(!snap.exists()) return;
         const d=snap.data();
         await deleteDoc(doc(db,'waiting',myId)).catch(()=>{});
-        roomId=[myId,d.from].sort().join('_');
-        const roomRef=doc(db,'rooms',roomId);
-        showConnected();
-        userFlag.textContent='🌍'; userCountry.textContent='Connected!'; userInfo.classList.add('active');
-
-        if(pc){ pc.close(); pc=null; }
-        unsubs.forEach(u=>u()); unsubs=[];
-
-        pc=new RTCPeerConnection(servers);
+        roomId=[myId,d.from].sort().join('_'); const roomRef=doc(db,'rooms',roomId);
+        showConnected(); userInfo.classList.add('active');
+        if(pc){ pc.close(); pc=null; } unsubs.forEach(u=>u()); unsubs=[];
+        pc = await createPeerConnection();
         localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));
-
-        pc.ontrack = (e) => {
-          if(e.streams[0]) {
-            strangerVideo.srcObject=e.streams[0];
-            strangerVideo.style.display='block'; strangerPlaceholder.style.display='none'; strangerCamera.classList.add('connected');
-          }
-        };
-
-        pc.onicecandidate = async (e) => {
-          if(e.candidate) await addDoc(collection(roomRef,'ice'),{sender:myId,candidate:e.candidate.toJSON()});
-        };
-
-        pc.onconnectionstatechange = () => {
-          if(pc.connectionState==='failed'||pc.connectionState==='disconnected') resetStranger();
-        };
-
-        pc.oniceconnectionstatechange = () => {
-          if(pc.iceConnectionState==='failed'&&pc) pc.restartIce();
-        };
-
-        if(d.offer&&pc.signalingState!=='closed') {
-          await pc.setRemoteDescription(new RTCSessionDescription(d.offer));
-          const answer = await pc.createAnswer();
-          await pc.setLocalDescription(answer);
-          await setDoc(doc(db,'invites',myId),{from:d.from,offer:d.offer,answer:{type:answer.type,sdp:answer.sdp}},{merge:true});
-        }
-
-        unsubs.push(onSnapshot(collection(roomRef,'ice'), (snap) => {
-          snap.docChanges().forEach(async (c) => {
-            if(c.type==='added'&&c.doc.data().sender!==myId&&pc) {
-              try{ await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate)); }catch(e){}
-            }
-          });
-        }));
+        pc.ontrack = (e) => { if(e.streams[0]){ strangerFeed.srcObject=e.streams[0]; strangerFeed.style.display='block'; strangerPlaceholder.style.display='none'; strangerCamera.classList.add('connected'); }};
+        pc.onicecandidate = async (e) => { if(e.candidate) await addDoc(collection(roomRef,'ice'),{sender:myId,candidate:e.candidate.toJSON()}); };
+        if(d.offer&&pc.signalingState!=='closed') { await pc.setRemoteDescription(new RTCSessionDescription(d.offer)); const answer=await pc.createAnswer(); await pc.setLocalDescription(answer); await setDoc(doc(db,'invites',myId),{from:d.from,offer:d.offer,answer:{type:answer.type,sdp:answer.sdp}},{merge:true}); }
+        unsubs.push(onSnapshot(collection(roomRef,'ice'), (snap) => { snap.docChanges().forEach(async (c) => { if(c.type==='added'&&c.doc.data().sender!==myId&&pc) try{ await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate)); }catch(e){} }); }));
       }));
     }
 
     async function startChat() {
-      startBtn.disabled=true; startBtn.classList.add('searching');
-      startBtn.querySelector('span').textContent='Searching'; startBtn.querySelector('i').className='fas fa-spinner fa-spin';
-
+      startBtn.disabled=true; startBtn.classList.add('searching'); startBtn.querySelector('span').textContent='Searching'; startBtn.querySelector('i').className='fas fa-spinner fa-spin';
       if(!(await startCamera())) { showDisconnected(); return; }
-
-      const snap = await getDocs(collection(db,'waiting'));
-      let found=null;
+      const snap = await getDocs(collection(db,'waiting')); let found=null;
       snap.forEach(d=>{ if(d.data().userId!==myId&&!found) found=d.data().userId; });
-
-      if(found) {
-        await deleteDoc(doc(db,'waiting',myId)).catch(()=>{});
-        await deleteDoc(doc(db,'waiting',found)).catch(()=>{});
-        await createRoom(found,true);
-      } else {
-        await setDoc(doc(db,'waiting',myId),{userId:myId});
-        listenForInvites();
-      }
+      if(found) { await deleteDoc(doc(db,'waiting',myId)).catch(()=>{}); await deleteDoc(doc(db,'waiting',found)).catch(()=>{}); await createRoom(found,true); }
+      else { await setDoc(doc(db,'waiting',myId),{userId:myId}); listenForInvites(); }
     }
 
     function stopChat() {
       if(connectionTimeout) clearTimeout(connectionTimeout);
-      if(pc){ pc.close(); pc=null; }
-      unsubs.forEach(u=>u()); unsubs=[];
+      if(pc){ pc.close(); pc=null; } unsubs.forEach(u=>u()); unsubs=[];
       if(roomId){ deleteDoc(doc(db,'rooms',roomId)).catch(()=>{}); roomId=null; }
-      deleteDoc(doc(db,'waiting',myId)).catch(()=>{});
-      deleteDoc(doc(db,'invites',myId)).catch(()=>{});
-      resetStranger(); stopCamera(); showDisconnected();
-      userInfo.classList.remove('active');
+      deleteDoc(doc(db,'waiting',myId)).catch(()=>{}); deleteDoc(doc(db,'invites',myId)).catch(()=>{});
+      resetStranger(); stopCamera(); showDisconnected(); userInfo.classList.remove('active');
+      iceServersConfig = []; // Reset to fetch fresh on next connect
     }
+
+    // Pre-fetch TURN on page load
+    fetchTurnServers().then(servers => { iceServersConfig = servers; console.log('🎬 Ready with', servers.length, 'TURN servers'); });
 
     startBtn.addEventListener('click', startChat);
     stopBtn.addEventListener('click', stopChat);
     nextBtn.addEventListener('click', ()=>{ stopChat(); setTimeout(startChat,500); });
-
+    micBtn.addEventListener('click', toggleMute);
     setInterval(()=>{ onlineCount.textContent=Math.floor(Math.random()*1000+500)+' online'; },3000);
   </script>
 </body>

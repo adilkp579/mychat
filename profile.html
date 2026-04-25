@@ -83,11 +83,12 @@
     .toast { position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:0.5rem 1rem;border-radius:2rem;font-size:0.7rem;z-index:400;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap; }
     .toast.show { opacity:1; }
 
-    .loading-screen { position:fixed;top:0;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:0.5rem; }
+    /* Loading screen */
+    .loading-screen { position:fixed;top:0;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:500; }
     .loading-screen i { font-size:2rem;color:#3897f0;animation:spin 1s infinite; }
-    .loading-screen span { font-size:0.8rem;color:#888; }
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 
+    /* NAVBAR - EXACT INDEX.HTML */
     .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6);z-index:100; }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
     .nav-center a { color:rgba(255,255,255,0.6);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;position:relative; }
@@ -98,16 +99,20 @@
 
     @media (max-width:380px) { .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem}.nav-center a{font-size:1.1rem;width:2rem;height:2rem}.corner-btn{width:2rem;height:2rem;font-size:0.9rem} }
     @media (min-width:1024px) {
-      .top-left,.top-right{display:none}.nav-upload,.nav-search{display:flex!important}
-      .floating-nav{top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column}
-      .nav-center{flex-direction:column;gap:1.2rem;max-width:none}.nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
-      .nav-center a::before{bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0)}.nav-center a.active::before{transform:translateY(-50%) scale(1)}
-      .content{padding:5rem 3rem 3rem 6rem}
+      .top-left, .top-right { display:none; }
+      .nav-upload, .nav-search { display:flex !important; }
+      .floating-nav { top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column; }
+      .nav-center { flex-direction:column;gap:1.2rem;max-width:none; }
+      .nav-center a { font-size:1.4rem;width:2.6rem;height:2.6rem; }
+      .nav-center a::before { bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0); }
+      .nav-center a.active::before { transform:translateY(-50%) scale(1); }
+      .content { padding:5rem 3rem 3rem 6rem; }
     }
   </style>
 </head>
 <body>
-  <div class="loading-screen" id="loadingScreen"><i class="fas fa-spinner"></i><span>Loading profile...</span></div>
+  <!-- Loading -->
+  <div class="loading-screen" id="loadingScreen"><i class="fas fa-spinner"></i></div>
 
   <div class="page" id="mainPage" style="display:none;">
     <div class="top-left"><a href="login.html" class="corner-btn"><i class="fas fa-sign-in-alt"></i></a></div>
@@ -146,9 +151,16 @@
       <div class="empty-text" id="emptyText">No posts yet</div>
     </div>
 
+    <div class="modal-overlay" id="cropModal"><div class="modal"><h3>Adjust Photo</h3><div class="crop-container"><img id="cropImage" src=""></div><div class="zoom-control"><input type="range" id="zoomSlider" min="1" max="3" step="0.1" value="1" oninput="document.getElementById('cropImage').style.transform=`scale(${this.value})`"></div><div class="btn-row"><button class="btn-cancel" onclick="closeCropModal()">Cancel</button><button class="btn-save" onclick="saveCrop()">Save</button></div></div></div>
+    <div class="modal-overlay" id="editModal"><div class="modal"><h3>Edit Profile</h3><label>Username</label><input type="text" id="editUsername"><label>Bio</label><textarea id="editBio"></textarea><label>Website</label><input type="text" id="editWebsite"><div class="btn-row"><button class="btn-cancel" onclick="closeEditProfile()">Cancel</button><button class="btn-save" onclick="saveProfile()">Save</button></div></div></div>
+    <div class="list-modal-overlay" id="listModal"><div class="list-modal"><h3 id="listTitle"></h3><div id="listContent"></div><div class="list-close" onclick="closeList()">Close ✕</div></div></div>
+    <div class="toast" id="toast"></div>
+
     <nav class="floating-nav"><div class="nav-center">
-      <a href="index.html"><i class="fas fa-home"></i></a><a href="web.html"><i class="fas fa-globe"></i></a>
-      <a href="reel.html"><i class="fas fa-film"></i></a><a href="chat.html"><i class="fas fa-comment-dots"></i></a>
+      <a href="index.html"><i class="fas fa-home"></i></a>
+      <a href="web.html"><i class="fas fa-globe"></i></a>
+      <a href="reel.html"><i class="fas fa-film"></i></a>
+      <a href="chat.html"><i class="fas fa-comment-dots"></i></a>
       <a href="profile.html" class="active"><i class="fas fa-user"></i></a>
       <a href="login.html" class="nav-upload"><i class="fas fa-sign-in-alt"></i></a>
       <a href="settings.html" class="nav-search"><i class="fas fa-cog"></i></a>
@@ -157,124 +169,137 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
 
-    let profile = {};
-    let profileDocRef = null;
-
-    async function init() {
+    // ===== CHECK DATABASE ONLY =====
+    async function checkAuth() {
       const currentUser = localStorage.getItem('currentUser');
-      if (!currentUser) { window.location.href = 'login.html'; return; }
-
-      // Reference to user's profile document in Firestore
-      profileDocRef = doc(db, 'profiles', currentUser.replace('@', ''));
+      
+      if (!currentUser) {
+        // No user in localStorage - redirect to login
+        window.location.href = 'login.html';
+        return null;
+      }
 
       try {
-        const snap = await getDoc(profileDocRef);
+        // Check if user exists in Firestore database
+        const q = query(collection(db, 'users'), where('username', '==', currentUser));
+        const snap = await getDocs(q);
         
-        if (snap.exists()) {
-          // Load existing profile from Firestore
-          profile = snap.data();
-        } else {
-          // Create new profile in Firestore
-          profile = {
-            username: currentUser,
-            name: '',
-            bio: '',
-            website: '',
-            avatar: null,
-            friends: [],
-            besties: [],
-            posts: [],
-            createdAt: serverTimestamp()
-          };
-          await setDoc(profileDocRef, profile);
+        if (snap.empty) {
+          // User NOT in database - clear localStorage and redirect
+          localStorage.removeItem('currentUser');
+          localStorage.removeItem('userProfile');
+          window.location.href = 'login.html';
+          return null;
         }
-
-        // Save to window for global access
-        window._profile = profile;
-        window._profileDocRef = profileDocRef;
         
-        // Show page
-        document.getElementById('loadingScreen').style.display = 'none';
-        document.getElementById('mainPage').style.display = 'flex';
-        updateUI();
-
+        // User EXISTS in database - allow access
+        const userData = snap.docs[0].data();
+        return userData;
+        
       } catch (e) {
-        console.error('Init error:', e);
-        document.getElementById('loadingScreen').innerHTML = '<span style="color:#ef4444;">Error loading profile. <a href="login.html" style="color:#3897f0;">Retry</a></span>';
+        console.error('Auth check error:', e);
+        // If Firebase fails, allow localStorage fallback
+        return { username: currentUser };
       }
     }
 
-    async function saveProfile() {
-      try {
-        await updateDoc(profileDocRef, {
-          bio: profile.bio || '',
-          website: profile.website || '',
-          avatar: profile.avatar || null,
-          updatedAt: serverTimestamp()
-        });
-      } catch (e) {
-        console.error('Save error:', e);
-        showToast('Save failed!');
+    // ===== INIT =====
+    async function init() {
+      const dbUser = await checkAuth();
+      
+      if (!dbUser) return; // Redirected to login
+      
+      // Show page
+      document.getElementById('loadingScreen').style.display = 'none';
+      document.getElementById('mainPage').style.display = 'flex';
+      
+      const currentUser = dbUser.username;
+      document.getElementById('currentUserDisplay').textContent = '✅ ' + currentUser;
+      
+      // Load profile
+      const defaultProfile = {
+        username: currentUser,
+        name: dbUser.name || '',
+        bio: dbUser.bio || '',
+        website: dbUser.website || '',
+        avatar: dbUser.avatar || null,
+        friends: [],
+        besties: [],
+        posts: []
+      };
+      
+      let profile = JSON.parse(localStorage.getItem('userProfile')) || defaultProfile;
+      if (!profile.username || profile.username !== currentUser) {
+        profile = defaultProfile;
+        localStorage.setItem('userProfile', JSON.stringify(profile));
       }
-    }
-
-    function updateUI() {
-      document.getElementById('displayName').textContent = profile.username || '';
-      document.getElementById('displayBio').textContent = profile.bio || '';
-      document.getElementById('displayWebsite').textContent = profile.website ? '🔗 ' + profile.website : '';
-      document.getElementById('profileAvatar').innerHTML = profile.avatar ? `<img src="${profile.avatar}">` : '<i class="fas fa-user"></i>';
-      document.getElementById('friendsCount').textContent = (profile.friends || []).length;
-      document.getElementById('bestiesCount').textContent = (profile.besties || []).length;
-      document.getElementById('postCount').textContent = (profile.posts || []).filter(p => p.type === 'image').length;
-      renderContent();
-    }
-
-    function renderContent() {
-      const pg = document.getElementById('postsGrid'), rg = document.getElementById('reelsGrid'), et = document.getElementById('emptyText');
-      const at = document.querySelector('.tab.active'), ir = at && at.textContent.includes('Reels');
-      const posts = profile.posts || [];
-      const ip = posts.filter(p => p.type === 'image'), vp = posts.filter(p => p.type === 'video');
-      if (ir) {
-        pg.style.display = 'none';
-        if (vp.length === 0) { rg.style.display = 'none'; et.style.display = 'block'; et.textContent = 'No reels yet'; }
-        else { rg.style.display = 'grid'; et.style.display = 'none'; rg.innerHTML = vp.map(p => `<div class="reel-item"><video src="${p.src}" muted loop playsinline></video></div>`).join(''); }
-      } else {
-        rg.style.display = 'none';
-        if (ip.length === 0) { pg.style.display = 'none'; et.style.display = 'block'; et.textContent = 'No posts yet'; }
-        else { pg.style.display = 'grid'; et.style.display = 'none'; pg.innerHTML = ip.map(p => `<div class="post-item"><img src="${p.src}"></div>`).join(''); }
+      if (!profile.friends) profile.friends = [];
+      if (!profile.besties) profile.besties = [];
+      if (!profile.posts) profile.posts = [];
+      
+      // Make profile globally accessible
+      window._profile = profile;
+      
+      function save() { localStorage.setItem('userProfile', JSON.stringify(window._profile)); }
+      function updateUI() {
+        const p = window._profile;
+        document.getElementById('displayName').textContent = p.username;
+        document.getElementById('displayBio').textContent = p.bio || '';
+        document.getElementById('displayWebsite').textContent = p.website ? '🔗 ' + p.website : '';
+        document.getElementById('profileAvatar').innerHTML = p.avatar ? `<img src="${p.avatar}">` : '<i class="fas fa-user"></i>';
+        document.getElementById('friendsCount').textContent = p.friends.length;
+        document.getElementById('bestiesCount').textContent = p.besties.length;
+        document.getElementById('postCount').textContent = p.posts.filter(x => x.type === 'image').length;
+        renderContent();
       }
+      
+      function renderContent() {
+        const p = window._profile;
+        const pg = document.getElementById('postsGrid'), rg = document.getElementById('reelsGrid'), et = document.getElementById('emptyText');
+        const at = document.querySelector('.tab.active'), ir = at && at.textContent.includes('Reels');
+        const ip = p.posts.filter(x => x.type === 'image'), vp = p.posts.filter(x => x.type === 'video');
+        if (ir) {
+          pg.style.display = 'none';
+          if (vp.length === 0) { rg.style.display = 'none'; et.style.display = 'block'; et.textContent = 'No reels yet'; }
+          else { rg.style.display = 'grid'; et.style.display = 'none'; rg.innerHTML = vp.map(x => `<div class="reel-item"><video src="${x.src}" muted loop playsinline></video></div>`).join(''); }
+        } else {
+          rg.style.display = 'none';
+          if (ip.length === 0) { pg.style.display = 'none'; et.style.display = 'block'; et.textContent = 'No posts yet'; }
+          else { pg.style.display = 'grid'; et.style.display = 'none'; pg.innerHTML = ip.map(x => `<div class="post-item"><img src="${x.src}"></div>`).join(''); }
+        }
+      }
+      
+      // Expose functions globally
+      window.toggleAvatarOptions = function() { const o = document.getElementById('avatarOptions'); o.classList.toggle('show'); setTimeout(() => document.addEventListener('click', function c(e) { if (!e.target.closest('.avatar-container')) { o.classList.remove('show'); document.removeEventListener('click', c); } }), 100); };
+      window.updateAvatar = function(e) { const f = e.target.files[0]; if (f) { const r = new FileReader(); r.onload = function(ev) { window._profile.avatar = ev.target.result; save(); updateUI(); }; r.readAsDataURL(f); } document.getElementById('avatarOptions').classList.remove('show'); };
+      window.removeAvatar = function() { window._profile.avatar = null; save(); updateUI(); document.getElementById('avatarOptions').classList.remove('show'); };
+      window.openCropModal = function() { if (!window._profile.avatar) return; document.getElementById('cropImage').src = window._profile.avatar; document.getElementById('zoomSlider').value = 1; document.getElementById('cropImage').style.transform = 'scale(1)'; document.getElementById('cropModal').classList.add('show'); };
+      window.closeCropModal = function() { document.getElementById('cropModal').classList.remove('show'); };
+      window.saveCrop = function() { window._profile.avatar = document.getElementById('cropImage').src; save(); updateUI(); closeCropModal(); };
+      window.openEditProfile = function() { document.getElementById('editUsername').value = window._profile.username; document.getElementById('editBio').value = window._profile.bio || ''; document.getElementById('editWebsite').value = window._profile.website || ''; document.getElementById('editModal').classList.add('show'); };
+      window.closeEditProfile = function() { document.getElementById('editModal').classList.remove('show'); };
+      window.saveProfile = function() { window._profile.username = document.getElementById('editUsername').value || '@user'; window._profile.bio = document.getElementById('editBio').value; window._profile.website = document.getElementById('editWebsite').value; save(); updateUI(); closeEditProfile(); };
+      window.switchTab = function(el) { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); renderContent(); };
+      window.showList = function(type) {
+        const p = window._profile;
+        document.getElementById('listTitle').textContent = type === 'friends' ? '👥 Friends' : '⭐ Besties';
+        document.getElementById('listContent').innerHTML = (type === 'friends' ? p.friends : p.besties).map(u => `<div class="list-item"><div class="mini-avatar"><i class="fas fa-user"></i></div><div><div class="name">${u.name}</div><div class="sub">${type === 'friends' ? 'Follows you' : 'You follow'}</div></div></div>`).join('');
+        document.getElementById('listModal').classList.add('show');
+      };
+      window.closeList = function() { document.getElementById('listModal').classList.remove('show'); };
+      window.shareProfile = function() { const u = window.location.href.split('?')[0]; navigator.share ? navigator.share({ title: window._profile.username, url: u }) : navigator.clipboard.writeText(u); };
+      
+      document.getElementById('editModal').addEventListener('click', function(e) { if (e.target === this) closeEditProfile(); });
+      document.getElementById('cropModal').addEventListener('click', function(e) { if (e.target === this) closeCropModal(); });
+      document.getElementById('listModal').addEventListener('click', function(e) { if (e.target === this) closeList(); });
+      
+      updateUI();
     }
-
-    function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2000); }
-
-    // Global functions
-    window.toggleAvatarOptions = () => { const o = document.getElementById('avatarOptions'); o.classList.toggle('show'); setTimeout(() => document.addEventListener('click', function c(e) { if (!e.target.closest('.avatar-container')) { o.classList.remove('show'); document.removeEventListener('click', c); } }), 100); };
-    window.updateAvatar = async function(e) { const f = e.target.files[0]; if (f) { const r = new FileReader(); r.onload = async function(ev) { profile.avatar = ev.target.result; await saveProfile(); updateUI(); showToast('Updated!✅'); }; r.readAsDataURL(f); } document.getElementById('avatarOptions').classList.remove('show'); };
-    window.removeAvatar = async function() { profile.avatar = null; await saveProfile(); updateUI(); document.getElementById('avatarOptions').classList.remove('show'); showToast('Removed'); };
-    window.openCropModal = function() { if (!profile.avatar) return; document.getElementById('cropImage').src = profile.avatar; document.getElementById('zoomSlider').value = 1; document.getElementById('cropImage').style.transform = 'scale(1)'; document.getElementById('cropModal').classList.add('show'); };
-    window.closeCropModal = () => document.getElementById('cropModal').classList.remove('show');
-    window.saveCrop = async function() { profile.avatar = document.getElementById('cropImage').src; await saveProfile(); updateUI(); closeCropModal(); showToast('Adjusted!✅'); };
-    window.openEditProfile = function() { document.getElementById('editUsername').value = profile.username || ''; document.getElementById('editBio').value = profile.bio || ''; document.getElementById('editWebsite').value = profile.website || ''; document.getElementById('editModal').classList.add('show'); };
-    window.closeEditProfile = () => document.getElementById('editModal').classList.remove('show');
-    window.saveProfile = async function() { profile.bio = document.getElementById('editBio').value; profile.website = document.getElementById('editWebsite').value; await saveProfile(); updateUI(); closeEditProfile(); showToast('Saved!✅'); };
-    window.switchTab = function(el) { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); renderContent(); };
-    window.showList = function(type) {
-      document.getElementById('listTitle').textContent = type === 'friends' ? '👥 Friends' : '⭐ Besties';
-      const list = type === 'friends' ? (profile.friends || []) : (profile.besties || []);
-      document.getElementById('listContent').innerHTML = list.map(u => `<div class="list-item"><div class="mini-avatar"><i class="fas fa-user"></i></div><div><div class="name">${u.name}</div><div class="sub">${type === 'friends' ? 'Follows you' : 'You follow'}</div></div></div>`).join('');
-      document.getElementById('listModal').classList.add('show');
-    };
-    window.closeList = () => document.getElementById('listModal').classList.remove('show');
-    window.shareProfile = function() { const u = window.location.href.split('?')[0]; navigator.share ? navigator.share({ title: profile.username, url: u }) : navigator.clipboard.writeText(u).then(() => showToast('Copied!📋')); };
-
-    document.getElementById('editModal').addEventListener('click', function(e) { if (e.target === this) closeEditProfile(); });
-    document.getElementById('cropModal').addEventListener('click', function(e) { if (e.target === this) closeCropModal(); });
-    document.getElementById('listModal').addEventListener('click', function(e) { if (e.target === this) closeList(); });
 
     init();
   </script>

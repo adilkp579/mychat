@@ -3,35 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>Web • Live Chat • iPhone style glass navbar</title>
+  <title>Web • Live Chat</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; min-height: 100vh; min-height: 100dvh; display: flex; align-items: center; justify-content: center; margin: 0; padding: 0; }
-    .page { width: 100%; height: 100vh; height: 100dvh; background: #000; display: flex; flex-direction: column; position: relative; overflow: hidden; }
-    .content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; color: #f0f0f0; padding: 0.5rem 1rem 6rem 1rem; text-align: center; gap: 0.3rem; overflow-y: auto; }
+    * { margin:0;padding:0;box-sizing:border-box; }
+    body { background:#000;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center; }
+    .page { width:100%;height:100vh;height:100dvh;background:#000;display:flex;flex-direction:column;position:relative;overflow:hidden; }
+    .content { flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;color:#fff;padding:0.5rem 1rem 6rem 1rem;text-align:center;gap:0.3rem; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
     .online-counter { display:flex;align-items:center;gap:0.3rem;color:#4ade80;font-size:0.65rem;padding:0.2rem 0; }
     .online-dot { width:5px;height:5px;background:#4ade80;border-radius:50%;animation:blink 2s infinite; }
     .camera-container { display:flex;gap:0.5rem;align-items:flex-start;justify-content:center;width:100%;max-width:500px;flex:1;min-height:0; }
-    .stranger-camera { width:75%;height:100%;max-height:62vh;background:#111;border:2px solid rgba(255,255,255,0.2);border-radius:1.2rem;box-shadow:0 15px 40px rgba(0,0,0,0.6);position:relative;overflow:hidden;transition:all 0.5s ease;display:flex;align-items:center;justify-content:center; }
-    .stranger-camera.connected { border-color:rgba(74,222,128,0.6);box-shadow:0 0 30px rgba(74,222,128,0.3); }
+    .stranger-camera { width:75%;height:100%;max-height:62vh;background:#111;border:2px solid rgba(255,255,255,0.2);border-radius:1.2rem;box-shadow:0 15px 40px rgba(0,0,0,0.6);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center; }
+    .stranger-camera.connected { border-color:#4ade80; }
     #strangerFeed { width:100%;height:100%;object-fit:cover;display:none;background:#000;transform:rotateY(180deg);-webkit-transform:rotateY(180deg); }
     .stranger-placeholder { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.3rem;color:rgba(255,255,255,0.25); }
     .stranger-placeholder i { font-size:3rem; }
-    .my-camera { width:22%;max-height:150px;aspect-ratio:3/4;background:#111;border:2px solid rgba(255,255,255,0.3);border-radius:0.8rem;box-shadow:0 8px 20px rgba(0,0,0,0.6);position:relative;overflow:hidden;transition:all 0.3s ease; }
-    .my-camera.active { border-color:rgba(255,0,0,0.6);box-shadow:0 0 15px rgba(255,0,0,0.3); }
+    .my-camera { width:22%;max-height:150px;aspect-ratio:3/4;background:#111;border:2px solid rgba(255,255,255,0.3);border-radius:0.8rem;box-shadow:0 8px 20px rgba(0,0,0,0.6);position:relative;overflow:hidden; }
+    .my-camera.active { border-color:#ef4444; }
     #myFeed { width:100%;height:100%;object-fit:cover;display:none;background:#000;transform:rotateY(180deg);-webkit-transform:rotateY(180deg); }
     .my-placeholder { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.15rem;color:rgba(255,255,255,0.35);font-size:0.6rem; }
     .my-placeholder i { font-size:1.3rem; }
-    .camera-labels { display:flex;justify-content:space-between;width:100%;max-width:500px;padding:0 0.2rem;margin-bottom:-0.2rem; }
+    .camera-labels { display:flex;justify-content:space-between;width:100%;max-width:500px;padding:0 0.2rem; }
     .stranger-label-outside { color:#777;font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;margin-left:0.3rem; }
     .you-label-outside { color:#777;font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;margin-right:0.3rem; }
-    .user-info { display:flex;align-items:center;gap:0.3rem;background:rgba(255,255,255,0.06);padding:0.25rem 0.6rem;border-radius:1rem;font-size:0.7rem;color:#ccc;opacity:0;transition:all 0.3s ease;border:1px solid rgba(255,255,255,0.08); }
+    .user-info { display:flex;align-items:center;gap:0.3rem;background:rgba(255,255,255,0.06);padding:0.25rem 0.6rem;border-radius:1rem;font-size:0.7rem;color:#ccc;opacity:0;transition:all 0.3s;border:1px solid rgba(255,255,255,0.08); }
     .user-info.active { opacity:1; }
-    .buttons-container { display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;padding:0.2rem 0 0 0;align-items:center; }
-    .btn { height:36px;border-radius:2rem;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;gap:0.3rem;cursor:pointer;transition:all 0.3s ease;user-select:none;border:none;outline:none;font-size:0.75rem;font-weight:600;padding:0 1rem;color:#fff; }
+    .buttons-container { display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;padding:0.2rem 0;align-items:center; }
+    .btn { height:36px;border-radius:2rem;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;gap:0.3rem;cursor:pointer;border:none;outline:none;font-size:0.75rem;font-weight:600;padding:0 1rem;color:#fff;transition:all 0.3s; }
     .btn:active { transform:scale(0.95); }
     .start-button { width:90px;background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.4);color:#4ade80; }
     .start-button.searching { background:rgba(251,191,36,0.2);border-color:rgba(251,191,36,0.5);color:#fbbf24;animation:pulse 1s infinite; }
@@ -42,13 +42,31 @@
     .mic-button { width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:#4ade80;display:none;padding:0; }
     .mic-button.visible { display:flex;align-items:center;justify-content:center; }
     .mic-button.muted { color:#ef4444;background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.4); }
-    .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px) saturate(200%);-webkit-backdrop-filter:blur(30px) saturate(200%);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6);z-index:100; }
+
+    /* NAVBAR */
+    .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6);z-index:100; }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
-    .nav-center a { color:rgba(255,255,255,0.6);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;flex-shrink:0; }
+    .nav-center a { color:rgba(255,255,255,0.6);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;position:relative; }
+    .nav-center a::before { content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:4px;height:4px;border-radius:50%;background:#fff;transition:all 0.3s; }
+    .nav-center a.active::before { transform:translateX(-50%) scale(1); }
     .nav-center a.active { color:#fff;background:rgba(255,255,255,0.15);backdrop-filter:blur(10px); }
-    @media (max-width:380px) { .content{padding:0.3rem 0.6rem 5rem 0.6rem}.stranger-camera{max-height:56vh}.my-camera{max-height:100px}.btn{height:32px;font-size:0.65rem;padding:0 0.5rem}.start-button{width:60px}.stop-button,.next-button{width:55px}.mic-button{width:32px;height:32px}.floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem} }
-    @media (min-width:768px) { .stranger-camera{max-height:65vh;border-radius:1.5rem}.my-camera{max-height:160px}.btn{height:42px;font-size:0.85rem}.start-button{width:100px}.stop-button,.next-button{width:90px}.mic-button{width:42px;height:42px}.floating-nav{width:65%;padding:0.8rem 2rem} }
-    @media (min-width:1024px) { .stranger-camera{max-height:67vh;border-radius:1.8rem}.my-camera{max-height:170px}.btn{height:44px}.start-button{width:110px}.stop-button,.next-button{width:95px}.mic-button{width:44px;height:44px}.floating-nav{width:45%;padding:0.9rem 2.2rem;bottom:2.5rem} }
+    
+    /* Mobile: hide upload & search from navbar */
+    .nav-upload, .nav-search { display:none !important; }
+
+    @media (min-width:1024px) {
+      /* Desktop: show upload & search in left sidebar */
+      .nav-upload, .nav-search { display:flex !important; }
+      .floating-nav { top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column; }
+      .nav-center { flex-direction:column;gap:1.2rem;max-width:none; }
+      .nav-center a { font-size:1.4rem;width:2.6rem;height:2.6rem; }
+      .nav-center a::before { bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0); }
+      .nav-center a.active::before { transform:translateY(-50%) scale(1); }
+      .content { padding:0.5rem 2rem 3rem 6rem; }
+      .stranger-camera { max-height:70vh; }
+      .my-camera { max-height:180px; }
+    }
+    @media (max-width:380px) { .content{padding:0.3rem 0.6rem 5rem 0.6rem}.stranger-camera{max-height:56vh}.my-camera{max-height:100px}.btn{height:32px;font-size:0.65rem;padding:0 0.5rem}.start-button{width:60px}.stop-button,.next-button{width:55px}.mic-button{width:32px;height:32px}.floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem}.nav-center a{font-size:1.1rem;width:2rem;height:2rem} }
   </style>
 </head>
 <body>
@@ -71,7 +89,7 @@
         <button class="btn start-button" id="startBtn"><i class="fas fa-play"></i><span>Start</span></button>
         <button class="btn stop-button" id="stopBtn"><i class="fas fa-stop"></i><span>Stop</span></button>
         <button class="btn next-button" id="nextBtn"><i class="fas fa-forward"></i><span>Next</span></button>
-        <button class="btn mic-button" id="micBtn" title="Mute"><i class="fas fa-microphone"></i></button>
+        <button class="btn mic-button" id="micBtn"><i class="fas fa-microphone"></i></button>
       </div>
     </div>
     <nav class="floating-nav"><div class="nav-center">
@@ -80,218 +98,30 @@
       <a href="reel.html"><i class="fas fa-film"></i></a>
       <a href="chat.html"><i class="fas fa-comment-dots"></i></a>
       <a href="profile.html"><i class="fas fa-user"></i></a>
+      <a href="upload.html" class="nav-upload"><i class="fas fa-plus"></i></a>
+      <a href="search.html" class="nav-search"><i class="fas fa-search"></i></a>
     </div></nav>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, addDoc, onSnapshot, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",
-      authDomain: "mychat-a97bf.firebaseapp.com",
-      projectId: "mychat-a97bf",
-      storageBucket: "mychat-a97bf.firebasestorage.app",
-      messagingSenderId: "206620858913",
-      appId: "1:206620858913:web:e8171ed8c1a2dbda3da160"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    const myFeed = document.getElementById('myFeed');
-    const myPlaceholder = document.getElementById('myPlaceholder');
-    const myCamera = document.getElementById('myCamera');
-    const strangerFeed = document.getElementById('strangerFeed');
-    const strangerPlaceholder = document.getElementById('strangerPlaceholder');
-    const strangerCamera = document.getElementById('strangerCamera');
-    const userInfo = document.getElementById('userInfo');
-    const onlineCount = document.getElementById('onlineCount');
-    const startBtn = document.getElementById('startBtn');
-    const stopBtn = document.getElementById('stopBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const micBtn = document.getElementById('micBtn');
-
-    const myId = crypto.randomUUID();
-    let localStream, pc, roomId, unsubs=[], connectionTimeout;
-    let isMuted = false;
-
-    // Your Metered TURN + STUN servers (direct credentials)
-    const servers = {
-      iceServers: [
-        {
-          urls: "stun:stun.relay.metered.ca:80",
-        },
-        {
-          urls: "turn:standard.relay.metered.ca:80",
-          username: "a6b2ebd89a4174b7f3843634",
-          credential: "xyEoZGCCUl7ZAQ4h",
-        },
-        {
-          urls: "turn:standard.relay.metered.ca:80?transport=tcp",
-          username: "a6b2ebd89a4174b7f3843634",
-          credential: "xyEoZGCCUl7ZAQ4h",
-        },
-        {
-          urls: "turn:standard.relay.metered.ca:443",
-          username: "a6b2ebd89a4174b7f3843634",
-          credential: "xyEoZGCCUl7ZAQ4h",
-        },
-        {
-          urls: "turns:standard.relay.metered.ca:443?transport=tcp",
-          username: "a6b2ebd89a4174b7f3843634",
-          credential: "xyEoZGCCUl7ZAQ4h",
-        },
-        // Google STUN fallback
-        { urls: "stun:stun.l.google.com:19302" },
-        { urls: "stun:stun1.l.google.com:19302" },
-      ],
-      iceCandidatePoolSize: 2
-    };
-
-    console.log('🔗 ICE Servers:', servers.iceServers.length, 'servers configured');
-
-    async function startCamera() {
-      try {
-        if(localStream){ localStream.getTracks().forEach(t=>t.stop()); }
-        localStream = await navigator.mediaDevices.getUserMedia({ 
-          video: { width:480, height:640, facingMode:'user' }, 
-          audio: { echoCancellation:true, noiseSuppression:true, autoGainControl:true }
-        });
-        myFeed.srcObject = localStream;
-        await myFeed.play();
-        myFeed.style.display='block'; myPlaceholder.style.display='none'; myCamera.classList.add('active');
-        console.log('📷 Camera ready, audio:', localStream.getAudioTracks().length);
-        return true;
-      } catch(e) { alert('Camera & Microphone needed!'); return false; }
-    }
-
-    function stopCamera() {
-      if(localStream){ localStream.getTracks().forEach(t=>t.stop()); localStream=null; }
-      myFeed.style.display='none'; myFeed.srcObject=null; myPlaceholder.style.display=''; myCamera.classList.remove('active');
-    }
-
-    function resetStranger() {
-      strangerFeed.style.display='none'; strangerFeed.srcObject=null; strangerPlaceholder.style.display=''; strangerCamera.classList.remove('connected');
-    }
-
-    function showConnected() {
-      startBtn.style.display='none'; stopBtn.classList.add('visible'); nextBtn.classList.add('visible'); micBtn.classList.add('visible');
-    }
-
-    function showDisconnected() {
-      startBtn.style.display='flex'; stopBtn.classList.remove('visible'); nextBtn.classList.remove('visible'); micBtn.classList.remove('visible');
-      startBtn.classList.remove('searching'); startBtn.querySelector('span').textContent='Start';
-      startBtn.querySelector('i').className='fas fa-play'; startBtn.disabled=false;
-    }
-
-    function toggleMute() {
-      if(!localStream) return;
-      const tracks = localStream.getAudioTracks();
-      if(tracks.length > 0) {
-        isMuted = !isMuted;
-        tracks.forEach(t => t.enabled = !isMuted);
-        if(isMuted){ micBtn.classList.add('muted'); micBtn.querySelector('i').className='fas fa-microphone-slash'; }
-        else { micBtn.classList.remove('muted'); micBtn.querySelector('i').className='fas fa-microphone'; }
-        console.log('🎤', isMuted ? 'Muted' : 'Unmuted');
-      }
-    }
-
-    async function createRoom(otherId, isCaller) {
-      roomId = [myId, otherId].sort().join('_');
-      const roomRef = doc(db, 'rooms', roomId);
-      showConnected();
-      userInfo.classList.add('active');
-
-      if(pc){ pc.close(); pc=null; }
-      unsubs.forEach(u=>u()); unsubs=[];
-
-      pc = new RTCPeerConnection(servers);
-      console.log('🔗 PeerConnection created with TURN');
-      localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
-
-      pc.ontrack = (e) => { if(e.streams[0]){ strangerFeed.srcObject=e.streams[0]; strangerFeed.style.display='block'; strangerPlaceholder.style.display='none'; strangerCamera.classList.add('connected'); console.log('📥 Remote stream connected'); }};
-      pc.onicecandidate = async (e) => { if(e.candidate){ console.log('🧊 ICE:', e.candidate.type); await addDoc(collection(roomRef,'ice'),{sender:myId,candidate:e.candidate.toJSON()}); }};
-      pc.onconnectionstatechange = () => { console.log('📡 State:', pc.connectionState); if(pc.connectionState==='failed'||pc.connectionState==='disconnected') resetStranger(); };
-      pc.oniceconnectionstatechange = () => { console.log('🧊 ICE State:', pc.iceConnectionState); if(pc.iceConnectionState==='failed'&&pc) pc.restartIce(); };
-
-      unsubs.push(onSnapshot(collection(roomRef,'ice'), (snap) => {
-        snap.docChanges().forEach(async (c) => { if(c.type==='added'&&c.doc.data().sender!==myId&&pc) try{ await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate)); }catch(e){} });
-      }));
-
-      if(isCaller) {
-        const offer = await pc.createOffer({offerToReceiveVideo:true,offerToReceiveAudio:true});
-        await pc.setLocalDescription(offer);
-        await setDoc(doc(db,'invites',otherId),{from:myId,offer:{type:offer.type,sdp:offer.sdp}});
-        console.log('📞 Offer sent');
-        unsubs.push(onSnapshot(doc(db,'invites',otherId), async (snap) => {
-          const d=snap.data();
-          if(d?.answer&&!pc.currentRemoteDescription&&pc.signalingState!=='closed') {
-            await pc.setRemoteDescription(new RTCSessionDescription(d.answer));
-            console.log('✅ Answer received, connected!');
-          }
-        }));
-        connectionTimeout = setTimeout(() => { if(pc&&pc.connectionState!=='connected'){ console.log('⏰ Timeout, restarting ICE'); pc.restartIce(); }}, 15000);
-      }
-    }
-
-    function listenForInvites() {
-      console.log('👂 Listening for invites...');
-      unsubs.push(onSnapshot(doc(db,'invites',myId), async (snap) => {
-        if(!snap.exists()) return;
-        const d=snap.data();
-        console.log('📩 Invite from:', d.from?.substring(0,8));
-        await deleteDoc(doc(db,'waiting',myId)).catch(()=>{});
-        roomId=[myId,d.from].sort().join('_'); const roomRef=doc(db,'rooms',roomId);
-        showConnected(); userInfo.classList.add('active');
-        if(pc){ pc.close(); pc=null; } unsubs.forEach(u=>u()); unsubs=[];
-        pc = new RTCPeerConnection(servers);
-        console.log('🔗 PeerConnection created with TURN');
-        localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));
-        pc.ontrack = (e) => { if(e.streams[0]){ strangerFeed.srcObject=e.streams[0]; strangerFeed.style.display='block'; strangerPlaceholder.style.display='none'; strangerCamera.classList.add('connected'); console.log('📥 Remote stream connected'); }};
-        pc.onicecandidate = async (e) => { if(e.candidate){ console.log('🧊 ICE:', e.candidate.type); await addDoc(collection(roomRef,'ice'),{sender:myId,candidate:e.candidate.toJSON()}); }};
-        if(d.offer&&pc.signalingState!=='closed') { 
-          await pc.setRemoteDescription(new RTCSessionDescription(d.offer)); 
-          const answer=await pc.createAnswer(); 
-          await pc.setLocalDescription(answer); 
-          await setDoc(doc(db,'invites',myId),{from:d.from,offer:d.offer,answer:{type:answer.type,sdp:answer.sdp}},{merge:true}); 
-          console.log('📞 Answer sent');
-        }
-        unsubs.push(onSnapshot(collection(roomRef,'ice'), (snap) => { snap.docChanges().forEach(async (c) => { if(c.type==='added'&&c.doc.data().sender!==myId&&pc) try{ await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate)); }catch(e){} }); }));
-      }));
-    }
-
-    async function startChat() {
-      startBtn.disabled=true; startBtn.classList.add('searching'); startBtn.querySelector('span').textContent='Searching'; startBtn.querySelector('i').className='fas fa-spinner fa-spin';
-      console.log('▶️ Starting...');
-      if(!(await startCamera())) { showDisconnected(); return; }
-      const snap = await getDocs(collection(db,'waiting')); let found=null;
-      snap.forEach(d=>{ if(d.data().userId!==myId&&!found) found=d.data().userId; });
-      if(found) { 
-        console.log('🔗 Found waiting:', found.substring(0,8));
-        await deleteDoc(doc(db,'waiting',myId)).catch(()=>{}); await deleteDoc(doc(db,'waiting',found)).catch(()=>{}); await createRoom(found,true); 
-      } else { 
-        console.log('⏳ Waiting...');
-        await setDoc(doc(db,'waiting',myId),{userId:myId}); listenForInvites(); 
-      }
-    }
-
-    function stopChat() {
-      console.log('⏹️ Stopping');
-      if(connectionTimeout) clearTimeout(connectionTimeout);
-      if(pc){ pc.close(); pc=null; } unsubs.forEach(u=>u()); unsubs=[];
-      if(roomId){ deleteDoc(doc(db,'rooms',roomId)).catch(()=>{}); roomId=null; }
-      deleteDoc(doc(db,'waiting',myId)).catch(()=>{}); deleteDoc(doc(db,'invites',myId)).catch(()=>{});
-      resetStranger(); stopCamera(); showDisconnected(); userInfo.classList.remove('active');
-    }
-
-    startBtn.addEventListener('click', startChat);
-    stopBtn.addEventListener('click', stopChat);
-    nextBtn.addEventListener('click', ()=>{ stopChat(); setTimeout(startChat,500); });
-    micBtn.addEventListener('click', toggleMute);
-    setInterval(()=>{ onlineCount.textContent=Math.floor(Math.random()*1000+500)+' online'; },3000);
-    
-    console.log('✅ Ready! TURN servers active');
+    const firebaseConfig={apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf",storageBucket:"mychat-a97bf.firebasestorage.app",messagingSenderId:"206620858913",appId:"1:206620858913:web:e8171ed8c1a2dbda3da160"};
+    const a=initializeApp(firebaseConfig),db=getFirestore(a);
+    const myFeed=document.getElementById('myFeed'),myPlaceholder=document.getElementById('myPlaceholder'),myCamera=document.getElementById('myCamera'),strangerFeed=document.getElementById('strangerFeed'),strangerPlaceholder=document.getElementById('strangerPlaceholder'),strangerCamera=document.getElementById('strangerCamera'),userInfo=document.getElementById('userInfo'),onlineCount=document.getElementById('onlineCount'),startBtn=document.getElementById('startBtn'),stopBtn=document.getElementById('stopBtn'),nextBtn=document.getElementById('nextBtn'),micBtn=document.getElementById('micBtn');
+    const myId=crypto.randomUUID();let localStream,pc,roomId,unsubs=[],connectionTimeout,isMuted=!1;
+    const servers={iceServers:[{urls:"stun:stun.relay.metered.ca:80"},{urls:"turn:standard.relay.metered.ca:80",username:"a6b2ebd89a4174b7f3843634",credential:"xyEoZGCCUl7ZAQ4h"},{urls:"turn:standard.relay.metered.ca:80?transport=tcp",username:"a6b2ebd89a4174b7f3843634",credential:"xyEoZGCCUl7ZAQ4h"},{urls:"turn:standard.relay.metered.ca:443",username:"a6b2ebd89a4174b7f3843634",credential:"xyEoZGCCUl7ZAQ4h"},{urls:"turns:standard.relay.metered.ca:443?transport=tcp",username:"a6b2ebd89a4174b7f3843634",credential:"xyEoZGCCUl7ZAQ4h"},{urls:"stun:stun.l.google.com:19302"}],iceCandidatePoolSize:2};
+    async function startCamera(){try{if(localStream)localStream.getTracks().forEach(t=>t.stop());localStream=await navigator.mediaDevices.getUserMedia({video:{width:480,height:640,facingMode:'user'},audio:{echoCancellation:!0,noiseSuppression:!0,autoGainControl:!0}});myFeed.srcObject=localStream;await myFeed.play();myFeed.style.display='block';myPlaceholder.style.display='none';myCamera.classList.add('active');return!0}catch(e){return alert('Camera needed!'),!1}}
+    function stopCamera(){localStream&&(localStream.getTracks().forEach(t=>t.stop()),localStream=null);myFeed.style.display='none';myFeed.srcObject=null;myPlaceholder.style.display='';myCamera.classList.remove('active')}
+    function resetStranger(){strangerFeed.style.display='none';strangerFeed.srcObject=null;strangerPlaceholder.style.display='';strangerCamera.classList.remove('connected')}
+    function showConnected(){startBtn.style.display='none';stopBtn.classList.add('visible');nextBtn.classList.add('visible');micBtn.classList.add('visible')}
+    function showDisconnected(){startBtn.style.display='flex';stopBtn.classList.remove('visible');nextBtn.classList.remove('visible');micBtn.classList.remove('visible');startBtn.classList.remove('searching');startBtn.querySelector('span').textContent='Start';startBtn.querySelector('i').className='fas fa-play';startBtn.disabled=!1}
+    function toggleMute(){if(!localStream)return;const t=localStream.getAudioTracks();t.length>0&&(isMuted=!isMuted,t.forEach(t=>t.enabled=!isMuted),micBtn.classList.toggle('muted',isMuted),micBtn.querySelector('i').className=isMuted?'fas fa-microphone-slash':'fas fa-microphone')}
+    async function createRoom(o,c){roomId=[myId,o].sort().join('_');const r=doc(db,'rooms',roomId);showConnected();userInfo.classList.add('active');pc&&(pc.close(),pc=null);unsubs.forEach(u=>u());unsubs=[];pc=new RTCPeerConnection(servers);localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));pc.ontrack=e=>{e.streams[0]&&(strangerFeed.srcObject=e.streams[0],strangerFeed.style.display='block',strangerPlaceholder.style.display='none',strangerCamera.classList.add('connected'))};pc.onicecandidate=async e=>{e.candidate&&await addDoc(collection(r,'ice'),{sender:myId,candidate:e.candidate.toJSON()})};pc.onconnectionstatechange=()=>{('failed'===pc.connectionState||'disconnected'===pc.connectionState)&&resetStranger()};pc.oniceconnectionstatechange=()=>{'failed'===pc.iceConnectionState&&pc&&pc.restartIce()};unsubs.push(onSnapshot(collection(r,'ice'),snap=>{snap.docChanges().forEach(async c=>{if('added'===c.type&&c.doc.data().sender!==myId&&pc)try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate))}catch(e){}})}));if(c){const o=await pc.createOffer({offerToReceiveVideo:!0,offerToReceiveAudio:!0});await pc.setLocalDescription(o);await setDoc(doc(db,'invites',o),{from:myId,offer:{type:o.type,sdp:o.sdp}});unsubs.push(onSnapshot(doc(db,'invites',o),async e=>{const d=e.data();d?.answer&&!pc.currentRemoteDescription&&'closed'!==pc.signalingState&&await pc.setRemoteDescription(new RTCSessionDescription(d.answer))}));connectionTimeout=setTimeout(()=>{pc&&'connected'!==pc.connectionState&&pc.restartIce()},15000)}}
+    function listenForInvites(){unsubs.push(onSnapshot(doc(db,'invites',myId),async e=>{if(!e.exists())return;const d=e.data();await deleteDoc(doc(db,'waiting',myId)).catch(()=>{});roomId=[myId,d.from].sort().join('_');const r=doc(db,'rooms',roomId);showConnected();userInfo.classList.add('active');pc&&(pc.close(),pc=null);unsubs.forEach(u=>u());unsubs=[];pc=new RTCPeerConnection(servers);localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));pc.ontrack=e=>{e.streams[0]&&(strangerFeed.srcObject=e.streams[0],strangerFeed.style.display='block',strangerPlaceholder.style.display='none',strangerCamera.classList.add('connected'))};pc.onicecandidate=async e=>{e.candidate&&await addDoc(collection(r,'ice'),{sender:myId,candidate:e.candidate.toJSON()})};d.offer&&'closed'!==pc.signalingState&&(await pc.setRemoteDescription(new RTCSessionDescription(d.offer)),await pc.createAnswer().then(async a=>{await pc.setLocalDescription(a);await setDoc(doc(db,'invites',myId),{from:d.from,offer:d.offer,answer:{type:a.type,sdp:a.sdp}},{merge:!0})}));unsubs.push(onSnapshot(collection(r,'ice'),snap=>{snap.docChanges().forEach(async c=>{if('added'===c.type&&c.doc.data().sender!==myId&&pc)try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate))}catch(e){}})}))}))}
+    async function startChat(){startBtn.disabled=!0;startBtn.classList.add('searching');startBtn.querySelector('span').textContent='Searching';startBtn.querySelector('i').className='fas fa-spinner fa-spin';if(!await startCamera()){showDisconnected();return}const s=await getDocs(collection(db,'waiting'));let f=null;s.forEach(d=>{d.data().userId!==myId&&!f&&(f=d.data().userId)});f?(await deleteDoc(doc(db,'waiting',myId)).catch(()=>{}),await deleteDoc(doc(db,'waiting',f)).catch(()=>{}),await createRoom(f,!0)):(await setDoc(doc(db,'waiting',myId),{userId:myId}),listenForInvites())}
+    function stopChat(){connectionTimeout&&clearTimeout(connectionTimeout);pc&&(pc.close(),pc=null);unsubs.forEach(u=>u());unsubs=[];roomId&&(deleteDoc(doc(db,'rooms',roomId)).catch(()=>{}),roomId=null);deleteDoc(doc(db,'waiting',myId)).catch(()=>{});deleteDoc(doc(db,'invites',myId)).catch(()=>{});resetStranger();stopCamera();showDisconnected();userInfo.classList.remove('active')}
+    startBtn.addEventListener('click',startChat);stopBtn.addEventListener('click',stopChat);nextBtn.addEventListener('click',()=>{stopChat();setTimeout(startChat,500)});micBtn.addEventListener('click',toggleMute);setInterval(()=>{onlineCount.textContent=Math.floor(900+Math.random()*600)+' online'},3000);
   </script>
 </body>
 </html>

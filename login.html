@@ -10,21 +10,20 @@
     body { background:#000;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center; }
     .page { width:100%;height:100vh;height:100dvh;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;padding:2rem;gap:1rem; }
     .auth-box { background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:1.5rem;padding:2rem;width:100%;max-width:360px;text-align:center; }
-    .auth-box h2 { margin-bottom:1.2rem;font-weight:500;font-size:1.3rem; }
     .icon-circle { width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.5rem; }
+    h2 { font-weight:500;font-size:1.3rem;margin-bottom:1.2rem; }
     .input-group { position:relative;margin-bottom:0.8rem;text-align:left; }
     .input-group i { position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#666;font-size:0.9rem; }
-    .input-group input { width:100%;padding:0.8rem 0.8rem 0.8rem 2.5rem;border-radius:0.5rem;border:1px solid #333;background:#111;color:#fff;font-size:0.85rem;outline:none;transition:all 0.3s; }
+    .input-group input { width:100%;padding:0.8rem 0.8rem 0.8rem 2.5rem;border-radius:0.5rem;border:1px solid #333;background:#111;color:#fff;font-size:0.85rem;outline:none; }
     .input-group input:focus { border-color:#3897f0; }
-    .auth-btn { width:100%;padding:0.8rem;border-radius:1.5rem;border:none;background:#3897f0;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;margin-top:0.5rem;transition:all 0.3s; }
-    .auth-btn:hover { background:#1a7de0; }
-    .auth-btn:disabled { opacity:0.5;cursor:not-allowed; }
-    .alt-link { color:#3897f0;font-size:0.8rem;margin-top:1.2rem;text-decoration:none;display:block; }
-    .error-msg { color:#ef4444;font-size:0.7rem;min-height:1rem;margin-top:0.3rem; }
+    .auth-btn { width:100%;padding:0.8rem;border-radius:1.5rem;border:none;background:#3897f0;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;margin-top:0.5rem; }
+    .auth-btn:disabled { opacity:0.5; }
+    .alt-link { color:#3897f0;font-size:0.8rem;margin-top:1.2rem;display:block;text-decoration:none; }
+    .error-msg { color:#ef4444;font-size:0.7rem;min-height:1rem; }
     .success-msg { color:#4ade80;font-size:0.7rem;min-height:1rem; }
     .saved-users { margin-top:1rem;text-align:left;border-top:1px solid rgba(255,255,255,0.1);padding-top:0.8rem; }
     .saved-users small { color:#888;font-size:0.65rem;display:block;margin-bottom:0.4rem; }
-    .saved-user { display:flex;align-items:center;gap:0.5rem;padding:0.5rem;background:rgba(255,255,255,0.03);border-radius:0.5rem;margin-bottom:0.2rem;cursor:pointer;font-size:0.75rem;transition:all 0.2s; }
+    .saved-user { display:flex;align-items:center;gap:0.5rem;padding:0.5rem;background:rgba(255,255,255,0.03);border-radius:0.5rem;margin-bottom:0.2rem;cursor:pointer;font-size:0.75rem; }
     .saved-user:hover { background:rgba(255,255,255,0.08); }
     .back-link { position:absolute;top:1.5rem;left:1.5rem;color:#888;font-size:0.8rem;text-decoration:none; }
   </style>
@@ -32,24 +31,16 @@
 <body>
   <div class="page">
     <a href="profile.html" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
-    
     <div class="auth-box">
       <div class="icon-circle"><i class="fas fa-sign-in-alt"></i></div>
       <h2>Sign In</h2>
-      
-      <div class="input-group"><i class="fas fa-user"></i><input type="text" id="loginUsername" placeholder="Username or Email" autocomplete="username"></div>
-      <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password"></div>
-      
+      <div class="input-group"><i class="fas fa-user"></i><input type="text" id="loginUsername" placeholder="Username or Email"></div>
+      <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="loginPassword" placeholder="Password"></div>
       <div class="error-msg" id="loginError"></div>
       <div class="success-msg" id="loginSuccess"></div>
-      
       <button class="auth-btn" id="loginBtn" onclick="login()">Sign In</button>
       <a href="signup.html" class="alt-link">Don't have an account? Sign Up</a>
-      
-      <div class="saved-users" id="savedUsersSection">
-        <small>Saved Accounts</small>
-        <div id="savedUsersList"></div>
-      </div>
+      <div class="saved-users" id="savedSection" style="display:none;"><small>Saved</small><div id="savedList"></div></div>
     </div>
   </div>
 
@@ -57,82 +48,48 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-    const app = initializeApp({
-      apiKey: "AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",
-      authDomain: "mychat-a97bf.firebaseapp.com",
-      projectId: "mychat-a97bf"
-    });
+    const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
 
-    function hashPassword(pw) {
-      let hash = 0;
-      for (let i = 0; i < pw.length; i++) { const char = pw.charCodeAt(i); hash = ((hash << 5) - hash) + char; hash = hash & hash; }
-      return 'hashed_' + Math.abs(hash).toString(16);
-    }
+    function hashPassword(pw) { let h=0; for(let i=0;i<pw.length;i++){const c=pw.charCodeAt(i);h=((h<<5)-h)+c;h=h&h;} return 'h_'+Math.abs(h).toString(16); }
 
     const savedUsers = JSON.parse(localStorage.getItem('savedUsers')||'[]');
     if(savedUsers.length > 0) {
-      document.getElementById('savedUsersSection').style.display = 'block';
-      document.getElementById('savedUsersList').innerHTML = savedUsers.map(u => 
-        `<div class="saved-user" onclick="quickLogin('${u}')"><i class="fas fa-user-circle"></i> ${u}</div>`
-      ).join('');
+      document.getElementById('savedSection').style.display='block';
+      document.getElementById('savedList').innerHTML = savedUsers.map(u => `<div class="saved-user" onclick="quickLogin('${u}')"><i class="fas fa-user-circle"></i> ${u}</div>`).join('');
     }
 
-    window.quickLogin = function(u) {
-      document.getElementById('loginUsername').value = u;
-      document.getElementById('loginPassword').focus();
-    };
+    window.quickLogin = function(u) { document.getElementById('loginUsername').value = u; };
 
     window.login = async function() {
-      const usernameOrEmail = document.getElementById('loginUsername').value.trim();
-      const password = document.getElementById('loginPassword').value;
-      const errorEl = document.getElementById('loginError');
-      const successEl = document.getElementById('loginSuccess');
-      const btn = document.getElementById('loginBtn');
-      
-      errorEl.textContent = ''; successEl.textContent = '';
-      
-      if(!usernameOrEmail || !password) {
-        errorEl.textContent = '❌ Please enter username/email and password'; return;
-      }
-      
-      btn.disabled = true; btn.textContent = 'Signing In...';
-      
+      const ue=document.getElementById('loginUsername').value.trim(),pw=document.getElementById('loginPassword').value;
+      const err=document.getElementById('loginError'),suc=document.getElementById('loginSuccess'),btn=document.getElementById('loginBtn');
+      err.textContent='';suc.textContent='';
+      if(!ue||!pw){err.textContent='❌ Enter username/email and password';return;}
+      btn.disabled=true;btn.textContent='Signing In...';
       try {
-        let q = query(collection(db, 'users'), where('username', '==', usernameOrEmail.startsWith('@') ? usernameOrEmail : '@' + usernameOrEmail));
-        let snap = await getDocs(q);
+        let q=query(collection(db,'users'),where('username','==',ue.startsWith('@')?ue:'@'+ue));
+        let snap=await getDocs(q);
+        if(snap.empty){q=query(collection(db,'users'),where('email','==',ue));snap=await getDocs(q);}
+        if(snap.empty){err.textContent='❌ Account not found';btn.disabled=false;btn.textContent='Sign In';return;}
+        const d=snap.docs[0].data();
+        if(d.password!==hashPassword(pw)){err.textContent='❌ Wrong password';btn.disabled=false;btn.textContent='Sign In';return;}
         
-        if(snap.empty) {
-          q = query(collection(db, 'users'), where('email', '==', usernameOrEmail));
-          snap = await getDocs(q);
+        // Load existing profile OR create fresh one
+        let profile = JSON.parse(localStorage.getItem('userProfile')||'{}');
+        if(!profile.username || profile.username !== d.username) {
+          // Fresh profile for this user
+          profile = { username:d.username, name:d.name||'', bio:d.bio||'', website:d.website||'', avatar:d.avatar||null, friends:[], besties:[], posts:[] };
         }
-        
-        if(snap.empty) {
-          errorEl.textContent = '❌ Account not found. Please sign up.';
-          btn.disabled = false; btn.textContent = 'Sign In'; return;
-        }
-        
-        const userData = snap.docs[0].data();
-        if(userData.password !== hashPassword(password)) {
-          errorEl.textContent = '❌ Wrong password. Try again.';
-          btn.disabled = false; btn.textContent = 'Sign In'; return;
-        }
-        
-        localStorage.setItem('currentUser', userData.username);
-        const su = JSON.parse(localStorage.getItem('savedUsers')||'[]');
-        if(!su.includes(userData.username)) { su.push(userData.username); localStorage.setItem('savedUsers',JSON.stringify(su)); }
-        
-        const profile = JSON.parse(localStorage.getItem('userProfile')||'{}');
-        profile.username = userData.username;
-        if(userData.name) profile.name = userData.name;
         localStorage.setItem('userProfile', JSON.stringify(profile));
+        localStorage.setItem('currentUser', d.username);
         
-        successEl.textContent = '✅ Login successful!';
-        setTimeout(() => { window.location.href = 'profile.html'; }, 800);
-      } catch(e) {
-        errorEl.textContent = '❌ Error: ' + e.message;
-        btn.disabled = false; btn.textContent = 'Sign In';
-      }
+        const su=JSON.parse(localStorage.getItem('savedUsers')||'[]');
+        if(!su.includes(d.username)){su.push(d.username);localStorage.setItem('savedUsers',JSON.stringify(su));}
+        
+        suc.textContent='✅ Login successful!';
+        setTimeout(()=>{window.location.href='profile.html';},800);
+      }catch(e){err.textContent='❌ Error: '+e.message;btn.disabled=false;btn.textContent='Sign In';}
     };
   </script>
 </body>

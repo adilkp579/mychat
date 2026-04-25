@@ -12,7 +12,7 @@
     
     .top-left { position:absolute;top:max(1rem,env(safe-area-inset-top,1rem));left:max(1rem,env(safe-area-inset-left,1rem));z-index:200; }
     .top-right { position:absolute;top:max(1rem,env(safe-area-inset-top,1rem));right:max(1rem,env(safe-area-inset-right,1rem));z-index:200; }
-    .corner-btn { width:2.4rem;height:2.4rem;background:rgba(255,255,255,0.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:50%;color:#fff;font-size:1rem;display:flex;align-items:center;justify-content:center;text-decoration:none;border:1px solid rgba(255,255,255,0.15);transition:all 0.3s; }
+    .corner-btn { width:2.4rem;height:2.4rem;background:rgba(255,255,255,0.1);backdrop-filter:blur(20px);border-radius:50%;color:#fff;font-size:1rem;display:flex;align-items:center;justify-content:center;text-decoration:none;border:1px solid rgba(255,255,255,0.15);transition:all 0.3s; }
     
     .content { flex:1;display:flex;flex-direction:column;align-items:center;color:#fff;padding:3.5rem 1.2rem 6rem 1.2rem;overflow-y:auto;gap:0.6rem; }
     .content::-webkit-scrollbar { width:0; }
@@ -41,7 +41,6 @@
     .actions-row { display:flex;gap:0.4rem;width:100%;max-width:400px; }
     .action-btn { flex:1;padding:0.45rem;border-radius:0.4rem;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.04);color:#fff;font-size:0.7rem;font-weight:600;cursor:pointer;text-align:center; }
     .action-btn.primary { background:#3897f0;border:none; }
-    .action-btn.logout-btn { background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);color:#ef4444; }
 
     .tabs { display:flex;width:100%;max-width:400px;border-top:1px solid rgba(255,255,255,0.08);margin-top:0.2rem; }
     .tab { flex:1;text-align:center;padding:0.5rem 0;color:#666;font-size:0.7rem;cursor:pointer;border-bottom:1px solid transparent; }
@@ -53,7 +52,6 @@
     .post-item img { width:100%;height:100%;object-fit:cover; }
     .reel-item { aspect-ratio:9/16;background:#111;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;border-radius:0.2rem; }
     .reel-item video { width:100%;height:100%;object-fit:cover; }
-    .reel-item .play-icon { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:1.2rem;color:#fff;pointer-events:none;opacity:0.8; }
     .empty-text { color:#444;font-size:0.75rem;text-align:center;padding:2rem 0;width:100%;max-width:400px; }
 
     .modal-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:300;display:none;align-items:center;justify-content:center;padding:1rem; }
@@ -85,36 +83,21 @@
     .toast { position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:0.5rem 1rem;border-radius:2rem;font-size:0.7rem;z-index:400;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap; }
     .toast.show { opacity:1; }
 
-    /* ===== NAVBAR - EXACT INDEX.HTML SIZE ===== */
-    .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6);z-index:100; }
+    /* Loading screen */
+    .loading-screen { position:fixed;top:0;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:500; }
+    .loading-screen i { font-size:2rem;color:#3897f0;animation:spin 1s infinite; }
+    @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+    /* NAVBAR - EXACT INDEX.HTML */
+    .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6);z-index:100; }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
     .nav-center a { color:rgba(255,255,255,0.6);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;position:relative; }
     .nav-center a::before { content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:4px;height:4px;border-radius:50%;background:#fff;transition:all 0.3s; }
     .nav-center a.active::before { transform:translateX(-50%) scale(1); }
-    .nav-center a.active { color:#fff;background:rgba(255,255,255,0.15);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px); }
+    .nav-center a.active { color:#fff;background:rgba(255,255,255,0.15);backdrop-filter:blur(10px); }
     .nav-upload, .nav-search { display:none !important; }
 
-    /* MOBILE - EXACT SAME AS INDEX.HTML */
-    @media (max-width:767px) {
-      .floating-nav { width:92%;max-width:500px;padding:0.7rem 1.5rem;border-radius:2.5rem; }
-      .nav-center { max-width:380px; }
-      .nav-center a { font-size:1.3rem;width:2.5rem;height:2.5rem; }
-    }
-    @media (max-width:380px) {
-      .content { padding:3rem 0.7rem 5.5rem 0.7rem; }
-      .avatar { width:62px;height:62px;font-size:1.5rem; }
-      .corner-btn { width:2rem;height:2rem;font-size:0.9rem; }
-      .nav-center { gap:0.2rem; }
-      .nav-center a { font-size:1.1rem;width:2rem;height:2rem; }
-      .floating-nav { width:94%;padding:0.55rem 0.8rem;border-radius:2rem;bottom:1rem; }
-    }
-    @media (min-width:768px) and (max-width:1023px) {
-      .content { padding:4rem 2rem 6rem 2rem; }
-      .floating-nav { width:65%;max-width:550px;padding:0.8rem 2rem;border-radius:2.8rem; }
-      .nav-center { max-width:420px;gap:0.8rem; }
-      .nav-center a { font-size:1.4rem;width:2.7rem;height:2.7rem; }
-    }
-    /* DESKTOP - EXACT INDEX.HTML: width:3.8rem, left:1.5rem, padding:1rem 0.6rem, gap:1.2rem */
+    @media (max-width:380px) { .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem}.nav-center a{font-size:1.1rem;width:2rem;height:2rem}.corner-btn{width:2rem;height:2rem;font-size:0.9rem} }
     @media (min-width:1024px) {
       .top-left, .top-right { display:none; }
       .nav-upload, .nav-search { display:flex !important; }
@@ -123,33 +106,20 @@
       .nav-center a { font-size:1.4rem;width:2.6rem;height:2.6rem; }
       .nav-center a::before { bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0); }
       .nav-center a.active::before { transform:translateY(-50%) scale(1); }
-      .nav-center a:hover { color:rgba(255,255,255,0.9);background:rgba(255,255,255,0.1);transform:translateY(-2px); }
-      .nav-center a.active:hover { background:rgba(255,255,255,0.2); }
-      .content { padding:3rem 2.5rem 3rem 6rem; }
-      .posts-grid { max-width:500px;grid-template-columns:repeat(4,1fr);gap:2px; }
-      .profile-header,.bio-section,.actions-row,.tabs { max-width:500px; }
-    }
-    @media (min-width:1440px) {
-      .floating-nav { left:2.5rem;width:3.8rem;padding:1rem 0.8rem; }
-      .nav-center { gap:1.5rem; }
-      .nav-center a { font-size:1.7rem;width:3rem;height:3rem; }
-      .content { padding:3rem 3rem 3rem 7rem; }
-      .posts-grid,.profile-header,.bio-section,.actions-row,.tabs { max-width:600px; }
+      .content { padding:5rem 3rem 3rem 6rem; }
     }
   </style>
 </head>
 <body>
-  <div class="page">
-    <div class="top-left" id="mobileTopLeft">
-      <a href="login.html" class="corner-btn"><i class="fas fa-sign-in-alt"></i></a>
-    </div>
-    <div class="top-right">
-      <a href="settings.html" class="corner-btn"><i class="fas fa-cog"></i></a>
-    </div>
+  <!-- Loading -->
+  <div class="loading-screen" id="loadingScreen"><i class="fas fa-spinner"></i></div>
+
+  <div class="page" id="mainPage" style="display:none;">
+    <div class="top-left"><a href="login.html" class="corner-btn"><i class="fas fa-sign-in-alt"></i></a></div>
+    <div class="top-right"><a href="settings.html" class="corner-btn"><i class="fas fa-cog"></i></a></div>
     
     <div class="content">
-      <div style="text-align:center;font-size:0.75rem;color:#888;" id="currentUserDisplay"></div>
-      
+      <div style="text-align:center;font-size:0.75rem;color:#4ade80;" id="currentUserDisplay"></div>
       <div class="profile-header">
         <div class="avatar-container">
           <div class="avatar" id="profileAvatar" onclick="toggleAvatarOptions()"><i class="fas fa-user"></i></div>
@@ -167,15 +137,10 @@
           <div class="stat" onclick="showList('besties')"><div class="stat-num" id="bestiesCount">0</div><div class="stat-label">Besties</div></div>
         </div>
       </div>
-      <div class="bio-section">
-        <div class="username" id="displayName"></div>
-        <div class="bio-text" id="displayBio"></div>
-        <div class="website" id="displayWebsite"></div>
-      </div>
-      <div class="actions-row" id="actionsRow">
+      <div class="bio-section"><div class="username" id="displayName"></div><div class="bio-text" id="displayBio"></div><div class="website" id="displayWebsite"></div></div>
+      <div class="actions-row">
         <button class="action-btn primary" onclick="openEditProfile()">Edit Profile</button>
         <button class="action-btn" onclick="shareProfile()"><i class="fas fa-share-alt"></i> Share</button>
-        <button class="action-btn logout-btn" id="logoutBtn" onclick="logout()" style="display:none;">Logout</button>
       </div>
       <div class="tabs">
         <div class="tab active" onclick="switchTab(this,'posts')"><i class="fas fa-grid-2"></i>Posts</div>
@@ -186,15 +151,9 @@
       <div class="empty-text" id="emptyText">No posts yet</div>
     </div>
 
-    <div class="modal-overlay" id="cropModal">
-      <div class="modal"><h3>Adjust Photo</h3><div class="crop-container"><img id="cropImage" src=""></div><div class="zoom-control"><input type="range" id="zoomSlider" min="1" max="3" step="0.1" value="1" oninput="document.getElementById('cropImage').style.transform=`scale(${this.value})`"></div><div class="btn-row"><button class="btn-cancel" onclick="closeCropModal()">Cancel</button><button class="btn-save" onclick="saveCrop()">Save</button></div></div>
-    </div>
-    <div class="modal-overlay" id="editModal">
-      <div class="modal"><h3>Edit Profile</h3><label>Username</label><input type="text" id="editUsername"><label>Bio</label><textarea id="editBio"></textarea><label>Website</label><input type="text" id="editWebsite"><div class="btn-row"><button class="btn-cancel" onclick="closeEditProfile()">Cancel</button><button class="btn-save" onclick="saveProfile()">Save</button></div></div>
-    </div>
-    <div class="list-modal-overlay" id="listModal">
-      <div class="list-modal"><h3 id="listTitle"></h3><div id="listContent"></div><div class="list-close" onclick="closeList()">Close ✕</div></div>
-    </div>
+    <div class="modal-overlay" id="cropModal"><div class="modal"><h3>Adjust Photo</h3><div class="crop-container"><img id="cropImage" src=""></div><div class="zoom-control"><input type="range" id="zoomSlider" min="1" max="3" step="0.1" value="1" oninput="document.getElementById('cropImage').style.transform=`scale(${this.value})`"></div><div class="btn-row"><button class="btn-cancel" onclick="closeCropModal()">Cancel</button><button class="btn-save" onclick="saveCrop()">Save</button></div></div></div>
+    <div class="modal-overlay" id="editModal"><div class="modal"><h3>Edit Profile</h3><label>Username</label><input type="text" id="editUsername"><label>Bio</label><textarea id="editBio"></textarea><label>Website</label><input type="text" id="editWebsite"><div class="btn-row"><button class="btn-cancel" onclick="closeEditProfile()">Cancel</button><button class="btn-save" onclick="saveProfile()">Save</button></div></div></div>
+    <div class="list-modal-overlay" id="listModal"><div class="list-modal"><h3 id="listTitle"></h3><div id="listContent"></div><div class="list-close" onclick="closeList()">Close ✕</div></div></div>
     <div class="toast" id="toast"></div>
 
     <nav class="floating-nav"><div class="nav-center">
@@ -203,79 +162,146 @@
       <a href="reel.html"><i class="fas fa-film"></i></a>
       <a href="chat.html"><i class="fas fa-comment-dots"></i></a>
       <a href="profile.html" class="active"><i class="fas fa-user"></i></a>
-      <a href="login.html" class="nav-upload" id="desktopLoginBtn"><i class="fas fa-sign-in-alt"></i></a>
+      <a href="login.html" class="nav-upload"><i class="fas fa-sign-in-alt"></i></a>
       <a href="settings.html" class="nav-search"><i class="fas fa-cog"></i></a>
     </div></nav>
   </div>
 
-  <script>
-    const currentUser = localStorage.getItem('currentUser');
-    
-    if(!currentUser) {
-      document.getElementById('currentUserDisplay').textContent = '⚠️ Please login to access your profile';
-      document.getElementById('currentUserDisplay').style.color = '#fbbf24';
-      document.getElementById('mobileTopLeft').innerHTML = '<a href="login.html" class="corner-btn"><i class="fas fa-sign-in-alt"></i></a>';
-    } else {
-      document.getElementById('currentUserDisplay').textContent = '✅ Logged in as: ' + currentUser;
-      document.getElementById('currentUserDisplay').style.color = '#4ade80';
-      document.getElementById('logoutBtn').style.display = 'inline-block';
-      document.getElementById('mobileTopLeft').innerHTML = '<div class="corner-btn" onclick="logout()" style="cursor:pointer;"><i class="fas fa-sign-out-alt"></i></div>';
-      const desktopLogin = document.getElementById('desktopLoginBtn');
-      if(desktopLogin) {
-        desktopLogin.href = '#';
-        desktopLogin.onclick = function(e){ e.preventDefault(); logout(); };
-        desktopLogin.innerHTML = '<i class="fas fa-sign-out-alt"></i>';
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+    const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
+    const db = getFirestore(app);
+
+    // ===== CHECK DATABASE ONLY =====
+    async function checkAuth() {
+      const currentUser = localStorage.getItem('currentUser');
+      
+      if (!currentUser) {
+        // No user in localStorage - redirect to login
+        window.location.href = 'login.html';
+        return null;
+      }
+
+      try {
+        // Check if user exists in Firestore database
+        const q = query(collection(db, 'users'), where('username', '==', currentUser));
+        const snap = await getDocs(q);
+        
+        if (snap.empty) {
+          // User NOT in database - clear localStorage and redirect
+          localStorage.removeItem('currentUser');
+          localStorage.removeItem('userProfile');
+          window.location.href = 'login.html';
+          return null;
+        }
+        
+        // User EXISTS in database - allow access
+        const userData = snap.docs[0].data();
+        return userData;
+        
+      } catch (e) {
+        console.error('Auth check error:', e);
+        // If Firebase fails, allow localStorage fallback
+        return { username: currentUser };
       }
     }
 
-    const defaultProfile={username:currentUser||'@user',bio:'✨ Living life one day at a time | 🌍 Traveler | 📸 Photographer',website:'',avatar:null,friends:[{name:'@alexsmith'},{name:'@sarah_j'},{name:'@mike_travel'},{name:'@emma_photos'},{name:'@david_w'}],besties:[{name:'@lisa_art'},{name:'@tom_adventures'},{name:'@jessica_m'}],posts:[]};
-    let profile=JSON.parse(localStorage.getItem('userProfile'))||defaultProfile;
-    if(currentUser && profile.username !== currentUser) profile.username = currentUser;
-    if(!profile.friends) profile.friends=defaultProfile.friends;
-    if(!profile.besties) profile.besties=defaultProfile.besties;
-    if(!profile.posts) profile.posts=[];
-
-    function save(){localStorage.setItem('userProfile',JSON.stringify(profile));}
-    function updateUI(){
-      document.getElementById('displayName').textContent=profile.username;
-      document.getElementById('displayBio').textContent=profile.bio||'';
-      document.getElementById('displayWebsite').textContent=profile.website?'🔗 '+profile.website:'';
-      document.getElementById('profileAvatar').innerHTML=profile.avatar?`<img src="${profile.avatar}" alt="avatar">`:'<i class="fas fa-user"></i>';
-      document.getElementById('friendsCount').textContent=profile.friends.length;
-      document.getElementById('bestiesCount').textContent=profile.besties.length;
-      document.getElementById('postCount').textContent=profile.posts.filter(p=>p.type==='image').length;
-      renderContent();
+    // ===== INIT =====
+    async function init() {
+      const dbUser = await checkAuth();
+      
+      if (!dbUser) return; // Redirected to login
+      
+      // Show page
+      document.getElementById('loadingScreen').style.display = 'none';
+      document.getElementById('mainPage').style.display = 'flex';
+      
+      const currentUser = dbUser.username;
+      document.getElementById('currentUserDisplay').textContent = '✅ ' + currentUser;
+      
+      // Load profile
+      const defaultProfile = {
+        username: currentUser,
+        name: dbUser.name || '',
+        bio: dbUser.bio || '',
+        website: dbUser.website || '',
+        avatar: dbUser.avatar || null,
+        friends: [],
+        besties: [],
+        posts: []
+      };
+      
+      let profile = JSON.parse(localStorage.getItem('userProfile')) || defaultProfile;
+      if (!profile.username || profile.username !== currentUser) {
+        profile = defaultProfile;
+        localStorage.setItem('userProfile', JSON.stringify(profile));
+      }
+      if (!profile.friends) profile.friends = [];
+      if (!profile.besties) profile.besties = [];
+      if (!profile.posts) profile.posts = [];
+      
+      // Make profile globally accessible
+      window._profile = profile;
+      
+      function save() { localStorage.setItem('userProfile', JSON.stringify(window._profile)); }
+      function updateUI() {
+        const p = window._profile;
+        document.getElementById('displayName').textContent = p.username;
+        document.getElementById('displayBio').textContent = p.bio || '';
+        document.getElementById('displayWebsite').textContent = p.website ? '🔗 ' + p.website : '';
+        document.getElementById('profileAvatar').innerHTML = p.avatar ? `<img src="${p.avatar}">` : '<i class="fas fa-user"></i>';
+        document.getElementById('friendsCount').textContent = p.friends.length;
+        document.getElementById('bestiesCount').textContent = p.besties.length;
+        document.getElementById('postCount').textContent = p.posts.filter(x => x.type === 'image').length;
+        renderContent();
+      }
+      
+      function renderContent() {
+        const p = window._profile;
+        const pg = document.getElementById('postsGrid'), rg = document.getElementById('reelsGrid'), et = document.getElementById('emptyText');
+        const at = document.querySelector('.tab.active'), ir = at && at.textContent.includes('Reels');
+        const ip = p.posts.filter(x => x.type === 'image'), vp = p.posts.filter(x => x.type === 'video');
+        if (ir) {
+          pg.style.display = 'none';
+          if (vp.length === 0) { rg.style.display = 'none'; et.style.display = 'block'; et.textContent = 'No reels yet'; }
+          else { rg.style.display = 'grid'; et.style.display = 'none'; rg.innerHTML = vp.map(x => `<div class="reel-item"><video src="${x.src}" muted loop playsinline></video></div>`).join(''); }
+        } else {
+          rg.style.display = 'none';
+          if (ip.length === 0) { pg.style.display = 'none'; et.style.display = 'block'; et.textContent = 'No posts yet'; }
+          else { pg.style.display = 'grid'; et.style.display = 'none'; pg.innerHTML = ip.map(x => `<div class="post-item"><img src="${x.src}"></div>`).join(''); }
+        }
+      }
+      
+      // Expose functions globally
+      window.toggleAvatarOptions = function() { const o = document.getElementById('avatarOptions'); o.classList.toggle('show'); setTimeout(() => document.addEventListener('click', function c(e) { if (!e.target.closest('.avatar-container')) { o.classList.remove('show'); document.removeEventListener('click', c); } }), 100); };
+      window.updateAvatar = function(e) { const f = e.target.files[0]; if (f) { const r = new FileReader(); r.onload = function(ev) { window._profile.avatar = ev.target.result; save(); updateUI(); }; r.readAsDataURL(f); } document.getElementById('avatarOptions').classList.remove('show'); };
+      window.removeAvatar = function() { window._profile.avatar = null; save(); updateUI(); document.getElementById('avatarOptions').classList.remove('show'); };
+      window.openCropModal = function() { if (!window._profile.avatar) return; document.getElementById('cropImage').src = window._profile.avatar; document.getElementById('zoomSlider').value = 1; document.getElementById('cropImage').style.transform = 'scale(1)'; document.getElementById('cropModal').classList.add('show'); };
+      window.closeCropModal = function() { document.getElementById('cropModal').classList.remove('show'); };
+      window.saveCrop = function() { window._profile.avatar = document.getElementById('cropImage').src; save(); updateUI(); closeCropModal(); };
+      window.openEditProfile = function() { document.getElementById('editUsername').value = window._profile.username; document.getElementById('editBio').value = window._profile.bio || ''; document.getElementById('editWebsite').value = window._profile.website || ''; document.getElementById('editModal').classList.add('show'); };
+      window.closeEditProfile = function() { document.getElementById('editModal').classList.remove('show'); };
+      window.saveProfile = function() { window._profile.username = document.getElementById('editUsername').value || '@user'; window._profile.bio = document.getElementById('editBio').value; window._profile.website = document.getElementById('editWebsite').value; save(); updateUI(); closeEditProfile(); };
+      window.switchTab = function(el) { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); renderContent(); };
+      window.showList = function(type) {
+        const p = window._profile;
+        document.getElementById('listTitle').textContent = type === 'friends' ? '👥 Friends' : '⭐ Besties';
+        document.getElementById('listContent').innerHTML = (type === 'friends' ? p.friends : p.besties).map(u => `<div class="list-item"><div class="mini-avatar"><i class="fas fa-user"></i></div><div><div class="name">${u.name}</div><div class="sub">${type === 'friends' ? 'Follows you' : 'You follow'}</div></div></div>`).join('');
+        document.getElementById('listModal').classList.add('show');
+      };
+      window.closeList = function() { document.getElementById('listModal').classList.remove('show'); };
+      window.shareProfile = function() { const u = window.location.href.split('?')[0]; navigator.share ? navigator.share({ title: window._profile.username, url: u }) : navigator.clipboard.writeText(u); };
+      
+      document.getElementById('editModal').addEventListener('click', function(e) { if (e.target === this) closeEditProfile(); });
+      document.getElementById('cropModal').addEventListener('click', function(e) { if (e.target === this) closeCropModal(); });
+      document.getElementById('listModal').addEventListener('click', function(e) { if (e.target === this) closeList(); });
+      
+      updateUI();
     }
 
-    function logout(){localStorage.removeItem('currentUser');showToast('Logged out!');setTimeout(()=>{window.location.reload();},800);}
-
-    function toggleAvatarOptions(){const o=document.getElementById('avatarOptions');o.classList.toggle('show');setTimeout(()=>document.addEventListener('click',function c(e){if(!e.target.closest('.avatar-container')){o.classList.remove('show');document.removeEventListener('click',c);}}),100);}
-    function updateAvatar(e){if(!currentUser){showToast('Login first!');return;}const f=e.target.files[0];if(f){const r=new FileReader();r.onload=function(ev){profile.avatar=ev.target.result;save();updateUI();showToast('Updated!✅');};r.readAsDataURL(f);}document.getElementById('avatarOptions').classList.remove('show');}
-    function removeAvatar(){profile.avatar=null;save();updateUI();showToast('Removed');document.getElementById('avatarOptions').classList.remove('show');}
-    function openCropModal(){if(!profile.avatar){showToast('Add photo first');return;}document.getElementById('cropImage').src=profile.avatar;document.getElementById('zoomSlider').value=1;document.getElementById('cropImage').style.transform='scale(1)';document.getElementById('cropModal').classList.add('show');document.getElementById('avatarOptions').classList.remove('show');}
-    function closeCropModal(){document.getElementById('cropModal').classList.remove('show');}
-    function saveCrop(){profile.avatar=document.getElementById('cropImage').src;save();updateUI();closeCropModal();showToast('Adjusted!✅');}
-    function openEditProfile(){if(!currentUser){showToast('Login first! Redirecting...');setTimeout(()=>{window.location.href='login.html';},1000);return;}document.getElementById('editUsername').value=profile.username;document.getElementById('editBio').value=profile.bio||'';document.getElementById('editWebsite').value=profile.website||'';document.getElementById('editModal').classList.add('show');}
-    function closeEditProfile(){document.getElementById('editModal').classList.remove('show');}
-    function saveProfile(){profile.username=document.getElementById('editUsername').value||'@user';profile.bio=document.getElementById('editBio').value;profile.website=document.getElementById('editWebsite').value;save();updateUI();closeEditProfile();showToast('Saved!✅');}
-    function renderContent(){
-      const postsGrid=document.getElementById('postsGrid');const reelsGrid=document.getElementById('reelsGrid');const emptyText=document.getElementById('emptyText');
-      const activeTab=document.querySelector('.tab.active');const isReels=activeTab&&activeTab.textContent.includes('Reels');
-      const imagePosts=profile.posts.filter(p=>p.type==='image');const videoPosts=profile.posts.filter(p=>p.type==='video');
-      if(isReels){postsGrid.style.display='none';if(videoPosts.length===0){reelsGrid.style.display='none';emptyText.style.display='block';emptyText.textContent='No reels yet';}else{reelsGrid.style.display='grid';emptyText.style.display='none';reelsGrid.innerHTML=videoPosts.map(p=>`<div class="reel-item"><video src="${p.src}" muted loop playsinline></video><div class="play-icon"><i class="fas fa-play"></i></div></div>`).join('');}}
-      else{reelsGrid.style.display='none';if(imagePosts.length===0){postsGrid.style.display='none';emptyText.style.display='block';emptyText.textContent='No posts yet';}else{postsGrid.style.display='grid';emptyText.style.display='none';postsGrid.innerHTML=imagePosts.map(p=>`<div class="post-item"><img src="${p.src}" alt="post"></div>`).join('');}}
-    }
-    function switchTab(el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderContent();}
-    function showList(type){document.getElementById('listTitle').textContent=type==='friends'?'👥 Friends (Followers)':'⭐ Besties (Following)';document.getElementById('listContent').innerHTML=(type==='friends'?profile.friends:profile.besties).map(u=>`<div class="list-item"><div class="mini-avatar"><i class="fas fa-user"></i></div><div><div class="name">${u.name}</div><div class="sub">${type==='friends'?'Follows you':'You follow'}</div></div></div>`).join('');document.getElementById('listModal').classList.add('show');}
-    function closeList(){document.getElementById('listModal').classList.remove('show');}
-    function shareProfile(){const u=window.location.href.split('?')[0];navigator.share?navigator.share({title:profile.username,url:u}).then(()=>showToast('Shared!🚀')).catch(()=>copyUrl(u)):copyUrl(u);}
-    function copyUrl(t){navigator.clipboard.writeText(t).then(()=>showToast('Copied!📋')).catch(()=>{});}
-    function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2000);}
-
-    document.getElementById('editModal').addEventListener('click',function(e){if(e.target===this)closeEditProfile();});
-    document.getElementById('cropModal').addEventListener('click',function(e){if(e.target===this)closeCropModal();});
-    document.getElementById('listModal').addEventListener('click',function(e){if(e.target===this)closeList();});
-    updateUI();
+    init();
   </script>
 </body>
 </html>

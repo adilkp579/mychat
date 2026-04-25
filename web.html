@@ -50,12 +50,9 @@
     .nav-center a::before { content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:4px;height:4px;border-radius:50%;background:#fff;transition:all 0.3s; }
     .nav-center a.active::before { transform:translateX(-50%) scale(1); }
     .nav-center a.active { color:#fff;background:rgba(255,255,255,0.15);backdrop-filter:blur(10px); }
-    
-    /* Mobile: hide upload & search from navbar */
     .nav-upload, .nav-search { display:none !important; }
 
     @media (min-width:1024px) {
-      /* Desktop: show upload & search in left sidebar */
       .nav-upload, .nav-search { display:flex !important; }
       .floating-nav { top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column; }
       .nav-center { flex-direction:column;gap:1.2rem;max-width:none; }
@@ -89,7 +86,7 @@
         <button class="btn start-button" id="startBtn"><i class="fas fa-play"></i><span>Start</span></button>
         <button class="btn stop-button" id="stopBtn"><i class="fas fa-stop"></i><span>Stop</span></button>
         <button class="btn next-button" id="nextBtn"><i class="fas fa-forward"></i><span>Next</span></button>
-        <button class="btn mic-button" id="micBtn"><i class="fas fa-microphone"></i></button>
+        <button class="btn mic-button" id="micBtn" title="Mute"><i class="fas fa-microphone"></i></button>
       </div>
     </div>
     <nav class="floating-nav"><div class="nav-center">
@@ -103,25 +100,120 @@
     </div></nav>
   </div>
 
+  <!-- YOUR WORKING BACKEND -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, addDoc, onSnapshot, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-    const firebaseConfig={apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf",storageBucket:"mychat-a97bf.firebasestorage.app",messagingSenderId:"206620858913",appId:"1:206620858913:web:e8171ed8c1a2dbda3da160"};
-    const a=initializeApp(firebaseConfig),db=getFirestore(a);
-    const myFeed=document.getElementById('myFeed'),myPlaceholder=document.getElementById('myPlaceholder'),myCamera=document.getElementById('myCamera'),strangerFeed=document.getElementById('strangerFeed'),strangerPlaceholder=document.getElementById('strangerPlaceholder'),strangerCamera=document.getElementById('strangerCamera'),userInfo=document.getElementById('userInfo'),onlineCount=document.getElementById('onlineCount'),startBtn=document.getElementById('startBtn'),stopBtn=document.getElementById('stopBtn'),nextBtn=document.getElementById('nextBtn'),micBtn=document.getElementById('micBtn');
-    const myId=crypto.randomUUID();let localStream,pc,roomId,unsubs=[],connectionTimeout,isMuted=!1;
-    const servers={iceServers:[{urls:"stun:stun.relay.metered.ca:80"},{urls:"turn:standard.relay.metered.ca:80",username:"a6b2ebd89a4174b7f3843634",credential:"xyEoZGCCUl7ZAQ4h"},{urls:"turn:standard.relay.metered.ca:80?transport=tcp",username:"a6b2ebd89a4174b7f3843634",credential:"xyEoZGCCUl7ZAQ4h"},{urls:"turn:standard.relay.metered.ca:443",username:"a6b2ebd89a4174b7f3843634",credential:"xyEoZGCCUl7ZAQ4h"},{urls:"turns:standard.relay.metered.ca:443?transport=tcp",username:"a6b2ebd89a4174b7f3843634",credential:"xyEoZGCCUl7ZAQ4h"},{urls:"stun:stun.l.google.com:19302"}],iceCandidatePoolSize:2};
-    async function startCamera(){try{if(localStream)localStream.getTracks().forEach(t=>t.stop());localStream=await navigator.mediaDevices.getUserMedia({video:{width:480,height:640,facingMode:'user'},audio:{echoCancellation:!0,noiseSuppression:!0,autoGainControl:!0}});myFeed.srcObject=localStream;await myFeed.play();myFeed.style.display='block';myPlaceholder.style.display='none';myCamera.classList.add('active');return!0}catch(e){return alert('Camera needed!'),!1}}
-    function stopCamera(){localStream&&(localStream.getTracks().forEach(t=>t.stop()),localStream=null);myFeed.style.display='none';myFeed.srcObject=null;myPlaceholder.style.display='';myCamera.classList.remove('active')}
-    function resetStranger(){strangerFeed.style.display='none';strangerFeed.srcObject=null;strangerPlaceholder.style.display='';strangerCamera.classList.remove('connected')}
-    function showConnected(){startBtn.style.display='none';stopBtn.classList.add('visible');nextBtn.classList.add('visible');micBtn.classList.add('visible')}
-    function showDisconnected(){startBtn.style.display='flex';stopBtn.classList.remove('visible');nextBtn.classList.remove('visible');micBtn.classList.remove('visible');startBtn.classList.remove('searching');startBtn.querySelector('span').textContent='Start';startBtn.querySelector('i').className='fas fa-play';startBtn.disabled=!1}
-    function toggleMute(){if(!localStream)return;const t=localStream.getAudioTracks();t.length>0&&(isMuted=!isMuted,t.forEach(t=>t.enabled=!isMuted),micBtn.classList.toggle('muted',isMuted),micBtn.querySelector('i').className=isMuted?'fas fa-microphone-slash':'fas fa-microphone')}
-    async function createRoom(o,c){roomId=[myId,o].sort().join('_');const r=doc(db,'rooms',roomId);showConnected();userInfo.classList.add('active');pc&&(pc.close(),pc=null);unsubs.forEach(u=>u());unsubs=[];pc=new RTCPeerConnection(servers);localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));pc.ontrack=e=>{e.streams[0]&&(strangerFeed.srcObject=e.streams[0],strangerFeed.style.display='block',strangerPlaceholder.style.display='none',strangerCamera.classList.add('connected'))};pc.onicecandidate=async e=>{e.candidate&&await addDoc(collection(r,'ice'),{sender:myId,candidate:e.candidate.toJSON()})};pc.onconnectionstatechange=()=>{('failed'===pc.connectionState||'disconnected'===pc.connectionState)&&resetStranger()};pc.oniceconnectionstatechange=()=>{'failed'===pc.iceConnectionState&&pc&&pc.restartIce()};unsubs.push(onSnapshot(collection(r,'ice'),snap=>{snap.docChanges().forEach(async c=>{if('added'===c.type&&c.doc.data().sender!==myId&&pc)try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate))}catch(e){}})}));if(c){const o=await pc.createOffer({offerToReceiveVideo:!0,offerToReceiveAudio:!0});await pc.setLocalDescription(o);await setDoc(doc(db,'invites',o),{from:myId,offer:{type:o.type,sdp:o.sdp}});unsubs.push(onSnapshot(doc(db,'invites',o),async e=>{const d=e.data();d?.answer&&!pc.currentRemoteDescription&&'closed'!==pc.signalingState&&await pc.setRemoteDescription(new RTCSessionDescription(d.answer))}));connectionTimeout=setTimeout(()=>{pc&&'connected'!==pc.connectionState&&pc.restartIce()},15000)}}
-    function listenForInvites(){unsubs.push(onSnapshot(doc(db,'invites',myId),async e=>{if(!e.exists())return;const d=e.data();await deleteDoc(doc(db,'waiting',myId)).catch(()=>{});roomId=[myId,d.from].sort().join('_');const r=doc(db,'rooms',roomId);showConnected();userInfo.classList.add('active');pc&&(pc.close(),pc=null);unsubs.forEach(u=>u());unsubs=[];pc=new RTCPeerConnection(servers);localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));pc.ontrack=e=>{e.streams[0]&&(strangerFeed.srcObject=e.streams[0],strangerFeed.style.display='block',strangerPlaceholder.style.display='none',strangerCamera.classList.add('connected'))};pc.onicecandidate=async e=>{e.candidate&&await addDoc(collection(r,'ice'),{sender:myId,candidate:e.candidate.toJSON()})};d.offer&&'closed'!==pc.signalingState&&(await pc.setRemoteDescription(new RTCSessionDescription(d.offer)),await pc.createAnswer().then(async a=>{await pc.setLocalDescription(a);await setDoc(doc(db,'invites',myId),{from:d.from,offer:d.offer,answer:{type:a.type,sdp:a.sdp}},{merge:!0})}));unsubs.push(onSnapshot(collection(r,'ice'),snap=>{snap.docChanges().forEach(async c=>{if('added'===c.type&&c.doc.data().sender!==myId&&pc)try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate))}catch(e){}})}))}))}
-    async function startChat(){startBtn.disabled=!0;startBtn.classList.add('searching');startBtn.querySelector('span').textContent='Searching';startBtn.querySelector('i').className='fas fa-spinner fa-spin';if(!await startCamera()){showDisconnected();return}const s=await getDocs(collection(db,'waiting'));let f=null;s.forEach(d=>{d.data().userId!==myId&&!f&&(f=d.data().userId)});f?(await deleteDoc(doc(db,'waiting',myId)).catch(()=>{}),await deleteDoc(doc(db,'waiting',f)).catch(()=>{}),await createRoom(f,!0)):(await setDoc(doc(db,'waiting',myId),{userId:myId}),listenForInvites())}
-    function stopChat(){connectionTimeout&&clearTimeout(connectionTimeout);pc&&(pc.close(),pc=null);unsubs.forEach(u=>u());unsubs=[];roomId&&(deleteDoc(doc(db,'rooms',roomId)).catch(()=>{}),roomId=null);deleteDoc(doc(db,'waiting',myId)).catch(()=>{});deleteDoc(doc(db,'invites',myId)).catch(()=>{});resetStranger();stopCamera();showDisconnected();userInfo.classList.remove('active')}
-    startBtn.addEventListener('click',startChat);stopBtn.addEventListener('click',stopChat);nextBtn.addEventListener('click',()=>{stopChat();setTimeout(startChat,500)});micBtn.addEventListener('click',toggleMute);setInterval(()=>{onlineCount.textContent=Math.floor(900+Math.random()*600)+' online'},3000);
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",
+      authDomain: "mychat-a97bf.firebaseapp.com",
+      projectId: "mychat-a97bf",
+      storageBucket: "mychat-a97bf.firebasestorage.app",
+      messagingSenderId: "206620858913",
+      appId: "1:206620858913:web:e8171ed8c1a2dbda3da160"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const myFeed = document.getElementById('myFeed');
+    const myPlaceholder = document.getElementById('myPlaceholder');
+    const myCamera = document.getElementById('myCamera');
+    const strangerFeed = document.getElementById('strangerFeed');
+    const strangerPlaceholder = document.getElementById('strangerPlaceholder');
+    const strangerCamera = document.getElementById('strangerCamera');
+    const userInfo = document.getElementById('userInfo');
+    const onlineCount = document.getElementById('onlineCount');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const micBtn = document.getElementById('micBtn');
+
+    const myId = crypto.randomUUID();
+    let localStream, pc, roomId, unsubs=[], connectionTimeout;
+    let isMuted = false;
+
+    const servers = {
+      iceServers: [
+        { urls: "stun:stun.relay.metered.ca:80" },
+        { urls: "turn:standard.relay.metered.ca:80", username: "a6b2ebd89a4174b7f3843634", credential: "xyEoZGCCUl7ZAQ4h" },
+        { urls: "turn:standard.relay.metered.ca:80?transport=tcp", username: "a6b2ebd89a4174b7f3843634", credential: "xyEoZGCCUl7ZAQ4h" },
+        { urls: "turn:standard.relay.metered.ca:443", username: "a6b2ebd89a4174b7f3843634", credential: "xyEoZGCCUl7ZAQ4h" },
+        { urls: "turns:standard.relay.metered.ca:443?transport=tcp", username: "a6b2ebd89a4174b7f3843634", credential: "xyEoZGCCUl7ZAQ4h" },
+        { urls: "stun:stun.l.google.com:19302" },
+        { urls: "stun:stun1.l.google.com:19302" },
+      ],
+      iceCandidatePoolSize: 2
+    };
+
+    async function startCamera() {
+      try {
+        if(localStream){ localStream.getTracks().forEach(t=>t.stop()); }
+        localStream = await navigator.mediaDevices.getUserMedia({ video:{width:480,height:640,facingMode:'user'}, audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true} });
+        myFeed.srcObject=localStream; await myFeed.play();
+        myFeed.style.display='block'; myPlaceholder.style.display='none'; myCamera.classList.add('active');
+        return true;
+      } catch(e) { alert('Camera & Microphone needed!'); return false; }
+    }
+
+    function stopCamera() {
+      if(localStream){ localStream.getTracks().forEach(t=>t.stop()); localStream=null; }
+      myFeed.style.display='none'; myFeed.srcObject=null; myPlaceholder.style.display=''; myCamera.classList.remove('active');
+    }
+
+    function resetStranger() {
+      strangerFeed.style.display='none'; strangerFeed.srcObject=null; strangerPlaceholder.style.display=''; strangerCamera.classList.remove('connected');
+    }
+
+    function showConnected() { startBtn.style.display='none'; stopBtn.classList.add('visible'); nextBtn.classList.add('visible'); micBtn.classList.add('visible'); }
+    function showDisconnected() {
+      startBtn.style.display='flex'; stopBtn.classList.remove('visible'); nextBtn.classList.remove('visible'); micBtn.classList.remove('visible');
+      startBtn.classList.remove('searching'); startBtn.querySelector('span').textContent='Start'; startBtn.querySelector('i').className='fas fa-play'; startBtn.disabled=false;
+    }
+
+    function toggleMute() {
+      if(!localStream) return;
+      const tracks=localStream.getAudioTracks();
+      if(tracks.length>0){ isMuted=!isMuted; tracks.forEach(t=>t.enabled=!isMuted); micBtn.classList.toggle('muted',isMuted); micBtn.querySelector('i').className=isMuted?'fas fa-microphone-slash':'fas fa-microphone'; }
+    }
+
+    async function createRoom(otherId,isCaller) {
+      roomId=[myId,otherId].sort().join('_'); const roomRef=doc(db,'rooms',roomId); showConnected(); userInfo.classList.add('active');
+      if(pc){ pc.close(); pc=null; } unsubs.forEach(u=>u()); unsubs=[];
+      pc=new RTCPeerConnection(servers); localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));
+      pc.ontrack=(e)=>{ if(e.streams[0]){ strangerFeed.srcObject=e.streams[0]; strangerFeed.style.display='block'; strangerPlaceholder.style.display='none'; strangerCamera.classList.add('connected'); }};
+      pc.onicecandidate=async(e)=>{ if(e.candidate) await addDoc(collection(roomRef,'ice'),{sender:myId,candidate:e.candidate.toJSON()}); };
+      pc.onconnectionstatechange=()=>{ if(pc.connectionState==='failed'||pc.connectionState==='disconnected') resetStranger(); };
+      pc.oniceconnectionstatechange=()=>{ if(pc.iceConnectionState==='failed'&&pc) pc.restartIce(); };
+      unsubs.push(onSnapshot(collection(roomRef,'ice'),(snap)=>{ snap.docChanges().forEach(async(c)=>{ if(c.type==='added'&&c.doc.data().sender!==myId&&pc) try{ await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate)); }catch(e){} }); }));
+      if(isCaller){ const offer=await pc.createOffer({offerToReceiveVideo:true,offerToReceiveAudio:true}); await pc.setLocalDescription(offer); await setDoc(doc(db,'invites',otherId),{from:myId,offer:{type:offer.type,sdp:offer.sdp}}); unsubs.push(onSnapshot(doc(db,'invites',otherId),async(snap)=>{ const d=snap.data(); if(d?.answer&&!pc.currentRemoteDescription&&pc.signalingState!=='closed') await pc.setRemoteDescription(new RTCSessionDescription(d.answer)); })); connectionTimeout=setTimeout(()=>{ if(pc&&pc.connectionState!=='connected') pc.restartIce(); },15000); }
+    }
+
+    function listenForInvites() {
+      unsubs.push(onSnapshot(doc(db,'invites',myId),async(snap)=>{ if(!snap.exists()) return; const d=snap.data(); await deleteDoc(doc(db,'waiting',myId)).catch(()=>{}); roomId=[myId,d.from].sort().join('_'); const roomRef=doc(db,'rooms',roomId); showConnected(); userInfo.classList.add('active'); if(pc){ pc.close(); pc=null; } unsubs.forEach(u=>u()); unsubs=[]; pc=new RTCPeerConnection(servers); localStream.getTracks().forEach(t=>pc.addTrack(t,localStream)); pc.ontrack=(e)=>{ if(e.streams[0]){ strangerFeed.srcObject=e.streams[0]; strangerFeed.style.display='block'; strangerPlaceholder.style.display='none'; strangerCamera.classList.add('connected'); }}; pc.onicecandidate=async(e)=>{ if(e.candidate) await addDoc(collection(roomRef,'ice'),{sender:myId,candidate:e.candidate.toJSON()}); }; if(d.offer&&pc.signalingState!=='closed'){ await pc.setRemoteDescription(new RTCSessionDescription(d.offer)); const answer=await pc.createAnswer(); await pc.setLocalDescription(answer); await setDoc(doc(db,'invites',myId),{from:d.from,offer:d.offer,answer:{type:answer.type,sdp:answer.sdp}},{merge:true}); } unsubs.push(onSnapshot(collection(roomRef,'ice'),(snap)=>{ snap.docChanges().forEach(async(c)=>{ if(c.type==='added'&&c.doc.data().sender!==myId&&pc) try{ await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate)); }catch(e){} }); })); }));
+    }
+
+    async function startChat() {
+      startBtn.disabled=true; startBtn.classList.add('searching'); startBtn.querySelector('span').textContent='Searching'; startBtn.querySelector('i').className='fas fa-spinner fa-spin';
+      if(!(await startCamera())){ showDisconnected(); return; }
+      const snap=await getDocs(collection(db,'waiting')); let found=null; snap.forEach(d=>{ if(d.data().userId!==myId&&!found) found=d.data().userId; });
+      if(found){ await deleteDoc(doc(db,'waiting',myId)).catch(()=>{}); await deleteDoc(doc(db,'waiting',found)).catch(()=>{}); await createRoom(found,true); }
+      else { await setDoc(doc(db,'waiting',myId),{userId:myId}); listenForInvites(); }
+    }
+
+    function stopChat() {
+      if(connectionTimeout) clearTimeout(connectionTimeout);
+      if(pc){ pc.close(); pc=null; } unsubs.forEach(u=>u()); unsubs=[];
+      if(roomId){ deleteDoc(doc(db,'rooms',roomId)).catch(()=>{}); roomId=null; }
+      deleteDoc(doc(db,'waiting',myId)).catch(()=>{}); deleteDoc(doc(db,'invites',myId)).catch(()=>{});
+      resetStranger(); stopCamera(); showDisconnected(); userInfo.classList.remove('active');
+    }
+
+    startBtn.addEventListener('click',startChat); stopBtn.addEventListener('click',stopChat);
+    nextBtn.addEventListener('click',()=>{ stopChat(); setTimeout(startChat,500); });
+    micBtn.addEventListener('click',toggleMute);
+    setInterval(()=>{ onlineCount.textContent=Math.floor(Math.random()*1000+500)+' online'; },3000);
   </script>
 </body>
 </html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>Sign Up</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { margin:0;padding:0;box-sizing:border-box; }
+    body { background:#000;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center; }
+    .page { width:100%;height:100vh;height:100dvh;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;padding:2rem;gap:1rem; }
+    .auth-box { background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:1.5rem;padding:2rem;width:100%;max-width:360px;text-align:center; }
+    .auth-box h2 { margin-bottom:1.2rem;font-weight:500;font-size:1.3rem; }
+    .icon-circle { width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.5rem; }
+    .input-group { position:relative;margin-bottom:0.8rem;text-align:left; }
+    .input-group i { position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#666;font-size:0.9rem; }
+    .input-group input { width:100%;padding:0.8rem 0.8rem 0.8rem 2.5rem;border-radius:0.5rem;border:1px solid #333;background:#111;color:#fff;font-size:0.85rem;outline:none;transition:all 0.3s; }
+    .input-group input:focus { border-color:#3897f0; }
+    .auth-btn { width:100%;padding:0.8rem;border-radius:1.5rem;border:none;background:#3897f0;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;margin-top:0.5rem;transition:all 0.3s; }
+    .auth-btn:hover { background:#1a7de0; }
+    .auth-btn:disabled { opacity:0.5;cursor:not-allowed; }
+    .alt-link { color:#3897f0;font-size:0.8rem;margin-top:1.2rem;text-decoration:none;display:block; }
+    .error-msg { color:#ef4444;font-size:0.7rem;min-height:1rem;margin-top:0.2rem; }
+    .success-msg { color:#4ade80;font-size:0.7rem;min-height:1rem; }
+    .password-strength { height:3px;background:#333;border-radius:2px;margin-top:0.3rem; }
+    .password-strength div { height:100%;border-radius:2px;transition:all 0.3s; }
+    .back-link { position:absolute;top:1.5rem;left:1.5rem;color:#888;font-size:0.8rem;text-decoration:none; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <a href="profile.html" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
+    
+    <div class="auth-box">
+      <div class="icon-circle"><i class="fas fa-user-plus"></i></div>
+      <h2>Create Account</h2>
+      
+      <div class="input-group"><i class="fas fa-user"></i><input type="text" id="signupName" placeholder="Full Name"></div>
+      <div class="input-group"><i class="fas fa-at"></i><input type="text" id="signupUsername" placeholder="Username" autocomplete="username"></div>
+      <div class="input-group"><i class="fas fa-envelope"></i><input type="email" id="signupEmail" placeholder="Email" autocomplete="email"></div>
+      <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="signupPassword" placeholder="Password" oninput="checkPasswordStrength()" autocomplete="new-password"></div>
+      <div class="password-strength"><div id="strengthBar" style="width:0%;background:#ef4444;"></div></div>
+      <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="signupConfirm" placeholder="Confirm Password"></div>
+      
+      <div class="error-msg" id="signupError"></div>
+      <div class="success-msg" id="signupSuccess"></div>
+      
+      <button class="auth-btn" id="signupBtn" onclick="signup()">Sign Up</button>
+      <a href="login.html" class="alt-link">Already have an account? Sign In</a>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+    const app = initializeApp({
+      apiKey: "AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",
+      authDomain: "mychat-a97bf.firebaseapp.com",
+      projectId: "mychat-a97bf"
+    });
+    const db = getFirestore(app);
+
+    function hashPassword(pw) {
+      let hash = 0;
+      for (let i = 0; i < pw.length; i++) { const char = pw.charCodeAt(i); hash = ((hash << 5) - hash) + char; hash = hash & hash; }
+      return 'hashed_' + Math.abs(hash).toString(16);
+    }
+
+    window.checkPasswordStrength = function() {
+      const pw = document.getElementById('signupPassword').value;
+      let s = 0;
+      if(pw.length >= 6) s += 25; if(pw.length >= 8) s += 25;
+      if(/[A-Z]/.test(pw)) s += 25; if(/[0-9!@#$%^&*]/.test(pw)) s += 25;
+      const bar = document.getElementById('strengthBar');
+      bar.style.width = s + '%';
+      bar.style.background = s <= 25 ? '#ef4444' : s <= 50 ? '#f59e0b' : s <= 75 ? '#3b82f6' : '#4ade80';
+    };
+
+    window.signup = async function() {
+      const name = document.getElementById('signupName').value.trim();
+      const username = document.getElementById('signupUsername').value.trim();
+      const email = document.getElementById('signupEmail').value.trim();
+      const password = document.getElementById('signupPassword').value;
+      const confirm = document.getElementById('signupConfirm').value;
+      const errorEl = document.getElementById('signupError');
+      const successEl = document.getElementById('signupSuccess');
+      const btn = document.getElementById('signupBtn');
+      
+      errorEl.textContent = ''; successEl.textContent = '';
+      if(!name||!username||!email||!password){ errorEl.textContent='❌ All fields required'; return; }
+      if(!/^[a-zA-Z0-9_]{3,20}$/.test(username)){ errorEl.textContent='❌ Username: 3-20 chars'; return; }
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ errorEl.textContent='❌ Invalid email'; return; }
+      if(password.length<6){ errorEl.textContent='❌ Min 6 chars'; return; }
+      if(password!==confirm){ errorEl.textContent='❌ Passwords mismatch'; return; }
+      
+      btn.disabled=true; btn.textContent='Creating...';
+      try {
+        const q1=query(collection(db,'users'),where('username','==','@'+username));
+        if(!(await getDocs(q1)).empty){ errorEl.textContent='❌ Username taken'; btn.disabled=false; btn.textContent='Sign Up'; return; }
+        const q2=query(collection(db,'users'),where('email','==',email));
+        if(!(await getDocs(q2)).empty){ errorEl.textContent='❌ Email registered'; btn.disabled=false; btn.textContent='Sign Up'; return; }
+        
+        await addDoc(collection(db,'users'),{name,username:'@'+username,email,password:hashPassword(password),createdAt:serverTimestamp()});
+        localStorage.setItem('currentUser','@'+username);
+        const su=JSON.parse(localStorage.getItem('savedUsers')||'[]'); if(!su.includes('@'+username)){su.push('@'+username);localStorage.setItem('savedUsers',JSON.stringify(su));}
+        const p=JSON.parse(localStorage.getItem('userProfile')||'{}');p.username='@'+username;if(!p.friends)p.friends=[];if(!p.besties)p.besties=[];if(!p.posts)p.posts=[];localStorage.setItem('userProfile',JSON.stringify(p));
+        successEl.textContent='✅ Account created!';
+        setTimeout(()=>{window.location.href='profile.html';},1000);
+      }catch(e){ errorEl.textContent='❌ Error: '+e.message; btn.disabled=false; btn.textContent='Sign Up'; }
+    };
+  </script>
+</body>
+</html>

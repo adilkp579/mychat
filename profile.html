@@ -12,10 +12,67 @@
     .top-left { position:absolute;top:max(1rem,env(safe-area-inset-top,1rem));left:max(1rem,env(safe-area-inset-left,1rem));z-index:200; }
     .top-right { position:absolute;top:max(1rem,env(safe-area-inset-top,1rem));right:max(1rem,env(safe-area-inset-right,1rem));z-index:200; }
     .corner-btn { width:2.4rem;height:2.4rem;background:rgba(255,255,255,0.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:50%;color:#fff;font-size:1rem;display:flex;align-items:center;justify-content:center;text-decoration:none;border:1px solid rgba(255,255,255,0.15);transition:all 0.3s; }
-    .content { flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;padding:3rem 1.5rem 6rem 1.5rem;text-align:center; }
-    .page-icon { font-size:3rem;margin-bottom:1rem;opacity:0.8; }
-    .page-title { font-size:1.8rem;font-weight:500;text-transform:lowercase; }
-    .page-hint { color:#999;font-size:0.8rem;border-top:1px solid rgba(255,255,255,0.1);padding-top:1rem;margin-top:1rem;width:80%; }
+    .content { flex:1;display:flex;flex-direction:column;align-items:center;color:#fff;padding:3rem 1.2rem 6rem 1.2rem;overflow-y:auto;gap:0.8rem; }
+    
+    .profile-header { display:flex;align-items:center;gap:1.5rem;width:100%;max-width:400px;padding:0.5rem 0; }
+    .avatar-container { position:relative; }
+    .avatar { width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;font-size:2rem;color:#fff;border:3px solid rgba(255,255,255,0.2);overflow:hidden; }
+    .avatar img { width:100%;height:100%;object-fit:cover; }
+    .avatar-add { position:absolute;bottom:0;right:0;width:24px;height:24px;background:#3897f0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;cursor:pointer;border:2px solid #000; }
+    
+    .stats-row { display:flex;gap:1.2rem; }
+    .stat { text-align:center;cursor:pointer; }
+    .stat:hover { opacity:0.8; }
+    .stat-num { font-size:1.1rem;font-weight:700; }
+    .stat-label { font-size:0.65rem;color:#aaa; }
+
+    .bio-section { width:100%;max-width:400px;text-align:left;padding:0 0.3rem; }
+    .username { font-size:0.9rem;font-weight:600; }
+    .bio-text { font-size:0.75rem;color:#ccc;margin-top:0.2rem;line-height:1.4; }
+    .website { font-size:0.7rem;color:#3897f0;margin-top:0.2rem; }
+
+    .actions-row { display:flex;gap:0.5rem;width:100%;max-width:400px; }
+    .action-btn { flex:1;padding:0.5rem;border-radius:0.5rem;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.05);color:#fff;font-size:0.75rem;font-weight:600;cursor:pointer;text-align:center;transition:all 0.2s; }
+    .action-btn:hover { background:rgba(255,255,255,0.1); }
+    .action-btn.primary { background:#3897f0;border:none; }
+
+    /* List Modal */
+    .list-modal-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:300;display:none;align-items:center;justify-content:center;padding:1rem; }
+    .list-modal-overlay.show { display:flex; }
+    .list-modal { background:#1a1a1a;border-radius:1rem;padding:1.5rem;width:100%;max-width:380px;max-height:70vh;overflow-y:auto; }
+    .list-modal h3 { font-size:1rem;margin-bottom:1rem;text-align:center; }
+    .list-item { display:flex;align-items:center;gap:0.8rem;padding:0.7rem 0;border-bottom:1px solid rgba(255,255,255,0.05); }
+    .list-item .mini-avatar { width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;font-size:1rem;color:#fff; }
+    .list-item .name { font-size:0.85rem;font-weight:500; }
+    .list-item .sub { font-size:0.7rem;color:#888; }
+    .list-close { text-align:center;margin-top:1rem;color:#ef4444;cursor:pointer;font-size:0.85rem; }
+
+    .tabs { display:flex;width:100%;max-width:400px;border-top:1px solid rgba(255,255,255,0.1);margin-top:0.3rem; }
+    .tab { flex:1;text-align:center;padding:0.7rem 0;color:#777;font-size:0.8rem;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s; }
+    .tab.active { color:#fff;border-bottom-color:#fff; }
+    .tab i { font-size:1.2rem;display:block;margin-bottom:0.2rem; }
+
+    .posts-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:2px;width:100%;max-width:400px; }
+    .post-item { aspect-ratio:1;background:#111;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden; }
+    .post-item img { width:100%;height:100%;object-fit:cover; }
+
+    /* Edit Modal */
+    .modal-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:300;display:none;align-items:center;justify-content:center;padding:1rem; }
+    .modal-overlay.show { display:flex; }
+    .modal { background:#1a1a1a;border-radius:1rem;padding:1.5rem;width:100%;max-width:380px;max-height:80vh;overflow-y:auto; }
+    .modal h3 { font-size:1.1rem;margin-bottom:1rem;text-align:center; }
+    .modal label { display:block;font-size:0.75rem;color:#aaa;margin-bottom:0.3rem;margin-top:0.8rem; }
+    .modal input, .modal textarea { width:100%;padding:0.7rem;border-radius:0.5rem;border:1px solid #333;background:#111;color:#fff;font-size:0.85rem;margin-bottom:0.5rem;outline:none; }
+    .modal textarea { min-height:80px;resize:vertical; }
+    .modal .btn-row { display:flex;gap:0.5rem;margin-top:1rem; }
+    .modal .btn-row button { flex:1;padding:0.7rem;border-radius:0.5rem;border:none;font-size:0.85rem;font-weight:600;cursor:pointer; }
+    .btn-save { background:#3897f0;color:#fff; }
+    .btn-cancel { background:#333;color:#fff; }
+
+    .toast { position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:0.8rem 1.5rem;border-radius:2rem;font-size:0.85rem;z-index:400;opacity:0;transition:all 0.3s;pointer-events:none; }
+    .toast.show { opacity:1; }
+
+    /* NAVBAR */
     .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6);z-index:100; }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
     .nav-center a { color:rgba(255,255,255,0.6);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;position:relative; }
@@ -23,6 +80,7 @@
     .nav-center a.active::before { transform:translateX(-50%) scale(1); }
     .nav-center a.active { color:#fff;background:rgba(255,255,255,0.15);backdrop-filter:blur(10px); }
     .nav-upload, .nav-search { display:none !important; }
+
     @media (min-width:1024px) {
       .top-left, .top-right { display:none; }
       .nav-upload, .nav-search { display:flex !important; }
@@ -31,22 +89,84 @@
       .nav-center a { font-size:1.4rem;width:2.6rem;height:2.6rem; }
       .nav-center a::before { bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0); }
       .nav-center a.active::before { transform:translateY(-50%) scale(1); }
-      .content { padding:5rem 3rem 3rem 6rem; }
-      .page-icon { font-size:4.5rem; }
-      .page-title { font-size:2.5rem; }
+      .content { padding:1rem 2rem 3rem 6rem; }
     }
-    @media (max-width:380px) { .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem}.nav-center a{font-size:1.1rem;width:2rem;height:2rem}.corner-btn{width:2rem;height:2rem;font-size:0.9rem} }
+    @media (max-width:380px) { .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem}.nav-center a{font-size:1.1rem;width:2rem;height:2rem}.corner-btn{width:2rem;height:2rem;font-size:0.9rem}.avatar{width:65px;height:65px;font-size:1.5rem}.stats-row{gap:0.8rem}.stat-num{font-size:0.95rem} }
   </style>
 </head>
 <body>
   <div class="page">
     <div class="top-left"><a href="upload.html" class="corner-btn"><i class="fas fa-plus"></i></a></div>
     <div class="top-right"><a href="search.html" class="corner-btn"><i class="fas fa-search"></i></a></div>
+    
     <div class="content">
-      <i class="fas fa-user page-icon"></i>
-      <h2 class="page-title">profile</h2>
-      <div class="page-hint">profile.html</div>
+      <div class="profile-header">
+        <div class="avatar-container">
+          <div class="avatar" id="profileAvatar"><i class="fas fa-user"></i></div>
+          <div class="avatar-add" onclick="document.getElementById('avatarInput').click()"><i class="fas fa-plus"></i></div>
+          <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="updateAvatar(event)">
+        </div>
+        <div class="stats-row">
+          <div class="stat"><div class="stat-num" id="postCount">3</div><div class="stat-label">Posts</div></div>
+          <div class="stat" onclick="showList('friends')"><div class="stat-num" id="friendsCount">0</div><div class="stat-label">Friends</div></div>
+          <div class="stat" onclick="showList('besties')"><div class="stat-num" id="bestiesCount">0</div><div class="stat-label">Besties</div></div>
+        </div>
+      </div>
+
+      <div class="bio-section">
+        <div class="username" id="displayName">@johndoe</div>
+        <div class="bio-text" id="displayBio">✨ Living life one day at a time | 🌍 Traveler | 📸 Photographer</div>
+        <div class="website" id="displayWebsite">🔗 linktr.ee/johndoe</div>
+      </div>
+
+      <div class="actions-row">
+        <button class="action-btn primary" onclick="openEditProfile()">Edit Profile</button>
+        <button class="action-btn" onclick="shareProfile()"><i class="fas fa-share-alt"></i> Share</button>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab(this)"><i class="fas fa-grid-2"></i>Posts</div>
+        <div class="tab" onclick="switchTab(this)"><i class="fas fa-film"></i>Reels</div>
+        <div class="tab" onclick="switchTab(this)"><i class="fas fa-tag"></i>Tagged</div>
+      </div>
+
+      <div class="posts-grid" id="postsGrid">
+        <div class="post-item"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23222' width='200' height='200'/%3E%3Ctext fill='%23555' x='50%25' y='50%25' text-anchor='middle' dy='.3em' font-size='40'%3E📷%3C/text%3E%3C/svg%3E"></div>
+        <div class="post-item"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%232a2a2a' width='200' height='200'/%3E%3Ctext fill='%23555' x='50%25' y='50%25' text-anchor='middle' dy='.3em' font-size='40'%3E🌅%3C/text%3E%3C/svg%3E"></div>
+        <div class="post-item"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23333' width='200' height='200'/%3E%3Ctext fill='%23555' x='50%25' y='50%25' text-anchor='middle' dy='.3em' font-size='40'%3E🎨%3C/text%3E%3C/svg%3E"></div>
+      </div>
     </div>
+
+    <!-- Friends/Besties List Modal -->
+    <div class="list-modal-overlay" id="listModal">
+      <div class="list-modal">
+        <h3 id="listTitle">Friends</h3>
+        <div id="listContent"></div>
+        <div class="list-close" onclick="closeList()">Close ✕</div>
+      </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal-overlay" id="editModal">
+      <div class="modal">
+        <h3>Edit Profile</h3>
+        <label>Profile Picture</label>
+        <input type="file" accept="image/*" onchange="updateAvatar(event)">
+        <label>Username</label>
+        <input type="text" id="editUsername" placeholder="@username">
+        <label>Bio</label>
+        <textarea id="editBio" placeholder="Write a bio..."></textarea>
+        <label>Website</label>
+        <input type="text" id="editWebsite" placeholder="https://...">
+        <div class="btn-row">
+          <button class="btn-cancel" onclick="closeEditProfile()">Cancel</button>
+          <button class="btn-save" onclick="saveProfile()">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
     <nav class="floating-nav"><div class="nav-center">
       <a href="index.html"><i class="fas fa-home"></i></a>
       <a href="web.html"><i class="fas fa-globe"></i></a>
@@ -57,5 +177,140 @@
       <a href="search.html" class="nav-search"><i class="fas fa-search"></i></a>
     </div></nav>
   </div>
+
+  <script>
+    const defaultProfile = {
+      username: '@johndoe',
+      bio: '✨ Living life one day at a time | 🌍 Traveler | 📸 Photographer',
+      website: 'linktr.ee/johndoe',
+      avatar: null,
+      // Friends = enne follow cheyyunnavar (followers)
+      friends: [
+        { name: '@alexsmith', avatar: null },
+        { name: '@sarah_j', avatar: null },
+        { name: '@mike_travel', avatar: null },
+        { name: '@emma_photos', avatar: null },
+        { name: '@david_w', avatar: null },
+      ],
+      // Besties = njan follow cheyyunnavar (following)
+      besties: [
+        { name: '@lisa_art', avatar: null },
+        { name: '@tom_adventures', avatar: null },
+        { name: '@jessica_m', avatar: null },
+      ]
+    };
+
+    let profile = JSON.parse(localStorage.getItem('userProfile')) || defaultProfile;
+
+    // Ensure profile has the arrays
+    if(!profile.friends) profile.friends = defaultProfile.friends;
+    if(!profile.besties) profile.besties = defaultProfile.besties;
+
+    function saveToStorage() {
+      localStorage.setItem('userProfile', JSON.stringify(profile));
+    }
+
+    function updateUI() {
+      document.getElementById('displayName').textContent = profile.username;
+      document.getElementById('displayBio').textContent = profile.bio || '';
+      document.getElementById('displayWebsite').textContent = profile.website ? '🔗 ' + profile.website : '';
+      if(profile.avatar) {
+        document.getElementById('profileAvatar').innerHTML = `<img src="${profile.avatar}" alt="avatar">`;
+      }
+      document.getElementById('friendsCount').textContent = profile.friends.length;
+      document.getElementById('bestiesCount').textContent = profile.besties.length;
+    }
+
+    function updateAvatar(event) {
+      const file = event.target.files[0];
+      if(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          profile.avatar = e.target.result;
+          document.getElementById('profileAvatar').innerHTML = `<img src="${profile.avatar}" alt="avatar">`;
+          saveToStorage();
+          showToast('Profile picture updated! ✅');
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function openEditProfile() {
+      document.getElementById('editUsername').value = profile.username;
+      document.getElementById('editBio').value = profile.bio || '';
+      document.getElementById('editWebsite').value = profile.website || '';
+      document.getElementById('editModal').classList.add('show');
+    }
+
+    function closeEditProfile() {
+      document.getElementById('editModal').classList.remove('show');
+    }
+
+    function saveProfile() {
+      profile.username = document.getElementById('editUsername').value || '@user';
+      profile.bio = document.getElementById('editBio').value;
+      profile.website = document.getElementById('editWebsite').value;
+      saveToStorage();
+      updateUI();
+      closeEditProfile();
+      showToast('Profile saved! ✅');
+    }
+
+    function showList(type) {
+      const modal = document.getElementById('listModal');
+      const title = document.getElementById('listTitle');
+      const content = document.getElementById('listContent');
+      
+      const list = type === 'friends' ? profile.friends : profile.besties;
+      title.textContent = type === 'friends' ? '👥 Friends (Followers)' : '⭐ Besties (Following)';
+      
+      content.innerHTML = list.map(user => `
+        <div class="list-item">
+          <div class="mini-avatar"><i class="fas fa-user"></i></div>
+          <div>
+            <div class="name">${user.name}</div>
+            <div class="sub">${type === 'friends' ? 'Follows you' : 'You follow'}</div>
+          </div>
+        </div>
+      `).join('');
+      
+      modal.classList.add('show');
+    }
+
+    function closeList() {
+      document.getElementById('listModal').classList.remove('show');
+    }
+
+    function shareProfile() {
+      const url = window.location.href.split('?')[0];
+      if(navigator.share) {
+        navigator.share({ title: profile.username, text: 'Check out my profile!', url: url })
+          .then(() => showToast('Shared! 🚀'))
+          .catch(() => copyUrl(url));
+      } else {
+        copyUrl(url);
+      }
+    }
+
+    function copyUrl(text) {
+      navigator.clipboard.writeText(text).then(() => showToast('Link copied! 📋')).catch(() => showToast('Copy failed'));
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2000);
+    }
+
+    function switchTab(el) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    document.getElementById('editModal').addEventListener('click', function(e) { if(e.target===this) closeEditProfile(); });
+    document.getElementById('listModal').addEventListener('click', function(e) { if(e.target===this) closeList(); });
+
+    updateUI();
+  </script>
 </body>
 </html>

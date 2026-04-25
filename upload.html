@@ -2,66 +2,173 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Upload Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>Upload</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-    body { background:#000;color:#fff;font-family:sans-serif;padding:2rem;text-align:center; }
-    input, button { padding:0.8rem;margin:1rem;font-size:1rem;border-radius:0.5rem;border:none; }
-    button { background:#3897f0;color:#fff;cursor:pointer; }
-    img { max-width:300px;margin:1rem; }
-    #status { color:#4ade80;margin:1rem; }
+    * { margin:0;padding:0;box-sizing:border-box; }
+    body { background:#000;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center; }
+    .page { width:100%;height:100vh;height:100dvh;background:#000;display:flex;flex-direction:column;position:relative;overflow:hidden; }
+    .content { flex:1;display:flex;flex-direction:column;align-items:center;color:#fff;padding:3rem 1.5rem 6rem 1.5rem;text-align:center;gap:1rem;overflow-y:auto; }
+    .upload-card { background:rgba(255,255,255,0.05);border:2px dashed rgba(255,255,255,0.2);border-radius:1.5rem;padding:2rem 1.5rem;cursor:pointer;width:100%;max-width:280px; }
+    .upload-card:hover { background:rgba(255,255,255,0.1);border-color:#3897f0; }
+    .upload-card i { font-size:2.2rem;margin-bottom:0.5rem; }
+    .upload-card h3 { font-size:0.9rem;margin-bottom:0.2rem; }
+    .upload-card p { font-size:0.6rem;color:#888; }
+    .upload-card.post i { color:#3897f0; }
+    .upload-card.reel i { color:#e91e63; }
+    .preview-img, .preview-video { width:100%;max-width:280px;border-radius:1rem;max-height:250px;object-fit:cover;background:#111; }
+    .btn { width:100%;max-width:280px;padding:0.7rem;border-radius:1.5rem;border:none;font-size:0.8rem;font-weight:600;cursor:pointer; }
+    .btn-green { background:#4ade80;color:#000; }
+    .btn-gray { background:#333;color:#fff; }
+    .btn:disabled { opacity:0.5; }
+    .status { font-size:0.7rem;color:#4ade80;min-height:1rem; }
+    .error { color:#ef4444; }
+    .toast { position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#4ade80;color:#000;padding:0.5rem 1.2rem;border-radius:2rem;font-size:0.75rem;z-index:400;opacity:0;transition:all 0.3s;font-weight:600; }
+    .toast.show { opacity:1; }
+    .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6);z-index:100; }
+    .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
+    .nav-center a { color:rgba(255,255,255,0.6);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;position:relative; }
+    .nav-center a::before { content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:4px;height:4px;border-radius:50%;background:#fff;transition:all 0.3s; }
+    .nav-center a.active::before { transform:translateX(-50%) scale(1); }
+    .nav-center a.active { color:#fff;background:rgba(255,255,255,0.15);backdrop-filter:blur(10px); }
+    @media (min-width:1024px) { .floating-nav{top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;padding:1rem 0.6rem;flex-direction:column}.nav-center{flex-direction:column;gap:1.2rem;max-width:none}.nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}.nav-center a::before{bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0)}.nav-center a.active::before{transform:translateY(-50%) scale(1)} }
+    @media (max-width:380px) { .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem}.nav-center a{font-size:1.1rem;width:2rem;height:2rem} }
   </style>
 </head>
 <body>
-  <h2>Test Upload</h2>
-  <input type="file" id="fileInput" accept="image/*">
-  <button onclick="upload()">Upload</button>
-  <div id="status"></div>
-  <img id="preview" style="display:none;">
+  <div class="page">
+    <div class="content" id="mainContent">
+      <h2 style="font-weight:500;">Create</h2>
+      <div class="upload-card post" onclick="selectType('post')"><i class="fas fa-image"></i><h3>Post</h3><p>Upload a photo</p></div>
+      <div class="upload-card reel" onclick="selectType('reel')"><i class="fas fa-video"></i><h3>Reel</h3><p>Upload a video (max 5MB)</p></div>
+    </div>
+    <div class="content" id="previewContent" style="display:none;">
+      <h3 id="previewTitle" style="font-weight:500;">Preview</h3>
+      <img id="previewImg" class="preview-img" style="display:none;">
+      <video id="previewVideo" class="preview-video" controls style="display:none;"></video>
+      <p class="status" id="fileSizeText"></p>
+      <button class="btn btn-green" id="saveBtn" onclick="saveToCloud()">Save to Cloud ☁️</button>
+      <p class="status" id="saveStatus"></p>
+      <button class="btn btn-gray" onclick="goBack()">Cancel</button>
+    </div>
+    <input type="file" id="fileInput" accept="image/*,video/*" style="display:none" onchange="handleFile(event)">
+    <div class="toast" id="toast"></div>
+    <nav class="floating-nav"><div class="nav-center">
+      <a href="index.html"><i class="fas fa-home"></i></a>
+      <a href="web.html"><i class="fas fa-globe"></i></a>
+      <a href="reel.html"><i class="fas fa-film"></i></a>
+      <a href="chat.html"><i class="fas fa-comment-dots"></i></a>
+      <a href="profile.html"><i class="fas fa-user"></i></a>
+    </div></nav>
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, setDoc, doc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-    const firebaseConfig = {
+    const app = initializeApp({
       apiKey: "AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",
       authDomain: "mychat-a97bf.firebaseapp.com",
-      projectId: "mychat-a97bf",
-      storageBucket: "mychat-a97bf.firebasestorage.app",
-      messagingSenderId: "206620858913",
-      appId: "1:206620858913:web:e8171ed8c1a2dbda3da160"
+      projectId: "mychat-a97bf"
+    });
+    const db = getFirestore(app);
+    console.log('✅ Firestore ready');
+
+    // Test write permission first
+    async function testWrite() {
+      try {
+        const testRef = doc(db, 'posts', '_test_');
+        await setDoc(testRef, { test: true, time: new Date().toISOString() });
+        console.log('✅ Write permission OK');
+        return true;
+      } catch(e) {
+        console.error('❌ Write failed:', e.message);
+        return false;
+      }
+    }
+    testWrite();
+
+    let selectedType = null, fileData = null;
+
+    window.selectType = function(type) {
+      selectedType = type;
+      document.getElementById('fileInput').accept = type==='post'?'image/*':'video/*';
+      document.getElementById('fileInput').click();
     };
 
-    const app = initializeApp(firebaseConfig);
-    const storage = getStorage(app);
-
-    window.upload = function() {
-      const file = document.getElementById('fileInput').files[0];
-      if(!file) { document.getElementById('status').textContent = 'Select a file first!'; return; }
-
-      document.getElementById('status').textContent = 'Uploading...';
-      
-      const storageRef = ref(storage, 'test/' + Date.now() + '_' + file.name);
-      const uploadTask = uploadBytesResumable(storageRef, file);
-
-      uploadTask.on('state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          document.getElementById('status').textContent = 'Progress: ' + Math.round(progress) + '%';
-        },
-        (error) => {
-          document.getElementById('status').textContent = 'ERROR: ' + error.message;
-          console.error('Upload error:', error);
-        },
-        async () => {
-          const url = await getDownloadURL(uploadTask.snapshot.ref);
-          document.getElementById('status').textContent = 'SUCCESS! ✅';
-          document.getElementById('preview').src = url;
-          document.getElementById('preview').style.display = 'block';
-          console.log('File URL:', url);
+    window.handleFile = function(event) {
+      const file = event.target.files[0];
+      if(!file) return;
+      if(file.size > 5*1024*1024){ showToast('File too large! Max 5MB'); return; }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        fileData = e.target.result;
+        document.getElementById('mainContent').style.display='none';
+        document.getElementById('previewContent').style.display='flex';
+        document.getElementById('fileSizeText').textContent = `Size: ${(file.size/1024).toFixed(1)}KB`;
+        if(selectedType==='post'){
+          document.getElementById('previewTitle').textContent='Photo Preview';
+          document.getElementById('previewImg').src=fileData;
+          document.getElementById('previewImg').style.display='block';
+          document.getElementById('previewVideo').style.display='none';
+        } else {
+          document.getElementById('previewTitle').textContent='Video Preview';
+          document.getElementById('previewVideo').src=fileData;
+          document.getElementById('previewVideo').style.display='block';
+          document.getElementById('previewImg').style.display='none';
         }
-      );
+      };
+      reader.readAsDataURL(file);
     };
+
+    window.saveToCloud = async function() {
+      if(!fileData) return;
+      const btn = document.getElementById('saveBtn');
+      const status = document.getElementById('saveStatus');
+      btn.disabled = true; btn.textContent = 'Saving...'; status.textContent = '';
+      
+      try {
+        const userId = localStorage.getItem('userId') || 'user_' + crypto.randomUUID();
+        localStorage.setItem('userId', userId);
+        
+        // Save to Firestore
+        const docRef = await addDoc(collection(db, 'posts'), {
+          userId, type: selectedType, data: fileData, createdAt: serverTimestamp()
+        });
+        console.log('✅ Saved with ID:', docRef.id);
+        
+        // Also save to localStorage
+        const profile = JSON.parse(localStorage.getItem('userProfile')||'{}');
+        if(!profile.posts) profile.posts = [];
+        profile.posts.unshift({ type: selectedType==='post'?'image':'video', src: fileData });
+        localStorage.setItem('userProfile', JSON.stringify(profile));
+        
+        status.textContent = 'Saved! ✅';
+        status.className = 'status';
+        showToast('Uploaded! 🎉');
+        setTimeout(goBack, 1000);
+      } catch(e) {
+        console.error(e);
+        status.textContent = 'Error: ' + e.message;
+        status.className = 'status error';
+      }
+      btn.disabled = false; btn.textContent = 'Save to Cloud ☁️';
+    };
+
+    window.goBack = function() {
+      fileData=null; selectedType=null;
+      document.getElementById('fileInput').value='';
+      document.getElementById('mainContent').style.display='flex';
+      document.getElementById('previewContent').style.display='none';
+      document.getElementById('saveStatus').textContent='';
+    };
+
+    function showToast(msg) {
+      const t=document.getElementById('toast');
+      t.textContent=msg; t.classList.add('show');
+      clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2000);
+    }
   </script>
 </body>
 </html>

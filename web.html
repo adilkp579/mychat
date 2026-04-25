@@ -32,7 +32,7 @@
     .user-info { display:flex;align-items:center;gap:0.3rem;background:rgba(255,255,255,0.06);padding:0.25rem 0.6rem;border-radius:1rem;font-size:0.7rem;color:#ccc;opacity:0;transition:all 0.3s ease;border:1px solid rgba(255,255,255,0.08); }
     .user-info.active { opacity:1; }
     .user-flag { font-size:0.9rem; }
-    .buttons-container { display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;padding:0.2rem 0 0 0;align-items:center; }
+    .buttons-container { display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;padding:0.2rem 0 0 0; }
     .btn { height:36px;border-radius:2rem;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;gap:0.3rem;cursor:pointer;transition:all 0.3s ease;user-select:none;border:none;outline:none;font-size:0.75rem;font-weight:600;padding:0 1rem; }
     .btn:active { transform:scale(0.95); }
     .start-button { width:90px;background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.4);color:#4ade80; }
@@ -41,16 +41,13 @@
     .stop-button.visible { display:flex; }
     .next-button { width:80px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:#ccc;display:none; }
     .next-button.visible { display:flex; }
-    .mic-button { width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:#4ade80;display:none; }
-    .mic-button.visible { display:flex; }
-    .mic-button.muted { color:#ef4444;background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.4); }
-    .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px) saturate(200%);-webkit-backdrop-filter:blur(30px) saturate(200%);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6);z-index:100; }
+    .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px) saturate(200%);-webkit-backdrop-filter:blur(30px) saturate(200%);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.08) inset;z-index:100; }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
     .nav-center a { color:rgba(255,255,255,0.6);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;flex-shrink:0; }
     .nav-center a.active { color:#fff;background:rgba(255,255,255,0.15);backdrop-filter:blur(10px); }
-    @media (max-width:380px) { .content{padding:0.3rem 0.6rem 5rem 0.6rem}.stranger-camera{max-height:56vh}.my-camera{max-height:100px}.btn{height:32px;font-size:0.65rem;padding:0 0.5rem}.start-button{width:60px}.stop-button,.next-button{width:55px}.mic-button{width:32px;height:32px}.floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem} }
-    @media (min-width:768px) { .stranger-camera{max-height:65vh;border-radius:1.5rem}.my-camera{max-height:160px}.btn{height:42px;font-size:0.85rem}.start-button{width:100px}.stop-button,.next-button{width:90px}.mic-button{width:42px;height:42px}.floating-nav{width:65%;padding:0.8rem 2rem} }
-    @media (min-width:1024px) { .stranger-camera{max-height:67vh;border-radius:1.8rem}.my-camera{max-height:170px}.btn{height:44px}.start-button{width:110px}.stop-button,.next-button{width:95px}.mic-button{width:44px;height:44px}.floating-nav{width:45%;padding:0.9rem 2.2rem;bottom:2.5rem} }
+    @media (max-width:380px) { .content{padding:0.3rem 0.6rem 5rem 0.6rem}.stranger-camera{max-height:56vh}.my-camera{max-height:100px}.btn{height:32px;font-size:0.65rem;padding:0 0.5rem}.start-button{width:60px}.stop-button,.next-button{width:55px}.buttons-container{gap:0.3rem}.floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem} }
+    @media (min-width:768px) { .stranger-camera{max-height:65vh;border-radius:1.5rem}.my-camera{max-height:160px}.btn{height:42px;font-size:0.85rem}.start-button{width:100px}.stop-button,.next-button{width:90px}.floating-nav{width:65%;padding:0.8rem 2rem} }
+    @media (min-width:1024px) { .stranger-camera{max-height:67vh;border-radius:1.8rem}.my-camera{max-height:170px}.btn{height:44px}.start-button{width:110px}.stop-button,.next-button{width:95px}.floating-nav{width:45%;padding:0.9rem 2.2rem;bottom:2.5rem} }
   </style>
 </head>
 <body>
@@ -73,7 +70,6 @@
         <button class="btn start-button" id="startBtn"><i class="fas fa-play"></i><span>Start</span></button>
         <button class="btn stop-button" id="stopBtn"><i class="fas fa-stop"></i><span>Stop</span></button>
         <button class="btn next-button" id="nextBtn"><i class="fas fa-forward"></i><span>Next</span></button>
-        <button class="btn mic-button" id="micBtn" title="Mute/Unmute"><i class="fas fa-microphone"></i></button>
       </div>
     </div>
     <nav class="floating-nav"><div class="nav-center">
@@ -114,11 +110,9 @@
     const startBtn = document.getElementById('startBtn');
     const stopBtn = document.getElementById('stopBtn');
     const nextBtn = document.getElementById('nextBtn');
-    const micBtn = document.getElementById('micBtn');
 
     const myId = crypto.randomUUID();
     let localStream, pc, roomId, unsubs=[], connectionTimeout;
-    let isMuted = false;
 
     const servers = {
       iceServers: [
@@ -131,34 +125,12 @@
     async function startCamera() {
       try {
         if(localStream){ localStream.getTracks().forEach(t=>t.stop()); }
-        // Request BOTH video AND audio explicitly
-        localStream = await navigator.mediaDevices.getUserMedia({ 
-          video: { width:480, height:640, facingMode:'user' }, 
-          audio: {
-            echoCancellation: true,
-            noiseSuppression: true,
-            autoGainControl: true
-          }
-        });
-        
-        // Check if audio track exists
-        const audioTracks = localStream.getAudioTracks();
-        console.log('🎤 Audio tracks:', audioTracks.length);
-        if(audioTracks.length === 0) {
-          console.warn('⚠️ No audio track found!');
-        } else {
-          console.log('✅ Audio track ready:', audioTracks[0].label);
-        }
-        
+        localStream = await navigator.mediaDevices.getUserMedia({ video:{width:480,height:640,facingMode:'user'}, audio:true });
         myVideo.srcObject = localStream;
         await myVideo.play();
         myVideo.style.display='block'; myPlaceholder.style.display='none'; myCamera.classList.add('active');
         return true;
-      } catch(e) { 
-        console.error('Camera/Mic error:', e);
-        alert('Camera & Microphone access needed! Please allow both.'); 
-        return false; 
-      }
+      } catch(e) { alert('Camera needed!'); return false; }
     }
 
     function stopCamera() {
@@ -171,44 +143,13 @@
     }
 
     function showConnected() {
-      startBtn.style.display='none'; 
-      stopBtn.classList.add('visible'); 
-      nextBtn.classList.add('visible');
-      micBtn.classList.add('visible');
-      isMuted = false;
-      micBtn.classList.remove('muted');
-      micBtn.querySelector('i').className = 'fas fa-microphone';
+      startBtn.style.display='none'; stopBtn.classList.add('visible'); nextBtn.classList.add('visible');
     }
 
     function showDisconnected() {
-      startBtn.style.display='flex'; 
-      stopBtn.classList.remove('visible'); 
-      nextBtn.classList.remove('visible');
-      micBtn.classList.remove('visible');
-      startBtn.classList.remove('searching'); 
-      startBtn.querySelector('span').textContent='Start';
-      startBtn.querySelector('i').className='fas fa-play'; 
-      startBtn.disabled=false;
-    }
-
-    // Mute/Unmute function
-    function toggleMute() {
-      if(!localStream) return;
-      const audioTracks = localStream.getAudioTracks();
-      if(audioTracks.length > 0) {
-        isMuted = !isMuted;
-        audioTracks.forEach(track => {
-          track.enabled = !isMuted;
-        });
-        if(isMuted) {
-          micBtn.classList.add('muted');
-          micBtn.querySelector('i').className = 'fas fa-microphone-slash';
-        } else {
-          micBtn.classList.remove('muted');
-          micBtn.querySelector('i').className = 'fas fa-microphone';
-        }
-        console.log('🎤 Microphone ' + (isMuted ? 'muted' : 'unmuted'));
-      }
+      startBtn.style.display='flex'; stopBtn.classList.remove('visible'); nextBtn.classList.remove('visible');
+      startBtn.classList.remove('searching'); startBtn.querySelector('span').textContent='Start';
+      startBtn.querySelector('i').className='fas fa-play'; startBtn.disabled=false;
     }
 
     async function createRoom(otherId, isCaller) {
@@ -221,20 +162,12 @@
       unsubs.forEach(u=>u()); unsubs=[];
 
       pc = new RTCPeerConnection(servers);
-      
-      // Add ALL tracks (video + audio)
-      localStream.getTracks().forEach(t => {
-        console.log('➕ Adding track:', t.kind, t.label);
-        pc.addTrack(t, localStream);
-      });
+      localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));
 
       pc.ontrack = (e) => {
-        console.log('📥 Received tracks:', e.streams[0]?.getTracks().map(t=>t.kind));
         if(e.streams[0]) {
           strangerVideo.srcObject = e.streams[0];
-          strangerVideo.style.display='block'; 
-          strangerPlaceholder.style.display='none'; 
-          strangerCamera.classList.add('connected');
+          strangerVideo.style.display='block'; strangerPlaceholder.style.display='none'; strangerCamera.classList.add('connected');
         }
       };
 
@@ -286,9 +219,7 @@
         unsubs.forEach(u=>u()); unsubs=[];
 
         pc=new RTCPeerConnection(servers);
-        
-        // Add ALL tracks
-        localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+        localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));
 
         pc.ontrack = (e) => {
           if(e.streams[0]) {
@@ -303,6 +234,10 @@
 
         pc.onconnectionstatechange = () => {
           if(pc.connectionState==='failed'||pc.connectionState==='disconnected') resetStranger();
+        };
+
+        pc.oniceconnectionstatechange = () => {
+          if(pc.iceConnectionState==='failed'&&pc) pc.restartIce();
         };
 
         if(d.offer&&pc.signalingState!=='closed') {
@@ -356,7 +291,6 @@
     startBtn.addEventListener('click', startChat);
     stopBtn.addEventListener('click', stopChat);
     nextBtn.addEventListener('click', ()=>{ stopChat(); setTimeout(startChat,500); });
-    micBtn.addEventListener('click', toggleMute);
 
     setInterval(()=>{ onlineCount.textContent=Math.floor(Math.random()*1000+500)+' online'; },3000);
   </script>

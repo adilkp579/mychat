@@ -7,91 +7,145 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     * { margin:0;padding:0;box-sizing:border-box; }
-    body { background:#000;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center; }
+    body { background:#000;font-family:-apple-system,sans-serif;min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center; }
     .page { width:100%;height:100vh;height:100dvh;background:#000;display:flex;flex-direction:column;position:relative;overflow:hidden; }
+    
     .top-left { position:absolute;top:max(1rem,env(safe-area-inset-top,1rem));left:max(1rem,env(safe-area-inset-left,1rem));z-index:200; }
     .top-right { position:absolute;top:max(1rem,env(safe-area-inset-top,1rem));right:max(1rem,env(safe-area-inset-right,1rem));z-index:200; }
-    .corner-btn { width:2.4rem;height:2.4rem;background:rgba(255,255,255,0.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:50%;color:#fff;font-size:1rem;display:flex;align-items:center;justify-content:center;text-decoration:none;border:1px solid rgba(255,255,255,0.15);transition:all 0.3s; }
-    .content { flex:1;display:flex;flex-direction:column;align-items:center;color:#fff;padding:3rem 1.2rem 6rem 1.2rem;overflow-y:auto;gap:0.8rem; }
+    .corner-btn { width:2.2rem;height:2.2rem;background:rgba(255,255,255,0.08);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:50%;color:#fff;font-size:0.9rem;display:flex;align-items:center;justify-content:center;text-decoration:none;border:1px solid rgba(255,255,255,0.12); }
     
-    .profile-header { display:flex;align-items:center;gap:1.5rem;width:100%;max-width:400px;padding:0.5rem 0; }
-    .avatar-container { position:relative; }
-    .avatar { width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;font-size:2rem;color:#fff;border:3px solid rgba(255,255,255,0.2);overflow:hidden; }
+    .content { flex:1;display:flex;flex-direction:column;align-items:center;color:#fff;padding:3.5rem 1rem 5.5rem 1rem;overflow-y:auto;gap:0.6rem; }
+    .content::-webkit-scrollbar { width:0; }
+    
+    .profile-header { display:flex;align-items:center;gap:1rem;width:100%;max-width:400px;padding:0.3rem 0; }
+    .avatar-container { position:relative;flex-shrink:0;cursor:pointer; }
+    .avatar { width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:#fff;border:2px solid rgba(255,255,255,0.15);overflow:hidden;transition:all 0.3s; }
     .avatar img { width:100%;height:100%;object-fit:cover; }
-    .avatar-add { position:absolute;bottom:0;right:0;width:24px;height:24px;background:#3897f0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;cursor:pointer;border:2px solid #000; }
+    .avatar-edit { position:absolute;bottom:-3px;right:-3px;width:24px;height:24px;background:#3897f0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.65rem;cursor:pointer;border:2px solid #000; }
+    .avatar-options { position:absolute;top:100%;left:50%;transform:translateX(-50%);background:#1a1a1a;border-radius:0.8rem;padding:0.5rem 0;margin-top:0.5rem;z-index:50;display:none;min-width:160px;box-shadow:0 10px 30px rgba(0,0,0,0.8);border:1px solid rgba(255,255,255,0.1); }
+    .avatar-options.show { display:block; }
+    .avatar-option { padding:0.6rem 1rem;font-size:0.75rem;color:#fff;cursor:pointer;display:flex;align-items:center;gap:0.5rem; }
+    .avatar-option:hover { background:rgba(255,255,255,0.05); }
+    .avatar-option i { width:1.2rem;text-align:center; }
+    .avatar-option.remove { color:#ef4444; }
     
-    .stats-row { display:flex;gap:1.2rem; }
+    .stats-row { display:flex;gap:0.8rem;flex:1;justify-content:space-around; }
     .stat { text-align:center;cursor:pointer; }
-    .stat:hover { opacity:0.8; }
-    .stat-num { font-size:1.1rem;font-weight:700; }
-    .stat-label { font-size:0.65rem;color:#aaa; }
+    .stat-num { font-size:1rem;font-weight:700; }
+    .stat-label { font-size:0.6rem;color:#888; }
 
-    .bio-section { width:100%;max-width:400px;text-align:left;padding:0 0.3rem; }
-    .username { font-size:0.9rem;font-weight:600; }
-    .bio-text { font-size:0.75rem;color:#ccc;margin-top:0.2rem;line-height:1.4; }
-    .website { font-size:0.7rem;color:#3897f0;margin-top:0.2rem; }
+    .bio-section { width:100%;max-width:400px;text-align:left;padding:0 0.2rem; }
+    .username { font-size:0.85rem;font-weight:600; }
+    .bio-text { font-size:0.7rem;color:#bbb;margin-top:0.1rem;line-height:1.3; }
+    .website { font-size:0.65rem;color:#3897f0;margin-top:0.1rem; }
 
-    .actions-row { display:flex;gap:0.5rem;width:100%;max-width:400px; }
-    .action-btn { flex:1;padding:0.5rem;border-radius:0.5rem;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.05);color:#fff;font-size:0.75rem;font-weight:600;cursor:pointer;text-align:center;transition:all 0.2s; }
-    .action-btn:hover { background:rgba(255,255,255,0.1); }
+    .actions-row { display:flex;gap:0.4rem;width:100%;max-width:400px; }
+    .action-btn { flex:1;padding:0.45rem;border-radius:0.4rem;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.04);color:#fff;font-size:0.7rem;font-weight:600;cursor:pointer;text-align:center;transition:all 0.2s; }
+    .action-btn:active { background:rgba(255,255,255,0.1); }
     .action-btn.primary { background:#3897f0;border:none; }
 
-    /* List Modal */
-    .list-modal-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:300;display:none;align-items:center;justify-content:center;padding:1rem; }
-    .list-modal-overlay.show { display:flex; }
-    .list-modal { background:#1a1a1a;border-radius:1rem;padding:1.5rem;width:100%;max-width:380px;max-height:70vh;overflow-y:auto; }
-    .list-modal h3 { font-size:1rem;margin-bottom:1rem;text-align:center; }
-    .list-item { display:flex;align-items:center;gap:0.8rem;padding:0.7rem 0;border-bottom:1px solid rgba(255,255,255,0.05); }
-    .list-item .mini-avatar { width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;font-size:1rem;color:#fff; }
-    .list-item .name { font-size:0.85rem;font-weight:500; }
-    .list-item .sub { font-size:0.7rem;color:#888; }
-    .list-close { text-align:center;margin-top:1rem;color:#ef4444;cursor:pointer;font-size:0.85rem; }
-
-    .tabs { display:flex;width:100%;max-width:400px;border-top:1px solid rgba(255,255,255,0.1);margin-top:0.3rem; }
-    .tab { flex:1;text-align:center;padding:0.7rem 0;color:#777;font-size:0.8rem;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s; }
+    .tabs { display:flex;width:100%;max-width:400px;border-top:1px solid rgba(255,255,255,0.08);margin-top:0.2rem; }
+    .tab { flex:1;text-align:center;padding:0.5rem 0;color:#666;font-size:0.7rem;cursor:pointer;border-bottom:1px solid transparent; }
     .tab.active { color:#fff;border-bottom-color:#fff; }
-    .tab i { font-size:1.2rem;display:block;margin-bottom:0.2rem; }
+    .tab i { font-size:1.1rem;display:block;margin-bottom:0.1rem; }
 
-    .posts-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:2px;width:100%;max-width:400px; }
-    .post-item { aspect-ratio:1;background:#111;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden; }
-    .post-item img { width:100%;height:100%;object-fit:cover; }
+    /* Grid */
+    .posts-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:1px;width:100%;max-width:400px; }
+    .post-item { aspect-ratio:1;background:#111;display:flex;align-items:center;justify-content:center;overflow:hidden; }
+    .post-item img,.post-item video { width:100%;height:100%;object-fit:cover; }
+    .reel-item { aspect-ratio:9/16;background:#111;overflow:hidden;border-radius:0.3rem; }
 
-    /* Edit Modal */
-    .modal-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:300;display:none;align-items:center;justify-content:center;padding:1rem; }
+    .empty-state { text-align:center;color:#333;padding:2.5rem 1rem;width:100%;max-width:400px; }
+    .empty-state i { font-size:2.5rem;display:block;margin-bottom:0.5rem;opacity:0.5; }
+    .empty-state p { font-size:0.75rem;color:#444; }
+
+    /* Modals */
+    .modal-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:300;display:none;align-items:flex-end;justify-content:center; }
     .modal-overlay.show { display:flex; }
-    .modal { background:#1a1a1a;border-radius:1rem;padding:1.5rem;width:100%;max-width:380px;max-height:80vh;overflow-y:auto; }
-    .modal h3 { font-size:1.1rem;margin-bottom:1rem;text-align:center; }
-    .modal label { display:block;font-size:0.75rem;color:#aaa;margin-bottom:0.3rem;margin-top:0.8rem; }
-    .modal input, .modal textarea { width:100%;padding:0.7rem;border-radius:0.5rem;border:1px solid #333;background:#111;color:#fff;font-size:0.85rem;margin-bottom:0.5rem;outline:none; }
-    .modal textarea { min-height:80px;resize:vertical; }
-    .modal .btn-row { display:flex;gap:0.5rem;margin-top:1rem; }
-    .modal .btn-row button { flex:1;padding:0.7rem;border-radius:0.5rem;border:none;font-size:0.85rem;font-weight:600;cursor:pointer; }
+    .modal { background:#1a1a1a;border-radius:1rem 1rem 0 0;padding:1.2rem;width:100%;max-width:400px;max-height:70vh;overflow-y:auto; }
+    .modal h3 { font-size:1rem;margin-bottom:0.8rem;text-align:center; }
+    .modal label { display:block;font-size:0.7rem;color:#888;margin-bottom:0.2rem;margin-top:0.6rem; }
+    .modal input,.modal textarea { width:100%;padding:0.6rem;border-radius:0.4rem;border:1px solid #333;background:#111;color:#fff;font-size:0.8rem;margin-bottom:0.3rem;outline:none; }
+    .modal textarea { min-height:60px;resize:vertical; }
+    .modal .btn-row { display:flex;gap:0.4rem;margin-top:0.8rem; }
+    .modal .btn-row button { flex:1;padding:0.6rem;border-radius:0.4rem;border:none;font-size:0.8rem;font-weight:600;cursor:pointer; }
     .btn-save { background:#3897f0;color:#fff; }
     .btn-cancel { background:#333;color:#fff; }
 
-    .toast { position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:0.8rem 1.5rem;border-radius:2rem;font-size:0.85rem;z-index:400;opacity:0;transition:all 0.3s;pointer-events:none; }
+    .list-modal-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:300;display:none;align-items:flex-end;justify-content:center; }
+    .list-modal-overlay.show { display:flex; }
+    .list-modal { background:#1a1a1a;border-radius:1rem 1rem 0 0;padding:1.2rem;width:100%;max-width:400px;max-height:60vh;overflow-y:auto; }
+    .list-modal h3 { font-size:0.9rem;margin-bottom:0.8rem;text-align:center; }
+    .list-item { display:flex;align-items:center;gap:0.6rem;padding:0.6rem 0;border-bottom:1px solid rgba(255,255,255,0.04); }
+    .mini-avatar { width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;font-size:0.9rem;color:#fff;flex-shrink:0; }
+    .list-item .name { font-size:0.8rem;font-weight:500; }
+    .list-item .sub { font-size:0.65rem;color:#777; }
+    .list-close { text-align:center;margin-top:0.8rem;color:#ef4444;cursor:pointer;font-size:0.8rem;padding:0.5rem; }
+
+    .toast { position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:0.6rem 1.2rem;border-radius:2rem;font-size:0.75rem;z-index:400;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap; }
     .toast.show { opacity:1; }
 
     /* NAVBAR */
-    .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6);z-index:100; }
-    .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
-    .nav-center a { color:rgba(255,255,255,0.6);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;position:relative; }
-    .nav-center a::before { content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:4px;height:4px;border-radius:50%;background:#fff;transition:all 0.3s; }
+    .floating-nav { position:absolute;bottom:max(1rem,env(safe-area-inset-bottom,1rem));left:50%;transform:translateX(-50%);width:90%;max-width:420px;background:rgba(255,255,255,0.06);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border-radius:2rem;padding:0.5rem 1.2rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.1);box-shadow:0 15px 30px rgba(0,0,0,0.5);z-index:100; }
+    .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:340px;gap:0.2rem; }
+    .nav-center a { color:rgba(255,255,255,0.5);font-size:1.15rem;display:flex;align-items:center;justify-content:center;width:2.2rem;height:2.2rem;border-radius:50%;transition:all 0.3s;text-decoration:none;position:relative; }
+    .nav-center a::before { content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:3px;height:3px;border-radius:50%;background:#fff;transition:all 0.3s; }
     .nav-center a.active::before { transform:translateX(-50%) scale(1); }
-    .nav-center a.active { color:#fff;background:rgba(255,255,255,0.15);backdrop-filter:blur(10px); }
-    .nav-upload, .nav-search { display:none !important; }
+    .nav-center a.active { color:#fff;background:rgba(255,255,255,0.12);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px); }
+    .nav-upload,.nav-search { display:none !important; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (min-width:768px) and (max-width:1023px) {
+      .content { padding:4rem 2rem 6rem 2rem;gap:0.8rem; }
+      .profile-header,.bio-section,.actions-row,.tabs,.posts-grid { max-width:500px; }
+      .avatar { width:85px;height:85px;font-size:2rem; }
+      .stats-row { gap:1.5rem; }
+      .stat-num { font-size:1.2rem; }
+      .stat-label { font-size:0.7rem; }
+      .username { font-size:0.95rem; }
+      .bio-text { font-size:0.8rem; }
+      .action-btn { font-size:0.8rem;padding:0.55rem; }
+      .tab { font-size:0.8rem; }
+      .tab i { font-size:1.3rem; }
+      .floating-nav { width:60%;max-width:450px;padding:0.6rem 1.5rem; }
+      .nav-center { max-width:380px; }
+      .nav-center a { font-size:1.3rem;width:2.4rem;height:2.4rem; }
+      .posts-grid { grid-template-columns:repeat(3,1fr); }
+    }
 
     @media (min-width:1024px) {
-      .top-left, .top-right { display:none; }
-      .nav-upload, .nav-search { display:flex !important; }
-      .floating-nav { top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column; }
-      .nav-center { flex-direction:column;gap:1.2rem;max-width:none; }
-      .nav-center a { font-size:1.4rem;width:2.6rem;height:2.6rem; }
-      .nav-center a::before { bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0); }
+      .top-left,.top-right { display:none; }
+      .nav-upload,.nav-search { display:flex !important; }
+      .floating-nav { top:50%;left:1.2rem;bottom:auto;transform:translateY(-50%);width:3.2rem;height:auto;max-width:none;border-radius:2rem;padding:0.8rem 0.5rem;flex-direction:column; }
+      .nav-center { flex-direction:column;gap:1rem;max-width:none; }
+      .nav-center a { font-size:1.2rem;width:2.2rem;height:2.2rem; }
+      .nav-center a::before { bottom:auto;right:-3px;left:auto;top:50%;transform:translateY(-50%) scale(0); }
       .nav-center a.active::before { transform:translateY(-50%) scale(1); }
-      .content { padding:1rem 2rem 3rem 6rem; }
+      .content { padding:1.5rem 2rem 2rem 5.5rem;gap:0.7rem; }
+      .profile-header,.bio-section,.actions-row,.tabs,.posts-grid { max-width:500px; }
+      .posts-grid { grid-template-columns:repeat(4,1fr);gap:2px; }
+      .avatar { width:90px;height:90px;font-size:2.2rem; }
+      .modal,.list-modal { border-radius:1rem; }
+      .modal-overlay,.list-modal-overlay { align-items:center; }
     }
-    @media (max-width:380px) { .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem}.nav-center a{font-size:1.1rem;width:2rem;height:2rem}.corner-btn{width:2rem;height:2rem;font-size:0.9rem}.avatar{width:65px;height:65px;font-size:1.5rem}.stats-row{gap:0.8rem}.stat-num{font-size:0.95rem} }
+
+    @media (min-width:1440px) {
+      .floating-nav { left:2rem;width:3.5rem; }
+      .nav-center a { font-size:1.4rem;width:2.5rem;height:2.5rem; }
+      .content { padding:2rem 3rem 2rem 7rem; }
+      .profile-header,.bio-section,.actions-row,.tabs,.posts-grid { max-width:600px; }
+      .posts-grid { grid-template-columns:repeat(4,1fr); }
+    }
+
+    @media (max-width:380px) {
+      .content { padding:3rem 0.7rem 5rem 0.7rem;gap:0.4rem; }
+      .avatar { width:60px;height:60px;font-size:1.5rem; }
+      .stats-row { gap:0.5rem; }
+      .stat-num { font-size:0.85rem; }
+      .corner-btn { width:1.9rem;height:1.9rem;font-size:0.8rem; }
+      .floating-nav { width:94%;padding:0.4rem 0.7rem;bottom:0.6rem; }
+      .nav-center a { font-size:1rem;width:1.8rem;height:1.8rem; }
+    }
   </style>
 </head>
 <body>
@@ -101,13 +155,17 @@
     
     <div class="content">
       <div class="profile-header">
-        <div class="avatar-container">
-          <div class="avatar" id="profileAvatar"><i class="fas fa-user"></i></div>
-          <div class="avatar-add" onclick="document.getElementById('avatarInput').click()"><i class="fas fa-plus"></i></div>
+        <div class="avatar-container" id="avatarContainer">
+          <div class="avatar" id="profileAvatar" onclick="toggleAvatarOptions()"><i class="fas fa-user"></i></div>
+          <div class="avatar-edit" onclick="toggleAvatarOptions()"><i class="fas fa-pen"></i></div>
+          <div class="avatar-options" id="avatarOptions">
+            <div class="avatar-option" onclick="document.getElementById('avatarInput').click()"><i class="fas fa-camera"></i> Change Photo</div>
+            <div class="avatar-option remove" onclick="removeAvatar()"><i class="fas fa-trash"></i> Remove Photo</div>
+          </div>
           <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="updateAvatar(event)">
         </div>
         <div class="stats-row">
-          <div class="stat"><div class="stat-num" id="postCount">3</div><div class="stat-label">Posts</div></div>
+          <div class="stat"><div class="stat-num" id="postCount">0</div><div class="stat-label">Posts</div></div>
           <div class="stat" onclick="showList('friends')"><div class="stat-num" id="friendsCount">0</div><div class="stat-label">Friends</div></div>
           <div class="stat" onclick="showList('besties')"><div class="stat-num" id="bestiesCount">0</div><div class="stat-label">Besties</div></div>
         </div>
@@ -115,8 +173,8 @@
 
       <div class="bio-section">
         <div class="username" id="displayName">@johndoe</div>
-        <div class="bio-text" id="displayBio">✨ Living life one day at a time | 🌍 Traveler | 📸 Photographer</div>
-        <div class="website" id="displayWebsite">🔗 linktr.ee/johndoe</div>
+        <div class="bio-text" id="displayBio">✨ Living life one day at a time</div>
+        <div class="website" id="displayWebsite"></div>
       </div>
 
       <div class="actions-row">
@@ -125,33 +183,18 @@
       </div>
 
       <div class="tabs">
-        <div class="tab active" onclick="switchTab(this)"><i class="fas fa-grid-2"></i>Posts</div>
-        <div class="tab" onclick="switchTab(this)"><i class="fas fa-film"></i>Reels</div>
-        <div class="tab" onclick="switchTab(this)"><i class="fas fa-tag"></i>Tagged</div>
+        <div class="tab active" onclick="switchTab(this,'posts')"><i class="fas fa-grid-2"></i>Posts</div>
+        <div class="tab" onclick="switchTab(this,'reels')"><i class="fas fa-film"></i>Reels</div>
       </div>
 
-      <div class="posts-grid" id="postsGrid">
-        <div class="post-item"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23222' width='200' height='200'/%3E%3Ctext fill='%23555' x='50%25' y='50%25' text-anchor='middle' dy='.3em' font-size='40'%3E📷%3C/text%3E%3C/svg%3E"></div>
-        <div class="post-item"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%232a2a2a' width='200' height='200'/%3E%3Ctext fill='%23555' x='50%25' y='50%25' text-anchor='middle' dy='.3em' font-size='40'%3E🌅%3C/text%3E%3C/svg%3E"></div>
-        <div class="post-item"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23333' width='200' height='200'/%3E%3Ctext fill='%23555' x='50%25' y='50%25' text-anchor='middle' dy='.3em' font-size='40'%3E🎨%3C/text%3E%3C/svg%3E"></div>
-      </div>
-    </div>
-
-    <!-- Friends/Besties List Modal -->
-    <div class="list-modal-overlay" id="listModal">
-      <div class="list-modal">
-        <h3 id="listTitle">Friends</h3>
-        <div id="listContent"></div>
-        <div class="list-close" onclick="closeList()">Close ✕</div>
-      </div>
+      <div class="posts-grid" id="postsGrid"></div>
+      <div class="empty-state" id="emptyState"><i class="fas fa-camera"></i><p>No posts yet</p></div>
     </div>
 
     <!-- Edit Modal -->
     <div class="modal-overlay" id="editModal">
       <div class="modal">
         <h3>Edit Profile</h3>
-        <label>Profile Picture</label>
-        <input type="file" accept="image/*" onchange="updateAvatar(event)">
         <label>Username</label>
         <input type="text" id="editUsername" placeholder="@username">
         <label>Bio</label>
@@ -162,6 +205,15 @@
           <button class="btn-cancel" onclick="closeEditProfile()">Cancel</button>
           <button class="btn-save" onclick="saveProfile()">Save</button>
         </div>
+      </div>
+    </div>
+
+    <!-- List Modal -->
+    <div class="list-modal-overlay" id="listModal">
+      <div class="list-modal">
+        <h3 id="listTitle">Friends</h3>
+        <div id="listContent"></div>
+        <div class="list-close" onclick="closeList()">Close ✕</div>
       </div>
     </div>
 
@@ -180,135 +232,90 @@
 
   <script>
     const defaultProfile = {
-      username: '@johndoe',
-      bio: '✨ Living life one day at a time | 🌍 Traveler | 📸 Photographer',
-      website: 'linktr.ee/johndoe',
-      avatar: null,
-      // Friends = enne follow cheyyunnavar (followers)
-      friends: [
-        { name: '@alexsmith', avatar: null },
-        { name: '@sarah_j', avatar: null },
-        { name: '@mike_travel', avatar: null },
-        { name: '@emma_photos', avatar: null },
-        { name: '@david_w', avatar: null },
-      ],
-      // Besties = njan follow cheyyunnavar (following)
-      besties: [
-        { name: '@lisa_art', avatar: null },
-        { name: '@tom_adventures', avatar: null },
-        { name: '@jessica_m', avatar: null },
-      ]
+      username:'@johndoe',bio:'✨ Living life one day at a time',website:'',avatar:null,
+      friends:[],besties:[],posts:[],reels:[]
     };
-
+    
     let profile = JSON.parse(localStorage.getItem('userProfile')) || defaultProfile;
+    if(!profile.posts) profile.posts=[];
+    if(!profile.reels) profile.reels=[];
+    if(!profile.friends) profile.friends=[];
+    if(!profile.besties) profile.besties=[];
 
-    // Ensure profile has the arrays
-    if(!profile.friends) profile.friends = defaultProfile.friends;
-    if(!profile.besties) profile.besties = defaultProfile.besties;
-
-    function saveToStorage() {
-      localStorage.setItem('userProfile', JSON.stringify(profile));
+    function save(){localStorage.setItem('userProfile',JSON.stringify(profile));}
+    
+    function updateUI(){
+      document.getElementById('displayName').textContent=profile.username;
+      document.getElementById('displayBio').textContent=profile.bio||'';
+      document.getElementById('displayWebsite').textContent=profile.website?'🔗 '+profile.website:'';
+      if(profile.avatar) document.getElementById('profileAvatar').innerHTML=`<img src="${profile.avatar}" alt="avatar">`;
+      else document.getElementById('profileAvatar').innerHTML='<i class="fas fa-user"></i>';
+      document.getElementById('friendsCount').textContent=profile.friends.length;
+      document.getElementById('bestiesCount').textContent=profile.besties.length;
+      document.getElementById('postCount').textContent=profile.posts.length+profile.reels.length;
+      renderGrid();
     }
 
-    function updateUI() {
-      document.getElementById('displayName').textContent = profile.username;
-      document.getElementById('displayBio').textContent = profile.bio || '';
-      document.getElementById('displayWebsite').textContent = profile.website ? '🔗 ' + profile.website : '';
-      if(profile.avatar) {
-        document.getElementById('profileAvatar').innerHTML = `<img src="${profile.avatar}" alt="avatar">`;
-      }
-      document.getElementById('friendsCount').textContent = profile.friends.length;
-      document.getElementById('bestiesCount').textContent = profile.besties.length;
+    function renderGrid(){
+      const grid=document.getElementById('postsGrid');
+      const empty=document.getElementById('emptyState');
+      const all=[...profile.posts.map(p=>({...p,type:'image'})),...profile.reels.map(r=>({...r,type:'video'}))];
+      if(all.length===0){grid.innerHTML='';empty.style.display='block';}
+      else{empty.style.display='none';grid.innerHTML=all.map(item=>item.type==='image'?`<div class="post-item"><img src="${item.src}" alt="post"></div>`:`<div class="reel-item"><video src="${item.src}" muted></video></div>`).join('');}
     }
 
-    function updateAvatar(event) {
-      const file = event.target.files[0];
-      if(file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          profile.avatar = e.target.result;
-          document.getElementById('profileAvatar').innerHTML = `<img src="${profile.avatar}" alt="avatar">`;
-          saveToStorage();
-          showToast('Profile picture updated! ✅');
-        };
-        reader.readAsDataURL(file);
-      }
+    function toggleAvatarOptions(){
+      const o=document.getElementById('avatarOptions');o.classList.toggle('show');
+      setTimeout(()=>document.addEventListener('click',function c(e){if(!e.target.closest('.avatar-container')){o.classList.remove('show');document.removeEventListener('click',c);}}),100);
     }
 
-    function openEditProfile() {
-      document.getElementById('editUsername').value = profile.username;
-      document.getElementById('editBio').value = profile.bio || '';
-      document.getElementById('editWebsite').value = profile.website || '';
+    function updateAvatar(e){
+      const f=e.target.files[0];if(f){const r=new FileReader();r.onload=function(ev){profile.avatar=ev.target.result;save();updateUI();showToast('Updated!✅');};r.readAsDataURL(f);}
+    }
+
+    function removeAvatar(){profile.avatar=null;save();updateUI();showToast('Removed');}
+
+    function openEditProfile(){
+      document.getElementById('editUsername').value=profile.username;
+      document.getElementById('editBio').value=profile.bio||'';
+      document.getElementById('editWebsite').value=profile.website||'';
       document.getElementById('editModal').classList.add('show');
     }
-
-    function closeEditProfile() {
-      document.getElementById('editModal').classList.remove('show');
+    function closeEditProfile(){document.getElementById('editModal').classList.remove('show');}
+    function saveProfile(){
+      profile.username=document.getElementById('editUsername').value||'@user';
+      profile.bio=document.getElementById('editBio').value;
+      profile.website=document.getElementById('editWebsite').value;
+      save();updateUI();closeEditProfile();showToast('Saved!✅');
     }
 
-    function saveProfile() {
-      profile.username = document.getElementById('editUsername').value || '@user';
-      profile.bio = document.getElementById('editBio').value;
-      profile.website = document.getElementById('editWebsite').value;
-      saveToStorage();
-      updateUI();
-      closeEditProfile();
-      showToast('Profile saved! ✅');
+    function showList(type){
+      document.getElementById('listTitle').textContent=type==='friends'?'👥 Friends (Followers)':'⭐ Besties (Following)';
+      const list=type==='friends'?profile.friends:profile.besties;
+      document.getElementById('listContent').innerHTML=list.length?list.map(u=>`<div class="list-item"><div class="mini-avatar"><i class="fas fa-user"></i></div><div><div class="name">${u.name}</div><div class="sub">${type==='friends'?'Follows you':'You follow'}</div></div></div>`).join(''):'<p style="text-align:center;color:#555;padding:1rem;">No one yet</p>';
+      document.getElementById('listModal').classList.add('show');
+    }
+    function closeList(){document.getElementById('listModal').classList.remove('show');}
+
+    function switchTab(el,tab){
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');
+      const grid=document.getElementById('postsGrid'),empty=document.getElementById('emptyState');
+      if(tab==='reels'){
+        const reels=profile.reels||[];
+        if(reels.length===0){grid.innerHTML='';empty.style.display='block';empty.innerHTML='<i class="fas fa-film"></i><p>No reels yet</p>';}
+        else{empty.style.display='none';grid.innerHTML=reels.map(r=>`<div class="reel-item"><video src="${r.src}" muted></video></div>`).join('');}
+      }else{renderGrid();empty.querySelector('i').className='fas fa-camera';empty.querySelector('p').textContent='No posts yet';}
     }
 
-    function showList(type) {
-      const modal = document.getElementById('listModal');
-      const title = document.getElementById('listTitle');
-      const content = document.getElementById('listContent');
-      
-      const list = type === 'friends' ? profile.friends : profile.besties;
-      title.textContent = type === 'friends' ? '👥 Friends (Followers)' : '⭐ Besties (Following)';
-      
-      content.innerHTML = list.map(user => `
-        <div class="list-item">
-          <div class="mini-avatar"><i class="fas fa-user"></i></div>
-          <div>
-            <div class="name">${user.name}</div>
-            <div class="sub">${type === 'friends' ? 'Follows you' : 'You follow'}</div>
-          </div>
-        </div>
-      `).join('');
-      
-      modal.classList.add('show');
+    function shareProfile(){
+      const u=window.location.href.split('?')[0];
+      navigator.share?navigator.share({title:profile.username,text:'Check my profile!',url:u}).then(()=>showToast('Shared!🚀')).catch(()=>copyUrl(u)):copyUrl(u);
     }
+    function copyUrl(t){navigator.clipboard.writeText(t).then(()=>showToast('Link copied!📋')).catch(()=>{});}
+    function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2000);}
 
-    function closeList() {
-      document.getElementById('listModal').classList.remove('show');
-    }
-
-    function shareProfile() {
-      const url = window.location.href.split('?')[0];
-      if(navigator.share) {
-        navigator.share({ title: profile.username, text: 'Check out my profile!', url: url })
-          .then(() => showToast('Shared! 🚀'))
-          .catch(() => copyUrl(url));
-      } else {
-        copyUrl(url);
-      }
-    }
-
-    function copyUrl(text) {
-      navigator.clipboard.writeText(text).then(() => showToast('Link copied! 📋')).catch(() => showToast('Copy failed'));
-    }
-
-    function showToast(msg) {
-      const t = document.getElementById('toast');
-      t.textContent = msg; t.classList.add('show');
-      clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2000);
-    }
-
-    function switchTab(el) {
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      el.classList.add('active');
-    }
-
-    document.getElementById('editModal').addEventListener('click', function(e) { if(e.target===this) closeEditProfile(); });
-    document.getElementById('listModal').addEventListener('click', function(e) { if(e.target===this) closeList(); });
+    document.getElementById('editModal').addEventListener('click',function(e){if(e.target===this)closeEditProfile();});
+    document.getElementById('listModal').addEventListener('click',function(e){if(e.target===this)closeList();});
 
     updateUI();
   </script>

@@ -12,11 +12,13 @@
     .content { flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;color:#fff;padding:0.5rem 1rem 6rem 1rem;text-align:center;gap:0.3rem; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+    @keyframes livePulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.7)} 50%{box-shadow:0 0 0 10px rgba(239,68,68,0)} }
     .online-counter { display:flex;align-items:center;gap:0.3rem;color:#4ade80;font-size:0.65rem;padding:0.2rem 0; }
     .online-dot { width:5px;height:5px;background:#4ade80;border-radius:50%;animation:blink 2s infinite; }
     .camera-container { display:flex;gap:0.5rem;align-items:flex-start;justify-content:center;width:100%;max-width:500px;flex:1;min-height:0; }
     .stranger-camera { width:75%;height:100%;max-height:62vh;background:#111;border:2px solid rgba(255,255,255,0.2);border-radius:1.2rem;box-shadow:0 15px 40px rgba(0,0,0,0.6);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center; }
     .stranger-camera.connected { border-color:#4ade80; }
+    .stranger-camera.live-active { border-color:#ef4444; animation:livePulse 2s infinite; }
     #strangerFeed { width:100%;height:100%;object-fit:cover;display:none;background:#000;transform:rotateY(180deg);-webkit-transform:rotateY(180deg); }
     .stranger-placeholder { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.3rem;color:rgba(255,255,255,0.25); }
     .stranger-placeholder i { font-size:3rem; }
@@ -42,9 +44,12 @@
     .mic-button { width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:#4ade80;display:none;padding:0; }
     .mic-button.visible { display:flex;align-items:center;justify-content:center; }
     .mic-button.muted { color:#ef4444;background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.4); }
+    
+    .live-button { width:80px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#ef4444;animation:livePulse 2s infinite; }
+    .live-button:hover { background:rgba(239,68,68,0.3); }
+    .live-button.ended { animation:none; background:rgba(255,255,255,0.08); color:#ccc; border-color:rgba(255,255,255,0.2); }
 
-    /* NAVBAR */
-    .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6);z-index:100; }
+    .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6);z-index:100; }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
     .nav-center a { color:rgba(255,255,255,0.6);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;position:relative; }
     .nav-center a::before { content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:4px;height:4px;border-radius:50%;background:#fff;transition:all 0.3s; }
@@ -63,7 +68,7 @@
       .stranger-camera { max-height:70vh; }
       .my-camera { max-height:180px; }
     }
-    @media (max-width:380px) { .content{padding:0.3rem 0.6rem 5rem 0.6rem}.stranger-camera{max-height:56vh}.my-camera{max-height:100px}.btn{height:32px;font-size:0.65rem;padding:0 0.5rem}.start-button{width:60px}.stop-button,.next-button{width:55px}.mic-button{width:32px;height:32px}.floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem}.nav-center a{font-size:1.1rem;width:2rem;height:2rem} }
+    @media (max-width:380px) { .content{padding:0.3rem 0.6rem 5rem 0.6rem}.stranger-camera{max-height:56vh}.my-camera{max-height:100px}.btn{height:32px;font-size:0.65rem;padding:0 0.5rem}.start-button{width:60px}.stop-button,.next-button,.live-button{width:55px}.mic-button{width:32px;height:32px}.floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem}.nav-center a{font-size:1.1rem;width:2rem;height:2rem} }
   </style>
 </head>
 <body>
@@ -84,6 +89,7 @@
       <div class="user-info" id="userInfo"><span>🌍</span><span>Waiting...</span></div>
       <div class="buttons-container">
         <button class="btn start-button" id="startBtn"><i class="fas fa-play"></i><span>Start</span></button>
+        <button class="btn live-button" id="liveBtn" onclick="toggleLive()"><i class="fas fa-circle"></i><span>LIVE</span></button>
         <button class="btn stop-button" id="stopBtn"><i class="fas fa-stop"></i><span>Stop</span></button>
         <button class="btn next-button" id="nextBtn"><i class="fas fa-forward"></i><span>Next</span></button>
         <button class="btn mic-button" id="micBtn" title="Mute"><i class="fas fa-microphone"></i></button>
@@ -100,20 +106,15 @@
     </div></nav>
   </div>
 
-  <!-- YOUR WORKING BACKEND -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, addDoc, onSnapshot, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",
-      authDomain: "mychat-a97bf.firebaseapp.com",
-      projectId: "mychat-a97bf",
-      storageBucket: "mychat-a97bf.firebasestorage.app",
-      messagingSenderId: "206620858913",
-      appId: "1:206620858913:web:e8171ed8c1a2dbda3da160"
+      apiKey: "AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M", authDomain: "mychat-a97bf.firebaseapp.com",
+      projectId: "mychat-a97bf", storageBucket: "mychat-a97bf.firebasestorage.app",
+      messagingSenderId: "206620858913", appId: "1:206620858913:web:e8171ed8c1a2dbda3da160"
     };
-
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
@@ -129,10 +130,12 @@
     const stopBtn = document.getElementById('stopBtn');
     const nextBtn = document.getElementById('nextBtn');
     const micBtn = document.getElementById('micBtn');
+    const liveBtn = document.getElementById('liveBtn');
 
     const myId = crypto.randomUUID();
     let localStream, pc, roomId, unsubs=[], connectionTimeout;
     let isMuted = false;
+    let isLive = false;
 
     const servers = {
       iceServers: [
@@ -141,10 +144,33 @@
         { urls: "turn:standard.relay.metered.ca:80?transport=tcp", username: "a6b2ebd89a4174b7f3843634", credential: "xyEoZGCCUl7ZAQ4h" },
         { urls: "turn:standard.relay.metered.ca:443", username: "a6b2ebd89a4174b7f3843634", credential: "xyEoZGCCUl7ZAQ4h" },
         { urls: "turns:standard.relay.metered.ca:443?transport=tcp", username: "a6b2ebd89a4174b7f3843634", credential: "xyEoZGCCUl7ZAQ4h" },
-        { urls: "stun:stun.l.google.com:19302" },
-        { urls: "stun:stun1.l.google.com:19302" },
-      ],
-      iceCandidatePoolSize: 2
+        { urls: "stun:stun.l.google.com:19302" }, { urls: "stun:stun1.l.google.com:19302" },
+      ], iceCandidatePoolSize: 2
+    };
+
+    // LIVE toggle
+    window.toggleLive = async function() {
+      isLive = !isLive;
+      const currentUser = localStorage.getItem('currentUser') || '@anonymous';
+      
+      if (isLive) {
+        liveBtn.innerHTML = '<i class="fas fa-stop-circle"></i><span>END</span>';
+        liveBtn.classList.add('ended');
+        strangerCamera.classList.add('live-active');
+        
+        // Start camera if not already started
+        if(!localStream) await startCamera();
+        
+        // Save live status to Firestore
+        await setDoc(doc(db, 'live', currentUser.replace('@','')), { 
+          userId: currentUser, active: true, startedAt: serverTimestamp() 
+        });
+      } else {
+        liveBtn.innerHTML = '<i class="fas fa-circle"></i><span>LIVE</span>';
+        liveBtn.classList.remove('ended');
+        strangerCamera.classList.remove('live-active');
+        await deleteDoc(doc(db, 'live', currentUser.replace('@',''))).catch(()=>{});
+      }
     };
 
     async function startCamera() {
@@ -163,7 +189,7 @@
     }
 
     function resetStranger() {
-      strangerFeed.style.display='none'; strangerFeed.srcObject=null; strangerPlaceholder.style.display=''; strangerCamera.classList.remove('connected');
+      strangerFeed.style.display='none'; strangerFeed.srcObject=null; strangerPlaceholder.style.display=''; strangerCamera.classList.remove('connected','live-active');
     }
 
     function showConnected() { startBtn.style.display='none'; stopBtn.classList.add('visible'); nextBtn.classList.add('visible'); micBtn.classList.add('visible'); }
@@ -207,6 +233,7 @@
       if(pc){ pc.close(); pc=null; } unsubs.forEach(u=>u()); unsubs=[];
       if(roomId){ deleteDoc(doc(db,'rooms',roomId)).catch(()=>{}); roomId=null; }
       deleteDoc(doc(db,'waiting',myId)).catch(()=>{}); deleteDoc(doc(db,'invites',myId)).catch(()=>{});
+      if(isLive) { const cu=localStorage.getItem('currentUser')||'@anonymous'; deleteDoc(doc(db,'live',cu.replace('@',''))).catch(()=>{}); isLive=false; liveBtn.innerHTML='<i class="fas fa-circle"></i><span>LIVE</span>'; liveBtn.classList.remove('ended'); }
       resetStranger(); stopCamera(); showDisconnected(); userInfo.classList.remove('active');
     }
 

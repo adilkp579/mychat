@@ -18,6 +18,8 @@
     .page-icon { font-size:3rem;margin-bottom:1rem;opacity:0.8; }
     .page-title { font-size:1.8rem;font-weight:500;text-transform:lowercase; }
     .page-hint { color:#999;font-size:0.8rem;border-top:1px solid rgba(255,255,255,0.1);padding-top:1rem;margin-top:1rem;width:80%; }
+    .welcome-text { font-size:1.5rem;font-weight:500;margin-bottom:0.5rem; }
+    .user-info { font-size:0.9rem;color:#4ade80;margin-bottom:1rem; }
 
     .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6);z-index:100; }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
@@ -25,13 +27,10 @@
     .nav-center a::before { content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:4px;height:4px;border-radius:50%;background:#fff;transition:all 0.3s; }
     .nav-center a.active::before { transform:translateX(-50%) scale(1); }
     .nav-center a.active { color:#fff;background:rgba(255,255,255,0.15);backdrop-filter:blur(10px); }
-
-    /* Mobile: Hide upload & search from navbar (they are in corners) */
     .nav-upload, .nav-search { display:none !important; }
 
     @media (min-width:1024px) {
       .top-left, .top-right { display:none; }
-      /* Desktop: Show upload & search in left sidebar */
       .nav-upload, .nav-search { display:flex !important; }
       .floating-nav { top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column; }
       .nav-center { flex-direction:column;gap:1.2rem;max-width:none; }
@@ -52,6 +51,8 @@
     
     <div class="content">
       <i class="fas fa-house page-icon"></i>
+      <div class="welcome-text" id="welcomeText">Welcome</div>
+      <div class="user-info" id="userInfo"></div>
       <h2 class="page-title">home</h2>
       <div class="page-hint">index.html</div>
     </div>
@@ -66,5 +67,53 @@
       <a href="search.html" class="nav-search"><i class="fas fa-search"></i></a>
     </div></nav>
   </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+    const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
+    const db = getFirestore(app);
+
+    async function checkAuth() {
+      const currentUser = localStorage.getItem('currentUser');
+      const welcomeText = document.getElementById('welcomeText');
+      const userInfo = document.getElementById('userInfo');
+
+      // No user in localStorage → redirect to login
+      if (!currentUser) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      // Check Firestore database
+      try {
+        const q = query(collection(db, 'users'), where('username', '==', currentUser));
+        const snap = await getDocs(q);
+
+        if (snap.empty) {
+          // Not in database → clear and redirect
+          localStorage.removeItem('currentUser');
+          localStorage.removeItem('userProfile');
+          window.location.href = 'login.html';
+          return;
+        }
+
+        // User found → show welcome
+        const userData = snap.docs[0].data();
+        welcomeText.textContent = 'Welcome back!';
+        userInfo.textContent = '✅ ' + userData.username;
+        userInfo.style.color = '#4ade80';
+
+      } catch (e) {
+        // Firebase error → allow localStorage fallback
+        welcomeText.textContent = 'Welcome back!';
+        userInfo.textContent = '✅ ' + currentUser;
+        userInfo.style.color = '#4ade80';
+      }
+    }
+
+    checkAuth();
+  </script>
 </body>
 </html>

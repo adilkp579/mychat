@@ -33,20 +33,26 @@
     .toast { position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:0.5rem 1rem;border-radius:2rem;font-size:0.7rem;z-index:400;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap; }
     .toast.show { opacity:1; }
 
+    /* ===== COPY PASTE FROM INDEX.HTML EXACTLY ===== */
     .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6);z-index:100; }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
     .nav-center a { color:rgba(255,255,255,0.6);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;position:relative; }
     .nav-center a::before { content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:4px;height:4px;border-radius:50%;background:#fff;transition:all 0.3s; }
     .nav-center a.active::before { transform:translateX(-50%) scale(1); }
     .nav-center a.active { color:#fff;background:rgba(255,255,255,0.15);backdrop-filter:blur(10px); }
+    .nav-upload, .nav-search { display:none !important; }
 
-    @media (max-width:380px) { .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem}.nav-center a{font-size:1.1rem;width:2rem;height:2rem} }
     @media (min-width:1024px) {
-      .floating-nav{top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column}
-      .nav-center{flex-direction:column;gap:1.2rem;max-width:none}.nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
-      .nav-center a::before{bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0)}.nav-center a.active::before{transform:translateY(-50%) scale(1)}
-      .reel-wrapper{padding-bottom:0;margin-left:5rem}.actions-bar{right:2rem}
+      .nav-upload, .nav-search { display:flex !important; }
+      .floating-nav { top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column; }
+      .nav-center { flex-direction:column;gap:1.2rem;max-width:none; }
+      .nav-center a { font-size:1.4rem;width:2.6rem;height:2.6rem; }
+      .nav-center a::before { bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0); }
+      .nav-center a.active::before { transform:translateY(-50%) scale(1); }
+      .reel-wrapper { padding-bottom:0;margin-left:6rem; }
+      .actions-bar { right:2rem; }
     }
+    @media (max-width:380px) { .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem}.nav-center a{font-size:1.1rem;width:2rem;height:2rem} }
   </style>
 </head>
 <body>
@@ -60,6 +66,8 @@
       <a href="reel.html" class="active"><i class="fas fa-film"></i></a>
       <a href="chat.html"><i class="fas fa-comment-dots"></i></a>
       <a href="profile.html"><i class="fas fa-user"></i></a>
+      <a href="upload.html" class="nav-upload"><i class="fas fa-plus"></i></a>
+      <a href="search.html" class="nav-search"><i class="fas fa-search"></i></a>
     </div></nav>
   </div>
 
@@ -98,45 +106,16 @@
         </div>
       `).join('');
       
-      setTimeout(() => {
-        const v = document.getElementById('video0');
-        if (v) { v.play(); document.getElementById('overlay0').style.display='none'; }
-      }, 500);
+      setTimeout(() => { const v=document.getElementById('video0'); if(v){v.play();document.getElementById('overlay0').style.display='none';} },500);
       
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          const idx = entry.target.id.replace('slide','');
-          const video = document.getElementById('video'+idx);
-          const overlay = document.getElementById('overlay'+idx);
-          if (entry.isIntersecting) { if(video){video.play();if(overlay)overlay.style.display='none';} }
-          else { if(video){video.pause();if(overlay)overlay.style.display='flex';} }
-        });
-      }, { threshold: 0.6 });
-      document.querySelectorAll('.reel-slide').forEach(s => observer.observe(s));
+      const observer=new IntersectionObserver((entries)=>{entries.forEach(entry=>{const idx=entry.target.id.replace('slide','');const video=document.getElementById('video'+idx);const overlay=document.getElementById('overlay'+idx);if(entry.isIntersecting){if(video){video.play();if(overlay)overlay.style.display='none';}}else{if(video){video.pause();if(overlay)overlay.style.display='flex';}}});},{threshold:0.6});
+      document.querySelectorAll('.reel-slide').forEach(s=>observer.observe(s));
     }
 
-    window.togglePlay = function(i) {
-      const v = document.getElementById('video'+i), o = document.getElementById('overlay'+i);
-      v.paused ? (v.play(), o.style.display='none') : (v.pause(), o.style.display='flex');
-    };
-    window.toggleLike = function(i) {
-      allReels[i].liked = !allReels[i].liked;
-      allReels[i].likes += allReels[i].liked ? 1 : -1;
-      document.getElementById('likes'+i).textContent = allReels[i].likes;
-      const btns = document.querySelectorAll('.action-btn');
-      const lb = btns[i * 3];
-      lb.classList.toggle('liked', allReels[i].liked);
-      lb.querySelector('i').className = allReels[i].liked ? 'fas fa-heart' : 'far fa-heart';
-      showToast(allReels[i].liked ? 'Liked! ❤️' : 'Unliked');
-    };
-    window.shareReel = async function(url) {
-      if (navigator.share) { try { await navigator.share({ title:'Check this reel!', url }); } catch(e) {} }
-      else { try { await navigator.clipboard.writeText(url); showToast('Link copied! 📋'); } catch(e) {} }
-    };
-    window.showToast = function(msg) {
-      const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
-      clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2000);
-    };
+    window.togglePlay=function(i){const v=document.getElementById('video'+i),o=document.getElementById('overlay'+i);v.paused?(v.play(),o.style.display='none'):(v.pause(),o.style.display='flex');};
+    window.toggleLike=function(i){allReels[i].liked=!allReels[i].liked;allReels[i].likes+=allReels[i].liked?1:-1;document.getElementById('likes'+i).textContent=allReels[i].likes;const btns=document.querySelectorAll('.action-btn');const lb=btns[i*3];lb.classList.toggle('liked',allReels[i].liked);lb.querySelector('i').className=allReels[i].liked?'fas fa-heart':'far fa-heart';showToast(allReels[i].liked?'Liked! ❤️':'Unliked');};
+    window.shareReel=async function(url){if(navigator.share){try{await navigator.share({title:'Check this reel!',url});}catch(e){}}else{try{await navigator.clipboard.writeText(url);showToast('Link copied! 📋');}catch(e){}}};
+    window.showToast=function(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2000);};
 
     renderReels();
   </script>

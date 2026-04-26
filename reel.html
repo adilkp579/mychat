@@ -30,10 +30,16 @@
     
     .play-overlay { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:4rem;color:rgba(255,255,255,0.4);pointer-events:none;z-index:5; }
 
+    .empty-state { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;color:#555; }
+    .empty-state i { font-size:3rem;display:block;margin-bottom:0.5rem; }
+
     .toast { position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:0.5rem 1rem;border-radius:2rem;font-size:0.7rem;z-index:400;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap; }
     .toast.show { opacity:1; }
 
-    /* ===== COPY PASTE FROM INDEX.HTML EXACTLY ===== */
+    .loading-overlay { position:absolute;top:0;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:50; }
+    .loading-overlay i { font-size:2rem;color:#3897f0;animation:spin 1s linear infinite; }
+    @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
     .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6);z-index:100; }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
     .nav-center a { color:rgba(255,255,255,0.6);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;position:relative; }
@@ -57,7 +63,9 @@
 </head>
 <body>
   <div class="page">
-    <div class="reel-wrapper" id="reelWrapper"></div>
+    <div class="reel-wrapper" id="reelWrapper">
+      <div class="loading-overlay" id="loadingOverlay"><i class="fas fa-spinner"></i></div>
+    </div>
     <div class="toast" id="toast"></div>
 
     <nav class="floating-nav"><div class="nav-center">
@@ -71,15 +79,66 @@
     </div></nav>
   </div>
 
-  <script>
-    const allReels = [
-      { id:'d1', username:'@traveler', caption:'Beautiful sunset 🌅 #nature', src:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4', likes:245, comments:18, liked:false },
-      { id:'d2', username:'@dancer_pro', caption:'New dance moves 💃🔥', src:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4', likes:520, comments:42, liked:false },
-      { id:'d3', username:'@chef_master', caption:'Quick recipe 🍳 #food', src:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4', likes:189, comments:12, liked:false },
-    ];
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+    const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
+    const db = getFirestore(app);
+
+    let allReels = [];
+
+    async function loadReels() {
+      try {
+        // Fetch reel type posts from Firestore
+        const q = query(collection(db, 'posts'), where('type', '==', 'reel'), orderBy('createdAt', 'desc'));
+        const snap = await getDocs(q);
+        
+        snap.forEach(doc => {
+          const d = doc.data();
+          if (d.data || d.url) {
+            allReels.push({
+              id: doc.id,
+              username: d.userId || '@user',
+              caption: d.fileName || d.caption || 'Reel',
+              src: d.data || d.url,
+              likes: d.likes || 0,
+              comments: 0,
+              liked: false
+            });
+          }
+        });
+      } catch(e) {
+        console.log('Firestore fetch error:', e);
+      }
+
+      // Also check localStorage for user's own reels
+      const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+      const localReels = (profile.posts || []).filter(p => p.type === 'video');
+      localReels.forEach(p => {
+        if (!allReels.find(r => r.src === p.src)) {
+          allReels.unshift({
+            id: 'local_' + Date.now(),
+            username: profile.username || '@user',
+            caption: '',
+            src: p.src,
+            likes: 0,
+            comments: 0,
+            liked: false
+          });
+        }
+      });
+    }
 
     function renderReels() {
       const wrapper = document.getElementById('reelWrapper');
+      document.getElementById('loadingOverlay').style.display = 'none';
+      
+      if (allReels.length === 0) {
+        wrapper.innerHTML = '<div class="empty-state"><i class="fas fa-film"></i><p>No reels yet</p><p style="font-size:0.7rem;margin-top:0.5rem;">Share your first reel!</p></div>';
+        return;
+      }
+
       wrapper.innerHTML = allReels.map((reel, i) => `
         <div class="reel-slide" id="slide${i}">
           <video id="video${i}" src="${reel.src}" muted loop playsinline preload="metadata" onclick="togglePlay(${i})"></video>
@@ -106,18 +165,66 @@
         </div>
       `).join('');
       
-      setTimeout(() => { const v=document.getElementById('video0'); if(v){v.play();document.getElementById('overlay0').style.display='none';} },500);
+      // Auto-play first video
+      setTimeout(() => {
+        const v = document.getElementById('video0');
+        if (v) { v.play(); document.getElementById('overlay0').style.display = 'none'; }
+      }, 500);
       
-      const observer=new IntersectionObserver((entries)=>{entries.forEach(entry=>{const idx=entry.target.id.replace('slide','');const video=document.getElementById('video'+idx);const overlay=document.getElementById('overlay'+idx);if(entry.isIntersecting){if(video){video.play();if(overlay)overlay.style.display='none';}}else{if(video){video.pause();if(overlay)overlay.style.display='flex';}}});},{threshold:0.6});
-      document.querySelectorAll('.reel-slide').forEach(s=>observer.observe(s));
+      // Intersection Observer for auto-play/pause
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          const idx = entry.target.id.replace('slide', '');
+          const video = document.getElementById('video' + idx);
+          const overlay = document.getElementById('overlay' + idx);
+          if (entry.isIntersecting) {
+            if (video) { video.play(); if (overlay) overlay.style.display = 'none'; }
+          } else {
+            if (video) { video.pause(); if (overlay) overlay.style.display = 'flex'; }
+          }
+        });
+      }, { threshold: 0.6 });
+      
+      document.querySelectorAll('.reel-slide').forEach(s => observer.observe(s));
     }
 
-    window.togglePlay=function(i){const v=document.getElementById('video'+i),o=document.getElementById('overlay'+i);v.paused?(v.play(),o.style.display='none'):(v.pause(),o.style.display='flex');};
-    window.toggleLike=function(i){allReels[i].liked=!allReels[i].liked;allReels[i].likes+=allReels[i].liked?1:-1;document.getElementById('likes'+i).textContent=allReels[i].likes;const btns=document.querySelectorAll('.action-btn');const lb=btns[i*3];lb.classList.toggle('liked',allReels[i].liked);lb.querySelector('i').className=allReels[i].liked?'fas fa-heart':'far fa-heart';showToast(allReels[i].liked?'Liked! ❤️':'Unliked');};
-    window.shareReel=async function(url){if(navigator.share){try{await navigator.share({title:'Check this reel!',url});}catch(e){}}else{try{await navigator.clipboard.writeText(url);showToast('Link copied! 📋');}catch(e){}}};
-    window.showToast=function(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2000);};
+    window.togglePlay = function(i) {
+      const v = document.getElementById('video' + i), o = document.getElementById('overlay' + i);
+      v.paused ? (v.play(), o.style.display = 'none') : (v.pause(), o.style.display = 'flex');
+    };
 
-    renderReels();
+    window.toggleLike = function(i) {
+      allReels[i].liked = !allReels[i].liked;
+      allReels[i].likes += allReels[i].liked ? 1 : -1;
+      document.getElementById('likes' + i).textContent = allReels[i].likes;
+      const btns = document.querySelectorAll('.action-btn');
+      const lb = btns[i * 3];
+      lb.classList.toggle('liked', allReels[i].liked);
+      lb.querySelector('i').className = allReels[i].liked ? 'fas fa-heart' : 'far fa-heart';
+      showToast(allReels[i].liked ? 'Liked! ❤️' : 'Unliked');
+    };
+
+    window.shareReel = async function(url) {
+      if (navigator.share) {
+        try { await navigator.share({ title: 'Check this reel!', url }); } catch(e) {}
+      } else {
+        try { await navigator.clipboard.writeText(url); showToast('Link copied! 📋'); } catch(e) {}
+      }
+    };
+
+    window.showToast = function(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2000);
+    };
+
+    // Initialize
+    async function init() {
+      await loadReels();
+      renderReels();
+    }
+
+    init();
   </script>
 </body>
 </html>

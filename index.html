@@ -38,6 +38,9 @@
     .live-badge { position:absolute;bottom:14px;left:50%;transform:translateX(-50%);background:#ef4444;color:#fff;font-size:0.45rem;padding:1px 5px;border-radius:4px;font-weight:600;letter-spacing:0.5px;z-index:5; }
     .add-story-icon { font-size:1.2rem;color:#3897f0; }
 
+    /* Show first 4 stories by default, rest scrollable */
+    .stories-bar.show-first .story-item:nth-child(n+5) { opacity:0.4; }
+
     .feed-section { width:100%;max-width:500px;flex-shrink:0; }
     .feed-card { width:100%;background:#000;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:1rem; }
     .feed-header { display:flex;align-items:center;gap:0.6rem;padding:0.6rem 0.8rem;cursor:pointer; }
@@ -62,7 +65,6 @@
     .nav-center a.active { color:#fff;background:rgba(255,255,255,0.15);backdrop-filter:blur(10px); }
     .nav-upload, .nav-search { display:none !important; }
 
-    /* Loading overlay */
     .loading-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:500; }
     .loading-overlay i { font-size:2rem;color:#3897f0;animation:spin 1s linear infinite; }
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
@@ -78,7 +80,6 @@
   </style>
 </head>
 <body>
-  <!-- Loading screen shown while checking auth -->
   <div class="loading-overlay" id="loadingOverlay"><i class="fas fa-spinner"></i></div>
 
   <div class="page" id="mainPage" style="display:none;">
@@ -115,63 +116,33 @@
 
     async function checkAuth() {
       const currentUser = localStorage.getItem('currentUser');
-
-      // No user at all → redirect to login
-      if (!currentUser) {
-        window.location.href = 'login.html';
-        return false;
-      }
-
-      // Verify user exists in database
+      if (!currentUser) { window.location.href = 'login.html'; return false; }
       try {
         const q = query(collection(db, 'users'), where('username', '==', currentUser));
         const snap = await getDocs(q);
-
-        if (snap.empty) {
-          // User not in database → clear and redirect
-          localStorage.removeItem('currentUser');
-          localStorage.removeItem('userProfile');
-          window.location.href = 'login.html';
-          return false;
-        }
-
-        // User verified → show page
+        if (snap.empty) { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; return false; }
         return true;
-
-      } catch (e) {
-        // Firebase error → allow access with localStorage
-        console.warn('Auth check failed, using localStorage:', e);
-        return true;
-      }
+      } catch(e) { return true; }
     }
 
-    async function init() {
-      const authorized = await checkAuth();
-      if (!authorized) return; // Redirected to login
-
-      // Hide loading, show page
-      document.getElementById('loadingOverlay').style.display = 'none';
-      document.getElementById('mainPage').style.display = 'flex';
-
-      // Render stories & feed
-      renderStories();
-      renderFeed();
-    }
-
-    const stories = [
-      { name:'Live Now', type:'live', icon:'fa-circle', live:true },
-      { name:'@alexsmith', type:'friend', icon:'fa-user', live:false },
-      { name:'@sarah_j', type:'friend', icon:'fa-user', live:false },
-      { name:'@mike_travel', type:'bestie', icon:'fa-user', live:false },
-      { name:'@emma_photos', type:'friend', icon:'fa-user', live:false },
-      { name:'@lisa_art', type:'bestie', icon:'fa-user', live:false },
-      { name:'@tom_adventures', type:'bestie', icon:'fa-user', live:false },
-      { name:'Your Story', type:'mystory', icon:'fa-plus', live:false, add:true },
+    // Priority order: Live NOW first, then 2 friends, then Your Story
+    const allStories = [
+      { name:'Live Now', type:'live', icon:'fa-circle', live:true, priority:1 },
+      { name:'@alexsmith', type:'friend', icon:'fa-user', live:false, priority:2 },
+      { name:'@sarah_j', type:'friend', icon:'fa-user', live:false, priority:3 },
+      { name:'@mike_travel', type:'bestie', icon:'fa-user', live:false, priority:5 },
+      { name:'@emma_photos', type:'friend', icon:'fa-user', live:false, priority:6 },
+      { name:'@lisa_art', type:'bestie', icon:'fa-user', live:false, priority:7 },
+      { name:'@tom_adventures', type:'bestie', icon:'fa-user', live:false, priority:8 },
+      { name:'Your Story', type:'mystory', icon:'fa-plus', live:false, add:true, priority:4 },
     ];
+
+    // Sort by priority: Live first, then 2 friends, then Your Story, then rest
+    allStories.sort((a, b) => a.priority - b.priority);
 
     function renderStories() {
       const bar = document.getElementById('storiesBar');
-      bar.innerHTML = stories.map(s => `
+      bar.innerHTML = allStories.map(s => `
         <div class="story-item" onclick="openStory('${s.name}', '${s.type}')">
           <div class="story-ring ${s.type}">
             <div class="story-avatar${s.live?' live-bg':''}"><i class="fas ${s.icon}${s.add?' add-story-icon':''}"></i></div>
@@ -214,6 +185,15 @@
           <div class="feed-caption"><span>${p.userId}</span>${p.caption}</div>
         </div>
       `).join('');
+    }
+
+    async function init() {
+      const ok = await checkAuth();
+      if (!ok) return;
+      document.getElementById('loadingOverlay').style.display = 'none';
+      document.getElementById('mainPage').style.display = 'flex';
+      renderStories();
+      renderFeed();
     }
 
     init();

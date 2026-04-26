@@ -25,7 +25,6 @@
     .story-ring.live { background: linear-gradient(45deg, #ef4444, #dc2626, #ef4444); animation: livePulse 1.5s ease-in-out infinite; }
     .story-ring.friend { background: linear-gradient(45deg, #f59e0b, #ef4444, #e91e63); }
     .story-ring.bestie { background: linear-gradient(45deg, #8b5cf6, #ec4899, #f59e0b); }
-    .story-ring.mystory { background: linear-gradient(45deg, #333, #555); }
     
     @keyframes livePulse { 
       0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.8), 0 0 8px rgba(239,68,68,0.4); } 
@@ -36,10 +35,6 @@
     .story-avatar.live-bg { background:#ef4444; }
     .story-name { font-size:0.6rem;color:#ccc;max-width:65px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
     .live-badge { position:absolute;bottom:14px;left:50%;transform:translateX(-50%);background:#ef4444;color:#fff;font-size:0.45rem;padding:1px 5px;border-radius:4px;font-weight:600;letter-spacing:0.5px;z-index:5; }
-    .add-story-icon { font-size:1.2rem;color:#3897f0; }
-
-    /* Show first 4 stories by default, rest scrollable */
-    .stories-bar.show-first .story-item:nth-child(n+5) { opacity:0.4; }
 
     .feed-section { width:100%;max-width:500px;flex-shrink:0; }
     .feed-card { width:100%;background:#000;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:1rem; }
@@ -125,27 +120,22 @@
       } catch(e) { return true; }
     }
 
-    // Priority order: Live NOW first, then 2 friends, then Your Story
-    const allStories = [
-      { name:'Live Now', type:'live', icon:'fa-circle', live:true, priority:1 },
-      { name:'@alexsmith', type:'friend', icon:'fa-user', live:false, priority:2 },
-      { name:'@sarah_j', type:'friend', icon:'fa-user', live:false, priority:3 },
-      { name:'@mike_travel', type:'bestie', icon:'fa-user', live:false, priority:5 },
-      { name:'@emma_photos', type:'friend', icon:'fa-user', live:false, priority:6 },
-      { name:'@lisa_art', type:'bestie', icon:'fa-user', live:false, priority:7 },
-      { name:'@tom_adventures', type:'bestie', icon:'fa-user', live:false, priority:8 },
-      { name:'Your Story', type:'mystory', icon:'fa-plus', live:false, add:true, priority:4 },
+    const stories = [
+      { name:'Live Now', type:'live', icon:'fa-circle', live:true },
+      { name:'@alexsmith', type:'friend', icon:'fa-user', live:false },
+      { name:'@sarah_j', type:'friend', icon:'fa-user', live:false },
+      { name:'@mike_travel', type:'bestie', icon:'fa-user', live:false },
+      { name:'@emma_photos', type:'friend', icon:'fa-user', live:false },
+      { name:'@lisa_art', type:'bestie', icon:'fa-user', live:false },
+      { name:'@tom_adventures', type:'bestie', icon:'fa-user', live:false },
     ];
-
-    // Sort by priority: Live first, then 2 friends, then Your Story, then rest
-    allStories.sort((a, b) => a.priority - b.priority);
 
     function renderStories() {
       const bar = document.getElementById('storiesBar');
-      bar.innerHTML = allStories.map(s => `
+      bar.innerHTML = stories.map(s => `
         <div class="story-item" onclick="openStory('${s.name}', '${s.type}')">
           <div class="story-ring ${s.type}">
-            <div class="story-avatar${s.live?' live-bg':''}"><i class="fas ${s.icon}${s.add?' add-story-icon':''}"></i></div>
+            <div class="story-avatar${s.live?' live-bg':''}"><i class="fas ${s.icon}"></i></div>
           </div>
           ${s.live?'<div class="live-badge">LIVE</div>':''}
           <span class="story-name">${s.name}</span>
@@ -155,7 +145,6 @@
 
     window.openStory = function(name, type) {
       if (type === 'live') window.location.href = 'web.html';
-      else if (name === 'Your Story') window.location.href = 'upload.html';
       else alert('📷 Viewing story of ' + name);
     };
 

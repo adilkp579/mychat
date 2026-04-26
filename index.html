@@ -123,7 +123,6 @@
       } catch(e) { return currentUser; }
     }
 
-    // Fetch real live users from Firestore
     async function loadLiveUsers() {
       try {
         const snap = await getDocs(collection(db, 'live'));
@@ -136,7 +135,6 @@
       } catch(e) { return []; }
     }
 
-    // Fetch real friends/besties from user's profile
     async function loadProfileStories(username) {
       try {
         const ref = doc(db, 'profiles', username.replace('@', ''));
@@ -148,7 +146,6 @@
           return [...friends, ...besties];
         }
       } catch(e) {}
-      // Fallback to localStorage
       const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
       const friends = (profile.friends || []).map(f => ({ name: f.name, type: 'friend', icon: 'fa-user', live: false }));
       const besties = (profile.besties || []).map(b => ({ name: b.name, type: 'bestie', icon: 'fa-user', live: false }));
@@ -160,7 +157,6 @@
       const currentUser = localStorage.getItem('currentUser') || '@user';
       const profileStories = await loadProfileStories(currentUser);
       
-      // Remove duplicates
       const liveNames = new Set(liveUsers.map(l => l.name));
       const filteredProfileStories = profileStories.filter(p => !liveNames.has(p.name));
       
@@ -194,7 +190,6 @@
       else alert('📷 Viewing story of ' + name);
     };
 
-    // Real posts from Firestore or localStorage
     async function loadPosts() {
       try {
         const snap = await getDocs(query(collection(db, 'posts'), where('type', '==', 'post')));
@@ -214,7 +209,6 @@
         });
         if (posts.length > 0) return posts;
       } catch(e) {}
-      // Fallback to localStorage
       const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
       return (profile.posts || []).filter(p => p.type === 'image').map(p => ({
         userId: profile.username || '@user',

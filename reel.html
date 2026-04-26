@@ -81,16 +81,16 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, collection, query, where, getDocs, orderBy, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
 
     let allReels = [];
 
-    async function loadReels() {
+    async function loadAllReels() {
       try {
-        // Fetch reel type posts from Firestore
+        // Fetch ALL reel type posts from Firestore (no user filter)
         const q = query(collection(db, 'posts'), where('type', '==', 'reel'), orderBy('createdAt', 'desc'));
         const snap = await getDocs(q);
         
@@ -103,7 +103,7 @@
               caption: d.fileName || d.caption || 'Reel',
               src: d.data || d.url,
               likes: d.likes || 0,
-              comments: 0,
+              comments: d.comments || 0,
               liked: false
             });
           }
@@ -112,7 +112,7 @@
         console.log('Firestore fetch error:', e);
       }
 
-      // Also check localStorage for user's own reels
+      // Also merge localStorage reels from all profiles
       const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
       const localReels = (profile.posts || []).filter(p => p.type === 'video');
       localReels.forEach(p => {
@@ -135,7 +135,7 @@
       document.getElementById('loadingOverlay').style.display = 'none';
       
       if (allReels.length === 0) {
-        wrapper.innerHTML = '<div class="empty-state"><i class="fas fa-film"></i><p>No reels yet</p><p style="font-size:0.7rem;margin-top:0.5rem;">Share your first reel!</p></div>';
+        wrapper.innerHTML = '<div class="empty-state"><i class="fas fa-film"></i><p>No reels yet</p><p style="font-size:0.7rem;margin-top:0.5rem;">Be the first to share a reel!</p></div>';
         return;
       }
 
@@ -193,7 +193,7 @@
       v.paused ? (v.play(), o.style.display = 'none') : (v.pause(), o.style.display = 'flex');
     };
 
-    window.toggleLike = function(i) {
+    window.toggleLike = async function(i) {
       allReels[i].liked = !allReels[i].liked;
       allReels[i].likes += allReels[i].liked ? 1 : -1;
       document.getElementById('likes' + i).textContent = allReels[i].likes;
@@ -202,6 +202,14 @@
       lb.classList.toggle('liked', allReels[i].liked);
       lb.querySelector('i').className = allReels[i].liked ? 'fas fa-heart' : 'far fa-heart';
       showToast(allReels[i].liked ? 'Liked! ❤️' : 'Unliked');
+      
+      // Save like to Firestore (only for real reels, not localStorage ones)
+      if (!allReels[i].id.startsWith('local_')) {
+        try {
+          const ref = doc(db, 'posts', allReels[i].id);
+          await updateDoc(ref, { likes: increment(allReels[i].liked ? 1 : -1) });
+        } catch(e) {}
+      }
     };
 
     window.shareReel = async function(url) {
@@ -220,7 +228,7 @@
 
     // Initialize
     async function init() {
-      await loadReels();
+      await loadAllReels();
       renderReels();
     }
 

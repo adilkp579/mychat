@@ -14,7 +14,7 @@
     .content::-webkit-scrollbar { width:0; }
 
     .top-icons { width:100%;max-width:500px;display:flex;justify-content:space-between;padding:0.8rem 0.8rem 0.3rem 0.8rem;flex-shrink:0; }
-    .corner-btn { width:2.4rem;height:2.4rem;background:rgba(0,0,0,0.5);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:50%;color:#fff;font-size:1rem;display:flex;align-items:center;justify-content:center;text-decoration:none;border:1px solid rgba(255,255,255,0.2);transition:all 0.3s; }
+    .corner-btn { width:2.4rem;height:2.4rem;background:rgba(0,0,0,0.5);backdrop-filter:blur(20px);border-radius:50%;color:#fff;font-size:1rem;display:flex;align-items:center;justify-content:center;text-decoration:none;border:1px solid rgba(255,255,255,0.2);transition:all 0.3s; }
     
     .stories-section { width:100%;max-width:500px;flex-shrink:0;background:#000; }
     .stories-bar { display:flex;gap:0.8rem;padding:0.3rem 0.8rem 0.5rem 0.8rem;overflow-x:auto;border-bottom:1px solid rgba(255,255,255,0.06); }
@@ -35,6 +35,8 @@
     .story-avatar.live-bg { background:#ef4444; }
     .story-name { font-size:0.6rem;color:#ccc;max-width:65px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
     .live-badge { position:absolute;bottom:14px;left:50%;transform:translateX(-50%);background:#ef4444;color:#fff;font-size:0.45rem;padding:1px 5px;border-radius:4px;font-weight:600;letter-spacing:0.5px;z-index:5; }
+
+    .no-stories { padding:0.5rem 0.8rem;color:#555;font-size:0.7rem;text-align:center;width:100%; }
 
     .feed-section { width:100%;max-width:500px;flex-shrink:0; }
     .feed-card { width:100%;background:#000;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:1rem; }
@@ -86,6 +88,7 @@
       
       <div class="stories-section">
         <div class="stories-bar" id="storiesBar"></div>
+        <div class="no-stories" id="noStories" style="display:none;">No recent stories</div>
       </div>
       
       <div class="feed-section" id="feedContainer"></div>
@@ -104,23 +107,23 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
 
     async function checkAuth() {
       const currentUser = localStorage.getItem('currentUser');
-      if (!currentUser) { window.location.href = 'login.html'; return false; }
+      if (!currentUser) { window.location.href = 'login.html'; return null; }
       try {
         const q = query(collection(db, 'users'), where('username', '==', currentUser));
         const snap = await getDocs(q);
-        if (snap.empty) { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; return false; }
-        return true;
-      } catch(e) { return true; }
+        if (snap.empty) { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; return null; }
+        return currentUser;
+      } catch(e) { return currentUser; }
     }
 
-    // Fetch live users from Firestore
+    // Fetch real live users from Firestore
     async function loadLiveUsers() {
       try {
         const snap = await getDocs(collection(db, 'live'));
@@ -133,21 +136,48 @@
       } catch(e) { return []; }
     }
 
+    // Fetch real friends/besties from user's profile
+    async function loadProfileStories(username) {
+      try {
+        const ref = doc(db, 'profiles', username.replace('@', ''));
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          const data = snap.data();
+          const friends = (data.friends || []).map(f => ({ name: f.name, type: 'friend', icon: 'fa-user', live: false }));
+          const besties = (data.besties || []).map(b => ({ name: b.name, type: 'bestie', icon: 'fa-user', live: false }));
+          return [...friends, ...besties];
+        }
+      } catch(e) {}
+      // Fallback to localStorage
+      const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+      const friends = (profile.friends || []).map(f => ({ name: f.name, type: 'friend', icon: 'fa-user', live: false }));
+      const besties = (profile.besties || []).map(b => ({ name: b.name, type: 'bestie', icon: 'fa-user', live: false }));
+      return [...friends, ...besties];
+    }
+
     async function renderStories() {
       const liveUsers = await loadLiveUsers();
+      const currentUser = localStorage.getItem('currentUser') || '@user';
+      const profileStories = await loadProfileStories(currentUser);
       
-      const baseStories = [
-        { name:'@alexsmith', type:'friend', icon:'fa-user', live:false },
-        { name:'@sarah_j', type:'friend', icon:'fa-user', live:false },
-        { name:'@mike_travel', type:'bestie', icon:'fa-user', live:false },
-        { name:'@emma_photos', type:'friend', icon:'fa-user', live:false },
-        { name:'@lisa_art', type:'bestie', icon:'fa-user', live:false },
-        { name:'@tom_adventures', type:'bestie', icon:'fa-user', live:false },
-      ];
+      // Remove duplicates
+      const liveNames = new Set(liveUsers.map(l => l.name));
+      const filteredProfileStories = profileStories.filter(p => !liveNames.has(p.name));
       
-      const allStories = [...liveUsers, ...baseStories];
+      const allStories = [...liveUsers, ...filteredProfileStories];
       
       const bar = document.getElementById('storiesBar');
+      const noStories = document.getElementById('noStories');
+      
+      if (allStories.length === 0) {
+        bar.style.display = 'none';
+        noStories.style.display = 'block';
+        return;
+      }
+      
+      bar.style.display = 'flex';
+      noStories.style.display = 'none';
+      
       bar.innerHTML = allStories.map(s => `
         <div class="story-item" onclick="openStory('${s.name}', '${s.type}')">
           <div class="story-ring ${s.type}">
@@ -164,15 +194,47 @@
       else alert('📷 Viewing story of ' + name);
     };
 
-    const posts = [
-      { userId:'@traveler', caption:'Beautiful sunset 🌅', src:'https://picsum.photos/seed/sunset/400/400', likes:124, time:'2h ago', location:'Maldives' },
-      { userId:'@dancer_pro', caption:'Morning vibes ✨', src:'https://picsum.photos/seed/morning/400/400', likes:89, time:'4h ago', location:'' },
-      { userId:'@chef_master', caption:'Homemade pasta 🍝', src:'https://picsum.photos/seed/pasta/400/400', likes:256, time:'6h ago', location:'Italian Kitchen' },
-      { userId:'@traveler', caption:'Mountain hiking 🏔️', src:'https://picsum.photos/seed/mountain/400/400', likes:178, time:'8h ago', location:'Alps' },
-    ];
+    // Real posts from Firestore or localStorage
+    async function loadPosts() {
+      try {
+        const snap = await getDocs(query(collection(db, 'posts'), where('type', '==', 'post')));
+        const posts = [];
+        snap.forEach(doc => {
+          const d = doc.data();
+          if (d.data || d.url) {
+            posts.push({
+              userId: d.userId || '@user',
+              caption: d.fileName || d.caption || '',
+              src: d.data || d.url,
+              likes: d.likes || Math.floor(Math.random()*100),
+              time: 'Recently',
+              location: ''
+            });
+          }
+        });
+        if (posts.length > 0) return posts;
+      } catch(e) {}
+      // Fallback to localStorage
+      const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+      return (profile.posts || []).filter(p => p.type === 'image').map(p => ({
+        userId: profile.username || '@user',
+        caption: '',
+        src: p.src,
+        likes: 0,
+        time: 'Recently',
+        location: ''
+      }));
+    }
 
-    function renderFeed() {
+    async function renderFeed() {
+      const posts = await loadPosts();
       const container = document.getElementById('feedContainer');
+      
+      if (posts.length === 0) {
+        container.innerHTML = '<div style="text-align:center;color:#555;padding:3rem;">No posts yet</div>';
+        return;
+      }
+      
       container.innerHTML = posts.map(p => `
         <div class="feed-card">
           <div class="feed-header" onclick="window.location.href='profile.html'">
@@ -193,12 +255,12 @@
     }
 
     async function init() {
-      const ok = await checkAuth();
-      if (!ok) return;
+      const user = await checkAuth();
+      if (!user) return;
       document.getElementById('loadingOverlay').style.display = 'none';
       document.getElementById('mainPage').style.display = 'flex';
       await renderStories();
-      renderFeed();
+      await renderFeed();
     }
 
     init();

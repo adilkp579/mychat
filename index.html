@@ -10,16 +10,49 @@
     body { background:#000;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center; }
     .page { width:100%;height:100vh;height:100dvh;background:#000;display:flex;flex-direction:column;position:relative;overflow:hidden; }
     
-    .top-left { position:absolute;top:max(1rem,env(safe-area-inset-top,1rem));left:max(1rem,env(safe-area-inset-left,1rem));z-index:200; }
-    .top-right { position:absolute;top:max(1rem,env(safe-area-inset-top,1rem));right:max(1rem,env(safe-area-inset-right,1rem));z-index:200; }
-    .corner-btn { width:2.4rem;height:2.4rem;background:rgba(255,255,255,0.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:50%;color:#fff;font-size:1rem;display:flex;align-items:center;justify-content:center;text-decoration:none;border:1px solid rgba(255,255,255,0.15);transition:all 0.3s; }
+    .content { flex:1;display:flex;flex-direction:column;align-items:center;color:#fff;padding:0 0 6rem 0;overflow-y:auto; }
+    .content::-webkit-scrollbar { width:0; }
+
+    .top-icons { width:100%;max-width:500px;display:flex;justify-content:space-between;padding:0.8rem 0.8rem 0.3rem 0.8rem;flex-shrink:0; }
+    .corner-btn { width:2.4rem;height:2.4rem;background:rgba(0,0,0,0.5);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:50%;color:#fff;font-size:1rem;display:flex;align-items:center;justify-content:center;text-decoration:none;border:1px solid rgba(255,255,255,0.2);transition:all 0.3s; }
     
-    .content { flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;padding:3rem 1.5rem 6rem 1.5rem;text-align:center; }
-    .page-icon { font-size:3rem;margin-bottom:1rem;opacity:0.8; }
-    .page-title { font-size:1.8rem;font-weight:500;text-transform:lowercase; }
-    .page-hint { color:#999;font-size:0.8rem;border-top:1px solid rgba(255,255,255,0.1);padding-top:1rem;margin-top:1rem;width:80%; }
-    .welcome-text { font-size:1.5rem;font-weight:500;margin-bottom:0.5rem; }
-    .user-info { font-size:0.9rem;color:#4ade80;margin-bottom:1rem; }
+    .stories-section { width:100%;max-width:500px;flex-shrink:0;background:#000; }
+    .stories-bar { display:flex;gap:0.8rem;padding:0.3rem 0.8rem 0.5rem 0.8rem;overflow-x:auto;border-bottom:1px solid rgba(255,255,255,0.06); }
+    .stories-bar::-webkit-scrollbar { height:0; }
+    
+    .story-item { display:flex;flex-direction:column;align-items:center;gap:0.25rem;cursor:pointer;flex-shrink:0;position:relative; }
+    .story-ring { width:62px;height:62px;border-radius:50%;padding:2px;display:flex;align-items:center;justify-content:center;position:relative; }
+    .story-ring.live { background: linear-gradient(45deg, #ef4444, #dc2626, #ef4444); animation: livePulse 1.5s ease-in-out infinite; }
+    .story-ring.friend { background: linear-gradient(45deg, #f59e0b, #ef4444, #e91e63); }
+    .story-ring.bestie { background: linear-gradient(45deg, #8b5cf6, #ec4899, #f59e0b); }
+    .story-ring.mystory { background: linear-gradient(45deg, #333, #555); }
+    
+    @keyframes livePulse { 
+      0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.8), 0 0 8px rgba(239,68,68,0.4); } 
+      50% { box-shadow: 0 0 0 6px rgba(239,68,68,0), 0 0 16px rgba(239,68,68,0.6); } 
+    }
+    
+    .story-avatar { width:54px;height:54px;border-radius:50%;background:#222;display:flex;align-items:center;justify-content:center;font-size:1.3rem;border:2px solid #000;color:#fff;overflow:hidden; }
+    .story-avatar.live-bg { background:#ef4444; }
+    .story-name { font-size:0.6rem;color:#ccc;max-width:65px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+    .live-badge { position:absolute;bottom:14px;left:50%;transform:translateX(-50%);background:#ef4444;color:#fff;font-size:0.45rem;padding:1px 5px;border-radius:4px;font-weight:600;letter-spacing:0.5px;z-index:5; }
+    .add-story-icon { font-size:1.2rem;color:#3897f0; }
+
+    .feed-section { width:100%;max-width:500px;flex-shrink:0; }
+    .feed-card { width:100%;background:#000;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:1rem; }
+    .feed-header { display:flex;align-items:center;gap:0.6rem;padding:0.6rem 0.8rem;cursor:pointer; }
+    .feed-avatar { width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;font-size:0.8rem; }
+    .feed-username { font-size:0.8rem;font-weight:600; }
+    .feed-location { font-size:0.6rem;color:#888; }
+    .feed-time { font-size:0.6rem;color:#888;margin-left:auto; }
+    .feed-image { width:100%;aspect-ratio:1/1;object-fit:cover;background:#111;display:flex;align-items:center;justify-content:center;color:#333; }
+    .feed-image img { width:100%;height:100%;object-fit:cover; }
+    .feed-actions { display:flex;gap:1.2rem;padding:0.6rem 0.8rem; }
+    .feed-action { background:none;border:none;color:#fff;font-size:1.2rem;cursor:pointer;padding:0;transition:all 0.2s; }
+    .feed-action.liked { color:#ef4444; }
+    .feed-likes { font-size:0.7rem;font-weight:600;padding:0 0.8rem;margin-bottom:0.2rem; }
+    .feed-caption { padding:0 0.8rem 0.6rem 0.8rem;font-size:0.75rem; }
+    .feed-caption span { font-weight:600;margin-right:0.3rem; }
 
     .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6);z-index:100; }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
@@ -29,32 +62,37 @@
     .nav-center a.active { color:#fff;background:rgba(255,255,255,0.15);backdrop-filter:blur(10px); }
     .nav-upload, .nav-search { display:none !important; }
 
+    /* Loading overlay */
+    .loading-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:500; }
+    .loading-overlay i { font-size:2rem;color:#3897f0;animation:spin 1s linear infinite; }
+    @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
     @media (min-width:1024px) {
-      .top-left, .top-right { display:none; }
-      .nav-upload, .nav-search { display:flex !important; }
-      .floating-nav { top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column; }
-      .nav-center { flex-direction:column;gap:1.2rem;max-width:none; }
-      .nav-center a { font-size:1.4rem;width:2.6rem;height:2.6rem; }
-      .nav-center a::before { bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0); }
-      .nav-center a.active::before { transform:translateY(-50%) scale(1); }
-      .content { padding:5rem 3rem 3rem 6rem; }
-      .page-icon { font-size:4.5rem; }
-      .page-title { font-size:2.5rem; }
+      .top-icons{display:none}.nav-upload,.nav-search{display:flex!important}
+      .floating-nav{top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column}
+      .nav-center{flex-direction:column;gap:1.2rem;max-width:none}.nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
+      .nav-center a::before{bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0)}.nav-center a.active::before{transform:translateY(-50%) scale(1)}
+      .content{padding:0.5rem 0 1rem 5.5rem}.stories-section{max-width:550px}.feed-section{max-width:550px}
     }
-    @media (max-width:380px) { .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem}.nav-center a{font-size:1.1rem;width:2rem;height:2rem}.corner-btn{width:2rem;height:2rem;font-size:0.9rem} }
+    @media (max-width:380px) { .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem}.nav-center a{font-size:1.1rem;width:2rem;height:2rem}.corner-btn{width:2rem;height:2rem;font-size:0.9rem}.story-ring{width:54px;height:54px}.story-avatar{width:46px;height:46px;font-size:1.1rem} }
   </style>
 </head>
 <body>
-  <div class="page">
-    <div class="top-left"><a href="upload.html" class="corner-btn"><i class="fas fa-plus"></i></a></div>
-    <div class="top-right"><a href="search.html" class="corner-btn"><i class="fas fa-search"></i></a></div>
-    
+  <!-- Loading screen shown while checking auth -->
+  <div class="loading-overlay" id="loadingOverlay"><i class="fas fa-spinner"></i></div>
+
+  <div class="page" id="mainPage" style="display:none;">
     <div class="content">
-      <i class="fas fa-house page-icon"></i>
-      <div class="welcome-text" id="welcomeText">Welcome</div>
-      <div class="user-info" id="userInfo"></div>
-      <h2 class="page-title">home</h2>
-      <div class="page-hint">index.html</div>
+      <div class="top-icons">
+        <a href="upload.html" class="corner-btn"><i class="fas fa-plus"></i></a>
+        <a href="search.html" class="corner-btn"><i class="fas fa-search"></i></a>
+      </div>
+      
+      <div class="stories-section">
+        <div class="stories-bar" id="storiesBar"></div>
+      </div>
+      
+      <div class="feed-section" id="feedContainer"></div>
     </div>
 
     <nav class="floating-nav"><div class="nav-center">
@@ -77,43 +115,108 @@
 
     async function checkAuth() {
       const currentUser = localStorage.getItem('currentUser');
-      const welcomeText = document.getElementById('welcomeText');
-      const userInfo = document.getElementById('userInfo');
 
-      // No user in localStorage → redirect to login
+      // No user at all → redirect to login
       if (!currentUser) {
         window.location.href = 'login.html';
-        return;
+        return false;
       }
 
-      // Check Firestore database
+      // Verify user exists in database
       try {
         const q = query(collection(db, 'users'), where('username', '==', currentUser));
         const snap = await getDocs(q);
 
         if (snap.empty) {
-          // Not in database → clear and redirect
+          // User not in database → clear and redirect
           localStorage.removeItem('currentUser');
           localStorage.removeItem('userProfile');
           window.location.href = 'login.html';
-          return;
+          return false;
         }
 
-        // User found → show welcome
-        const userData = snap.docs[0].data();
-        welcomeText.textContent = 'Welcome back!';
-        userInfo.textContent = '✅ ' + userData.username;
-        userInfo.style.color = '#4ade80';
+        // User verified → show page
+        return true;
 
       } catch (e) {
-        // Firebase error → allow localStorage fallback
-        welcomeText.textContent = 'Welcome back!';
-        userInfo.textContent = '✅ ' + currentUser;
-        userInfo.style.color = '#4ade80';
+        // Firebase error → allow access with localStorage
+        console.warn('Auth check failed, using localStorage:', e);
+        return true;
       }
     }
 
-    checkAuth();
+    async function init() {
+      const authorized = await checkAuth();
+      if (!authorized) return; // Redirected to login
+
+      // Hide loading, show page
+      document.getElementById('loadingOverlay').style.display = 'none';
+      document.getElementById('mainPage').style.display = 'flex';
+
+      // Render stories & feed
+      renderStories();
+      renderFeed();
+    }
+
+    const stories = [
+      { name:'Live Now', type:'live', icon:'fa-circle', live:true },
+      { name:'@alexsmith', type:'friend', icon:'fa-user', live:false },
+      { name:'@sarah_j', type:'friend', icon:'fa-user', live:false },
+      { name:'@mike_travel', type:'bestie', icon:'fa-user', live:false },
+      { name:'@emma_photos', type:'friend', icon:'fa-user', live:false },
+      { name:'@lisa_art', type:'bestie', icon:'fa-user', live:false },
+      { name:'@tom_adventures', type:'bestie', icon:'fa-user', live:false },
+      { name:'Your Story', type:'mystory', icon:'fa-plus', live:false, add:true },
+    ];
+
+    function renderStories() {
+      const bar = document.getElementById('storiesBar');
+      bar.innerHTML = stories.map(s => `
+        <div class="story-item" onclick="openStory('${s.name}', '${s.type}')">
+          <div class="story-ring ${s.type}">
+            <div class="story-avatar${s.live?' live-bg':''}"><i class="fas ${s.icon}${s.add?' add-story-icon':''}"></i></div>
+          </div>
+          ${s.live?'<div class="live-badge">LIVE</div>':''}
+          <span class="story-name">${s.name}</span>
+        </div>
+      `).join('');
+    }
+
+    window.openStory = function(name, type) {
+      if (type === 'live') window.location.href = 'web.html';
+      else if (name === 'Your Story') window.location.href = 'upload.html';
+      else alert('📷 Viewing story of ' + name);
+    };
+
+    const posts = [
+      { userId:'@traveler', caption:'Beautiful sunset 🌅', src:'https://picsum.photos/seed/sunset/400/400', likes:124, time:'2h ago', location:'Maldives' },
+      { userId:'@dancer_pro', caption:'Morning vibes ✨', src:'https://picsum.photos/seed/morning/400/400', likes:89, time:'4h ago', location:'' },
+      { userId:'@chef_master', caption:'Homemade pasta 🍝', src:'https://picsum.photos/seed/pasta/400/400', likes:256, time:'6h ago', location:'Italian Kitchen' },
+      { userId:'@traveler', caption:'Mountain hiking 🏔️', src:'https://picsum.photos/seed/mountain/400/400', likes:178, time:'8h ago', location:'Alps' },
+    ];
+
+    function renderFeed() {
+      const container = document.getElementById('feedContainer');
+      container.innerHTML = posts.map(p => `
+        <div class="feed-card">
+          <div class="feed-header" onclick="window.location.href='profile.html'">
+            <div class="feed-avatar"><i class="fas fa-user"></i></div>
+            <div><div class="feed-username">${p.userId}</div>${p.location?`<div class="feed-location">${p.location}</div>`:''}</div>
+            <span class="feed-time">${p.time}</span>
+          </div>
+          <div class="feed-image"><img src="${p.src}" alt="post" onerror="this.style.display='none'"></div>
+          <div class="feed-actions">
+            <button class="feed-action liked" onclick="this.classList.toggle('liked')"><i class="fas fa-heart"></i></button>
+            <button class="feed-action"><i class="far fa-comment"></i></button>
+            <button class="feed-action" onclick="navigator.share?navigator.share({url:'${p.src}'}):navigator.clipboard.writeText('${p.src}')"><i class="far fa-share-square"></i></button>
+          </div>
+          <div class="feed-likes">${p.likes} likes</div>
+          <div class="feed-caption"><span>${p.userId}</span>${p.caption}</div>
+        </div>
+      `).join('');
+    }
+
+    init();
   </script>
 </body>
 </html>

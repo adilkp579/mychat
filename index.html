@@ -120,19 +120,35 @@
       } catch(e) { return true; }
     }
 
-    const stories = [
-      { name:'Live Now', type:'live', icon:'fa-circle', live:true },
-      { name:'@alexsmith', type:'friend', icon:'fa-user', live:false },
-      { name:'@sarah_j', type:'friend', icon:'fa-user', live:false },
-      { name:'@mike_travel', type:'bestie', icon:'fa-user', live:false },
-      { name:'@emma_photos', type:'friend', icon:'fa-user', live:false },
-      { name:'@lisa_art', type:'bestie', icon:'fa-user', live:false },
-      { name:'@tom_adventures', type:'bestie', icon:'fa-user', live:false },
-    ];
+    // Fetch live users from Firestore
+    async function loadLiveUsers() {
+      try {
+        const snap = await getDocs(collection(db, 'live'));
+        const liveUsers = [];
+        snap.forEach(doc => {
+          const d = doc.data();
+          if (d.active) liveUsers.push({ name: d.userId, type: 'live', icon: 'fa-circle', live: true });
+        });
+        return liveUsers;
+      } catch(e) { return []; }
+    }
 
-    function renderStories() {
+    async function renderStories() {
+      const liveUsers = await loadLiveUsers();
+      
+      const baseStories = [
+        { name:'@alexsmith', type:'friend', icon:'fa-user', live:false },
+        { name:'@sarah_j', type:'friend', icon:'fa-user', live:false },
+        { name:'@mike_travel', type:'bestie', icon:'fa-user', live:false },
+        { name:'@emma_photos', type:'friend', icon:'fa-user', live:false },
+        { name:'@lisa_art', type:'bestie', icon:'fa-user', live:false },
+        { name:'@tom_adventures', type:'bestie', icon:'fa-user', live:false },
+      ];
+      
+      const allStories = [...liveUsers, ...baseStories];
+      
       const bar = document.getElementById('storiesBar');
-      bar.innerHTML = stories.map(s => `
+      bar.innerHTML = allStories.map(s => `
         <div class="story-item" onclick="openStory('${s.name}', '${s.type}')">
           <div class="story-ring ${s.type}">
             <div class="story-avatar${s.live?' live-bg':''}"><i class="fas ${s.icon}"></i></div>
@@ -181,7 +197,7 @@
       if (!ok) return;
       document.getElementById('loadingOverlay').style.display = 'none';
       document.getElementById('mainPage').style.display = 'flex';
-      renderStories();
+      await renderStories();
       renderFeed();
     }
 

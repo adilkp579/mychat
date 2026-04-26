@@ -185,9 +185,13 @@
       `).join('');
     }
 
+    // Open story - LIVE goes to live.html
     window.openStory = function(name, type) {
-      if (type === 'live') window.location.href = 'web.html';
-      else alert('📷 Viewing story of ' + name);
+      if (type === 'live') {
+        window.location.href = 'live.html?user=' + encodeURIComponent(name);
+      } else {
+        alert('📷 Viewing story of ' + name);
+      }
     };
 
     async function loadPosts() {

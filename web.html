@@ -13,6 +13,7 @@
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
     @keyframes livePulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.7)} 50%{box-shadow:0 0 0 10px rgba(239,68,68,0)} }
+    @keyframes greenPulse { 0%,100%{box-shadow:0 0 0 0 rgba(74,222,128,0.7)} 50%{box-shadow:0 0 0 10px rgba(74,222,128,0)} }
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
     .online-counter { display:flex;align-items:center;gap:0.3rem;color:#4ade80;font-size:0.65rem;padding:0.2rem 0; }
     .online-dot { width:5px;height:5px;background:#4ade80;border-radius:50%;animation:blink 2s infinite; }
@@ -40,7 +41,6 @@
     .audio-indicator.speaking .audio-bar { background: #fbbf24; animation: audioWave 0.3s ease infinite; }
     @keyframes audioWave { 0%,100% { transform: scaleY(1); } 50% { transform: scaleY(2); } }
     
-    /* Live status indicator */
     .live-status {
       display: none;
       align-items: center;
@@ -75,10 +75,23 @@
     .mic-button.visible { display:flex;align-items:center;justify-content:center; }
     .mic-button.muted { color:#ef4444;background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.4); }
     
-    .live-button { width:80px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#ef4444; }
-    .live-button:hover { background:rgba(239,68,68,0.3); }
-    .live-button.live-active-btn { animation:livePulse 2s infinite; background:rgba(239,68,68,0.3); }
-    .live-button.ended { animation:none; background:rgba(255,255,255,0.08); color:#ccc; border-color:rgba(255,255,255,0.2); }
+    /* LIVE button - GREEN when not live */
+    .live-button { 
+      width:80px;
+      background:rgba(74,222,128,0.15);
+      border:1px solid rgba(74,222,128,0.4);
+      color:#4ade80;
+      transition: all 0.3s;
+    }
+    .live-button:hover { background:rgba(74,222,128,0.3); }
+    
+    /* LIVE button - RED when live is active */
+    .live-button.live-active-btn { 
+      background:rgba(239,68,68,0.25);
+      border-color:rgba(239,68,68,0.6);
+      color:#ef4444;
+      animation:livePulse 2s infinite;
+    }
 
     .loading-screen { position:fixed;top:0;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:0.5rem; }
     .loading-screen i { font-size:2rem;color:#3897f0;animation:spin 1s infinite; }
@@ -116,7 +129,6 @@
     <div class="content">
       <div class="online-counter"><div class="online-dot"></div><span id="onlineCount">0 online</span></div>
       
-      <!-- Live status indicator -->
       <div class="live-status" id="liveStatus">
         <i class="fas fa-circle"></i> LIVE • <span id="liveViewerCount">0</span> watching
       </div>
@@ -220,6 +232,17 @@
         ]
       };
 
+      // Update LIVE button UI
+      function updateLiveButton() {
+        if (isLive) {
+          liveBtn.innerHTML = '<i class="fas fa-stop-circle"></i><span>END</span>';
+          liveBtn.classList.add('live-active-btn');
+        } else {
+          liveBtn.innerHTML = '<i class="fas fa-circle"></i><span>LIVE</span>';
+          liveBtn.classList.remove('live-active-btn');
+        }
+      }
+
       // ===== LIVE START =====
       async function startLive() {
         if (!localStream) {
@@ -228,8 +251,8 @@
         }
 
         isLive = true;
+        updateLiveButton();
         
-        // Save live status to Firestore
         await setDoc(doc(db, 'live', liveUserId), {
           userId: currentUser,
           active: true,
@@ -238,13 +261,9 @@
           hasStranger: !!strangerStream
         });
 
-        // Update UI
-        liveBtn.innerHTML = '<i class="fas fa-stop-circle"></i><span>END</span>';
-        liveBtn.classList.add('live-active-btn');
         strangerCamera.classList.add('live-active');
         liveStatus.classList.add('show');
 
-        // Listen for viewers
         const viewersRef = collection(db, 'live_viewers');
         liveUnsub = onSnapshot(viewersRef, (snap) => {
           snap.docChanges().forEach(async (change) => {
@@ -261,9 +280,7 @@
           });
         });
 
-        // Update viewer count periodically
         updateLiveViewerCount();
-        
         console.log('🔴 LIVE started by:', currentUser);
       }
 
@@ -271,14 +288,12 @@
         try {
           const vpc = new RTCPeerConnection(servers);
           
-          // Add host's camera
           if (localStream) {
             localStream.getTracks().forEach(track => {
               vpc.addTrack(track, localStream);
             });
           }
           
-          // Add stranger's video if available
           if (strangerStream) {
             strangerStream.getTracks().forEach(track => {
               if (track.readyState === 'live') {
@@ -341,8 +356,8 @@
       // ===== LIVE END =====
       async function endLive() {
         isLive = false;
+        updateLiveButton();
 
-        // Close all viewer connections
         Object.keys(liveViewers).forEach(id => {
           if (liveViewers[id]) {
             liveViewers[id].close();
@@ -350,7 +365,6 @@
         });
         liveViewers = {};
 
-        // Notify viewers that stream ended
         try {
           const viewersSnap = await getDocs(collection(db, 'live_viewers'));
           viewersSnap.forEach(async (docSnap) => {
@@ -363,18 +377,13 @@
           });
         } catch(e) {}
 
-        // Delete live status
         await deleteDoc(doc(db, 'live', liveUserId)).catch(() => {});
 
-        // Unsubscribe from viewers
         if (liveUnsub) {
           liveUnsub();
           liveUnsub = null;
         }
 
-        // Update UI
-        liveBtn.innerHTML = '<i class="fas fa-circle"></i><span>LIVE</span>';
-        liveBtn.classList.remove('live-active-btn');
         strangerCamera.classList.remove('live-active');
         liveStatus.classList.remove('show');
         liveViewerCount.textContent = '0';
@@ -474,7 +483,6 @@
             strangerPlaceholder.style.display='none';
             strangerCamera.classList.add('connected');
             
-            // Push stranger to live viewers if live is active
             if(isLive) {
               Object.values(liveViewers).forEach(vpc => {
                 try {
@@ -595,7 +603,6 @@
         deleteDoc(doc(db,'waiting',myId)).catch(()=>{});
         deleteDoc(doc(db,'invites',myId)).catch(()=>{});
         
-        // End live if active
         if(isLive){endLive();}
         
         resetStranger(); stopCamera(); showDisconnected();
@@ -606,7 +613,6 @@
       nextBtn.addEventListener('click',()=>{stopChat();setTimeout(startChat,500);});
       micBtn.addEventListener('click',toggleMute);
       
-      // Handle page unload
       window.addEventListener('beforeunload', () => {
         if(isLive) {
           endLive().catch(()=>{});

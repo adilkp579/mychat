@@ -26,6 +26,17 @@
     .error { color:#ef4444; }
     .toast { position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#4ade80;color:#000;padding:0.5rem 1.2rem;border-radius:2rem;font-size:0.75rem;z-index:400;opacity:0;transition:all 0.3s;font-weight:600; }
     .toast.show { opacity:1; }
+    
+    /* Loading Screen */
+    .loading-screen {
+      position:fixed;top:0;left:0;right:0;bottom:0;background:#000;
+      display:flex;align-items:center;justify-content:center;z-index:500;
+      flex-direction:column;gap:1rem;
+    }
+    .loading-screen i { font-size:2.5rem;color:#3897f0;animation:spin 1s infinite; }
+    .loading-screen span { color:#888;font-size:0.85rem; }
+    @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
     .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6);z-index:100; }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
     .nav-center a { color:rgba(255,255,255,0.6);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;position:relative; }
@@ -37,7 +48,13 @@
   </style>
 </head>
 <body>
-  <div class="page">
+  <!-- Loading Screen -->
+  <div class="loading-screen" id="loadingScreen">
+    <i class="fas fa-spinner"></i>
+    <span>Checking authentication...</span>
+  </div>
+
+  <div class="page" id="mainPage" style="display:none;">
     <div class="content" id="mainContent">
       <h2 style="font-weight:500;">Create</h2>
       <div class="upload-card post" onclick="selectType('post')"><i class="fas fa-image"></i><h3>Post</h3><p>Upload a photo</p></div>
@@ -65,7 +82,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp, setDoc, doc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, setDoc, doc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     const app = initializeApp({
       apiKey: "AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",
@@ -74,6 +91,40 @@
     });
     const db = getFirestore(app);
     console.log('✅ Firestore ready');
+
+    // ===== AUTHENTICATION CHECK =====
+    async function checkAuth() {
+      const currentUser = localStorage.getItem('currentUser');
+      
+      if (!currentUser) {
+        // No user in localStorage - redirect to login
+        window.location.href = 'login.html';
+        return false;
+      }
+
+      try {
+        // Check if user exists in Firestore database
+        const q = query(collection(db, 'users'), where('username', '==', currentUser));
+        const snap = await getDocs(q);
+        
+        if (snap.empty) {
+          // User NOT in database - clear localStorage and redirect
+          localStorage.removeItem('currentUser');
+          localStorage.removeItem('userProfile');
+          window.location.href = 'login.html';
+          return false;
+        }
+        
+        // User EXISTS in database - allow access
+        console.log('✅ User authenticated:', currentUser);
+        return true;
+        
+      } catch (e) {
+        console.error('Auth check error:', e);
+        // If Firebase fails, allow localStorage fallback
+        return !!currentUser;
+      }
+    }
 
     // Test write permission first
     async function testWrite() {
@@ -87,7 +138,6 @@
         return false;
       }
     }
-    testWrite();
 
     let selectedType = null, fileData = null;
 
@@ -124,32 +174,51 @@
 
     window.saveToCloud = async function() {
       if(!fileData) return;
+      
+      // Double-check authentication before saving
+      const currentUser = localStorage.getItem('currentUser');
+      if (!currentUser) {
+        showToast('Please login first! 🔐');
+        setTimeout(() => window.location.href = 'login.html', 1500);
+        return;
+      }
+      
       const btn = document.getElementById('saveBtn');
       const status = document.getElementById('saveStatus');
       btn.disabled = true; btn.textContent = 'Saving...'; status.textContent = '';
       
       try {
-        const userId = localStorage.getItem('userId') || 'user_' + crypto.randomUUID();
-        localStorage.setItem('userId', userId);
+        const userId = currentUser; // Use actual username instead of random ID
         
-        // Save to Firestore
+        // Save to Firestore with username
         const docRef = await addDoc(collection(db, 'posts'), {
-          userId, type: selectedType, data: fileData, createdAt: serverTimestamp()
+          userId: userId,
+          type: selectedType,
+          data: fileData,
+          caption: '',
+          likes: 0,
+          comments: 0,
+          createdAt: serverTimestamp()
         });
         console.log('✅ Saved with ID:', docRef.id);
         
-        // Also save to localStorage
+        // Also save to localStorage profile
         const profile = JSON.parse(localStorage.getItem('userProfile')||'{}');
         if(!profile.posts) profile.posts = [];
-        profile.posts.unshift({ type: selectedType==='post'?'image':'video', src: fileData });
+        profile.posts.unshift({ 
+          type: selectedType==='post'?'image':'video', 
+          src: fileData,
+          id: docRef.id,
+          createdAt: new Date().toISOString()
+        });
         localStorage.setItem('userProfile', JSON.stringify(profile));
         
         status.textContent = 'Saved! ✅';
         status.className = 'status';
-        showToast('Uploaded! 🎉');
-        setTimeout(goBack, 1000);
+        showToast('Uploaded successfully! 🎉');
+        setTimeout(goBack, 1500);
       } catch(e) {
-        console.error(e);
+        console.error('Save error:', e);
         status.textContent = 'Error: ' + e.message;
         status.className = 'status error';
       }
@@ -169,6 +238,25 @@
       t.textContent=msg; t.classList.add('show');
       clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2000);
     }
+
+    // ===== INITIALIZATION =====
+    async function init() {
+      // Check authentication first
+      const isAuthenticated = await checkAuth();
+      
+      if (!isAuthenticated) {
+        return; // Already redirected to login
+      }
+      
+      // Test write permissions
+      await testWrite();
+      
+      // Hide loading, show main page
+      document.getElementById('loadingScreen').style.display = 'none';
+      document.getElementById('mainPage').style.display = 'flex';
+    }
+
+    init();
   </script>
 </body>
 </html>

@@ -36,9 +36,35 @@
     .toast { position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:0.5rem 1rem;border-radius:2rem;font-size:0.7rem;z-index:400;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap; }
     .toast.show { opacity:1; }
 
+    /* Loading Screen */
+    .loading-screen {
+      position:fixed;top:0;left:0;right:0;bottom:0;background:#000;
+      display:flex;align-items:center;justify-content:center;z-index:500;
+      flex-direction:column;gap:1rem;
+    }
+    .loading-screen i { font-size:2.5rem;color:#3897f0;animation:spin 1s infinite; }
+    .loading-screen span { color:#888;font-size:0.85rem; }
+    @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+    
     .loading-overlay { position:absolute;top:0;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:50;flex-direction:column;gap:0.5rem; }
     .loading-overlay i { font-size:2rem;color:#3897f0;animation:spin 1s linear infinite; }
-    @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+    
+    /* Auth Required Overlay */
+    .auth-required {
+      position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);
+      display:none;align-items:center;justify-content:center;z-index:400;
+      flex-direction:column;gap:1.5rem;padding:2rem;
+    }
+    .auth-required.show { display:flex; }
+    .auth-required i { font-size:4rem;color:#fbbf24; }
+    .auth-required h3 { color:#fff;font-size:1.1rem;text-align:center; }
+    .auth-required p { color:#888;font-size:0.8rem;text-align:center; }
+    .auth-required button {
+      padding:0.7rem 2rem;border-radius:2rem;border:none;background:#3897f0;
+      color:#fff;font-size:0.85rem;font-weight:600;cursor:pointer;
+      transition:all 0.3s;
+    }
+    .auth-required button:hover { background:#2563eb; }
 
     .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6);z-index:100; }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
@@ -59,7 +85,22 @@
   </style>
 </head>
 <body>
-  <div class="page">
+  <!-- Loading Screen -->
+  <div class="loading-screen" id="loadingScreen">
+    <i class="fas fa-spinner"></i>
+    <span>Checking authentication...</span>
+  </div>
+
+  <!-- Auth Required Overlay -->
+  <div class="auth-required" id="authRequired">
+    <i class="fas fa-lock"></i>
+    <h3>Login Required</h3>
+    <p>You need to be logged in to watch reels</p>
+    <button onclick="window.location.href='login.html'">Go to Login</button>
+  </div>
+
+  <!-- Main Page -->
+  <div class="page" id="mainPage" style="display:none;">
     <div class="reel-wrapper" id="reelWrapper">
       <div class="loading-overlay" id="loadingOverlay"><i class="fas fa-spinner"></i></div>
     </div>
@@ -78,18 +119,63 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, collection, query, getDocs, orderBy, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, collection, query, getDocs, orderBy, doc, updateDoc, increment, where } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
 
     let allReels = [];
 
+    // ===== AUTH CHECK =====
+    async function checkAuth() {
+      const currentUser = localStorage.getItem('currentUser');
+      
+      if (!currentUser) {
+        showAuthRequired();
+        return false;
+      }
+
+      try {
+        // Verify user exists in Firestore
+        const q = query(collection(db, 'users'), where('username', '==', currentUser));
+        const snap = await getDocs(q);
+        
+        if (snap.empty) {
+          // User not found in database
+          localStorage.removeItem('currentUser');
+          localStorage.removeItem('userProfile');
+          showAuthRequired();
+          return false;
+        }
+        
+        // User is authenticated
+        return true;
+        
+      } catch (e) {
+        console.error('Auth check error:', e);
+        // Allow access if Firebase check fails (fallback to localStorage)
+        return true;
+      }
+    }
+
+    function showAuthRequired() {
+      document.getElementById('loadingScreen').style.display = 'none';
+      document.getElementById('authRequired').classList.add('show');
+      document.getElementById('mainPage').style.display = 'none';
+    }
+
+    function showMainPage() {
+      document.getElementById('loadingScreen').style.display = 'none';
+      document.getElementById('authRequired').classList.remove('show');
+      document.getElementById('mainPage').style.display = 'flex';
+    }
+
+    // ===== LOAD REELS =====
     async function loadUserReels() {
       console.log('🔍 Loading user reels...');
       
       try {
-        // Get ALL posts, filter video content client-side
+        // Get ALL posts, filter video content
         const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
         const snap = await getDocs(q);
         console.log('📡 Total posts in Firestore:', snap.size);
@@ -177,22 +263,125 @@
               <span>Share</span>
             </button>
           </div>
-          <div class="caption-bar"><div class="caption-text">${reel.caption}</div></div>
+          <div class="caption-bar"><div class="caption-text">${reel.caption || ''}</div></div>
         </div>
       `).join('');
       
-      setTimeout(() => { const v=document.getElementById('video0'); if(v){v.play();document.getElementById('overlay0').style.display='none';} },500);
+      // Auto-play first video
+      setTimeout(() => { 
+        const v = document.getElementById('video0'); 
+        if(v) {
+          v.play();
+          document.getElementById('overlay0').style.display='none';
+        }
+      }, 500);
       
-      const observer=new IntersectionObserver((entries)=>{entries.forEach(entry=>{const idx=entry.target.id.replace('slide','');const video=document.getElementById('video'+idx);const overlay=document.getElementById('overlay'+idx);if(entry.isIntersecting){if(video){video.play();if(overlay)overlay.style.display='none';}}else{if(video){video.pause();if(overlay)overlay.style.display='flex';}}});},{threshold:0.6});
-      document.querySelectorAll('.reel-slide').forEach(s=>observer.observe(s));
+      // Intersection Observer for autoplay
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          const idx = entry.target.id.replace('slide', '');
+          const video = document.getElementById('video' + idx);
+          const overlay = document.getElementById('overlay' + idx);
+          
+          if (entry.isIntersecting) {
+            if (video) {
+              video.play();
+              if (overlay) overlay.style.display = 'none';
+            }
+          } else {
+            if (video) {
+              video.pause();
+              if (overlay) overlay.style.display = 'flex';
+            }
+          }
+        });
+      }, { threshold: 0.6 });
+      
+      document.querySelectorAll('.reel-slide').forEach(s => observer.observe(s));
     }
 
-    window.togglePlay=function(i){const v=document.getElementById('video'+i),o=document.getElementById('overlay'+i);v.paused?(v.play(),o.style.display='none'):(v.pause(),o.style.display='flex');};
-    window.toggleLike=async function(i){allReels[i].liked=!allReels[i].liked;allReels[i].likes+=allReels[i].liked?1:-1;document.getElementById('likes'+i).textContent=allReels[i].likes;const btns=document.querySelectorAll('.action-btn');const lb=btns[i*3];lb.classList.toggle('liked',allReels[i].liked);lb.querySelector('i').className=allReels[i].liked?'fas fa-heart':'far fa-heart';showToast(allReels[i].liked?'Liked!❤️':'Unliked');if(!allReels[i].id.startsWith('local_')){try{await updateDoc(doc(db,'posts',allReels[i].id),{likes:increment(allReels[i].liked?1:-1)});}catch(e){}}};
-    window.shareReel=async function(url){if(navigator.share){try{await navigator.share({title:'Check this reel!',url});}catch(e){}}else{try{await navigator.clipboard.writeText(url);showToast('Link copied!📋');}catch(e){}}};
-    window.showToast=function(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2000);};
+    // Global functions
+    window.togglePlay = function(i) {
+      const v = document.getElementById('video' + i);
+      const o = document.getElementById('overlay' + i);
+      if (v.paused) {
+        v.play();
+        o.style.display = 'none';
+      } else {
+        v.pause();
+        o.style.display = 'flex';
+      }
+    };
 
-    async function init(){await loadUserReels();renderReels();}
+    window.toggleLike = async function(i) {
+      allReels[i].liked = !allReels[i].liked;
+      allReels[i].likes += allReels[i].liked ? 1 : -1;
+      
+      document.getElementById('likes' + i).textContent = allReels[i].likes;
+      
+      const btns = document.querySelectorAll('.action-btn');
+      const lb = btns[i * 3];
+      lb.classList.toggle('liked', allReels[i].liked);
+      lb.querySelector('i').className = allReels[i].liked ? 'fas fa-heart' : 'far fa-heart';
+      
+      showToast(allReels[i].liked ? 'Liked! ❤️' : 'Unliked');
+      
+      if (!allReels[i].id.startsWith('local_')) {
+        try {
+          await updateDoc(doc(db, 'posts', allReels[i].id), {
+            likes: increment(allReels[i].liked ? 1 : -1)
+          });
+        } catch(e) {
+          console.log('Like update error:', e);
+        }
+      }
+    };
+
+    window.shareReel = async function(url) {
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: 'Check this reel!',
+            url: url
+          });
+        } catch(e) {
+          console.log('Share cancelled');
+        }
+      } else {
+        try {
+          await navigator.clipboard.writeText(url);
+          showToast('Link copied! 📋');
+        } catch(e) {
+          console.log('Copy failed');
+        }
+      }
+    };
+
+    window.showToast = function(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(t._t);
+      t._t = setTimeout(() => t.classList.remove('show'), 2000);
+    };
+
+    // ===== INITIALIZATION =====
+    async function init() {
+      // First check authentication
+      const isAuthenticated = await checkAuth();
+      
+      if (!isAuthenticated) {
+        return; // Auth required overlay is shown
+      }
+      
+      // Show main page
+      showMainPage();
+      
+      // Load and render reels
+      await loadUserReels();
+      renderReels();
+    }
+
     init();
   </script>
 </body>

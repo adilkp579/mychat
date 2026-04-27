@@ -29,7 +29,6 @@
     .my-placeholder { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.15rem;color:rgba(255,255,255,0.35);font-size:0.6rem; }
     .my-placeholder i { font-size:1.3rem; }
     
-    /* Audio indicator */
     .audio-indicator {
       position: absolute;
       bottom: 0.5rem;
@@ -82,8 +81,9 @@
     .mic-button.visible { display:flex;align-items:center;justify-content:center; }
     .mic-button.muted { color:#ef4444;background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.4); }
     
-    .live-button { width:80px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#ef4444;animation:livePulse 2s infinite; }
+    .live-button { width:80px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#ef4444; }
     .live-button:hover { background:rgba(239,68,68,0.3); }
+    .live-button.live-active-btn { animation:livePulse 2s infinite; background:rgba(239,68,68,0.3); }
     .live-button.ended { animation:none; background:rgba(255,255,255,0.08); color:#ccc; border-color:rgba(255,255,255,0.2); }
 
     .loading-screen { position:fixed;top:0;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:0.5rem; }
@@ -222,6 +222,8 @@
       let isMuted = false;
       let isLive = false;
       let audioContext, analyserNode, animationId;
+      let livePc = null; // Separate peer connection for live streaming
+      let liveViewers = {}; // Track live viewers
 
       const servers = {
         iceServers: [
@@ -234,7 +236,6 @@
         ], iceCandidatePoolSize: 2
       };
 
-      // Audio visualization for stranger's audio
       function setupAudioVisualization(stream) {
         if (!stream) return;
         try {
@@ -284,30 +285,168 @@
         strangerAudioIndicator.classList.remove('speaking');
       }
 
+      // ===== LIVE STREAMING FUNCTIONS =====
+      async function startLiveStreaming() {
+        if (!localStream) {
+          console.log('No local stream available');
+          return;
+        }
+
+        const currentUser = localStorage.getItem('currentUser') || '@anonymous';
+        const liveUserId = currentUser.replace('@', '');
+        
+        console.log('🔴 Starting live stream as:', currentUser);
+        
+        // Save live status to Firestore
+        await setDoc(doc(db, 'live', liveUserId), { 
+          userId: currentUser, 
+          active: true, 
+          startedAt: serverTimestamp(),
+          viewers: 0,
+          likes: 0
+        });
+
+        // Listen for viewers who want to join
+        const viewersRef = collection(db, 'live_viewers');
+        onSnapshot(viewersRef, async (snap) => {
+          snap.docChanges().forEach(async (change) => {
+            const viewerData = change.doc.data();
+            
+            if (change.type === 'added' && viewerData.liveUser === currentUser && viewerData.offer && viewerData.active) {
+              console.log('📥 New viewer wants to join:', viewerData.viewerName);
+              await handleNewViewer(change.doc.id, viewerData);
+            }
+            
+            if (change.type === 'removed') {
+              console.log('Viewer left:', change.doc.id);
+              cleanupViewer(change.doc.id);
+            }
+          });
+        });
+
+        liveBtn.classList.add('live-active-btn');
+        console.log('✅ Live stream active - waiting for viewers');
+      }
+
+      async function handleNewViewer(viewerDocId, viewerData) {
+        try {
+          // Create a new peer connection for this viewer
+          const viewerPc = new RTCPeerConnection(servers);
+          
+          // Add local stream tracks (both video and audio)
+          localStream.getTracks().forEach(track => {
+            viewerPc.addTrack(track, localStream);
+            console.log('📡 Added track to viewer PC:', track.kind);
+          });
+          
+          // Handle ICE candidates
+          viewerPc.onicecandidate = async (e) => {
+            if (e.candidate) {
+              const viewerRef = doc(db, 'live_viewers', viewerDocId);
+              const candidates = (await getDoc(viewerRef)).data()?.iceCandidates || [];
+              candidates.push(e.candidate.toJSON());
+              await setDoc(viewerRef, { iceCandidates: candidates }, { merge: true });
+            }
+          };
+          
+          // Set remote description (viewer's offer)
+          await viewerPc.setRemoteDescription(new RTCSessionDescription(viewerData.offer));
+          
+          // Create answer
+          const answer = await viewerPc.createAnswer();
+          await viewerPc.setLocalDescription(answer);
+          
+          // Send answer back to viewer
+          const viewerRef = doc(db, 'live_viewers', viewerDocId);
+          await setDoc(viewerRef, { 
+            answer: { type: answer.type, sdp: answer.sdp },
+            status: 'connected'
+          }, { merge: true });
+          
+          // Store the connection
+          liveViewers[viewerDocId] = viewerPc;
+          
+          // Update viewer count
+          const currentUser = localStorage.getItem('currentUser') || '@anonymous';
+          const liveRef = doc(db, 'live', currentUser.replace('@', ''));
+          await setDoc(liveRef, { viewers: Object.keys(liveViewers).length }, { merge: true });
+          
+          console.log('✅ Viewer connected:', viewerDocId);
+          
+        } catch (e) {
+          console.error('Error handling viewer:', e);
+        }
+      }
+
+      function cleanupViewer(viewerId) {
+        if (liveViewers[viewerId]) {
+          liveViewers[viewerId].close();
+          delete liveViewers[viewerId];
+        }
+      }
+
+      async function stopLiveStreaming() {
+        const currentUser = localStorage.getItem('currentUser') || '@anonymous';
+        const liveUserId = currentUser.replace('@', '');
+        
+        // Close all viewer connections
+        Object.keys(liveViewers).forEach(id => {
+          liveViewers[id].close();
+        });
+        liveViewers = {};
+        
+        // Notify viewers stream ended
+        const viewersSnap = await getDocs(collection(db, 'live_viewers'));
+        viewersSnap.forEach(async (docSnap) => {
+          if (docSnap.data().liveUser === currentUser) {
+            await setDoc(doc(db, 'live_viewers', docSnap.id), { 
+              streamEnded: true,
+              active: false 
+            }, { merge: true });
+          }
+        });
+        
+        // Delete live status
+        await deleteDoc(doc(db, 'live', liveUserId)).catch(() => {});
+        
+        liveBtn.classList.remove('live-active-btn');
+        console.log('🔴 Live stream stopped');
+      }
+
       window.toggleLive = async function() {
         isLive = !isLive;
         const currentUser = localStorage.getItem('currentUser') || '@anonymous';
         
         if (isLive) {
+          // Start live streaming
           liveBtn.innerHTML = '<i class="fas fa-stop-circle"></i><span>END</span>';
           liveBtn.classList.add('ended');
           strangerCamera.classList.add('live-active');
-          if(!localStream) await startCamera();
-          await setDoc(doc(db, 'live', currentUser.replace('@','')), { 
-            userId: currentUser, active: true, startedAt: serverTimestamp() 
-          });
+          
+          if(!localStream) {
+            const started = await startCamera();
+            if (!started) {
+              isLive = false;
+              liveBtn.innerHTML = '<i class="fas fa-circle"></i><span>LIVE</span>';
+              return;
+            }
+          }
+          
+          await startLiveStreaming();
+          
         } else {
+          // Stop live streaming
           liveBtn.innerHTML = '<i class="fas fa-circle"></i><span>LIVE</span>';
           liveBtn.classList.remove('ended');
           strangerCamera.classList.remove('live-active');
-          await deleteDoc(doc(db, 'live', currentUser.replace('@',''))).catch(()=>{});
+          
+          await stopLiveStreaming();
         }
       };
 
       async function startCamera() {
         try {
           if(localStream){ localStream.getTracks().forEach(t=>t.stop()); }
-          // Request both video AND audio with proper settings
           localStream = await navigator.mediaDevices.getUserMedia({ 
             video: { width:480, height:640, facingMode:'user' }, 
             audio: {
@@ -324,7 +463,6 @@
           myPlaceholder.style.display='none'; 
           myCamera.classList.add('active');
           
-          // Ensure audio track is enabled
           const audioTrack = localStream.getAudioTracks()[0];
           if (audioTrack) {
             audioTrack.enabled = !isMuted;
@@ -393,7 +531,6 @@
         
         pc = new RTCPeerConnection(servers); 
         
-        // Add ALL tracks (video + audio) to peer connection
         localStream.getTracks().forEach(track => {
           pc.addTrack(track, localStream);
           console.log('📡 Added track:', track.kind, track.enabled);
@@ -406,8 +543,6 @@
             strangerFeed.style.display='block'; 
             strangerPlaceholder.style.display='none'; 
             strangerCamera.classList.add('connected');
-            
-            // Setup audio visualization for stranger's audio
             setupAudioVisualization(e.streams[0]);
           }
         };
@@ -436,9 +571,7 @@
         unsubs.push(onSnapshot(collection(roomRef, 'ice'), (snap) => { 
           snap.docChanges().forEach(async(c) => { 
             if(c.type === 'added' && c.doc.data().sender !== myId && pc) {
-              try { 
-                await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate)); 
-              } catch(e) {} 
+              try { await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate)); } catch(e) {} 
             }
           }); 
         }));
@@ -482,15 +615,12 @@
           
           pc = new RTCPeerConnection(servers); 
           
-          // Add ALL tracks (video + audio)
           localStream.getTracks().forEach(track => {
             pc.addTrack(track, localStream);
-            console.log('📡 Added track for answer:', track.kind);
           });
           
           pc.ontrack = (e) => { 
             if(e.streams[0]) { 
-              console.log('📥 Received remote stream');
               strangerFeed.srcObject = e.streams[0]; 
               strangerFeed.style.display='block'; 
               strangerPlaceholder.style.display='none'; 
@@ -501,8 +631,7 @@
           
           pc.onicecandidate = async(e) => { 
             if(e.candidate) await addDoc(collection(roomRef, 'ice'), {
-              sender: myId, 
-              candidate: e.candidate.toJSON()
+              sender: myId, candidate: e.candidate.toJSON()
             }); 
           };
           
@@ -511,8 +640,7 @@
             const answer = await pc.createAnswer(); 
             await pc.setLocalDescription(answer); 
             await setDoc(doc(db, 'invites', myId), {
-              from: d.from, 
-              offer: d.offer, 
+              from: d.from, offer: d.offer, 
               answer: { type: answer.type, sdp: answer.sdp }
             }, { merge: true }); 
           } 
@@ -520,9 +648,7 @@
           unsubs.push(onSnapshot(collection(roomRef, 'ice'), (snap) => { 
             snap.docChanges().forEach(async(c) => { 
               if(c.type === 'added' && c.doc.data().sender !== myId && pc) {
-                try { 
-                  await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate)); 
-                } catch(e) {} 
+                try { await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate)); } catch(e) {} 
               }
             }); 
           })); 
@@ -535,16 +661,11 @@
         startBtn.querySelector('span').textContent='Searching'; 
         startBtn.querySelector('i').className='fas fa-spinner fa-spin';
         
-        if(!(await startCamera())) { 
-          showDisconnected(); 
-          return; 
-        }
+        if(!(await startCamera())) { showDisconnected(); return; }
         
         const snap = await getDocs(collection(db, 'waiting')); 
         let found = null; 
-        snap.forEach(d => { 
-          if(d.data().userId !== myId && !found) found = d.data().userId; 
-        });
+        snap.forEach(d => { if(d.data().userId !== myId && !found) found = d.data().userId; });
         
         if(found) { 
           await deleteDoc(doc(db, 'waiting', myId)).catch(()=>{}); 
@@ -565,8 +686,7 @@
         deleteDoc(doc(db, 'waiting', myId)).catch(()=>{}); 
         deleteDoc(doc(db, 'invites', myId)).catch(()=>{});
         if(isLive) { 
-          const cu = localStorage.getItem('currentUser') || '@anonymous'; 
-          deleteDoc(doc(db, 'live', cu.replace('@',''))).catch(()=>{}); 
+          stopLiveStreaming();
           isLive = false; 
           liveBtn.innerHTML='<i class="fas fa-circle"></i><span>LIVE</span>'; 
           liveBtn.classList.remove('ended'); 

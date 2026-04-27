@@ -107,7 +107,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, collection, query, where, getDocs, doc, getDoc, onSnapshot, setDoc, getDoc as getDocAlias } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
@@ -121,6 +121,15 @@
         if (snap.empty) { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; return null; }
         return currentUser;
       } catch(e) { return currentUser; }
+    }
+
+    // ===== LIVE LISTENER =====
+    function setupLiveListener() {
+      const liveRef = collection(db, 'live');
+      onSnapshot(liveRef, () => {
+        // Re-render stories when live status changes
+        renderStories();
+      });
     }
 
     async function loadLiveUsers() {
@@ -185,9 +194,10 @@
       `).join('');
     }
 
-    // Open story - LIVE goes to live.html
+    // ===== OPEN STORY / LIVE =====
     window.openStory = function(name, type) {
       if (type === 'live') {
+        // Connect to live stream
         window.location.href = 'live.html?user=' + encodeURIComponent(name);
       } else {
         alert('📷 Viewing story of ' + name);
@@ -255,8 +265,13 @@
     async function init() {
       const user = await checkAuth();
       if (!user) return;
+      
       document.getElementById('loadingOverlay').style.display = 'none';
       document.getElementById('mainPage').style.display = 'flex';
+      
+      // Setup real-time live listener
+      setupLiveListener();
+      
       await renderStories();
       await renderFeed();
     }

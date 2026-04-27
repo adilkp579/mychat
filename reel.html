@@ -16,7 +16,7 @@
     .reel-slide { width:100%;height:100%;scroll-snap-align:start;position:relative;display:flex;align-items:center;justify-content:center;background:#000; }
     .reel-slide video { width:100%;height:100%;object-fit:contain;background:#000; }
     
-    .user-tag { position:absolute;top:1rem;left:1rem;display:flex;align-items:center;gap:0.5rem;background:rgba(0,0,0,0.5);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:0.4rem 0.8rem;border-radius:1.5rem;z-index:10;border:1px solid rgba(255,255,255,0.1); }
+    .user-tag { position:absolute;top:1rem;left:1rem;display:flex;align-items:center;gap:0.5rem;background:rgba(0,0,0,0.5);backdrop-filter:blur(10px);padding:0.4rem 0.8rem;border-radius:1.5rem;z-index:10;border:1px solid rgba(255,255,255,0.1); }
     .user-tag .avatar { width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;font-size:0.7rem; }
     .user-tag .name { font-size:0.8rem;font-weight:500;color:#fff; }
     
@@ -36,7 +36,7 @@
     .toast { position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:0.5rem 1rem;border-radius:2rem;font-size:0.7rem;z-index:400;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap; }
     .toast.show { opacity:1; }
 
-    .loading-overlay { position:absolute;top:0;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:50; }
+    .loading-overlay { position:absolute;top:0;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:50;flex-direction:column;gap:0.5rem; }
     .loading-overlay i { font-size:2rem;color:#3897f0;animation:spin 1s linear infinite; }
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 
@@ -49,14 +49,11 @@
     .nav-upload, .nav-search { display:none !important; }
 
     @media (min-width:1024px) {
-      .nav-upload, .nav-search { display:flex !important; }
-      .floating-nav { top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column; }
-      .nav-center { flex-direction:column;gap:1.2rem;max-width:none; }
-      .nav-center a { font-size:1.4rem;width:2.6rem;height:2.6rem; }
-      .nav-center a::before { bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0); }
-      .nav-center a.active::before { transform:translateY(-50%) scale(1); }
-      .reel-wrapper { padding-bottom:0;margin-left:6rem; }
-      .actions-bar { right:2rem; }
+      .nav-upload,.nav-search{display:flex!important}
+      .floating-nav{top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column}
+      .nav-center{flex-direction:column;gap:1.2rem;max-width:none}.nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
+      .nav-center a::before{bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0)}.nav-center a.active::before{transform:translateY(-50%) scale(1)}
+      .reel-wrapper{padding-bottom:0;margin-left:6rem}.actions-bar{right:2rem}
     }
     @media (max-width:380px) { .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem}.nav-center a{font-size:1.1rem;width:2rem;height:2rem} }
   </style>
@@ -81,38 +78,55 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs, orderBy, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, collection, query, getDocs, orderBy, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
 
     let allReels = [];
 
-    async function loadAllReels() {
+    async function loadUserReels() {
+      console.log('🔍 Loading user reels...');
+      
       try {
-        // Fetch ALL reel type posts from Firestore (no user filter)
-        const q = query(collection(db, 'posts'), where('type', '==', 'reel'), orderBy('createdAt', 'desc'));
+        // Get ALL posts, filter video content client-side
+        const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
         const snap = await getDocs(q);
+        console.log('📡 Total posts in Firestore:', snap.size);
         
         snap.forEach(doc => {
           const d = doc.data();
-          if (d.data || d.url) {
-            allReels.push({
-              id: doc.id,
-              username: d.userId || '@user',
-              caption: d.fileName || d.caption || 'Reel',
-              src: d.data || d.url,
-              likes: d.likes || 0,
-              comments: d.comments || 0,
-              liked: false
-            });
+          const src = d.data || d.url || '';
+          const caption = d.fileName || d.caption || '';
+          
+          // Only include if it has video data
+          const isVideo = src && (
+            src.startsWith('data:video/') ||
+            (d.type === 'reel') ||
+            (d.type === 'video')
+          );
+          
+          if (isVideo) {
+            // Avoid duplicates
+            if (!allReels.find(r => r.src === src)) {
+              allReels.push({
+                id: doc.id,
+                username: d.userId || '@user',
+                caption: caption,
+                src: src,
+                likes: d.likes || 0,
+                comments: d.comments || 0,
+                liked: false
+              });
+              console.log('✅ Added reel from:', d.userId, '| type:', d.type);
+            }
           }
         });
       } catch(e) {
-        console.log('Firestore fetch error:', e);
+        console.log('❌ Firestore error:', e.message);
       }
 
-      // Also merge localStorage reels from all profiles
+      // Add user's own localStorage reels
       const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
       const localReels = (profile.posts || []).filter(p => p.type === 'video');
       localReels.forEach(p => {
@@ -128,6 +142,8 @@
           });
         }
       });
+
+      console.log('🎬 Total user reels found:', allReels.length);
     }
 
     function renderReels() {
@@ -135,7 +151,7 @@
       document.getElementById('loadingOverlay').style.display = 'none';
       
       if (allReels.length === 0) {
-        wrapper.innerHTML = '<div class="empty-state"><i class="fas fa-film"></i><p>No reels yet</p><p style="font-size:0.7rem;margin-top:0.5rem;">Be the first to share a reel!</p></div>';
+        wrapper.innerHTML = '<div class="empty-state"><i class="fas fa-film"></i><p>No reels yet</p><p style="font-size:0.7rem;margin-top:0.5rem;">Upload your first reel!</p></div>';
         return;
       }
 
@@ -165,73 +181,18 @@
         </div>
       `).join('');
       
-      // Auto-play first video
-      setTimeout(() => {
-        const v = document.getElementById('video0');
-        if (v) { v.play(); document.getElementById('overlay0').style.display = 'none'; }
-      }, 500);
+      setTimeout(() => { const v=document.getElementById('video0'); if(v){v.play();document.getElementById('overlay0').style.display='none';} },500);
       
-      // Intersection Observer for auto-play/pause
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          const idx = entry.target.id.replace('slide', '');
-          const video = document.getElementById('video' + idx);
-          const overlay = document.getElementById('overlay' + idx);
-          if (entry.isIntersecting) {
-            if (video) { video.play(); if (overlay) overlay.style.display = 'none'; }
-          } else {
-            if (video) { video.pause(); if (overlay) overlay.style.display = 'flex'; }
-          }
-        });
-      }, { threshold: 0.6 });
-      
-      document.querySelectorAll('.reel-slide').forEach(s => observer.observe(s));
+      const observer=new IntersectionObserver((entries)=>{entries.forEach(entry=>{const idx=entry.target.id.replace('slide','');const video=document.getElementById('video'+idx);const overlay=document.getElementById('overlay'+idx);if(entry.isIntersecting){if(video){video.play();if(overlay)overlay.style.display='none';}}else{if(video){video.pause();if(overlay)overlay.style.display='flex';}}});},{threshold:0.6});
+      document.querySelectorAll('.reel-slide').forEach(s=>observer.observe(s));
     }
 
-    window.togglePlay = function(i) {
-      const v = document.getElementById('video' + i), o = document.getElementById('overlay' + i);
-      v.paused ? (v.play(), o.style.display = 'none') : (v.pause(), o.style.display = 'flex');
-    };
+    window.togglePlay=function(i){const v=document.getElementById('video'+i),o=document.getElementById('overlay'+i);v.paused?(v.play(),o.style.display='none'):(v.pause(),o.style.display='flex');};
+    window.toggleLike=async function(i){allReels[i].liked=!allReels[i].liked;allReels[i].likes+=allReels[i].liked?1:-1;document.getElementById('likes'+i).textContent=allReels[i].likes;const btns=document.querySelectorAll('.action-btn');const lb=btns[i*3];lb.classList.toggle('liked',allReels[i].liked);lb.querySelector('i').className=allReels[i].liked?'fas fa-heart':'far fa-heart';showToast(allReels[i].liked?'Liked!❤️':'Unliked');if(!allReels[i].id.startsWith('local_')){try{await updateDoc(doc(db,'posts',allReels[i].id),{likes:increment(allReels[i].liked?1:-1)});}catch(e){}}};
+    window.shareReel=async function(url){if(navigator.share){try{await navigator.share({title:'Check this reel!',url});}catch(e){}}else{try{await navigator.clipboard.writeText(url);showToast('Link copied!📋');}catch(e){}}};
+    window.showToast=function(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2000);};
 
-    window.toggleLike = async function(i) {
-      allReels[i].liked = !allReels[i].liked;
-      allReels[i].likes += allReels[i].liked ? 1 : -1;
-      document.getElementById('likes' + i).textContent = allReels[i].likes;
-      const btns = document.querySelectorAll('.action-btn');
-      const lb = btns[i * 3];
-      lb.classList.toggle('liked', allReels[i].liked);
-      lb.querySelector('i').className = allReels[i].liked ? 'fas fa-heart' : 'far fa-heart';
-      showToast(allReels[i].liked ? 'Liked! ❤️' : 'Unliked');
-      
-      // Save like to Firestore (only for real reels, not localStorage ones)
-      if (!allReels[i].id.startsWith('local_')) {
-        try {
-          const ref = doc(db, 'posts', allReels[i].id);
-          await updateDoc(ref, { likes: increment(allReels[i].liked ? 1 : -1) });
-        } catch(e) {}
-      }
-    };
-
-    window.shareReel = async function(url) {
-      if (navigator.share) {
-        try { await navigator.share({ title: 'Check this reel!', url }); } catch(e) {}
-      } else {
-        try { await navigator.clipboard.writeText(url); showToast('Link copied! 📋'); } catch(e) {}
-      }
-    };
-
-    window.showToast = function(msg) {
-      const t = document.getElementById('toast');
-      t.textContent = msg; t.classList.add('show');
-      clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2000);
-    };
-
-    // Initialize
-    async function init() {
-      await loadAllReels();
-      renderReels();
-    }
-
+    async function init(){await loadUserReels();renderReels();}
     init();
   </script>
 </body>

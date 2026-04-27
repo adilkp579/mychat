@@ -28,6 +28,42 @@
     #myFeed { width:100%;height:100%;object-fit:cover;display:none;background:#000;transform:rotateY(180deg);-webkit-transform:rotateY(180deg); }
     .my-placeholder { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.15rem;color:rgba(255,255,255,0.35);font-size:0.6rem; }
     .my-placeholder i { font-size:1.3rem; }
+    
+    /* Audio indicator */
+    .audio-indicator {
+      position: absolute;
+      bottom: 0.5rem;
+      left: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: rgba(0,0,0,0.6);
+      padding: 0.2rem 0.5rem;
+      border-radius: 1rem;
+      font-size: 0.55rem;
+      z-index: 5;
+    }
+    .audio-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 12px;
+    }
+    .audio-bar {
+      width: 3px;
+      background: #4ade80;
+      border-radius: 1px;
+      transition: height 0.1s;
+    }
+    .audio-indicator.speaking .audio-bar {
+      background: #fbbf24;
+      animation: audioWave 0.3s ease infinite;
+    }
+    @keyframes audioWave {
+      0%,100% { transform: scaleY(1); }
+      50% { transform: scaleY(2); }
+    }
+    
     .camera-labels { display:flex;justify-content:space-between;width:100%;max-width:500px;padding:0 0.2rem; }
     .stranger-label-outside { color:#777;font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;margin-left:0.3rem; }
     .you-label-outside { color:#777;font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;margin-right:0.3rem; }
@@ -50,7 +86,6 @@
     .live-button:hover { background:rgba(239,68,68,0.3); }
     .live-button.ended { animation:none; background:rgba(255,255,255,0.08); color:#ccc; border-color:rgba(255,255,255,0.2); }
 
-    /* Loading screen */
     .loading-screen { position:fixed;top:0;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:0.5rem; }
     .loading-screen i { font-size:2rem;color:#3897f0;animation:spin 1s infinite; }
     .loading-screen span { font-size:0.75rem;color:#888; }
@@ -78,7 +113,6 @@
   </style>
 </head>
 <body>
-  <!-- Loading Screen -->
   <div class="loading-screen" id="loadingScreen">
     <i class="fas fa-spinner"></i>
     <span>Checking authentication...</span>
@@ -90,15 +124,25 @@
       <div class="camera-labels"><span class="stranger-label-outside">STRANGER</span><span class="you-label-outside">YOU</span></div>
       <div class="camera-container">
         <div class="stranger-camera" id="strangerCamera">
-          <video id="strangerFeed" autoplay playsinline muted></video>
+          <video id="strangerFeed" autoplay playsinline></video>
           <div class="stranger-placeholder" id="strangerPlaceholder"><i class="fas fa-user-secret"></i><span>???</span></div>
+          <div class="audio-indicator" id="strangerAudioIndicator" style="display:none;">
+            <i class="fas fa-volume-up" style="font-size:0.5rem;"></i>
+            <div class="audio-bars">
+              <div class="audio-bar" style="height:4px;"></div>
+              <div class="audio-bar" style="height:8px;"></div>
+              <div class="audio-bar" style="height:6px;"></div>
+              <div class="audio-bar" style="height:10px;"></div>
+              <div class="audio-bar" style="height:5px;"></div>
+            </div>
+          </div>
         </div>
         <div class="my-camera" id="myCamera">
           <video id="myFeed" autoplay playsinline muted></video>
           <div class="my-placeholder" id="myPlaceholder"><i class="fas fa-video"></i><span>off</span></div>
         </div>
       </div>
-      <div class="user-info" id="userInfo"><span>🌍</span><span>Waiting...</span></div>
+      <div class="user-info" id="userInfo"><span>🌍</span><span>Connected</span></div>
       <div class="buttons-container">
         <button class="btn start-button" id="startBtn"><i class="fas fa-play"></i><span>Start</span></button>
         <button class="btn live-button" id="liveBtn" onclick="toggleLive()"><i class="fas fa-circle"></i><span>LIVE</span></button>
@@ -130,52 +174,30 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // ===== AUTHENTICATION CHECK =====
     async function checkAuth() {
       const currentUser = localStorage.getItem('currentUser');
-      
-      if (!currentUser) {
-        // No user in localStorage - redirect to login
-        window.location.href = 'login.html';
-        return false;
-      }
-
+      if (!currentUser) { window.location.href = 'login.html'; return false; }
       try {
-        // Check if user exists in Firestore database
         const q = query(collection(db, 'users'), where('username', '==', currentUser));
         const snap = await getDocs(q);
-        
         if (snap.empty) {
-          // User NOT in database - clear localStorage and redirect
           localStorage.removeItem('currentUser');
           localStorage.removeItem('userProfile');
           window.location.href = 'login.html';
           return false;
         }
-        
-        // User EXISTS in database - allow access
         return true;
-        
       } catch (e) {
         console.error('Auth check error:', e);
-        // If Firebase fails, allow localStorage fallback
         return !!currentUser;
       }
     }
 
-    // ===== INITIALIZE AFTER AUTH CHECK =====
     async function init() {
       const isAuthenticated = await checkAuth();
-      
-      if (!isAuthenticated) {
-        return; // Already redirected to login
-      }
-      
-      // Hide loading, show main page
+      if (!isAuthenticated) return;
       document.getElementById('loadingScreen').style.display = 'none';
       document.getElementById('mainPage').style.display = 'flex';
-      
-      // Start the web chat functionality
       startWebChat();
     }
 
@@ -186,6 +208,7 @@
       const strangerFeed = document.getElementById('strangerFeed');
       const strangerPlaceholder = document.getElementById('strangerPlaceholder');
       const strangerCamera = document.getElementById('strangerCamera');
+      const strangerAudioIndicator = document.getElementById('strangerAudioIndicator');
       const userInfo = document.getElementById('userInfo');
       const onlineCount = document.getElementById('onlineCount');
       const startBtn = document.getElementById('startBtn');
@@ -198,6 +221,7 @@
       let localStream, pc, roomId, unsubs=[], connectionTimeout;
       let isMuted = false;
       let isLive = false;
+      let audioContext, analyserNode, animationId;
 
       const servers = {
         iceServers: [
@@ -210,7 +234,56 @@
         ], iceCandidatePoolSize: 2
       };
 
-      // LIVE toggle
+      // Audio visualization for stranger's audio
+      function setupAudioVisualization(stream) {
+        if (!stream) return;
+        try {
+          if (audioContext) audioContext.close();
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+          analyserNode = audioContext.createAnalyser();
+          analyserNode.fftSize = 256;
+          const source = audioContext.createMediaStreamSource(stream);
+          source.connect(analyserNode);
+          
+          strangerAudioIndicator.style.display = 'flex';
+          
+          function updateBars() {
+            if (!analyserNode) return;
+            const dataArray = new Uint8Array(analyserNode.frequencyBinCount);
+            analyserNode.getByteFrequencyData(dataArray);
+            
+            const bars = strangerAudioIndicator.querySelectorAll('.audio-bar');
+            const avgVolume = dataArray.reduce((a,b) => a+b, 0) / dataArray.length;
+            
+            bars.forEach((bar, i) => {
+              const value = dataArray[i * 4] || 0;
+              const height = Math.max(3, (value / 255) * 15);
+              bar.style.height = height + 'px';
+            });
+            
+            if (avgVolume > 20) {
+              strangerAudioIndicator.classList.add('speaking');
+            } else {
+              strangerAudioIndicator.classList.remove('speaking');
+            }
+            
+            animationId = requestAnimationFrame(updateBars);
+          }
+          updateBars();
+        } catch(e) {
+          console.log('Audio visualization error:', e);
+        }
+      }
+
+      function stopAudioVisualization() {
+        if (animationId) cancelAnimationFrame(animationId);
+        if (audioContext) audioContext.close();
+        audioContext = null;
+        analyserNode = null;
+        strangerAudioIndicator.style.display = 'none';
+        strangerAudioIndicator.classList.remove('speaking');
+      }
+
       window.toggleLive = async function() {
         isLive = !isLive;
         const currentUser = localStorage.getItem('currentUser') || '@anonymous';
@@ -219,9 +292,7 @@
           liveBtn.innerHTML = '<i class="fas fa-stop-circle"></i><span>END</span>';
           liveBtn.classList.add('ended');
           strangerCamera.classList.add('live-active');
-          
           if(!localStream) await startCamera();
-          
           await setDoc(doc(db, 'live', currentUser.replace('@','')), { 
             userId: currentUser, active: true, startedAt: serverTimestamp() 
           });
@@ -236,74 +307,282 @@
       async function startCamera() {
         try {
           if(localStream){ localStream.getTracks().forEach(t=>t.stop()); }
-          localStream = await navigator.mediaDevices.getUserMedia({ video:{width:480,height:640,facingMode:'user'}, audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true} });
-          myFeed.srcObject=localStream; await myFeed.play();
-          myFeed.style.display='block'; myPlaceholder.style.display='none'; myCamera.classList.add('active');
+          // Request both video AND audio with proper settings
+          localStream = await navigator.mediaDevices.getUserMedia({ 
+            video: { width:480, height:640, facingMode:'user' }, 
+            audio: {
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true,
+              sampleRate: 44100,
+              channelCount: 1
+            }
+          });
+          myFeed.srcObject = localStream; 
+          await myFeed.play();
+          myFeed.style.display='block'; 
+          myPlaceholder.style.display='none'; 
+          myCamera.classList.add('active');
+          
+          // Ensure audio track is enabled
+          const audioTrack = localStream.getAudioTracks()[0];
+          if (audioTrack) {
+            audioTrack.enabled = !isMuted;
+            console.log('🎤 Audio track ready:', audioTrack.label);
+          }
+          
           return true;
-        } catch(e) { alert('Camera & Microphone needed!'); return false; }
+        } catch(e) { 
+          console.error('Camera/Mic error:', e);
+          alert('Camera & Microphone needed for video chat!'); 
+          return false; 
+        }
       }
 
       function stopCamera() {
+        stopAudioVisualization();
         if(localStream){ localStream.getTracks().forEach(t=>t.stop()); localStream=null; }
         myFeed.style.display='none'; myFeed.srcObject=null; myPlaceholder.style.display=''; myCamera.classList.remove('active');
       }
 
       function resetStranger() {
+        stopAudioVisualization();
         strangerFeed.style.display='none'; strangerFeed.srcObject=null; strangerPlaceholder.style.display=''; strangerCamera.classList.remove('connected','live-active');
       }
 
-      function showConnected() { startBtn.style.display='none'; stopBtn.classList.add('visible'); nextBtn.classList.add('visible'); micBtn.classList.add('visible'); }
+      function showConnected() { 
+        startBtn.style.display='none'; 
+        stopBtn.classList.add('visible'); 
+        nextBtn.classList.add('visible'); 
+        micBtn.classList.add('visible');
+        userInfo.classList.add('active');
+      }
+      
       function showDisconnected() {
-        startBtn.style.display='flex'; stopBtn.classList.remove('visible'); nextBtn.classList.remove('visible'); micBtn.classList.remove('visible');
-        startBtn.classList.remove('searching'); startBtn.querySelector('span').textContent='Start'; startBtn.querySelector('i').className='fas fa-play'; startBtn.disabled=false;
+        startBtn.style.display='flex'; 
+        stopBtn.classList.remove('visible'); 
+        nextBtn.classList.remove('visible'); 
+        micBtn.classList.remove('visible');
+        startBtn.classList.remove('searching'); 
+        startBtn.querySelector('span').textContent='Start'; 
+        startBtn.querySelector('i').className='fas fa-play'; 
+        startBtn.disabled=false;
+        userInfo.classList.remove('active');
       }
 
       function toggleMute() {
         if(!localStream) return;
-        const tracks=localStream.getAudioTracks();
-        if(tracks.length>0){ isMuted=!isMuted; tracks.forEach(t=>t.enabled=!isMuted); micBtn.classList.toggle('muted',isMuted); micBtn.querySelector('i').className=isMuted?'fas fa-microphone-slash':'fas fa-microphone'; }
+        const tracks = localStream.getAudioTracks();
+        if(tracks.length > 0) { 
+          isMuted = !isMuted; 
+          tracks.forEach(t => t.enabled = !isMuted); 
+          micBtn.classList.toggle('muted', isMuted); 
+          micBtn.querySelector('i').className = isMuted ? 'fas fa-microphone-slash' : 'fas fa-microphone';
+          console.log('🎤 Microphone ' + (isMuted ? 'muted' : 'unmuted'));
+        }
       }
 
-      async function createRoom(otherId,isCaller) {
-        roomId=[myId,otherId].sort().join('_'); const roomRef=doc(db,'rooms',roomId); showConnected(); userInfo.classList.add('active');
-        if(pc){ pc.close(); pc=null; } unsubs.forEach(u=>u()); unsubs=[];
-        pc=new RTCPeerConnection(servers); localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));
-        pc.ontrack=(e)=>{ if(e.streams[0]){ strangerFeed.srcObject=e.streams[0]; strangerFeed.style.display='block'; strangerPlaceholder.style.display='none'; strangerCamera.classList.add('connected'); }};
-        pc.onicecandidate=async(e)=>{ if(e.candidate) await addDoc(collection(roomRef,'ice'),{sender:myId,candidate:e.candidate.toJSON()}); };
-        pc.onconnectionstatechange=()=>{ if(pc.connectionState==='failed'||pc.connectionState==='disconnected') resetStranger(); };
-        pc.oniceconnectionstatechange=()=>{ if(pc.iceConnectionState==='failed'&&pc) pc.restartIce(); };
-        unsubs.push(onSnapshot(collection(roomRef,'ice'),(snap)=>{ snap.docChanges().forEach(async(c)=>{ if(c.type==='added'&&c.doc.data().sender!==myId&&pc) try{ await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate)); }catch(e){} }); }));
-        if(isCaller){ const offer=await pc.createOffer({offerToReceiveVideo:true,offerToReceiveAudio:true}); await pc.setLocalDescription(offer); await setDoc(doc(db,'invites',otherId),{from:myId,offer:{type:offer.type,sdp:offer.sdp}}); unsubs.push(onSnapshot(doc(db,'invites',otherId),async(snap)=>{ const d=snap.data(); if(d?.answer&&!pc.currentRemoteDescription&&pc.signalingState!=='closed') await pc.setRemoteDescription(new RTCSessionDescription(d.answer)); })); connectionTimeout=setTimeout(()=>{ if(pc&&pc.connectionState!=='connected') pc.restartIce(); },15000); }
+      async function createRoom(otherId, isCaller) {
+        roomId = [myId, otherId].sort().join('_'); 
+        const roomRef = doc(db, 'rooms', roomId); 
+        showConnected(); 
+        
+        if(pc){ pc.close(); pc=null; } 
+        unsubs.forEach(u=>u()); 
+        unsubs=[];
+        
+        pc = new RTCPeerConnection(servers); 
+        
+        // Add ALL tracks (video + audio) to peer connection
+        localStream.getTracks().forEach(track => {
+          pc.addTrack(track, localStream);
+          console.log('📡 Added track:', track.kind, track.enabled);
+        });
+        
+        pc.ontrack = (e) => { 
+          if(e.streams[0]) { 
+            console.log('📥 Received remote stream with tracks:', e.streams[0].getTracks().map(t => t.kind));
+            strangerFeed.srcObject = e.streams[0]; 
+            strangerFeed.style.display='block'; 
+            strangerPlaceholder.style.display='none'; 
+            strangerCamera.classList.add('connected');
+            
+            // Setup audio visualization for stranger's audio
+            setupAudioVisualization(e.streams[0]);
+          }
+        };
+        
+        pc.onicecandidate = async(e) => { 
+          if(e.candidate) await addDoc(collection(roomRef, 'ice'), {
+            sender: myId, 
+            candidate: e.candidate.toJSON()
+          }); 
+        };
+        
+        pc.onconnectionstatechange = () => { 
+          console.log('Connection state:', pc.connectionState);
+          if(pc.connectionState === 'connected') {
+            console.log('✅ Peer connection established - audio/video flowing');
+          }
+          if(pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
+            resetStranger(); 
+          }
+        };
+        
+        pc.oniceconnectionstatechange = () => { 
+          if(pc.iceConnectionState === 'failed' && pc) pc.restartIce(); 
+        };
+        
+        unsubs.push(onSnapshot(collection(roomRef, 'ice'), (snap) => { 
+          snap.docChanges().forEach(async(c) => { 
+            if(c.type === 'added' && c.doc.data().sender !== myId && pc) {
+              try { 
+                await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate)); 
+              } catch(e) {} 
+            }
+          }); 
+        }));
+        
+        if(isCaller) { 
+          const offer = await pc.createOffer({ 
+            offerToReceiveVideo: true, 
+            offerToReceiveAudio: true 
+          }); 
+          await pc.setLocalDescription(offer); 
+          await setDoc(doc(db, 'invites', otherId), {
+            from: myId, 
+            offer: { type: offer.type, sdp: offer.sdp }
+          }); 
+          
+          unsubs.push(onSnapshot(doc(db, 'invites', otherId), async(snap) => { 
+            const d = snap.data(); 
+            if(d?.answer && !pc.currentRemoteDescription && pc.signalingState !== 'closed') {
+              await pc.setRemoteDescription(new RTCSessionDescription(d.answer)); 
+            }
+          })); 
+          
+          connectionTimeout = setTimeout(() => { 
+            if(pc && pc.connectionState !== 'connected') pc.restartIce(); 
+          }, 15000); 
+        }
       }
 
       function listenForInvites() {
-        unsubs.push(onSnapshot(doc(db,'invites',myId),async(snap)=>{ if(!snap.exists()) return; const d=snap.data(); await deleteDoc(doc(db,'waiting',myId)).catch(()=>{}); roomId=[myId,d.from].sort().join('_'); const roomRef=doc(db,'rooms',roomId); showConnected(); userInfo.classList.add('active'); if(pc){ pc.close(); pc=null; } unsubs.forEach(u=>u()); unsubs=[]; pc=new RTCPeerConnection(servers); localStream.getTracks().forEach(t=>pc.addTrack(t,localStream)); pc.ontrack=(e)=>{ if(e.streams[0]){ strangerFeed.srcObject=e.streams[0]; strangerFeed.style.display='block'; strangerPlaceholder.style.display='none'; strangerCamera.classList.add('connected'); }}; pc.onicecandidate=async(e)=>{ if(e.candidate) await addDoc(collection(roomRef,'ice'),{sender:myId,candidate:e.candidate.toJSON()}); }; if(d.offer&&pc.signalingState!=='closed'){ await pc.setRemoteDescription(new RTCSessionDescription(d.offer)); const answer=await pc.createAnswer(); await pc.setLocalDescription(answer); await setDoc(doc(db,'invites',myId),{from:d.from,offer:d.offer,answer:{type:answer.type,sdp:answer.sdp}},{merge:true}); } unsubs.push(onSnapshot(collection(roomRef,'ice'),(snap)=>{ snap.docChanges().forEach(async(c)=>{ if(c.type==='added'&&c.doc.data().sender!==myId&&pc) try{ await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate)); }catch(e){} }); })); }));
+        unsubs.push(onSnapshot(doc(db, 'invites', myId), async(snap) => { 
+          if(!snap.exists()) return; 
+          const d = snap.data(); 
+          await deleteDoc(doc(db, 'waiting', myId)).catch(()=>{}); 
+          roomId = [myId, d.from].sort().join('_'); 
+          const roomRef = doc(db, 'rooms', roomId); 
+          showConnected(); 
+          
+          if(pc){ pc.close(); pc=null; } 
+          unsubs.forEach(u=>u()); 
+          unsubs=[]; 
+          
+          pc = new RTCPeerConnection(servers); 
+          
+          // Add ALL tracks (video + audio)
+          localStream.getTracks().forEach(track => {
+            pc.addTrack(track, localStream);
+            console.log('📡 Added track for answer:', track.kind);
+          });
+          
+          pc.ontrack = (e) => { 
+            if(e.streams[0]) { 
+              console.log('📥 Received remote stream');
+              strangerFeed.srcObject = e.streams[0]; 
+              strangerFeed.style.display='block'; 
+              strangerPlaceholder.style.display='none'; 
+              strangerCamera.classList.add('connected');
+              setupAudioVisualization(e.streams[0]);
+            }
+          };
+          
+          pc.onicecandidate = async(e) => { 
+            if(e.candidate) await addDoc(collection(roomRef, 'ice'), {
+              sender: myId, 
+              candidate: e.candidate.toJSON()
+            }); 
+          };
+          
+          if(d.offer && pc.signalingState !== 'closed') { 
+            await pc.setRemoteDescription(new RTCSessionDescription(d.offer)); 
+            const answer = await pc.createAnswer(); 
+            await pc.setLocalDescription(answer); 
+            await setDoc(doc(db, 'invites', myId), {
+              from: d.from, 
+              offer: d.offer, 
+              answer: { type: answer.type, sdp: answer.sdp }
+            }, { merge: true }); 
+          } 
+          
+          unsubs.push(onSnapshot(collection(roomRef, 'ice'), (snap) => { 
+            snap.docChanges().forEach(async(c) => { 
+              if(c.type === 'added' && c.doc.data().sender !== myId && pc) {
+                try { 
+                  await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate)); 
+                } catch(e) {} 
+              }
+            }); 
+          })); 
+        }));
       }
 
       async function startChat() {
-        startBtn.disabled=true; startBtn.classList.add('searching'); startBtn.querySelector('span').textContent='Searching'; startBtn.querySelector('i').className='fas fa-spinner fa-spin';
-        if(!(await startCamera())){ showDisconnected(); return; }
-        const snap=await getDocs(collection(db,'waiting')); let found=null; snap.forEach(d=>{ if(d.data().userId!==myId&&!found) found=d.data().userId; });
-        if(found){ await deleteDoc(doc(db,'waiting',myId)).catch(()=>{}); await deleteDoc(doc(db,'waiting',found)).catch(()=>{}); await createRoom(found,true); }
-        else { await setDoc(doc(db,'waiting',myId),{userId:myId}); listenForInvites(); }
+        startBtn.disabled = true; 
+        startBtn.classList.add('searching'); 
+        startBtn.querySelector('span').textContent='Searching'; 
+        startBtn.querySelector('i').className='fas fa-spinner fa-spin';
+        
+        if(!(await startCamera())) { 
+          showDisconnected(); 
+          return; 
+        }
+        
+        const snap = await getDocs(collection(db, 'waiting')); 
+        let found = null; 
+        snap.forEach(d => { 
+          if(d.data().userId !== myId && !found) found = d.data().userId; 
+        });
+        
+        if(found) { 
+          await deleteDoc(doc(db, 'waiting', myId)).catch(()=>{}); 
+          await deleteDoc(doc(db, 'waiting', found)).catch(()=>{}); 
+          await createRoom(found, true); 
+        } else { 
+          await setDoc(doc(db, 'waiting', myId), { userId: myId }); 
+          listenForInvites(); 
+        }
       }
 
       function stopChat() {
         if(connectionTimeout) clearTimeout(connectionTimeout);
-        if(pc){ pc.close(); pc=null; } unsubs.forEach(u=>u()); unsubs=[];
-        if(roomId){ deleteDoc(doc(db,'rooms',roomId)).catch(()=>{}); roomId=null; }
-        deleteDoc(doc(db,'waiting',myId)).catch(()=>{}); deleteDoc(doc(db,'invites',myId)).catch(()=>{});
-        if(isLive) { const cu=localStorage.getItem('currentUser')||'@anonymous'; deleteDoc(doc(db,'live',cu.replace('@',''))).catch(()=>{}); isLive=false; liveBtn.innerHTML='<i class="fas fa-circle"></i><span>LIVE</span>'; liveBtn.classList.remove('ended'); }
-        resetStranger(); stopCamera(); showDisconnected(); userInfo.classList.remove('active');
+        if(pc){ pc.close(); pc=null; } 
+        unsubs.forEach(u=>u()); 
+        unsubs=[];
+        if(roomId){ deleteDoc(doc(db, 'rooms', roomId)).catch(()=>{}); roomId=null; }
+        deleteDoc(doc(db, 'waiting', myId)).catch(()=>{}); 
+        deleteDoc(doc(db, 'invites', myId)).catch(()=>{});
+        if(isLive) { 
+          const cu = localStorage.getItem('currentUser') || '@anonymous'; 
+          deleteDoc(doc(db, 'live', cu.replace('@',''))).catch(()=>{}); 
+          isLive = false; 
+          liveBtn.innerHTML='<i class="fas fa-circle"></i><span>LIVE</span>'; 
+          liveBtn.classList.remove('ended'); 
+        }
+        resetStranger(); 
+        stopCamera(); 
+        showDisconnected(); 
       }
 
-      startBtn.addEventListener('click',startChat); stopBtn.addEventListener('click',stopChat);
-      nextBtn.addEventListener('click',()=>{ stopChat(); setTimeout(startChat,500); });
-      micBtn.addEventListener('click',toggleMute);
-      setInterval(()=>{ onlineCount.textContent=Math.floor(Math.random()*1000+500)+' online'; },3000);
+      startBtn.addEventListener('click', startChat); 
+      stopBtn.addEventListener('click', stopChat);
+      nextBtn.addEventListener('click', () => { stopChat(); setTimeout(startChat, 500); });
+      micBtn.addEventListener('click', toggleMute);
+      setInterval(() => { onlineCount.textContent = Math.floor(Math.random()*1000+500)+' online'; }, 3000);
     }
 
-    // Start the app
     init();
   </script>
 </body>

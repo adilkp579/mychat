@@ -36,12 +36,7 @@
     .toast { position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:0.5rem 1rem;border-radius:2rem;font-size:0.7rem;z-index:400;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap; }
     .toast.show { opacity:1; }
 
-    /* Loading Screen */
-    .loading-screen {
-      position:fixed;top:0;left:0;right:0;bottom:0;background:#000;
-      display:flex;align-items:center;justify-content:center;z-index:500;
-      flex-direction:column;gap:1rem;
-    }
+    .loading-screen { position:fixed;top:0;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:1rem; }
     .loading-screen i { font-size:2.5rem;color:#3897f0;animation:spin 1s infinite; }
     .loading-screen span { color:#888;font-size:0.85rem; }
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
@@ -68,13 +63,11 @@
   </style>
 </head>
 <body>
-  <!-- Loading Screen -->
   <div class="loading-screen" id="loadingScreen">
     <i class="fas fa-spinner"></i>
-    <span>Checking authentication...</span>
+    <span>Loading reels...</span>
   </div>
 
-  <!-- Main Page -->
   <div class="page" id="mainPage" style="display:none;">
     <div class="reel-wrapper" id="reelWrapper">
       <div class="loading-overlay" id="loadingOverlay"><i class="fas fa-spinner"></i></div>
@@ -101,74 +94,65 @@
 
     let allReels = [];
 
-    // ===== AUTHENTICATION CHECK =====
     async function checkAuth() {
       const currentUser = localStorage.getItem('currentUser');
       
       if (!currentUser) {
-        // No user in localStorage - redirect to login
         window.location.href = 'login.html';
         return false;
       }
 
       try {
-        // Check if user exists in Firestore database
         const q = query(collection(db, 'users'), where('username', '==', currentUser));
         const snap = await getDocs(q);
         
         if (snap.empty) {
-          // User NOT in database - clear localStorage and redirect
           localStorage.removeItem('currentUser');
           localStorage.removeItem('userProfile');
           window.location.href = 'login.html';
           return false;
         }
         
-        // User EXISTS in database - allow access
         return true;
         
       } catch (e) {
         console.error('Auth check error:', e);
-        // If Firebase fails, allow localStorage fallback
         return !!currentUser;
       }
     }
 
-    // ===== LOAD REELS =====
-    async function loadUserReels() {
-      console.log('🔍 Loading user reels...');
+    async function loadAllReels() {
+      console.log('🔍 Loading reels from Firestore...');
       
       try {
-        // Get ALL posts, filter video content
         const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
         const snap = await getDocs(q);
-        console.log('📡 Total posts in Firestore:', snap.size);
+        console.log('📡 Total posts found:', snap.size);
         
         snap.forEach(doc => {
           const d = doc.data();
           const src = d.data || d.url || '';
-          const caption = d.fileName || d.caption || '';
+          const username = d.username || d.userId || '@anonymous';
           
-          // Only include if it has video data
+          // Check if it's video content
           const isVideo = src && (
             src.startsWith('data:video/') ||
-            (d.type === 'reel') ||
-            (d.type === 'video')
+            d.type === 'reel' ||
+            d.type === 'video'
           );
           
           if (isVideo) {
-            // Avoid duplicates
             if (!allReels.find(r => r.src === src)) {
               allReels.push({
                 id: doc.id,
-                username: d.userId || '@user',
-                caption: caption,
+                username: username,
+                caption: d.caption || d.fileName || '',
                 src: src,
                 likes: d.likes || 0,
                 comments: d.comments || 0,
                 liked: false
               });
-              console.log('✅ Added reel from:', d.userId, '| type:', d.type);
+              console.log('✅ Added reel by:', username);
             }
           }
         });
@@ -176,15 +160,15 @@
         console.log('❌ Firestore error:', e.message);
       }
 
-      // Add user's own localStorage reels
+      // Also add localStorage reels
       const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
       const localReels = (profile.posts || []).filter(p => p.type === 'video');
       localReels.forEach(p => {
         if (!allReels.find(r => r.src === p.src)) {
           allReels.unshift({
             id: 'local_' + Date.now(),
-            username: profile.username || '@user',
-            caption: '',
+            username: p.username || profile.username || '@user',
+            caption: p.caption || '',
             src: p.src,
             likes: 0,
             comments: 0,
@@ -193,7 +177,7 @@
         }
       });
 
-      console.log('🎬 Total user reels found:', allReels.length);
+      console.log('🎬 Total reels loaded:', allReels.length);
     }
 
     function renderReels() {
@@ -201,7 +185,7 @@
       document.getElementById('loadingOverlay').style.display = 'none';
       
       if (allReels.length === 0) {
-        wrapper.innerHTML = '<div class="empty-state"><i class="fas fa-film"></i><p>No reels yet</p><p style="font-size:0.7rem;margin-top:0.5rem;">Upload your first reel!</p></div>';
+        wrapper.innerHTML = `<div class="empty-state"><i class="fas fa-film"></i><p>No reels yet</p><p style="font-size:0.7rem;margin-top:0.5rem;">Be the first to upload a reel!</p></div>`;
         return;
       }
 
@@ -222,12 +206,12 @@
               <i class="far fa-comment"></i>
               <span>${reel.comments}</span>
             </button>
-            <button class="action-btn" onclick="shareReel('${reel.src}')">
+            <button class="action-btn" onclick="shareReel(${i})">
               <i class="far fa-share-square"></i>
               <span>Share</span>
             </button>
           </div>
-          <div class="caption-bar"><div class="caption-text">${reel.caption || ''}</div></div>
+          ${reel.caption ? `<div class="caption-bar"><div class="caption-text">${reel.caption}</div></div>` : ''}
         </div>
       `).join('');
       
@@ -235,12 +219,13 @@
       setTimeout(() => { 
         const v = document.getElementById('video0'); 
         if(v) {
-          v.play();
-          document.getElementById('overlay0').style.display='none';
+          v.play().catch(() => {});
+          const overlay = document.getElementById('overlay0');
+          if(overlay) overlay.style.display='none';
         }
       }, 500);
       
-      // Intersection Observer for autoplay
+      // Intersection Observer
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           const idx = entry.target.id.replace('slide', '');
@@ -249,7 +234,7 @@
           
           if (entry.isIntersecting) {
             if (video) {
-              video.play();
+              video.play().catch(() => {});
               if (overlay) overlay.style.display = 'none';
             }
           } else {
@@ -264,12 +249,11 @@
       document.querySelectorAll('.reel-slide').forEach(s => observer.observe(s));
     }
 
-    // Global functions
     window.togglePlay = function(i) {
       const v = document.getElementById('video' + i);
       const o = document.getElementById('overlay' + i);
       if (v.paused) {
-        v.play();
+        v.play().catch(() => {});
         o.style.display = 'none';
       } else {
         v.pause();
@@ -283,10 +267,10 @@
       
       document.getElementById('likes' + i).textContent = allReels[i].likes;
       
-      const btns = document.querySelectorAll('.action-btn');
-      const lb = btns[i * 3];
-      lb.classList.toggle('liked', allReels[i].liked);
-      lb.querySelector('i').className = allReels[i].liked ? 'fas fa-heart' : 'far fa-heart';
+      const slide = document.getElementById('slide' + i);
+      const likeBtn = slide.querySelector('.action-btn');
+      likeBtn.classList.toggle('liked', allReels[i].liked);
+      likeBtn.querySelector('i').className = allReels[i].liked ? 'fas fa-heart' : 'far fa-heart';
       
       showToast(allReels[i].liked ? 'Liked! ❤️' : 'Unliked');
       
@@ -301,19 +285,20 @@
       }
     };
 
-    window.shareReel = async function(url) {
+    window.shareReel = async function(i) {
+      const reel = allReels[i];
       if (navigator.share) {
         try {
           await navigator.share({
-            title: 'Check this reel!',
-            url: url
+            title: `${reel.username}'s reel`,
+            text: reel.caption || 'Check out this reel!',
           });
         } catch(e) {
           console.log('Share cancelled');
         }
       } else {
         try {
-          await navigator.clipboard.writeText(url);
+          await navigator.clipboard.writeText(window.location.href);
           showToast('Link copied! 📋');
         } catch(e) {
           console.log('Copy failed');
@@ -329,21 +314,15 @@
       t._t = setTimeout(() => t.classList.remove('show'), 2000);
     };
 
-    // ===== INITIALIZATION =====
     async function init() {
-      // First check authentication
       const isAuthenticated = await checkAuth();
       
-      if (!isAuthenticated) {
-        return; // Already redirected to login
-      }
+      if (!isAuthenticated) return;
       
-      // Hide loading, show main page
       document.getElementById('loadingScreen').style.display = 'none';
       document.getElementById('mainPage').style.display = 'flex';
       
-      // Load and render reels
-      await loadUserReels();
+      await loadAllReels();
       renderReels();
     }
 

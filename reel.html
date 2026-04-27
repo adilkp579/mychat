@@ -48,23 +48,6 @@
     
     .loading-overlay { position:absolute;top:0;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:50;flex-direction:column;gap:0.5rem; }
     .loading-overlay i { font-size:2rem;color:#3897f0;animation:spin 1s linear infinite; }
-    
-    /* Auth Required Overlay */
-    .auth-required {
-      position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);
-      display:none;align-items:center;justify-content:center;z-index:400;
-      flex-direction:column;gap:1.5rem;padding:2rem;
-    }
-    .auth-required.show { display:flex; }
-    .auth-required i { font-size:4rem;color:#fbbf24; }
-    .auth-required h3 { color:#fff;font-size:1.1rem;text-align:center; }
-    .auth-required p { color:#888;font-size:0.8rem;text-align:center; }
-    .auth-required button {
-      padding:0.7rem 2rem;border-radius:2rem;border:none;background:#3897f0;
-      color:#fff;font-size:0.85rem;font-weight:600;cursor:pointer;
-      transition:all 0.3s;
-    }
-    .auth-required button:hover { background:#2563eb; }
 
     .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6);z-index:100; }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
@@ -89,14 +72,6 @@
   <div class="loading-screen" id="loadingScreen">
     <i class="fas fa-spinner"></i>
     <span>Checking authentication...</span>
-  </div>
-
-  <!-- Auth Required Overlay -->
-  <div class="auth-required" id="authRequired">
-    <i class="fas fa-lock"></i>
-    <h3>Login Required</h3>
-    <p>You need to be logged in to watch reels</p>
-    <button onclick="window.location.href='login.html'">Go to Login</button>
   </div>
 
   <!-- Main Page -->
@@ -126,48 +101,37 @@
 
     let allReels = [];
 
-    // ===== AUTH CHECK =====
+    // ===== AUTHENTICATION CHECK =====
     async function checkAuth() {
       const currentUser = localStorage.getItem('currentUser');
       
       if (!currentUser) {
-        showAuthRequired();
+        // No user in localStorage - redirect to login
+        window.location.href = 'login.html';
         return false;
       }
 
       try {
-        // Verify user exists in Firestore
+        // Check if user exists in Firestore database
         const q = query(collection(db, 'users'), where('username', '==', currentUser));
         const snap = await getDocs(q);
         
         if (snap.empty) {
-          // User not found in database
+          // User NOT in database - clear localStorage and redirect
           localStorage.removeItem('currentUser');
           localStorage.removeItem('userProfile');
-          showAuthRequired();
+          window.location.href = 'login.html';
           return false;
         }
         
-        // User is authenticated
+        // User EXISTS in database - allow access
         return true;
         
       } catch (e) {
         console.error('Auth check error:', e);
-        // Allow access if Firebase check fails (fallback to localStorage)
-        return true;
+        // If Firebase fails, allow localStorage fallback
+        return !!currentUser;
       }
-    }
-
-    function showAuthRequired() {
-      document.getElementById('loadingScreen').style.display = 'none';
-      document.getElementById('authRequired').classList.add('show');
-      document.getElementById('mainPage').style.display = 'none';
-    }
-
-    function showMainPage() {
-      document.getElementById('loadingScreen').style.display = 'none';
-      document.getElementById('authRequired').classList.remove('show');
-      document.getElementById('mainPage').style.display = 'flex';
     }
 
     // ===== LOAD REELS =====
@@ -371,11 +335,12 @@
       const isAuthenticated = await checkAuth();
       
       if (!isAuthenticated) {
-        return; // Auth required overlay is shown
+        return; // Already redirected to login
       }
       
-      // Show main page
-      showMainPage();
+      // Hide loading, show main page
+      document.getElementById('loadingScreen').style.display = 'none';
+      document.getElementById('mainPage').style.display = 'flex';
       
       // Load and render reels
       await loadUserReels();

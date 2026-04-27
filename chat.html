@@ -16,6 +16,13 @@
     .page-icon { font-size:3rem;margin-bottom:1rem;opacity:0.8; }
     .page-title { font-size:1.8rem;font-weight:500;text-transform:lowercase; }
     .page-hint { color:#999;font-size:0.8rem;border-top:1px solid rgba(255,255,255,0.1);padding-top:1rem;margin-top:1rem;width:80%; }
+    
+    /* Loading screen */
+    .loading-screen { position:fixed;top:0;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:0.5rem; }
+    .loading-screen i { font-size:2rem;color:#3897f0;animation:spin 1s infinite; }
+    @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+    .loading-screen span { font-size:0.75rem;color:#888; }
+
     .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6);z-index:100; }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
     .nav-center a { color:rgba(255,255,255,0.6);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;position:relative; }
@@ -39,7 +46,13 @@
   </style>
 </head>
 <body>
-  <div class="page">
+  <!-- Loading Screen -->
+  <div class="loading-screen" id="loadingScreen">
+    <i class="fas fa-spinner"></i>
+    <span>Checking authentication...</span>
+  </div>
+
+  <div class="page" id="mainPage" style="display:none;">
     <div class="top-left"><a href="upload.html" class="corner-btn"><i class="fas fa-plus"></i></a></div>
     <div class="top-right"><a href="search.html" class="corner-btn"><i class="fas fa-search"></i></a></div>
     <div class="content">
@@ -57,5 +70,71 @@
       <a href="search.html" class="nav-search"><i class="fas fa-search"></i></a>
     </div></nav>
   </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",
+      authDomain: "mychat-a97bf.firebaseapp.com",
+      projectId: "mychat-a97bf",
+      storageBucket: "mychat-a97bf.firebasestorage.app",
+      messagingSenderId: "206620858913",
+      appId: "1:206620858913:web:e8171ed8c1a2dbda3da160"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // ===== AUTHENTICATION CHECK =====
+    async function checkAuth() {
+      const currentUser = localStorage.getItem('currentUser');
+      
+      if (!currentUser) {
+        // No user in localStorage - redirect to login
+        window.location.href = 'login.html';
+        return false;
+      }
+
+      try {
+        // Check if user exists in Firestore database
+        const q = query(collection(db, 'users'), where('username', '==', currentUser));
+        const snap = await getDocs(q);
+        
+        if (snap.empty) {
+          // User NOT in database - clear localStorage and redirect
+          localStorage.removeItem('currentUser');
+          localStorage.removeItem('userProfile');
+          window.location.href = 'login.html';
+          return false;
+        }
+        
+        // User EXISTS in database - allow access
+        return true;
+        
+      } catch (e) {
+        console.error('Auth check error:', e);
+        // If Firebase fails, allow localStorage fallback
+        return !!currentUser;
+      }
+    }
+
+    // ===== INITIALIZE AFTER AUTH CHECK =====
+    async function init() {
+      const isAuthenticated = await checkAuth();
+      
+      if (!isAuthenticated) {
+        return; // Already redirected to login
+      }
+      
+      // Hide loading, show main page
+      document.getElementById('loadingScreen').style.display = 'none';
+      document.getElementById('mainPage').style.display = 'flex';
+    }
+
+    // Start the app
+    init();
+  </script>
 </body>
 </html>

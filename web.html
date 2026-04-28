@@ -63,7 +63,20 @@
     .user-info { display:flex;align-items:center;gap:0.3rem;background:rgba(255,255,255,0.06);padding:0.25rem 0.6rem;border-radius:1rem;font-size:0.7rem;color:#ccc;opacity:0;transition:all 0.3s;border:1px solid rgba(255,255,255,0.08); }
     .user-info.active { opacity:1; }
     .buttons-container { display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;padding:0.2rem 0;align-items:center; }
-    .btn { height:36px;border-radius:2rem;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;gap:0.3rem;cursor:pointer;border:none;outline:none;font-size:0.75rem;font-weight:600;padding:0 1rem;color:#fff;transition:all 0.3s; }
+    .btn { 
+      height:36px;border-radius:2rem;
+      backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+      display:flex;align-items:center;justify-content:center;gap:0.3rem;
+      cursor:pointer;border:none;outline:none;
+      font-size:0.75rem;font-weight:600;padding:0 1rem;color:#fff;
+      transition:all 0.3s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      position: relative;
+      z-index: 10;
+    }
     .btn:active { transform:scale(0.95); }
     .start-button { width:90px;background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.4);color:#4ade80; }
     .start-button.searching { background:rgba(251,191,36,0.2);border-color:rgba(251,191,36,0.5);color:#fbbf24;animation:pulse 1s infinite; }
@@ -75,7 +88,6 @@
     .mic-button.visible { display:flex;align-items:center;justify-content:center; }
     .mic-button.muted { color:#ef4444;background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.4); }
     
-    /* LIVE button - GREEN when not live */
     .live-button { 
       width:80px;
       background:rgba(74,222,128,0.15);
@@ -84,8 +96,6 @@
       transition: all 0.3s;
     }
     .live-button:hover { background:rgba(74,222,128,0.3); }
-    
-    /* LIVE button - RED when live is active */
     .live-button.live-active-btn { 
       background:rgba(239,68,68,0.25);
       border-color:rgba(239,68,68,0.6);
@@ -152,11 +162,11 @@
       </div>
       <div class="user-info" id="userInfo"><span>🌍</span><span>Connected</span></div>
       <div class="buttons-container">
-        <button class="btn start-button" id="startBtn"><i class="fas fa-play"></i><span>Start</span></button>
-        <button class="btn live-button" id="liveBtn"><i class="fas fa-circle"></i><span>LIVE</span></button>
-        <button class="btn stop-button" id="stopBtn"><i class="fas fa-stop"></i><span>Stop</span></button>
-        <button class="btn next-button" id="nextBtn"><i class="fas fa-forward"></i><span>Next</span></button>
-        <button class="btn mic-button" id="micBtn" title="Mute"><i class="fas fa-microphone"></i></button>
+        <button class="btn start-button" id="startBtn" type="button"><i class="fas fa-play"></i><span>Start</span></button>
+        <button class="btn live-button" id="liveBtn" type="button"><i class="fas fa-circle"></i><span>LIVE</span></button>
+        <button class="btn stop-button" id="stopBtn" type="button"><i class="fas fa-stop"></i><span>Stop</span></button>
+        <button class="btn next-button" id="nextBtn" type="button"><i class="fas fa-forward"></i><span>Next</span></button>
+        <button class="btn mic-button" id="micBtn" type="button" title="Mute"><i class="fas fa-microphone"></i></button>
       </div>
     </div>
     <nav class="floating-nav"><div class="nav-center">
@@ -253,35 +263,41 @@
         isLive = true;
         updateLiveButton();
         
-        await setDoc(doc(db, 'live', liveUserId), {
-          userId: currentUser,
-          active: true,
-          startedAt: serverTimestamp(),
-          viewers: 0,
-          hasStranger: !!strangerStream
-        });
-
-        strangerCamera.classList.add('live-active');
-        liveStatus.classList.add('show');
-
-        const viewersRef = collection(db, 'live_viewers');
-        liveUnsub = onSnapshot(viewersRef, (snap) => {
-          snap.docChanges().forEach(async (change) => {
-            const vd = change.doc.data();
-            
-            if (change.type === 'added' && vd.liveUser === currentUser && vd.offer && vd.active) {
-              console.log('📥 New viewer:', vd.viewerName);
-              await handleNewViewer(change.doc.id, vd);
-            }
-            
-            if (change.type === 'modified' && vd.streamEnded) {
-              cleanupViewer(change.doc.id);
-            }
+        try {
+          await setDoc(doc(db, 'live', liveUserId), {
+            userId: currentUser,
+            active: true,
+            startedAt: serverTimestamp(),
+            viewers: 0,
+            hasStranger: !!strangerStream
           });
-        });
 
-        updateLiveViewerCount();
-        console.log('🔴 LIVE started by:', currentUser);
+          strangerCamera.classList.add('live-active');
+          liveStatus.classList.add('show');
+
+          const viewersRef = collection(db, 'live_viewers');
+          liveUnsub = onSnapshot(viewersRef, (snap) => {
+            snap.docChanges().forEach(async (change) => {
+              const vd = change.doc.data();
+              
+              if (change.type === 'added' && vd.liveUser === currentUser && vd.offer && vd.active) {
+                console.log('📥 New viewer:', vd.viewerName);
+                await handleNewViewer(change.doc.id, vd);
+              }
+              
+              if (change.type === 'modified' && vd.streamEnded) {
+                cleanupViewer(change.doc.id);
+              }
+            });
+          });
+
+          updateLiveViewerCount();
+          console.log('🔴 LIVE started by:', currentUser);
+        } catch(e) {
+          console.error('Start live error:', e);
+          isLive = false;
+          updateLiveButton();
+        }
       }
 
       async function handleNewViewer(viewerId, viewerData) {
@@ -392,7 +408,11 @@
       }
 
       // ===== TOGGLE LIVE =====
-      async function toggleLive() {
+      async function toggleLive(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('Toggle live clicked, isLive:', isLive);
+        
         if (isLive) {
           await endLive();
         } else {
@@ -419,6 +439,7 @@
           myCamera.classList.add('active');
           return true;
         } catch(e) {
+          console.error('Camera error:', e);
           alert('Camera & Microphone needed!');
           return false;
         }
@@ -453,7 +474,8 @@
         userInfo.classList.remove('active');
       }
 
-      function toggleMute() {
+      function toggleMute(e) {
+        e.preventDefault();
         if(!localStream) return;
         const tracks = localStream.getAudioTracks();
         if(tracks.length>0){
@@ -574,7 +596,10 @@
         }));
       }
 
-      async function startChat() {
+      async function startChat(e) {
+        if (e) e.preventDefault();
+        console.log('Start chat clicked');
+        
         if(isLive) {
           alert('Please end live stream before starting a new chat');
           return;
@@ -583,7 +608,11 @@
         startBtn.classList.add('searching');
         startBtn.querySelector('span').textContent='Searching';
         startBtn.querySelector('i').className='fas fa-spinner fa-spin';
-        if(!(await startCamera())){showDisconnected();return;}
+        
+        if(!(await startCamera())){
+          showDisconnected();
+          return;
+        }
         
         const snap=await getDocs(collection(db,'waiting'));
         let found=null;
@@ -599,7 +628,10 @@
         }
       }
 
-      function stopChat() {
+      function stopChat(e) {
+        if (e) e.preventDefault();
+        console.log('Stop chat clicked');
+        
         if(connectionTimeout) clearTimeout(connectionTimeout);
         if(pc){pc.close();pc=null;}
         unsubs.forEach(u=>u()); unsubs=[];
@@ -612,12 +644,41 @@
         resetStranger(); stopCamera(); showDisconnected();
       }
 
-      // Event Listeners
+      // Event Listeners with touch support
       startBtn.addEventListener('click', startChat);
+      startBtn.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        startChat(e);
+      });
+      
       stopBtnEl.addEventListener('click', stopChat);
-      nextBtn.addEventListener('click', ()=>{stopChat();setTimeout(startChat,500);});
+      stopBtnEl.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        stopChat(e);
+      });
+      
+      nextBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        stopChat(e);
+        setTimeout(function() { startChat(e); }, 500);
+      });
+      nextBtn.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        stopChat(e);
+        setTimeout(function() { startChat(e); }, 500);
+      });
+      
       micBtn.addEventListener('click', toggleMute);
-      liveBtn.addEventListener('click', toggleLive);  // FIXED: Direct event listener
+      micBtn.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        toggleMute(e);
+      });
+      
+      liveBtn.addEventListener('click', toggleLive);
+      liveBtn.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        toggleLive(e);
+      });
       
       window.addEventListener('beforeunload', () => {
         if(isLive) {
@@ -626,6 +687,8 @@
         if(pc) pc.close();
         if(localStream) localStream.getTracks().forEach(t=>t.stop());
       });
+      
+      console.log('Web chat initialized, all event listeners attached');
     }
 
     init();

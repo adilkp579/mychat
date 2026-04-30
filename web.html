@@ -90,18 +90,13 @@
     
     .live-button { 
       width:80px;
-      background:rgba(74,222,128,0.15);
-      border:1px solid rgba(74,222,128,0.4);
-      color:#4ade80;
-      transition: all 0.3s;
-    }
-    .live-button:hover { background:rgba(74,222,128,0.3); }
-    .live-button.live-active-btn { 
       background:rgba(239,68,68,0.25);
-      border-color:rgba(239,68,68,0.6);
+      border:1px solid rgba(239,68,68,0.6);
       color:#ef4444;
+      transition: all 0.3s;
       animation:livePulse 2s infinite;
     }
+    .live-button:hover { background:rgba(239,68,68,0.4); }
 
     .loading-screen { position:fixed;top:0;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:0.5rem; }
     .loading-screen i { font-size:2rem;color:#3897f0;animation:spin 1s infinite; }
@@ -242,186 +237,29 @@
         ]
       };
 
-      // Update LIVE button UI
-      function updateLiveButton() {
-        if (isLive) {
-          liveBtn.innerHTML = '<i class="fas fa-stop-circle"></i><span>END</span>';
-          liveBtn.classList.add('live-active-btn');
-        } else {
-          liveBtn.innerHTML = '<i class="fas fa-circle"></i><span>LIVE</span>';
-          liveBtn.classList.remove('live-active-btn');
-        }
-      }
-
-      // ===== LIVE START =====
-      async function startLive() {
+      // ===== LIVE BUTTON - Push to live.html =====
+      async function goLive() {
+        // Start camera if not already started
         if (!localStream) {
-          alert('Start camera first!');
-          return;
+          const started = await startCamera();
+          if (!started) {
+            alert('Camera & Microphone are required to go LIVE!');
+            return;
+          }
         }
-
-        isLive = true;
-        updateLiveButton();
         
-        try {
-          await setDoc(doc(db, 'live', liveUserId), {
-            userId: currentUser,
-            active: true,
-            startedAt: serverTimestamp(),
-            viewers: 0,
-            hasStranger: !!strangerStream
-          });
-
-          strangerCamera.classList.add('live-active');
-          liveStatus.classList.add('show');
-
-          const viewersRef = collection(db, 'live_viewers');
-          liveUnsub = onSnapshot(viewersRef, (snap) => {
-            snap.docChanges().forEach(async (change) => {
-              const vd = change.doc.data();
-              
-              if (change.type === 'added' && vd.liveUser === currentUser && vd.offer && vd.active) {
-                console.log('📥 New viewer:', vd.viewerName);
-                await handleNewViewer(change.doc.id, vd);
-              }
-              
-              if (change.type === 'modified' && vd.streamEnded) {
-                cleanupViewer(change.doc.id);
-              }
-            });
-          });
-
-          updateLiveViewerCount();
-          console.log('🔴 LIVE started by:', currentUser);
-        } catch(e) {
-          console.error('Start live error:', e);
-          isLive = false;
-          updateLiveButton();
-        }
-      }
-
-      async function handleNewViewer(viewerId, viewerData) {
-        try {
-          const vpc = new RTCPeerConnection(servers);
-          
-          if (localStream) {
-            localStream.getTracks().forEach(track => {
-              vpc.addTrack(track, localStream);
-            });
-          }
-          
-          if (strangerStream) {
-            strangerStream.getTracks().forEach(track => {
-              if (track.readyState === 'live') {
-                vpc.addTrack(track, strangerStream);
-              }
-            });
-          }
-
-          vpc.onicecandidate = async (e) => {
-            if (e.candidate) {
-              const ref = doc(db, 'live_viewers', viewerId);
-              const snap = await getDoc(ref);
-              const existing = snap.data()?.hostCandidates || [];
-              existing.push(e.candidate.toJSON());
-              await setDoc(ref, { hostCandidates: existing }, { merge: true });
-            }
-          };
-
-          vpc.onconnectionstatechange = () => {
-            if (vpc.connectionState === 'failed' || vpc.connectionState === 'disconnected') {
-              cleanupViewer(viewerId);
-            }
-          };
-
-          await vpc.setRemoteDescription(new RTCSessionDescription(viewerData.offer));
-          const answer = await vpc.createAnswer();
-          await vpc.setLocalDescription(answer);
-
-          await setDoc(doc(db, 'live_viewers', viewerId), {
-            answer: { type: answer.type, sdp: answer.sdp },
-            status: 'connected'
-          }, { merge: true });
-
-          liveViewers[viewerId] = vpc;
-          updateLiveViewerCount();
-          
-          console.log('✅ Viewer connected, total:', Object.keys(liveViewers).length);
-
-        } catch(e) {
-          console.error('Viewer error:', e);
-        }
-      }
-
-      function cleanupViewer(viewerId) {
-        if (liveViewers[viewerId]) {
-          liveViewers[viewerId].close();
-          delete liveViewers[viewerId];
-          updateLiveViewerCount();
-        }
-      }
-
-      async function updateLiveViewerCount() {
-        const count = Object.keys(liveViewers).length;
-        liveViewerCount.textContent = count;
-        try {
-          await setDoc(doc(db, 'live', liveUserId), { viewers: count }, { merge: true });
-        } catch(e) {}
-      }
-
-      // ===== LIVE END =====
-      async function endLive() {
-        isLive = false;
-        updateLiveButton();
-
-        Object.keys(liveViewers).forEach(id => {
-          if (liveViewers[id]) {
-            liveViewers[id].close();
-          }
-        });
-        liveViewers = {};
-
-        try {
-          const viewersSnap = await getDocs(collection(db, 'live_viewers'));
-          viewersSnap.forEach(async (docSnap) => {
-            if (docSnap.data().liveUser === currentUser) {
-              await setDoc(doc(db, 'live_viewers', docSnap.id), {
-                streamEnded: true,
-                active: false
-              }, { merge: true }).catch(() => {});
-            }
-          });
-        } catch(e) {}
-
-        await deleteDoc(doc(db, 'live', liveUserId)).catch(() => {});
-
-        if (liveUnsub) {
-          liveUnsub();
-          liveUnsub = null;
-        }
-
-        strangerCamera.classList.remove('live-active');
-        liveStatus.classList.remove('show');
-        liveViewerCount.textContent = '0';
-
-        console.log('🔴 LIVE ended by:', currentUser);
-      }
-
-      // ===== TOGGLE LIVE =====
-      async function toggleLive(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log('Toggle live clicked, isLive:', isLive);
+        // Stop any existing connections
+        if(pc) { pc.close(); pc = null; }
+        unsubs.forEach(u => u()); unsubs = [];
+        if(roomId) { deleteDoc(doc(db, 'rooms', roomId)).catch(() => {}); roomId = null; }
+        deleteDoc(doc(db, 'waiting', myId)).catch(() => {});
+        deleteDoc(doc(db, 'invites', myId)).catch(() => {});
         
-        if (isLive) {
-          await endLive();
-        } else {
-          if (!localStream) {
-            const started = await startCamera();
-            if (!started) return;
-          }
-          await startLive();
-        }
+        // Store current user info
+        localStorage.setItem('currentUser', currentUser);
+        
+        // Navigate to live.html with user parameter
+        window.location.href = `live.html?user=${encodeURIComponent(currentUser)}`;
       }
 
       // ===== CAMERA =====
@@ -504,16 +342,6 @@
             strangerFeed.style.display='block';
             strangerPlaceholder.style.display='none';
             strangerCamera.classList.add('connected');
-            
-            if(isLive) {
-              Object.values(liveViewers).forEach(vpc => {
-                try {
-                  strangerStream.getTracks().forEach(track => {
-                    if(track.readyState === 'live') vpc.addTrack(track, strangerStream);
-                  });
-                } catch(e) {}
-              });
-            }
           }
         };
         
@@ -563,15 +391,6 @@
               strangerFeed.style.display='block';
               strangerPlaceholder.style.display='none';
               strangerCamera.classList.add('connected');
-              if(isLive) {
-                Object.values(liveViewers).forEach(vpc => {
-                  try {
-                    strangerStream.getTracks().forEach(track => {
-                      if(track.readyState === 'live') vpc.addTrack(track, strangerStream);
-                    });
-                  } catch(e) {}
-                });
-              }
             }
           };
           
@@ -600,10 +419,6 @@
         if (e) e.preventDefault();
         console.log('Start chat clicked');
         
-        if(isLive) {
-          alert('Please end live stream before starting a new chat');
-          return;
-        }
         startBtn.disabled=true;
         startBtn.classList.add('searching');
         startBtn.querySelector('span').textContent='Searching';
@@ -639,12 +454,10 @@
         deleteDoc(doc(db,'waiting',myId)).catch(()=>{});
         deleteDoc(doc(db,'invites',myId)).catch(()=>{});
         
-        if(isLive){endLive();}
-        
         resetStranger(); stopCamera(); showDisconnected();
       }
 
-      // Event Listeners with touch support
+      // Event Listeners
       startBtn.addEventListener('click', startChat);
       startBtn.addEventListener('touchend', function(e) {
         e.preventDefault();
@@ -674,21 +487,22 @@
         toggleMute(e);
       });
       
-      liveBtn.addEventListener('click', toggleLive);
+      // LIVE button - navigate to live.html
+      liveBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        goLive();
+      });
       liveBtn.addEventListener('touchend', function(e) {
         e.preventDefault();
-        toggleLive(e);
+        goLive();
       });
       
       window.addEventListener('beforeunload', () => {
-        if(isLive) {
-          endLive().catch(()=>{});
-        }
         if(pc) pc.close();
         if(localStream) localStream.getTracks().forEach(t=>t.stop());
       });
       
-      console.log('Web chat initialized, all event listeners attached');
+      console.log('Web chat initialized - LIVE button redirects to live.html');
     }
 
     init();

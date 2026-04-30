@@ -3,273 +3,313 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>Live Stream</title>
+  <title>Watch Live Stream</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { 
-      background:#000; 
-      font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      min-height:100vh; 
-      display:flex; 
-      align-items:center; 
-      justify-content:center;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: #000;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       overflow: hidden;
     }
-    
-    .page { 
-      width:100%; 
-      height:100vh; 
-      height:100dvh; 
-      background:#000; 
-      display:flex; 
-      flex-direction:column; 
-      position:relative; 
-      overflow:hidden;
+    .page {
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
     }
-    
     /* Header overlay */
-    .live-header { 
-      position:absolute;
-      top:max(1rem, env(safe-area-inset-top, 1rem));
-      left:1rem;
-      right:1rem;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      z-index:20;
+    .live-header {
+      position: absolute;
+      top: max(1rem, env(safe-area-inset-top, 1rem));
+      left: 1rem;
+      right: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 20;
       pointer-events: none;
     }
-    
     .live-header > * {
       pointer-events: auto;
     }
-    
-    .live-badge-row { 
-      display:flex;
-      align-items:center;
-      gap:0.5rem;
-      background:rgba(0,0,0,0.6);
-      backdrop-filter:blur(20px);
-      padding:0.4rem 0.8rem;
-      border-radius:2rem;
-      border:1px solid rgba(255,255,255,0.15);
+    .live-badge-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(20px);
+      padding: 0.4rem 0.8rem;
+      border-radius: 2rem;
+      border: 1px solid rgba(255,255,255,0.15);
     }
-    
-    .live-dot { 
-      width:8px;
-      height:8px;
-      background:#ef4444;
-      border-radius:50%;
-      animation:blink 1s infinite; 
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: #ef4444;
+      border-radius: 50%;
+      animation: blink 1s infinite;
     }
-    
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-    
-    .live-text { 
-      color:#ef4444;
-      font-size:0.75rem;
-      font-weight:700;
-      letter-spacing:1px;
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
     }
-    
-    .viewer-count { 
-      color:#ccc;
-      font-size:0.7rem;
-      font-weight:500;
+    .live-text {
+      color: #ef4444;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 1px;
     }
-    
-    .host-name { 
-      color:#fff;
-      font-size:0.8rem;
-      font-weight:600;
-      background:rgba(0,0,0,0.6);
-      backdrop-filter:blur(20px);
-      padding:0.4rem 0.8rem;
-      border-radius:2rem;
-      border:1px solid rgba(255,255,255,0.15);
+    .viewer-count {
+      color: #ccc;
+      font-size: 0.7rem;
+      font-weight: 500;
     }
-    
+    .host-name {
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(20px);
+      padding: 0.4rem 0.8rem;
+      border-radius: 2rem;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
     /* Close button */
-    .close-btn { 
-      position:absolute;
-      top:max(1rem, env(safe-area-inset-top, 1rem));
-      right:1rem;
-      width:2.5rem;
-      height:2.5rem;
-      border-radius:50%;
-      background:rgba(0,0,0,0.6);
-      backdrop-filter:blur(20px);
-      border:1px solid rgba(255,255,255,0.15);
-      color:#fff;
-      font-size:1rem;
-      cursor:pointer;
-      z-index:30;
-      display:flex;
-      align-items:center;
-      justify-content:center;
+    .close-btn {
+      position: absolute;
+      top: max(1rem, env(safe-area-inset-top, 1rem));
+      right: 1rem;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       transition: all 0.2s;
     }
-    
     .close-btn:hover {
-      background:rgba(239,68,68,0.3);
+      background: rgba(239,68,68,0.3);
     }
-    
-    /* Main video container - full screen stranger/host video */
-    .main-video-container { 
-      flex:1;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:#000;
-      position:relative;
-      width:100%;
-      height:100%;
+    /* Main video container - full screen host video */
+    .main-video-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+      position: relative;
+      width: 100%;
+      height: 100%;
     }
-    
-    .main-video-container video { 
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      position:absolute;
-      top:0;
-      left:0;
-    }
-    
-    /* Self-view small box */
-    .self-view-container {
-      position: absolute;
-      bottom: 6rem;
-      right: 1rem;
-      width: 120px;
-      height: 160px;
-      border-radius: 0.8rem;
-      overflow: hidden;
-      border: 2px solid rgba(255,255,255,0.2);
-      background: #1a1a1a;
-      z-index: 15;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-      transition: all 0.3s;
-    }
-    
-    .self-view-container video {
+    .main-video-container video {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      position: absolute;
+      top: 0;
+      left: 0;
     }
-    
-    .self-view-container:hover {
-      border-color: rgba(255,255,255,0.5);
-      transform: scale(1.02);
-    }
-    
-    /* Placeholder */
-    .video-placeholder { 
-      text-align:center;
-      color:#555;
+    /* Video placeholder */
+    .video-placeholder {
+      text-align: center;
+      color: #555;
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
     }
-    
-    .video-placeholder i { 
-      font-size:4rem;
-      display:block;
-      margin-bottom:0.5rem;
+    .video-placeholder i {
+      font-size: 4rem;
+      display: block;
+      margin-bottom: 0.5rem;
       opacity: 0.5;
     }
-    
-    .video-placeholder p { 
-      font-size:0.8rem;
+    .video-placeholder p {
+      font-size: 0.8rem;
       opacity: 0.7;
     }
-    
     /* Bottom actions */
-    .bottom-actions { 
-      position:absolute;
-      bottom:2rem;
-      left:50%;
-      transform:translateX(-50%);
-      display:flex;
-      gap:2rem;
-      z-index:20;
-      background:rgba(0,0,0,0.5);
-      backdrop-filter:blur(20px);
-      padding:0.8rem 2rem;
-      border-radius:3rem;
-      border:1px solid rgba(255,255,255,0.1);
+    .bottom-actions {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 2rem;
+      z-index: 20;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(20px);
+      padding: 0.8rem 2rem;
+      border-radius: 3rem;
+      border: 1px solid rgba(255,255,255,0.1);
     }
-    
-    .action-btn { 
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:0.2rem;
-      background:none;
-      border:none;
-      color:#fff;
-      cursor:pointer;
-      font-size:1.4rem;
-      transition:all 0.2s;
+    .action-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.2rem;
+      background: none;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      font-size: 1.4rem;
+      transition: all 0.2s;
       padding: 0.3rem;
     }
-    
-    .action-btn span { 
-      font-size:0.6rem;
-      font-weight:500;
+    .action-btn span {
+      font-size: 0.6rem;
+      font-weight: 500;
       opacity: 0.8;
     }
-    
     .action-btn:hover {
       transform: scale(1.1);
     }
-    
-    .action-btn.liked { 
-      color:#ef4444; 
+    .action-btn.liked {
+      color: #ef4444;
     }
-    
     .action-btn.liked i {
       animation: heartBeat 0.3s ease;
     }
-    
     @keyframes heartBeat {
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.3); }
     }
-    
+    /* Comment section */
+    .comment-section {
+      position: absolute;
+      bottom: 7rem;
+      left: 1rem;
+      right: 1rem;
+      z-index: 25;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      pointer-events: none;
+    }
+    .comment-list {
+      max-height: 200px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      padding: 0 0.3rem;
+      pointer-events: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .comment-list::-webkit-scrollbar {
+      display: none;
+    }
+    .comment-item {
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(12px);
+      padding: 0.4rem 0.8rem;
+      border-radius: 1.2rem;
+      color: #fff;
+      font-size: 0.8rem;
+      align-self: flex-start;
+      max-width: 85%;
+      word-break: break-word;
+      border: 1px solid rgba(255,255,255,0.15);
+      display: flex;
+      align-items: baseline;
+      gap: 0.35rem;
+    }
+    .comment-username {
+      font-weight: 700;
+      color: #fbbf24;
+      font-size: 0.75rem;
+      white-space: nowrap;
+    }
+    .comment-input-row {
+      display: flex;
+      gap: 0.5rem;
+      pointer-events: auto;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(20px);
+      padding: 0.5rem;
+      border-radius: 2rem;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .comment-input-row input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #fff;
+      padding: 0.4rem 0.8rem;
+      font-size: 0.85rem;
+      outline: none;
+      min-width: 0;
+    }
+    .comment-input-row input::placeholder {
+      color: #aaa;
+    }
+    .comment-send-btn {
+      background: #ef4444;
+      border: none;
+      color: #fff;
+      width: 2.2rem;
+      height: 2.2rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .comment-send-btn:hover {
+      background: #dc2626;
+    }
     /* Loading overlay */
-    .loading-overlay { 
-      position:absolute;
-      top:0;
-      left:0;
-      right:0;
-      bottom:0;
-      background:rgba(0,0,0,0.95);
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      z-index:50;
-      gap:0.8rem;
+    .loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.95);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      gap: 0.8rem;
     }
-    
-    .loading-overlay i { 
-      font-size:2.5rem;
-      color:#ef4444;
-      animation:spin 1s linear infinite; 
+    .loading-overlay i {
+      font-size: 2.5rem;
+      color: #ef4444;
+      animation: spin 1s linear infinite;
     }
-    
-    @keyframes spin { 
-      from{transform:rotate(0deg)} 
-      to{transform:rotate(360deg)} 
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
-    
-    .loading-overlay span { 
-      font-size:0.85rem;
-      color:#ccc;
+    .loading-overlay span {
+      font-size: 0.85rem;
+      color: #ccc;
     }
-    
     .loading-overlay button {
       margin-top: 1rem;
       padding: 0.6rem 2rem;
@@ -281,15 +321,13 @@
       cursor: pointer;
       transition: all 0.2s;
     }
-    
     .loading-overlay button:hover {
       background: #444;
     }
-    
     /* Toast */
     .toast {
       position: fixed;
-      bottom: 8rem;
+      bottom: 10rem;
       left: 50%;
       transform: translateX(-50%);
       background: rgba(255,255,255,0.15);
@@ -305,34 +343,16 @@
       white-space: nowrap;
       border: 1px solid rgba(255,255,255,0.1);
     }
-    
     .toast.show {
       opacity: 1;
     }
-    
     @media (max-width: 380px) {
-      .self-view-container {
-        width: 100px;
-        height: 140px;
-        bottom: 5.5rem;
-        right: 0.8rem;
-      }
       .bottom-actions {
         gap: 1.5rem;
         padding: 0.7rem 1.5rem;
       }
-    }
-    
-    @media (min-width: 768px) {
-      .self-view-container {
-        width: 150px;
-        height: 200px;
-        bottom: 7rem;
-        right: 2rem;
-      }
-      .bottom-actions {
-        gap: 3rem;
-        padding: 1rem 2.5rem;
+      .comment-section {
+        bottom: 6rem;
       }
     }
   </style>
@@ -354,7 +374,7 @@
       <i class="fas fa-times"></i>
     </button>
     
-    <!-- Main video container (stranger/host) -->
+    <!-- Main video container (host only) -->
     <div class="main-video-container" id="videoContainer">
       <div class="video-placeholder" id="videoPlaceholder">
         <i class="fas fa-video"></i>
@@ -363,12 +383,18 @@
       <video id="remoteVideo" autoplay playsinline style="display:none;"></video>
     </div>
 
-    <!-- Self-view small box -->
-    <div class="self-view-container" id="selfViewContainer">
-      <video id="localVideo" autoplay playsinline muted></video>
+    <!-- Comment section (replaces self-view) -->
+    <div class="comment-section">
+      <div class="comment-list" id="commentList"></div>
+      <div class="comment-input-row">
+        <input type="text" id="commentInput" placeholder="Add a comment..." maxlength="150" autocomplete="off" />
+        <button class="comment-send-btn" onclick="sendComment()">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
     </div>
 
-    <!-- Bottom actions -->
+    <!-- Bottom actions: only like and share (no mic/camera) -->
     <div class="bottom-actions">
       <button class="action-btn" id="likeBtn" onclick="toggleLike()">
         <i class="far fa-heart"></i>
@@ -377,14 +403,6 @@
       <button class="action-btn" onclick="shareLive()">
         <i class="fas fa-share"></i>
         <span>Share</span>
-      </button>
-      <button class="action-btn" id="micBtn" onclick="toggleMic()">
-        <i class="fas fa-microphone"></i>
-        <span>Mic</span>
-      </button>
-      <button class="action-btn" id="cameraBtn" onclick="toggleCamera()">
-        <i class="fas fa-video"></i>
-        <span>Camera</span>
       </button>
     </div>
 
@@ -410,7 +428,12 @@
       updateDoc, 
       increment, 
       serverTimestamp,
-      deleteDoc
+      deleteDoc,
+      collection,
+      addDoc,
+      query,
+      orderBy,
+      limit
     } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -436,11 +459,10 @@
     document.getElementById('loadingText').textContent = `Joining ${liveUser}'s live stream...`;
 
     let pc = null;
-    let localStream = null;
-    let isMicOn = true;
-    let isCameraOn = true;
-    let viewerDocRef = null;
-    let answerListener = null;
+    let isLiked = false;
+    let likeCount = 0;
+    let commentsListener = null;
+    let liveRef = null;
 
     // Toast function
     function showToast(message) {
@@ -450,40 +472,7 @@
       setTimeout(() => toast.classList.remove('show'), 2000);
     }
 
-    // Get user media (camera & mic)
-    async function getUserMedia() {
-      try {
-        localStream = await navigator.mediaDevices.getUserMedia({ 
-          video: { 
-            width: { ideal: 320 },
-            height: { ideal: 240 },
-            facingMode: "user"
-          }, 
-          audio: true 
-        });
-        
-        const localVideo = document.getElementById('localVideo');
-        localVideo.srcObject = localStream;
-        localVideo.muted = true;
-        
-        return localStream;
-      } catch (e) {
-        console.warn('Camera/mic access denied:', e);
-        // Try audio only
-        try {
-          localStream = await navigator.mediaDevices.getUserMedia({ 
-            video: false, 
-            audio: true 
-          });
-          return localStream;
-        } catch (e2) {
-          console.warn('Audio only also failed:', e2);
-          return null;
-        }
-      }
-    }
-
-    // Create peer connection
+    // Create peer connection (receive only, no local media)
     function createPeerConnection() {
       const configuration = {
         iceServers: [
@@ -494,13 +483,6 @@
       };
 
       pc = new RTCPeerConnection(configuration);
-
-      // Add local stream tracks to peer connection
-      if (localStream) {
-        localStream.getTracks().forEach(track => {
-          pc.addTrack(track, localStream);
-        });
-      }
 
       // Handle incoming remote stream (host video)
       pc.ontrack = (event) => {
@@ -521,25 +503,9 @@
         }
       };
 
-      // ICE candidate handling
-      pc.onicecandidate = (event) => {
-        if (event.candidate && viewerDocRef) {
-          // Send ICE candidate to host
-          updateDoc(viewerDocRef, {
-            iceCandidates: increment(0) // Trigger update
-          }).catch(() => {});
-          
-          // Store candidate locally
-          const candidates = JSON.parse(localStorage.getItem(`ice_${viewerId}`) || '[]');
-          candidates.push(event.candidate);
-          localStorage.setItem(`ice_${viewerId}`, JSON.stringify(candidates));
-        }
-      };
-
       // Connection state changes
       pc.onconnectionstatechange = () => {
         console.log('Connection state:', pc.connectionState);
-        
         if (pc.connectionState === 'connected') {
           document.getElementById('loadingOverlay').style.display = 'none';
           document.getElementById('mainPage').style.display = 'flex';
@@ -565,14 +531,66 @@
       document.getElementById('goBackBtn').style.display = 'block';
     }
 
-    // Main connection logic
+    // Load comments from Firestore
+    function loadComments() {
+      const commentsQuery = query(
+        collection(db, 'live_comments', liveUser.replace('@', ''), 'messages'),
+        orderBy('timestamp', 'asc'),
+        limit(50)
+      );
+      
+      commentsListener = onSnapshot(commentsQuery, (snapshot) => {
+        const commentList = document.getElementById('commentList');
+        commentList.innerHTML = '';
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          const commentDiv = document.createElement('div');
+          commentDiv.className = 'comment-item';
+          commentDiv.innerHTML = `<span class="comment-username">${data.username || 'user'}</span> ${data.text}`;
+          commentList.appendChild(commentDiv);
+        });
+        // Auto-scroll to bottom
+        commentList.scrollTop = commentList.scrollHeight;
+      });
+    }
+
+    // Send comment
+    window.sendComment = async function() {
+      const input = document.getElementById('commentInput');
+      const text = input.value.trim();
+      if (!text) return;
+      
+      input.value = '';
+      
+      try {
+        await addDoc(collection(db, 'live_comments', liveUser.replace('@', ''), 'messages'), {
+          username: currentUser,
+          text: text,
+          timestamp: serverTimestamp()
+        });
+      } catch (e) {
+        console.error('Error sending comment:', e);
+        showToast('Failed to send comment');
+      }
+    };
+
+    // Allow sending comment with Enter key
+    document.addEventListener('DOMContentLoaded', () => {
+      const commentInput = document.getElementById('commentInput');
+      if (commentInput) {
+        commentInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            window.sendComment();
+          }
+        });
+      }
+    });
+
+    // Main connection logic (no local media)
     async function connectToLive() {
       try {
-        // Get user media first
-        await getUserMedia();
-        
         // Check if host is live
-        const liveRef = doc(db, 'live', liveUser.replace('@', ''));
+        liveRef = doc(db, 'live', liveUser.replace('@', ''));
         const liveSnap = await getDoc(liveRef);
         
         if (!liveSnap.exists() || !liveSnap.data()?.active) {
@@ -580,15 +598,23 @@
           return;
         }
 
-        // Create peer connection
+        // Update like count from Firestore
+        const liveData = liveSnap.data();
+        likeCount = liveData?.likes || 0;
+        document.getElementById('likeCount').textContent = likeCount > 0 ? likeCount : 'Like';
+
+        // Create peer connection (receive only)
         createPeerConnection();
         
-        // Create offer
-        const offer = await pc.createOffer();
+        // Create offer (receive only)
+        const offer = await pc.createOffer({
+          offerToReceiveVideo: true,
+          offerToReceiveAudio: true
+        });
         await pc.setLocalDescription(offer);
         
         // Store viewer offer in Firestore
-        viewerDocRef = doc(db, 'live_viewers', viewerId);
+        const viewerDocRef = doc(db, 'live_viewers', viewerId);
         
         const viewerData = {
           liveUser: liveUser,
@@ -611,27 +637,13 @@
         });
 
         // Listen for host's answer
-        answerListener = onSnapshot(viewerDocRef, async (snap) => {
+        onSnapshot(viewerDocRef, async (snap) => {
           const data = snap.data();
           
           if (data?.answer && pc.signalingState !== 'stable') {
             try {
               await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
               console.log('Remote description set successfully');
-              
-              // Apply stored ICE candidates
-              const candidates = JSON.parse(localStorage.getItem(`ice_${viewerId}`) || '[]');
-              for (const candidate of candidates) {
-                try {
-                  await pc.addIceCandidate(new RTCIceCandidate(candidate));
-                } catch (e) {
-                  console.warn('Error adding ICE candidate:', e);
-                }
-              }
-              
-              // Clear stored candidates
-              localStorage.removeItem(`ice_${viewerId}`);
-              
             } catch (e) {
               console.error('Error setting remote description:', e);
             }
@@ -657,7 +669,16 @@
             document.getElementById('viewerCount').textContent = 
               `${liveData.viewers} watching`;
           }
+          
+          // Update like count
+          if (liveData?.likes !== undefined) {
+            likeCount = liveData.likes;
+            document.getElementById('likeCount').textContent = likeCount > 0 ? likeCount : 'Like';
+          }
         });
+
+        // Load comments
+        loadComments();
 
       } catch (e) {
         console.error('Connection error:', e);
@@ -668,36 +689,26 @@
     // Close live
     window.closeLive = async function() {
       try {
-        // Clean up peer connection
         if (pc) {
           pc.close();
           pc = null;
         }
         
-        // Stop local stream
-        if (localStream) {
-          localStream.getTracks().forEach(track => track.stop());
-          localStream = null;
-        }
-        
         // Remove viewer document
-        if (viewerDocRef) {
-          await deleteDoc(viewerDocRef).catch(() => {});
-        }
+        const viewerDocRef = doc(db, 'live_viewers', viewerId);
+        await deleteDoc(viewerDocRef).catch(() => {});
         
         // Update viewer count
-        const liveRef = doc(db, 'live', liveUser.replace('@', ''));
-        await updateDoc(liveRef, { 
-          viewers: increment(-1) 
-        }).catch(() => {});
-        
-        // Remove listener
-        if (answerListener) {
-          answerListener();
+        if (liveRef) {
+          await updateDoc(liveRef, { 
+            viewers: increment(-1) 
+          }).catch(() => {});
         }
         
-        // Clear stored candidates
-        localStorage.removeItem(`ice_${viewerId}`);
+        // Remove comments listener
+        if (commentsListener) {
+          commentsListener();
+        }
         
       } catch (e) {
         console.error('Error closing live:', e);
@@ -707,67 +718,37 @@
     };
 
     // Toggle like
-    window.toggleLike = function() {
+    window.toggleLike = async function() {
       const likeBtn = document.getElementById('likeBtn');
       const icon = likeBtn.querySelector('i');
       
-      likeBtn.classList.toggle('liked');
-      
-      if (likeBtn.classList.contains('liked')) {
+      if (!isLiked) {
+        isLiked = true;
+        likeBtn.classList.add('liked');
         icon.className = 'fas fa-heart';
-        likeBtn.querySelector('span').textContent = 'Liked';
+        
+        try {
+          if (liveRef) {
+            await updateDoc(liveRef, { likes: increment(1) });
+          }
+        } catch (e) {
+          console.error('Error updating like:', e);
+        }
         showToast('❤️ You liked this stream!');
       } else {
+        // Unlike
+        isLiked = false;
+        likeBtn.classList.remove('liked');
         icon.className = 'far fa-heart';
-        likeBtn.querySelector('span').textContent = 'Like';
-      }
-    };
-
-    // Toggle microphone
-    window.toggleMic = function() {
-      if (!localStream) return;
-      
-      const audioTrack = localStream.getAudioTracks()[0];
-      const micBtn = document.getElementById('micBtn');
-      
-      if (audioTrack) {
-        isMicOn = !isMicOn;
-        audioTrack.enabled = isMicOn;
         
-        if (isMicOn) {
-          micBtn.querySelector('i').className = 'fas fa-microphone';
-          micBtn.style.color = '#fff';
-          showToast('Microphone on 🎤');
-        } else {
-          micBtn.querySelector('i').className = 'fas fa-microphone-slash';
-          micBtn.style.color = '#ef4444';
-          showToast('Microphone off 🔇');
+        try {
+          if (liveRef) {
+            await updateDoc(liveRef, { likes: increment(-1) });
+          }
+        } catch (e) {
+          console.error('Error updating unlike:', e);
         }
-      }
-    };
-
-    // Toggle camera
-    window.toggleCamera = function() {
-      if (!localStream) return;
-      
-      const videoTrack = localStream.getVideoTracks()[0];
-      const cameraBtn = document.getElementById('cameraBtn');
-      
-      if (videoTrack) {
-        isCameraOn = !isCameraOn;
-        videoTrack.enabled = isCameraOn;
-        
-        if (isCameraOn) {
-          cameraBtn.querySelector('i').className = 'fas fa-video';
-          cameraBtn.style.color = '#fff';
-          document.getElementById('selfViewContainer').style.display = 'block';
-          showToast('Camera on 📹');
-        } else {
-          cameraBtn.querySelector('i').className = 'fas fa-video-slash';
-          cameraBtn.style.color = '#ef4444';
-          document.getElementById('selfViewContainer').style.display = 'none';
-          showToast('Camera off 🚫');
-        }
+        showToast('Like removed');
       }
     };
 
@@ -798,14 +779,14 @@
     // Handle page unload
     window.addEventListener('beforeunload', () => {
       if (pc) pc.close();
-      if (localStream) {
-        localStream.getTracks().forEach(track => track.stop());
+      const viewerDocRef = doc(db, 'live_viewers', viewerId);
+      deleteDoc(viewerDocRef).catch(() => {});
+      if (liveRef) {
+        updateDoc(liveRef, { viewers: increment(-1) }).catch(() => {});
       }
-      if (viewerDocRef) {
-        deleteDoc(viewerDocRef).catch(() => {});
+      if (commentsListener) {
+        commentsListener();
       }
-      const liveRef = doc(db, 'live', liveUser.replace('@', ''));
-      updateDoc(liveRef, { viewers: increment(-1) }).catch(() => {});
     });
 
     // Start connection

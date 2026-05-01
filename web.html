@@ -9,7 +9,7 @@
     * { margin:0;padding:0;box-sizing:border-box; }
     body { background:#000;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center; }
     .page { width:100%;height:100vh;height:100dvh;background:#000;display:flex;flex-direction:column;position:relative;overflow:hidden; }
-    .content { flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;color:#fff;padding:0.5rem 1rem 7rem 1rem;text-align:center;gap:0.3rem; }
+    .content { flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;color:#fff;padding:0.5rem 1rem 6rem 1rem;text-align:center;gap:0.3rem; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
     @keyframes livePulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.7)} 50%{box-shadow:0 0 0 10px rgba(239,68,68,0)} }
@@ -62,53 +62,45 @@
     .you-label-outside { color:#777;font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;margin-right:0.3rem; }
     .user-info { display:flex;align-items:center;gap:0.3rem;background:rgba(255,255,255,0.06);padding:0.25rem 0.6rem;border-radius:1rem;font-size:0.7rem;color:#ccc;opacity:0;transition:all 0.3s;border:1px solid rgba(255,255,255,0.08); }
     .user-info.active { opacity:1; }
-    .buttons-container { 
-      display:flex;gap:0.8rem;flex-wrap:wrap;justify-content:center;
-      padding:0.5rem 0;align-items:center;
-      position:relative;z-index:50;
-      pointer-events:auto;
-    }
+    .buttons-container { display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;padding:0.2rem 0;align-items:center; }
     .btn { 
-      height:44px;min-height:44px;
-      border-radius:2rem;
-      display:inline-flex;align-items:center;justify-content:center;gap:0.3rem;
+      height:36px;border-radius:2rem;
+      backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+      display:flex;align-items:center;justify-content:center;gap:0.3rem;
       cursor:pointer;border:none;outline:none;
-      font-size:0.8rem;font-weight:600;padding:0 1.2rem;color:#fff;
+      font-size:0.75rem;font-weight:600;padding:0 1rem;color:#fff;
       transition:all 0.3s;
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
       user-select: none;
       -webkit-user-select: none;
       position: relative;
-      z-index: 50;
-      pointer-events:auto;
-      text-decoration:none;
-      -webkit-appearance:none;
-      appearance:none;
+      z-index: 10;
+      -webkit-appearance: none;
+      appearance: none;
     }
-    .btn:active { transform:scale(0.95);background:rgba(255,255,255,0.2); }
-    .start-button { min-width:90px;background:rgba(74,222,128,0.2);border:1px solid rgba(74,222,128,0.5);color:#4ade80; }
+    .btn:active { transform:scale(0.95); }
+    .start-button { width:90px;background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.4);color:#4ade80; }
     .start-button.searching { background:rgba(251,191,36,0.2);border-color:rgba(251,191,36,0.5);color:#fbbf24;animation:pulse 1s infinite; }
-    .stop-button { min-width:80px;background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.5);color:#ef4444;display:none; }
-    .stop-button.visible { display:inline-flex; }
-    .next-button { min-width:80px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.3);color:#ccc;display:none; }
-    .next-button.visible { display:inline-flex; }
-    .mic-button { width:44px;height:44px;min-width:44px;border-radius:50%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.3);color:#4ade80;display:none;padding:0; }
-    .mic-button.visible { display:inline-flex;align-items:center;justify-content:center; }
-    .mic-button.muted { color:#ef4444;background:rgba(239,68,68,0.2);border-color:rgba(239,68,68,0.5); }
+    .stop-button { width:80px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#ef4444;display:none; }
+    .stop-button.visible { display:flex; }
+    .next-button { width:80px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:#ccc;display:none; }
+    .next-button.visible { display:flex; }
+    .mic-button { width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:#4ade80;display:none;padding:0; }
+    .mic-button.visible { display:flex;align-items:center;justify-content:center; }
+    .mic-button.muted { color:#ef4444;background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.4); }
     
     .live-button { 
-      min-width:80px;
-      background:rgba(74,222,128,0.2);
-      border:1px solid rgba(74,222,128,0.5);
+      width:80px;
+      background:rgba(74,222,128,0.15);
+      border:1px solid rgba(74,222,128,0.4);
       color:#4ade80;
       transition: all 0.3s;
-      display:inline-flex;
     }
     .live-button:hover { background:rgba(74,222,128,0.3); }
     .live-button.live-active-btn { 
-      background:rgba(239,68,68,0.3);
-      border-color:rgba(239,68,68,0.7);
+      background:rgba(239,68,68,0.25);
+      border-color:rgba(239,68,68,0.6);
       color:#ef4444;
       animation:livePulse 2s infinite;
     }
@@ -117,19 +109,7 @@
     .loading-screen i { font-size:2rem;color:#3897f0;animation:spin 1s infinite; }
     .loading-screen span { font-size:0.75rem;color:#888; }
 
-    .floating-nav { 
-      position:fixed;
-      bottom:max(1rem,env(safe-area-inset-bottom,1rem));
-      left:50%;transform:translateX(-50%);
-      width:92%;max-width:500px;
-      background:rgba(20,20,20,0.95);
-      border-radius:2.5rem;
-      padding:0.7rem 1.5rem;
-      display:flex;align-items:center;justify-content:center;
-      border:1px solid rgba(255,255,255,0.15);
-      box-shadow:0 20px 40px rgba(0,0,0,0.8);
-      z-index:45;
-    }
+    .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6);z-index:100; }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
     .nav-center a { color:rgba(255,255,255,0.6);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;position:relative; }
     .nav-center a::before { content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:4px;height:4px;border-radius:50%;background:#fff;transition:all 0.3s; }
@@ -148,21 +128,7 @@
       .stranger-camera { max-height:70vh; }
       .my-camera { max-height:180px; }
     }
-    @media (max-width:768px) {
-      .content { padding:0.3rem 0.6rem 8rem 0.6rem; }
-      .btn { height:48px;min-height:48px;font-size:0.85rem;padding:0 1.2rem; }
-      .buttons-container { gap:0.8rem;padding:0.8rem 0; }
-    }
-    @media (max-width:380px) { 
-      .content{padding:0.3rem 0.6rem 7rem 0.6rem}
-      .stranger-camera{max-height:45vh}.my-camera{max-height:100px}
-      .btn{height:44px;min-height:44px;font-size:0.75rem;padding:0 0.8rem}
-      .start-button{min-width:80px}.stop-button,.next-button,.live-button{min-width:70px}
-      .mic-button{width:44px;height:44px;min-width:44px}
-      .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.5rem}
-      .nav-center a{font-size:1.1rem;width:2rem;height:2rem}
-      .buttons-container { gap:0.5rem;padding:0.5rem 0; }
-    }
+    @media (max-width:380px) { .content{padding:0.3rem 0.6rem 5rem 0.6rem}.stranger-camera{max-height:56vh}.my-camera{max-height:100px}.btn{height:32px;font-size:0.65rem;padding:0 0.5rem}.start-button{width:60px}.stop-button,.next-button,.live-button{width:55px}.mic-button{width:32px;height:32px}.floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem}.nav-center a{font-size:1.1rem;width:2rem;height:2rem} }
   </style>
 </head>
 <body>
@@ -197,12 +163,12 @@
         </div>
       </div>
       <div class="user-info" id="userInfo"><span>🌍</span><span>Connected</span></div>
-      <div class="buttons-container" id="buttonsContainer">
-        <button class="btn live-button" id="liveBtn" type="button" onclick="window._handleLive()"><i class="fas fa-circle"></i><span>LIVE</span></button>
-        <button class="btn start-button" id="startBtn" type="button" onclick="window._handleStart()"><i class="fas fa-play"></i><span>Start</span></button>
-        <button class="btn stop-button" id="stopBtn" type="button" onclick="window._handleStop()"><i class="fas fa-stop"></i><span>Stop</span></button>
-        <button class="btn next-button" id="nextBtn" type="button" onclick="window._handleNext()"><i class="fas fa-forward"></i><span>Next</span></button>
-        <button class="btn mic-button" id="micBtn" type="button" onclick="window._handleMic()" title="Mute"><i class="fas fa-microphone"></i></button>
+      <div class="buttons-container">
+        <button class="btn live-button" id="liveBtn" type="button"><i class="fas fa-circle"></i><span>LIVE</span></button>
+        <button class="btn start-button" id="startBtn" type="button"><i class="fas fa-play"></i><span>Start</span></button>
+        <button class="btn stop-button" id="stopBtn" type="button"><i class="fas fa-stop"></i><span>Stop</span></button>
+        <button class="btn next-button" id="nextBtn" type="button"><i class="fas fa-forward"></i><span>Next</span></button>
+        <button class="btn mic-button" id="micBtn" type="button" title="Mute"><i class="fas fa-microphone"></i></button>
       </div>
     </div>
     <nav class="floating-nav"><div class="nav-center">
@@ -325,9 +291,7 @@
       async function handleNewViewer(viewerId, viewerData) {
         try {
           const vpc = new RTCPeerConnection(servers);
-          if (localStream) {
-            localStream.getTracks().forEach(track => vpc.addTrack(track, localStream));
-          }
+          if (localStream) localStream.getTracks().forEach(track => vpc.addTrack(track, localStream));
           if (strangerStream) {
             strangerStream.getTracks().forEach(track => {
               if (track.readyState === 'live') vpc.addTrack(track, strangerStream);
@@ -371,17 +335,13 @@
       async function updateLiveViewerCount() {
         const count = Object.keys(liveViewers).length;
         liveViewerCount.textContent = count;
-        try {
-          await setDoc(doc(db, 'live', liveUserId), { viewers: count }, { merge: true });
-        } catch(e) {}
+        try { await setDoc(doc(db, 'live', liveUserId), { viewers: count }, { merge: true }); } catch(e) {}
       }
 
       async function endLive() {
         isLive = false;
         updateLiveButton();
-        Object.keys(liveViewers).forEach(id => {
-          if (liveViewers[id]) { liveViewers[id].close(); }
-        });
+        Object.keys(liveViewers).forEach(id => { if (liveViewers[id]) liveViewers[id].close(); });
         liveViewers = {};
         try {
           const viewersSnap = await getDocs(collection(db, 'live_viewers'));
@@ -401,7 +361,6 @@
       }
 
       async function toggleLive() {
-        console.log('Toggle live clicked');
         if (isLive) {
           await endLive();
         } else {
@@ -452,7 +411,7 @@
       }
 
       function showDisconnected() {
-        startBtn.style.display='inline-flex';
+        startBtn.style.display='flex';
         stopBtnEl.classList.remove('visible'); nextBtn.classList.remove('visible');
         micBtn.classList.remove('visible');
         startBtn.classList.remove('searching');
@@ -490,18 +449,12 @@
             strangerCamera.classList.add('connected');
             if(isLive) {
               Object.values(liveViewers).forEach(vpc => {
-                try {
-                  strangerStream.getTracks().forEach(track => {
-                    if(track.readyState === 'live') vpc.addTrack(track, strangerStream);
-                  });
-                } catch(e) {}
+                try { strangerStream.getTracks().forEach(track => { if(track.readyState==='live') vpc.addTrack(track,strangerStream); }); } catch(e) {}
               });
             }
           }
         };
-        pc.onicecandidate=async(e)=>{
-          if(e.candidate) await addDoc(collection(roomRef,'ice'),{sender:myId,candidate:e.candidate.toJSON()});
-        };
+        pc.onicecandidate=async(e)=>{ if(e.candidate) await addDoc(collection(roomRef,'ice'),{sender:myId,candidate:e.candidate.toJSON()}); };
         unsubs.push(onSnapshot(collection(roomRef,'ice'),(snap)=>{
           snap.docChanges().forEach(async(c)=>{
             if(c.type==='added'&&c.doc.data().sender!==myId&&pc){
@@ -543,18 +496,12 @@
               strangerCamera.classList.add('connected');
               if(isLive) {
                 Object.values(liveViewers).forEach(vpc => {
-                  try {
-                    strangerStream.getTracks().forEach(track => {
-                      if(track.readyState === 'live') vpc.addTrack(track, strangerStream);
-                    });
-                  } catch(e) {}
+                  try { strangerStream.getTracks().forEach(track => { if(track.readyState==='live') vpc.addTrack(track,strangerStream); }); } catch(e) {}
                 });
               }
             }
           };
-          pc.onicecandidate=async(e)=>{
-            if(e.candidate) await addDoc(collection(roomRef,'ice'),{sender:myId,candidate:e.candidate.toJSON()});
-          };
+          pc.onicecandidate=async(e)=>{ if(e.candidate) await addDoc(collection(roomRef,'ice'),{sender:myId,candidate:e.candidate.toJSON()}); };
           if(d.offer&&pc.signalingState!=='closed'){
             await pc.setRemoteDescription(new RTCSessionDescription(d.offer));
             const answer=await pc.createAnswer();
@@ -572,19 +519,12 @@
       }
 
       async function startChat() {
-        console.log('Start chat clicked');
-        if(isLive) {
-          alert('Please end live stream before starting a new chat');
-          return;
-        }
+        if(isLive) { alert('Please end live stream before starting a new chat'); return; }
         startBtn.disabled=true;
         startBtn.classList.add('searching');
         startBtn.querySelector('span').textContent='Searching';
         startBtn.querySelector('i').className='fas fa-spinner fa-spin';
-        if(!(await startCamera())){
-          showDisconnected();
-          return;
-        }
+        if(!(await startCamera())){ showDisconnected(); return; }
         const snap=await getDocs(collection(db,'waiting'));
         let found=null;
         snap.forEach(d=>{if(d.data().userId!==myId&&!found)found=d.data().userId;});
@@ -599,7 +539,6 @@
       }
 
       function stopChat() {
-        console.log('Stop chat clicked');
         if(connectionTimeout) clearTimeout(connectionTimeout);
         if(pc){pc.close();pc=null;}
         unsubs.forEach(u=>u()); unsubs=[];
@@ -610,51 +549,18 @@
         resetStranger(); stopCamera(); showDisconnected();
       }
 
-      // ===== GLOBAL HANDLERS FOR ONCLICK =====
-      window._handleLive = function() {
-        console.log('LIVE button clicked via onclick');
-        toggleLive();
-      };
-      
-      window._handleStart = function() {
-        console.log('START button clicked via onclick');
-        startChat();
-      };
-      
-      window._handleStop = function() {
-        console.log('STOP button clicked via onclick');
-        stopChat();
-      };
-      
-      window._handleNext = function() {
-        console.log('NEXT button clicked via onclick');
-        stopChat();
-        setTimeout(function() { startChat(); }, 500);
-      };
-      
-      window._handleMic = function() {
-        console.log('MIC button clicked via onclick');
-        toggleMute();
-      };
+      // ===== onclick handlers for old phones =====
+      liveBtn.onclick = function(e) { e.preventDefault(); toggleLive(); };
+      startBtn.onclick = function(e) { e.preventDefault(); startChat(); };
+      stopBtnEl.onclick = function(e) { e.preventDefault(); stopChat(); };
+      nextBtn.onclick = function(e) { e.preventDefault(); stopChat(); setTimeout(function() { startChat(); }, 500); };
+      micBtn.onclick = function(e) { e.preventDefault(); toggleMute(); };
 
-      // Backup: also add JS event listeners for modern browsers
-      try {
-        liveBtn.addEventListener('click', function(e) { e.preventDefault(); toggleLive(); });
-        startBtn.addEventListener('click', function(e) { e.preventDefault(); startChat(); });
-        stopBtnEl.addEventListener('click', function(e) { e.preventDefault(); stopChat(); });
-        nextBtn.addEventListener('click', function(e) { e.preventDefault(); stopChat(); setTimeout(function() { startChat(); }, 500); });
-        micBtn.addEventListener('click', function(e) { e.preventDefault(); toggleMute(); });
-      } catch(e) {
-        console.log('Event listener fallback not needed, using onclick');
-      }
-      
       window.addEventListener('beforeunload', () => {
         if(isLive) { endLive().catch(()=>{}); }
         if(pc) pc.close();
         if(localStream) localStream.getTracks().forEach(t=>t.stop());
       });
-      
-      console.log('✅ Web chat initialized with onclick handlers for old phones');
     }
 
     init();

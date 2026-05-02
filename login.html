@@ -47,9 +47,11 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
+    const auth = getAuth(app);
 
     function hashPassword(pw) { let h=0; for(let i=0;i<pw.length;i++){const c=pw.charCodeAt(i);h=((h<<5)-h)+c;h=h&h;} return 'h_'+Math.abs(h).toString(16); }
 
@@ -67,29 +69,66 @@
       err.textContent='';suc.textContent='';
       if(!ue||!pw){err.textContent='❌ Enter username/email and password';return;}
       btn.disabled=true;btn.textContent='Signing In...';
+
       try {
-        let q=query(collection(db,'users'),where('username','==',ue.startsWith('@')?ue:'@'+ue));
-        let snap=await getDocs(q);
-        if(snap.empty){q=query(collection(db,'users'),where('email','==',ue));snap=await getDocs(q);}
-        if(snap.empty){err.textContent='❌ Account not found';btn.disabled=false;btn.textContent='Sign In';return;}
-        const d=snap.docs[0].data();
-        if(d.password!==hashPassword(pw)){err.textContent='❌ Wrong password';btn.disabled=false;btn.textContent='Sign In';return;}
-        
-        // Load existing profile OR create fresh one
+        // Attempt Firebase Auth first
+        let userCredential = null;
+        let firestoreUser = null;
+
+        // Try to sign in with Firebase Auth (email/password)
+        try {
+          // If input looks like email, try direct; otherwise check Firestore for email
+          let email = ue;
+          if (!ue.includes('@')) {
+            // Look up email from Firestore
+            const q = query(collection(db,'users'),where('username','==',ue.startsWith('@')?ue:'@'+ue));
+            const snap = await getDocs(q);
+            if (!snap.empty) {
+              email = snap.docs[0].data().email || '';
+              firestoreUser = snap.docs[0].data();
+            }
+          }
+          
+          if (email && email.includes('@')) {
+            userCredential = await signInWithEmailAndPassword(auth, email, pw);
+            // Store uid in localStorage - this is the auth gate key
+            localStorage.setItem("uid", userCredential.user.uid);
+          }
+        } catch(authErr) {
+          console.log('Firebase Auth failed, trying Firestore fallback:', authErr.message);
+          // Fall through to Firestore check
+        }
+
+        // If Firebase Auth failed, use Firestore as fallback
+        if (!userCredential) {
+          let q=query(collection(db,'users'),where('username','==',ue.startsWith('@')?ue:'@'+ue));
+          let snap=await getDocs(q);
+          if(snap.empty){q=query(collection(db,'users'),where('email','==',ue));snap=await getDocs(q);}
+          if(snap.empty){err.textContent='❌ Account not found';btn.disabled=false;btn.textContent='Sign In';return;}
+          firestoreUser = snap.docs[0].data();
+          if(firestoreUser.password!==hashPassword(pw)){err.textContent='❌ Wrong password';btn.disabled=false;btn.textContent='Sign In';return;}
+          // Store a generated uid for Firestore-only users
+          localStorage.setItem("uid", "firestore_" + firestoreUser.username.replace('@',''));
+        }
+
+        // Store user data
         let profile = JSON.parse(localStorage.getItem('userProfile')||'{}');
-        if(!profile.username || profile.username !== d.username) {
-          // Fresh profile for this user
-          profile = { username:d.username, name:d.name||'', bio:d.bio||'', website:d.website||'', avatar:d.avatar||null, friends:[], besties:[], posts:[] };
+        if(!profile.username || profile.username !== firestoreUser.username) {
+          profile = { username:firestoreUser.username, name:firestoreUser.name||'', bio:firestoreUser.bio||'', website:firestoreUser.website||'', avatar:firestoreUser.avatar||null, friends:[], besties:[], posts:[] };
         }
         localStorage.setItem('userProfile', JSON.stringify(profile));
-        localStorage.setItem('currentUser', d.username);
-        
+        localStorage.setItem('currentUser', firestoreUser.username);
+
         const su=JSON.parse(localStorage.getItem('savedUsers')||'[]');
-        if(!su.includes(d.username)){su.push(d.username);localStorage.setItem('savedUsers',JSON.stringify(su));}
-        
+        if(!su.includes(firestoreUser.username)){su.push(firestoreUser.username);localStorage.setItem('savedUsers',JSON.stringify(su));}
+
         suc.textContent='✅ Login successful!';
-        setTimeout(()=>{window.location.href='profile.html';},800);
-      }catch(e){err.textContent='❌ Error: '+e.message;btn.disabled=false;btn.textContent='Sign In';}
+        setTimeout(()=>{window.location.href='index.html';},800);
+      }catch(e){
+        err.textContent='❌ Error: '+e.message;
+        btn.disabled=false;
+        btn.textContent='Sign In';
+      }
     };
   </script>
 </body>

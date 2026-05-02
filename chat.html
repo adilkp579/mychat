@@ -46,14 +46,13 @@
   </style>
 </head>
 <body>
-  <!-- Loading Screen -->
   <div class="loading-screen" id="loadingScreen">
     <i class="fas fa-spinner"></i>
     <span>Checking authentication...</span>
   </div>
 
   <div class="page" id="mainPage" style="display:none;">
-    <div class="top-left"><a href="upload.html" class="corner-btn"><i class="fas fa-plus"></i></a></div>
+    <div class="top-left"><a href="friend.html" class="corner-btn"><i class="fas fa-user-plus"></i></a></div>
     <div class="top-right"><a href="search.html" class="corner-btn"><i class="fas fa-search"></i></a></div>
     <div class="content">
       <i class="fas fa-comment-dots page-icon"></i>
@@ -66,17 +65,15 @@
       <a href="reel.html"><i class="fas fa-film"></i></a>
       <a href="chat.html" class="active"><i class="fas fa-comment-dots"></i></a>
       <a href="profile.html"><i class="fas fa-user"></i></a>
-      <a href="upload.html" class="nav-upload"><i class="fas fa-plus"></i></a>
+      <a href="friend.html" class="nav-upload"><i class="fas fa-user-plus"></i></a>
       <a href="search.html" class="nav-search"><i class="fas fa-search"></i></a>
     </div></nav>
   </div>
 
   <script>
-    // ===== AUTH GATE (Instant block - No Firebase needed) =====
     if (!localStorage.getItem("uid")) {
       window.location.replace("login.html");
     } else {
-      // Hide loading, show main page instantly
       document.getElementById('loadingScreen').style.display = 'none';
       document.getElementById('mainPage').style.display = 'flex';
     }

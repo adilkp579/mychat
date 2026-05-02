@@ -233,40 +233,30 @@
     .nav-center a.active { color:#fff;background:rgba(255,255,255,0.15);backdrop-filter:blur(10px); }
     .nav-upload, .nav-search { display:none !important; }
 
-    /* ===== DESKTOP: Left side nav (same as index.html) ===== */
+    /* ===== DESKTOP: Same as index.html ===== */
     @media (min-width: 1024px) {
       .nav-upload, .nav-search { display:flex !important; }
-      
-      /* Nav moves to LEFT side, vertical */
       .floating-nav { 
-        top: 50%;
-        left: 1.5rem;
-        bottom: auto;
-        transform: translateY(-50%);
-        width: 3.8rem;
-        height: auto;
-        max-width: none;
-        border-radius: 2.5rem;
-        padding: 1rem 0.6rem;
-        flex-direction: column;
+        top:50%;left:1.5rem;bottom:auto;
+        transform:translateY(-50%);
+        width:3.8rem;height:auto;max-width:none;
+        border-radius:2.5rem;padding:1rem 0.6rem;
+        flex-direction:column;
       }
-      .floating-nav.hidden { display: flex !important; }
-      .nav-center { flex-direction: column; gap: 1.2rem; max-width: none; }
-      .nav-center a { font-size: 1.4rem; width: 2.6rem; height: 2.6rem; }
-      .nav-center a::before { bottom: auto; right: -4px; left: auto; top: 50%; transform: translateY(-50%) scale(0); }
-      .nav-center a.active::before { transform: translateY(-50%) scale(1); }
-
-      /* Content shifts RIGHT to make room for left nav */
-      .page { padding-left: 5.5rem; }
-      
-      .chat-header { padding-left: 1.5rem; padding-right: 1.5rem; }
-      .messages-container { padding-left: 1.5rem; padding-right: 1.5rem; }
-      .chat-input-area { padding-left: 1.5rem; padding-right: 1.5rem; }
-      .chat-list-header { padding-left: 1.5rem; padding-right: 1.5rem; }
-      .user-list-item { padding-left: 1.5rem; padding-right: 1.5rem; }
+      .floating-nav.hidden { display:flex !important; }
+      .nav-center { flex-direction:column;gap:1.2rem;max-width:none; }
+      .nav-center a { font-size:1.4rem;width:2.6rem;height:2.6rem; }
+      .nav-center a::before { bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0); }
+      .nav-center a.active::before { transform:translateY(-50%) scale(1); }
+      .page { padding:0 0 0 5.5rem; }
+      .chat-header { padding-left:1.5rem;padding-right:1.5rem; }
+      .messages-container { padding-left:1.5rem;padding-right:1.5rem; }
+      .chat-input-area { padding-left:1.5rem;padding-right:1.5rem; }
+      .chat-list-header { padding-left:1.5rem;padding-right:1.5rem; }
+      .user-list-item { padding-left:1.5rem;padding-right:1.5rem; }
     }
 
-    @media (max-width: 380px) { 
+    @media (max-width:380px) { 
       .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem}.nav-center a{font-size:1.1rem;width:2rem;height:2rem}
     }
   </style>
@@ -348,7 +338,6 @@
 
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('mainPage').style.display = 'flex';
-    
     loadAllUsers();
     setupRealtimeChatList();
 
@@ -358,9 +347,7 @@
         const snap = await getDocs(collection(db, 'users'));
         snap.forEach(doc => {
           const d = doc.data();
-          if (d.username !== currentUser) {
-            allUsersList.push({ username: d.username, name: d.name || d.username });
-          }
+          if (d.username !== currentUser) allUsersList.push({ username: d.username, name: d.name || d.username });
         });
       } catch(e) {
         const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
@@ -375,92 +362,51 @@
       document.getElementById('contactSearch').value = '';
       renderContactList(allUsersList);
     };
-
-    window.closeNewChatModal = function() {
-      document.getElementById('newChatModal').classList.remove('show');
-    };
-
+    window.closeNewChatModal = function() { document.getElementById('newChatModal').classList.remove('show'); };
     window.filterContacts = function() {
       const q = document.getElementById('contactSearch').value.toLowerCase();
-      const filtered = allUsersList.filter(u => (u.name || u.username).toLowerCase().includes(q));
-      renderContactList(filtered);
+      renderContactList(allUsersList.filter(u => (u.name || u.username).toLowerCase().includes(q)));
     };
-
     function renderContactList(users) {
       const list = document.getElementById('contactList');
-      if (users.length === 0) {
-        list.innerHTML = '<p style="color:#666;text-align:center;padding:1rem;font-size:0.75rem;">No users found</p>';
-        return;
-      }
-      list.innerHTML = users.map(u => `
-        <div class="contact-item" onclick="startNewChat('${u.username}')">
-          <div class="contact-avatar">${(u.name || u.username).charAt(0).toUpperCase()}</div>
-          <span class="contact-name">${u.name || u.username}</span>
-          <i class="fas fa-comment" style="color:#FFFC00;font-size:0.7rem;"></i>
-        </div>
-      `).join('');
+      if (users.length === 0) { list.innerHTML = '<p style="color:#666;text-align:center;padding:1rem;font-size:0.75rem;">No users found</p>'; return; }
+      list.innerHTML = users.map(u => `<div class="contact-item" onclick="startNewChat('${u.username}')"><div class="contact-avatar">${(u.name||u.username).charAt(0).toUpperCase()}</div><span class="contact-name">${u.name||u.username}</span><i class="fas fa-comment" style="color:#FFFC00;font-size:0.7rem;"></i></div>`).join('');
     }
-
-    window.startNewChat = function(username) {
-      closeNewChatModal();
-      openChat(username);
-    };
-
-    document.getElementById('newChatModal').addEventListener('click', function(e) {
-      if (e.target === this) closeNewChatModal();
-    });
+    window.startNewChat = function(username) { closeNewChatModal(); openChat(username); };
+    document.getElementById('newChatModal').addEventListener('click', function(e) { if (e.target === this) closeNewChatModal(); });
 
     function setupRealtimeChatList() {
       if (unsubChatList) unsubChatList();
-      unsubChatList = onSnapshot(collection(db, 'chats'), (snap) => {
-        loadChatListFromSnapshot(snap);
-      });
+      unsubChatList = onSnapshot(collection(db, 'chats'), (snap) => { loadChatListFromSnapshot(snap); });
     }
 
     async function loadChatListFromSnapshot(snap) {
       let chatUsers = [];
       const processedPartners = new Set();
-      
       snap.forEach(chatDoc => {
-        const cid = chatDoc.id;
-        const ids = cid.split('_');
+        const ids = chatDoc.id.split('_');
         if (ids.includes(currentUserId)) {
           const partnerId = ids.find(id => id !== currentUserId);
-          if (partnerId && !processedPartners.has(partnerId)) {
-            processedPartners.add(partnerId);
-          }
+          if (partnerId) processedPartners.add(partnerId);
         }
       });
-      
       const promises = [];
       for (const partnerId of processedPartners) {
         const cid = [currentUserId, partnerId].sort().join('_');
-        const promise = (async () => {
+        promises.push((async () => {
           try {
-            const msgSnap = await getDocs(query(
-              collection(db, 'chats', cid, 'messages'),
-              orderBy('createdAt', 'desc')
-            ));
+            const msgSnap = await getDocs(query(collection(db, 'chats', cid, 'messages'), orderBy('createdAt', 'desc')));
             let lastMsg = '', lastTime = new Date(0), unreadCount = 0;
             if (!msgSnap.empty) {
-              const lastMsgData = msgSnap.docs[0].data();
-              lastMsg = lastMsgData.text || '';
-              if (lastMsgData.createdAt) {
-                lastTime = lastMsgData.createdAt.toDate ? lastMsgData.createdAt.toDate() : new Date(lastMsgData.createdAt);
-              }
-              msgSnap.forEach(doc => {
-                const msg = doc.data();
-                if (msg.sender !== currentUserId && !msg.seen) unreadCount++;
-              });
+              const d = msgSnap.docs[0].data();
+              lastMsg = d.text || '';
+              if (d.createdAt) lastTime = d.createdAt.toDate ? d.createdAt.toDate() : new Date(d.createdAt);
+              msgSnap.forEach(doc => { const m = doc.data(); if (m.sender !== currentUserId && !m.seen) unreadCount++; });
             }
             return { username: '@' + partnerId, lastMsg, lastTime, unreadCount };
-          } catch(e) {
-            return { username: '@' + partnerId, lastMsg: '', lastTime: new Date(0), unreadCount: 0 };
-          }
-        })();
-        promises.push(promise);
+          } catch(e) { return { username: '@' + partnerId, lastMsg: '', lastTime: new Date(0), unreadCount: 0 }; }
+        })());
       }
-      
       chatUsers = await Promise.all(promises);
       chatUsers.sort((a, b) => b.lastTime - a.lastTime);
       chatListData = chatUsers;
@@ -470,58 +416,29 @@
     function renderChatList(chatUsers) {
       const list = document.getElementById('userList');
       const count = document.getElementById('chatCount');
-      const totalUnread = chatUsers.reduce((sum, c) => sum + c.unreadCount, 0);
+      const totalUnread = chatUsers.reduce((s, c) => s + c.unreadCount, 0);
       count.textContent = chatUsers.length > 0 ? '(' + chatUsers.length + ')' : '';
-      if (totalUnread > 0) {
-        document.getElementById('partnerName').textContent = 'Chats (' + totalUnread + ')';
-      } else {
-        document.getElementById('partnerName').textContent = 'Chats';
-      }
-      if (chatUsers.length === 0) {
-        list.innerHTML = '<div style="text-align:center;color:#555;padding:3rem;font-size:0.8rem;">No messages yet<br><br>Tap <b style="color:#FFFC00;">+</b> to start a chat</div>';
-        return;
-      }
+      document.getElementById('partnerName').textContent = totalUnread > 0 ? 'Chats (' + totalUnread + ')' : 'Chats';
+      if (chatUsers.length === 0) { list.innerHTML = '<div style="text-align:center;color:#555;padding:3rem;font-size:0.8rem;">No messages yet<br><br>Tap <b style="color:#FFFC00;">+</b> to start a chat</div>'; return; }
       list.innerHTML = chatUsers.map(c => {
         const timeStr = c.lastTime.getTime() > 0 ? formatTime(c.lastTime) : '';
-        const name = c.username.replace('@','');
-        const isActive = chatPartner === c.username;
-        return `
-          <div class="user-list-item ${isActive ? 'active' : ''}" onclick="openChat('${c.username}')">
-            <div class="user-avatar">${name.charAt(0).toUpperCase()}</div>
-            <div class="user-info">
-              <div class="user-name-row">
-                <span class="user-name">${c.username}</span>
-                <span class="user-time">${timeStr}</span>
-              </div>
-              <div class="user-msg-row">
-                <span class="user-last-msg ${c.unreadCount > 0 ? 'unread-msg' : ''}">${c.lastMsg || 'No messages'}</span>
-                ${c.unreadCount > 0 ? `<span class="unread-count">${c.unreadCount}</span>` : ''}
-              </div>
-            </div>
-          </div>
-        `;
+        return `<div class="user-list-item ${chatPartner===c.username?'active':''}" onclick="openChat('${c.username}')"><div class="user-avatar">${c.username.replace('@','').charAt(0).toUpperCase()}</div><div class="user-info"><div class="user-name-row"><span class="user-name">${c.username}</span><span class="user-time">${timeStr}</span></div><div class="user-msg-row"><span class="user-last-msg ${c.unreadCount>0?'unread-msg':''}">${c.lastMsg||'No messages'}</span>${c.unreadCount>0?`<span class="unread-count">${c.unreadCount}</span>`:''}</div></div></div>`;
       }).join('');
     }
 
     function formatTime(date) {
       if (!date || date.getTime() === 0) return '';
-      const now = new Date();
-      const diff = now - date;
+      const now = new Date(), diff = now - date;
       if (diff < 60000) return 'Now';
       if (diff < 3600000) return Math.floor(diff/60000) + 'm';
-      if (date.toDateString() === now.toDateString()) {
-        return date.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-      }
-      const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-      if (now - date < 604800000) return days[date.getDay()];
+      if (date.toDateString() === now.toDateString()) return date.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+      if (now - date < 604800000) return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][date.getDay()];
       return date.toLocaleDateString([], {month:'short',day:'numeric'});
     }
 
     window.openChat = function(username) {
       chatPartner = username;
-      const partnerId = username.replace('@', '');
-      chatId = [currentUserId, partnerId].sort().join('_');
-
+      chatId = [currentUserId, username.replace('@','')].sort().join('_');
       document.getElementById('chatListFull').classList.add('hidden');
       document.getElementById('chatView').classList.add('show');
       document.getElementById('backBtn').classList.add('show');
@@ -529,13 +446,10 @@
       document.getElementById('partnerName').textContent = username;
       document.getElementById('partnerAvatar').innerHTML = username.replace('@','').charAt(0).toUpperCase();
       document.getElementById('partnerStatus').innerHTML = '<span class="dot"></span> online';
-      
       document.getElementById('floatingNav').classList.add('hidden');
-      
       const container = document.getElementById('messagesContainer');
       container.querySelectorAll('.message-wrapper').forEach(el => el.remove());
       document.getElementById('emptyChat').style.display = 'flex';
-      
       renderChatList(chatListData);
       listenToMessages();
       listenToTyping();
@@ -543,10 +457,8 @@
     };
 
     window.goBack = function() {
-      chatPartner = null;
-      chatId = null;
+      chatPartner = null; chatId = null;
       if (unsubMessages) { unsubMessages(); unsubMessages = null; }
-      
       document.getElementById('chatListFull').classList.remove('hidden');
       document.getElementById('chatView').classList.remove('show');
       document.getElementById('backBtn').classList.remove('show');
@@ -554,9 +466,7 @@
       document.getElementById('partnerName').textContent = 'Chats';
       document.getElementById('partnerAvatar').innerHTML = '<i class="fas fa-comment-dots"></i>';
       document.getElementById('partnerStatus').textContent = '';
-      
       document.getElementById('floatingNav').classList.remove('hidden');
-      
       loadAllUsers();
       setupRealtimeChatList();
     };
@@ -569,9 +479,7 @@
         if (snap.empty) { emptyChat.style.display = 'flex'; return; }
         emptyChat.style.display = 'none';
         snap.docChanges().forEach(change => {
-          if (change.type === 'added' && !document.getElementById('msg-' + change.doc.id)) {
-            renderMessage(change.doc.id, change.doc.data());
-          }
+          if (change.type === 'added' && !document.getElementById('msg-' + change.doc.id)) renderMessage(change.doc.id, change.doc.data());
         });
         scrollToBottom();
       });
@@ -585,11 +493,9 @@
       wrapper.className = 'message-wrapper ' + (isSent ? 'sent' : 'received');
       wrapper.id = 'msg-' + id;
       const time = msg.createdAt ? new Date(msg.createdAt.toDate()).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '';
-      wrapper.innerHTML = `<div class="message-bubble">${msg.text || ''}<div class="message-time">${time}</div></div>`;
+      wrapper.innerHTML = `<div class="message-bubble">${msg.text||''}<div class="message-time">${time}</div></div>`;
       container.insertBefore(wrapper, typingBubble);
-      if (!isSent && !msg.seen) {
-        setDoc(doc(db, 'chats', chatId, 'messages', id), { seen: true }, { merge: true });
-      }
+      if (!isSent && !msg.seen) setDoc(doc(db, 'chats', chatId, 'messages', id), { seen: true }, { merge: true });
     }
 
     window.sendMessage = async function() {
@@ -601,14 +507,11 @@
         const batch = writeBatch(db);
         const msgRef = doc(collection(db, 'chats', chatId, 'messages'));
         batch.set(msgRef, { text, sender: currentUserId, createdAt: serverTimestamp(), seen: false });
-        const chatRef = doc(db, 'chats', chatId);
-        batch.set(chatRef, { lastMessageTime: serverTimestamp(), lastMessage: text, lastSender: currentUserId }, { merge: true });
+        batch.set(doc(db, 'chats', chatId), { lastMessageTime: serverTimestamp(), lastMessage: text, lastSender: currentUserId }, { merge: true });
         await batch.commit();
       } catch(e) {
-        try {
-          await addDoc(collection(db, 'chats', chatId, 'messages'), { text, sender: currentUserId, createdAt: serverTimestamp(), seen: false });
-          await setDoc(doc(db, 'chats', chatId), { lastMessageTime: serverTimestamp(), lastMessage: text, lastSender: currentUserId }, { merge: true });
-        } catch(e2) {}
+        await addDoc(collection(db, 'chats', chatId, 'messages'), { text, sender: currentUserId, createdAt: serverTimestamp(), seen: false });
+        await setDoc(doc(db, 'chats', chatId), { lastMessageTime: serverTimestamp(), lastMessage: text, lastSender: currentUserId }, { merge: true });
       }
     };
 
@@ -618,13 +521,8 @@
         const data = snap.data();
         const status = document.getElementById('partnerStatus');
         const tb = document.getElementById('typingBubble');
-        if (data && data.typing) {
-          status.innerHTML = '<span class="dot"></span> typing...';
-          tb.classList.add('show');
-        } else {
-          status.innerHTML = '<span class="dot"></span> online';
-          tb.classList.remove('show');
-        }
+        if (data && data.typing) { status.innerHTML = '<span class="dot"></span> typing...'; tb.classList.add('show'); }
+        else { status.innerHTML = '<span class="dot"></span> online'; tb.classList.remove('show'); }
       });
     }
 
@@ -633,19 +531,10 @@
       if (!chatId) return;
       setDoc(doc(db, 'chats', chatId, 'typing', currentUserId), { typing: true, updatedAt: serverTimestamp() });
       clearTimeout(typingTimeout);
-      typingTimeout = setTimeout(() => {
-        setDoc(doc(db, 'chats', chatId, 'typing', currentUserId), { typing: false, updatedAt: serverTimestamp() });
-      }, 2000);
+      typingTimeout = setTimeout(() => setDoc(doc(db, 'chats', chatId, 'typing', currentUserId), { typing: false, updatedAt: serverTimestamp() }), 2000);
     });
-
-    document.getElementById('chatInput').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-    });
-
-    function scrollToBottom() {
-      const c = document.getElementById('messagesContainer');
-      setTimeout(() => { c.scrollTop = c.scrollHeight; }, 100);
-    }
+    document.getElementById('chatInput').addEventListener('keydown', function(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+    function scrollToBottom() { const c = document.getElementById('messagesContainer'); setTimeout(() => { c.scrollTop = c.scrollHeight; }, 100); }
   </script>
 </body>
 </html>

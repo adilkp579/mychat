@@ -177,20 +177,25 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    // ===== AUTH GATE (Single source of truth - NO DOUBLE RENDER) =====
-    function initAuthGate() {
+    // ===== AUTH GATE =====
+    function checkAccess() {
       return new Promise((resolve) => {
-        // This runs instantly if already logged in, or waits for Firebase to confirm
+        // First check: Firebase Auth
         onAuthStateChanged(auth, (user) => {
           if (user) {
-            // Store uid in localStorage for other pages to check
             localStorage.setItem("uid", user.uid);
-            resolve(user);
-          } else {
-            // Not logged in - redirect to login
-            localStorage.removeItem("uid");
-            window.location.replace("login.html");
+            resolve(true);
+            return;
           }
+          // Second check: localStorage uid (Firestore-only users)
+          const localUid = localStorage.getItem("uid");
+          if (localUid) {
+            resolve(true);
+            return;
+          }
+          // No access - redirect to login
+          window.location.replace("login.html");
+          resolve(false);
         });
       });
     }
@@ -332,14 +337,12 @@
     }
 
     async function init() {
-      // Single auth check - no double render
-      await initAuthGate();
+      const hasAccess = await checkAccess();
+      if (!hasAccess) return;
       
-      // Show UI instantly after auth confirmed
       document.getElementById('loadingOverlay').style.display = 'none';
       document.getElementById('mainPage').style.display = 'flex';
       
-      // Load content
       setupLiveListener();
       await renderStories();
       await renderFeed();

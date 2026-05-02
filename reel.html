@@ -100,40 +100,25 @@
   </div>
 
   <script type="module">
+    // ===== AUTH GATE (Instant block - No Firebase auth check) =====
+    if (!localStorage.getItem("uid")) {
+      window.location.replace("login.html");
+      throw new Error("Unauthorized"); // Stop execution
+    }
+
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, collection, query, getDocs, orderBy, doc, updateDoc, increment, where } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, collection, query, getDocs, orderBy, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
 
     let allReels = [];
 
-    async function checkAuth() {
-      const currentUser = localStorage.getItem('currentUser');
-      
-      if (!currentUser) {
-        window.location.href = 'login.html';
-        return false;
-      }
-
-      try {
-        const q = query(collection(db, 'users'), where('username', '==', currentUser));
-        const snap = await getDocs(q);
-        
-        if (snap.empty) {
-          localStorage.removeItem('currentUser');
-          localStorage.removeItem('userProfile');
-          window.location.href = 'login.html';
-          return false;
-        }
-        
-        return true;
-        
-      } catch (e) {
-        console.error('Auth check error:', e);
-        return !!currentUser;
-      }
-    }
+    // Show UI instantly - auth already verified
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('mainPage').style.display = 'flex';
+    
+    loadAllReels().then(() => renderReels());
 
     async function loadAllReels() {
       console.log('🔍 Loading reels from Firestore...');
@@ -374,20 +359,6 @@
       clearTimeout(t._t);
       t._t = setTimeout(() => t.classList.remove('show'), 2000);
     };
-
-    async function init() {
-      const isAuthenticated = await checkAuth();
-      
-      if (!isAuthenticated) return;
-      
-      document.getElementById('loadingScreen').style.display = 'none';
-      document.getElementById('mainPage').style.display = 'flex';
-      
-      await loadAllReels();
-      renderReels();
-    }
-
-    init();
   </script>
 </body>
 </html>

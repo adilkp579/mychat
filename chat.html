@@ -10,7 +10,6 @@
     body { background:#0a0a0a;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center; }
     .page { width:100%;height:100vh;height:100dvh;background:#0a0a0a;display:flex;flex-direction:column;position:relative;overflow:hidden; }
 
-    /* ===== CHAT HEADER ===== */
     .chat-header {
       display:flex;align-items:center;gap:0.8rem;
       padding:0.8rem 1rem;
@@ -85,7 +84,7 @@
     .contact-name { flex:1; }
     .contact-close { text-align:center;margin-top:0.6rem;color:#ef4444;cursor:pointer;font-size:0.75rem;padding:0.4rem; }
 
-    /* ===== USER LIST (Chats) ===== */
+    /* ===== CHAT LIST ===== */
     .chat-list-container {
       flex:1;display:flex;flex-direction:column;
       overflow:hidden;
@@ -95,7 +94,9 @@
       font-size:0.65rem;color:#666;
       text-transform:uppercase;letter-spacing:1px;
       flex-shrink:0;
+      display:flex;justify-content:space-between;align-items:center;
     }
+    .chat-list-header span { font-size:0.6rem;color:#555; }
     .user-list {
       flex:1;overflow-y:auto;
       padding:0 0 6rem 0;
@@ -110,7 +111,7 @@
       transition:background 0.2s;
     }
     .user-list-item:active { background:rgba(255,255,255,0.03); }
-    .user-list-item.unread { background:rgba(255,252,0,0.03); }
+    .user-list-item.unread { background:rgba(255,252,0,0.04); }
     .user-avatar {
       width:44px;height:44px;border-radius:50%;
       background:linear-gradient(135deg,#FFFC00,#FFD600);
@@ -118,22 +119,14 @@
       font-size:1rem;color:#000;font-weight:700;
       flex-shrink:0;position:relative;
     }
-    .online-dot-indicator {
-      position:absolute;bottom:0;right:0;
-      width:10px;height:10px;border-radius:50%;
-      background:#4ade80;border:2px solid #0a0a0a;
-    }
     .user-info { flex:1;min-width:0; }
-    .user-name-row {
-      display:flex;align-items:center;gap:0.3rem;
-    }
     .user-name { font-size:0.85rem;color:#fff;font-weight:500; }
     .user-last-msg {
       font-size:0.7rem;color:#666;margin-top:0.1rem;
       white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
       max-width:200px;
     }
-    .user-last-msg.unread-msg { color:#fff;font-weight:500; }
+    .user-last-msg.unread-msg { color:#ddd;font-weight:500; }
     .user-time {
       font-size:0.6rem;color:#555;flex-shrink:0;
       text-align:right;
@@ -181,7 +174,6 @@
     .sent .message-time { justify-content:flex-end;color:rgba(0,0,0,0.45); }
     .received .message-time { color:rgba(255,255,255,0.35); }
 
-    /* ===== TYPING ===== */
     .typing-bubble {
       display:none;align-self:flex-start;
       padding:0.45rem 0.8rem;background:#1c1c1e;
@@ -200,7 +192,6 @@
       100% { transform:translateY(-4px);opacity:1; }
     }
 
-    /* ===== INPUT ===== */
     .chat-input-area {
       display:none;align-items:center;gap:0.5rem;
       padding:0.5rem 0.8rem;
@@ -273,7 +264,6 @@
   </div>
 
   <div class="page" id="mainPage" style="display:none;">
-    <!-- HEADER -->
     <div class="chat-header">
       <button class="chat-back" id="backBtn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
       <div class="chat-avatar" id="partnerAvatar"><i class="fas fa-user"></i></div>
@@ -284,13 +274,11 @@
       <button class="header-contact-btn" id="contactBtn" onclick="showContacts()"><i class="fas fa-address-book"></i></button>
     </div>
 
-    <!-- CHAT LIST (with sorted items) -->
     <div class="chat-list-container" id="chatListContainer">
-      <div class="chat-list-header">Recent Chats</div>
+      <div class="chat-list-header">Messages <span id="chatCount"></span></div>
       <div class="user-list" id="userList"></div>
     </div>
 
-    <!-- MESSAGES -->
     <div class="messages-container" id="messagesContainer">
       <div class="empty-chat" id="emptyChat">Send a message!</div>
       <div class="typing-bubble" id="typingBubble">
@@ -298,7 +286,6 @@
       </div>
     </div>
 
-    <!-- INPUT -->
     <div class="chat-input-area" id="chatInputArea">
       <input type="text" class="chat-input" id="chatInput" placeholder="Message...">
       <button class="send-btn" id="sendBtn" onclick="sendMessage()">
@@ -306,7 +293,6 @@
       </button>
     </div>
 
-    <!-- CONTACTS MODAL -->
     <div class="contacts-overlay" id="contactsModal">
       <div class="contacts-modal">
         <h3>👥 All Users</h3>
@@ -329,7 +315,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, getDocs, limit } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, getDocs, limit, where } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
@@ -342,119 +328,105 @@
     let chatId = null;
     let unsubMessages = null;
     let allUsersList = [];
-    let chatListData = []; // { username, lastMsg, lastTime, unread }
-    let unsubChatList = null;
 
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('mainPage').style.display = 'flex';
     
     loadAllUsersForContacts();
-    listenToAllChats(); // Real-time chat list
+    loadChatList();
 
-    // ===== LISTEN TO ALL CHATS FOR THIS USER (Real-time chat list) =====
-    function listenToAllChats() {
-      // Get all users first
-      const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
-      const friends = (profile.friends || []).map(f => f.name);
-      const besties = (profile.besties || []).map(b => b.name);
-      const initialUsers = [...new Set([...friends, ...besties])].filter(u => u !== currentUser);
+    // ===== LOAD CHAT LIST - Only users who have messages with current user =====
+    async function loadChatList() {
+      let chatUsers = [];
       
-      // Also get from firestore
-      getDocs(collection(db, 'users')).then(snap => {
-        snap.forEach(doc => {
-          const d = doc.data();
-          if (d.username !== currentUser && !initialUsers.includes(d.username)) {
-            initialUsers.push(d.username);
+      try {
+        // Get ALL chats from Firestore
+        const chatsSnap = await getDocs(collection(db, 'chats'));
+        
+        // Process each chat to find ones involving current user
+        const chatPromises = [];
+        
+        chatsSnap.forEach(chatDoc => {
+          const chatId = chatDoc.id;
+          const ids = chatId.split('_');
+          
+          // Check if current user is part of this chat
+          if (ids.includes(currentUserId)) {
+            const partnerId = ids.find(id => id !== currentUserId);
+            if (partnerId) {
+              // Get last message for this chat
+              const promise = getDocs(query(
+                collection(db, 'chats', chatId, 'messages'),
+                orderBy('createdAt', 'desc'),
+                limit(1)
+              )).then(msgSnap => {
+                let lastMsg = '';
+                let lastTime = new Date(0);
+                let unread = false;
+                
+                if (!msgSnap.empty) {
+                  const msgData = msgSnap.docs[0].data();
+                  lastMsg = msgData.text || '';
+                  lastTime = msgData.createdAt ? msgData.createdAt.toDate() : new Date(0);
+                  unread = msgData.sender !== currentUserId && !msgData.seen;
+                }
+                
+                return {
+                  username: '@' + partnerId,
+                  lastMsg,
+                  lastTime,
+                  unread
+                };
+              });
+              
+              chatPromises.push(promise);
+            }
           }
         });
-      });
-
-      // Listen to last message for each chat
-      // We'll use a simpler approach: listen to all chats collection
-      if (unsubChatList) unsubChatList();
-      
-      // Listen to chats collection for updates
-      unsubChatList = onSnapshot(collection(db, 'chats'), (snap) => {
-        const chatUpdates = {};
         
-        snap.forEach(doc => {
-          const chatId = doc.id;
-          // Check if this chat involves current user
-          const ids = chatId.split('_');
-          if (!ids.includes(currentUserId)) return;
-          
-          const partnerId = ids.find(id => id !== currentUserId);
-          const partnerUsername = '@' + partnerId;
-          
-          // Get last message
-          const messagesRef = collection(db, 'chats', chatId, 'messages');
-          getDocs(query(messagesRef, orderBy('createdAt', 'desc'), limit(1))).then(msgSnap => {
-            if (!msgSnap.empty) {
-              const lastMsg = msgSnap.docs[0].data();
-              chatUpdates[partnerUsername] = {
-                lastMsg: lastMsg.text || '',
-                lastTime: lastMsg.createdAt ? lastMsg.createdAt.toDate() : new Date(),
-                unread: lastMsg.sender !== currentUserId && !lastMsg.seen,
-                sender: lastMsg.sender
-              };
-            }
-            updateChatList(chatUpdates);
-          });
-        });
-      });
-    }
-
-    function updateChatList(chatUpdates) {
-      // Merge with existing data
-      const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
-      const friends = (profile.friends || []).map(f => f.name);
-      const besties = (profile.besties || []).map(b => b.name);
-      let allUsers = [...new Set([...friends, ...besties])].filter(u => u !== currentUser);
+        chatUsers = await Promise.all(chatPromises);
+        
+        // Sort by most recent
+        chatUsers.sort((a, b) => b.lastTime - a.lastTime);
+        
+      } catch(e) {
+        console.error('Load chat list error:', e);
+      }
       
-      // Also add users from chatUpdates
-      Object.keys(chatUpdates).forEach(u => {
-        if (!allUsers.includes(u)) allUsers.push(u);
-      });
-
-      // Build chat list with data
-      chatListData = allUsers.map(username => {
-        const chat = chatUpdates[username] || {};
-        return {
-          username,
-          lastMsg: chat.lastMsg || '',
-          lastTime: chat.lastTime || new Date(0),
-          unread: chat.unread || false
-        };
-      });
-
-      // SORT: Most recent first
-      chatListData.sort((a, b) => b.lastTime - a.lastTime);
-
-      renderChatList();
+      // Render
+      renderChatList(chatUsers);
+      
+      // Also set up real-time listener
+      setupRealtimeListener();
     }
 
-    function renderChatList() {
+    function setupRealtimeListener() {
+      // Listen to all chats collection for real-time updates
+      onSnapshot(collection(db, 'chats'), () => {
+        // Reload chat list when any chat changes
+        loadChatList();
+      });
+    }
+
+    function renderChatList(chatUsers) {
       const list = document.getElementById('userList');
+      const count = document.getElementById('chatCount');
       
-      if (chatListData.length === 0) {
-        list.innerHTML = '<div style="text-align:center;color:#555;padding:3rem;font-size:0.8rem;">No friends yet<br><br>Tap <b style="color:#FFFC00;">📒</b> to see all users</div>';
+      count.textContent = chatUsers.length > 0 ? `(${chatUsers.length})` : '';
+      
+      if (chatUsers.length === 0) {
+        list.innerHTML = '<div style="text-align:center;color:#555;padding:3rem;font-size:0.8rem;">No messages yet<br><br>Tap <b style="color:#FFFC00;">📒</b> to start a chat</div>';
         return;
       }
 
-      list.innerHTML = chatListData.map(c => {
-        const timeStr = c.lastTime.getTime() > 0 ? 
-          formatTime(c.lastTime) : '';
+      list.innerHTML = chatUsers.map(c => {
+        const timeStr = c.lastTime.getTime() > 0 ? formatTime(c.lastTime) : '';
         
         return `
           <div class="user-list-item ${c.unread ? 'unread' : ''}" onclick="openChat('${c.username}')">
-            <div class="user-avatar">
-              ${c.username.replace('@','').charAt(0).toUpperCase()}
-              ${c.lastTime.getTime() > Date.now() - 300000 ? '<div class="online-dot-indicator"></div>' : ''}
-            </div>
+            <div class="user-avatar">${c.username.replace('@','').charAt(0).toUpperCase()}</div>
             <div class="user-info">
-              <div class="user-name-row">
-                <span class="user-name">${c.username}</span>
-              </div>
+              <div class="user-name">${c.username}</div>
               <div class="user-last-msg ${c.unread ? 'unread-msg' : ''}">${c.lastMsg || 'Tap to chat'}</div>
             </div>
             <div style="text-align:right;">
@@ -472,7 +444,9 @@
       const diff = now - date;
       if (diff < 60000) return 'Now';
       if (diff < 3600000) return Math.floor(diff/60000) + 'm';
-      if (diff < 86400000) return date.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+      if (date.toDateString() === now.toDateString()) {
+        return date.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+      }
       return date.toLocaleDateString([], {month:'short',day:'numeric'});
     }
 
@@ -554,6 +528,7 @@
       
       const container = document.getElementById('messagesContainer');
       container.querySelectorAll('.message-wrapper').forEach(el => el.remove());
+      document.getElementById('emptyChat').style.display = 'flex';
       
       listenToMessages();
       listenToTyping();
@@ -574,7 +549,7 @@
       
       document.getElementById('floatingNav').classList.remove('hidden');
       
-      listenToAllChats();
+      loadChatList();
       loadAllUsersForContacts();
     };
 

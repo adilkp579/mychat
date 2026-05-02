@@ -10,38 +10,19 @@
     body { background:#000;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center; }
     .page { width:100%;height:100vh;height:100dvh;background:#000;display:flex;flex-direction:column;position:relative;overflow:hidden; }
     
-    .reel-wrapper { 
-      flex:1;position:relative;overflow-y:scroll;
-      padding-bottom:5rem;-webkit-overflow-scrolling:touch;
-    }
+    .reel-wrapper { flex:1;position:relative;overflow-y:scroll;scroll-snap-type:y mandatory;padding-bottom:5rem; }
     .reel-wrapper::-webkit-scrollbar { width:0; }
     
     .reel-slide { 
-      width:100%;height:100%;position:relative;
-      display:flex;align-items:center;justify-content:center;
+      width:100%;height:100%;scroll-snap-align:start;
+      position:relative;display:flex;align-items:center;justify-content:center;
       background:#000;
       max-width:500px;
       margin:0 auto;
     }
     .reel-slide video { 
-      width:100%;height:100%;object-fit:cover;background:#000;
-      max-height:100%;display:block;
-    }
-
-    /* Error state */
-    .video-error-overlay {
-      position:absolute;top:0;left:0;right:0;bottom:0;
-      display:none;align-items:center;justify-content:center;
-      flex-direction:column;gap:0.8rem;z-index:15;
-      background:rgba(0,0,0,0.85);
-    }
-    .video-error-overlay.show { display:flex; }
-    .video-error-overlay i { font-size:3rem;color:#ef4444; }
-    .video-error-overlay span { font-size:0.75rem;color:#aaa;text-align:center;padding:0 1rem; }
-    .video-error-overlay button {
-      padding:0.5rem 1.2rem;border-radius:1.5rem;border:none;
-      background:#3897f0;color:#fff;font-size:0.75rem;font-weight:600;
-      cursor:pointer;margin-top:0.3rem;
+      width:100%;height:100%;object-fit:contain;background:#000;
+      max-height:100%;
     }
     
     .user-tag { position:absolute;top:1rem;left:1rem;display:flex;align-items:center;gap:0.5rem;background:rgba(0,0,0,0.5);backdrop-filter:blur(10px);padding:0.4rem 0.8rem;border-radius:1.5rem;z-index:10;border:1px solid rgba(255,255,255,0.1); }
@@ -56,7 +37,7 @@
     .caption-bar { position:absolute;bottom:1rem;left:1rem;right:5rem;z-index:10; }
     .caption-text { color:#fff;font-size:0.8rem;background:rgba(0,0,0,0.4);padding:0.5rem 0.8rem;border-radius:0.5rem;display:inline-block;max-width:100%; }
     
-    .play-overlay { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:4rem;color:rgba(255,255,255,0.4);pointer-events:none;z-index:5;display:flex; }
+    .play-overlay { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:4rem;color:rgba(255,255,255,0.4);pointer-events:none;z-index:5; }
 
     .empty-state { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;color:#555; }
     .empty-state i { font-size:3rem;display:block;margin-bottom:0.5rem; }
@@ -89,10 +70,7 @@
       .reel-slide{max-width:500px}
       .actions-bar{right:2rem}
     }
-    @media (max-width:380px) { 
-      .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem}.nav-center a{font-size:1.1rem;width:2rem;height:2rem}
-      .reel-slide{max-width:100%}
-    }
+    @media (max-width:380px) { .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem}.nav-center a{font-size:1.1rem;width:2rem;height:2rem} }
   </style>
 </head>
 <body>
@@ -119,7 +97,11 @@
   </div>
 
   <script>
-    if (!localStorage.getItem("uid")) { window.location.replace("login.html"); }
+    // ===== AUTH GATE - Instant block, zero lag =====
+    if (!localStorage.getItem("uid")) {
+      window.location.replace("login.html");
+      throw new Error("Unauthorized");
+    }
   </script>
 
   <script type="module">
@@ -128,61 +110,70 @@
 
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
-    let allReels = [];
-    let currentIndex = 0;
-    let touchUnlocked = false;
 
+    let allReels = [];
+
+    // Show UI instantly - auth already verified
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('mainPage').style.display = 'flex';
+    
     loadAllReels().then(() => renderReels());
 
-    // ===== FIX 3: User-interaction autoplay trigger for old Android =====
-    document.addEventListener('touchstart', function unlockVideos() {
-      if (touchUnlocked) return;
-      touchUnlocked = true;
-      console.log('👆 Touch detected - unlocking videos');
-      // Play all visible videos after first touch
-      document.querySelectorAll('video').forEach(v => {
-        if (v.dataset.error !== 'true') {
-          v.muted = true;
-          v.play().catch(() => {});
-        }
-      });
-      document.removeEventListener('touchstart', unlockVideos);
-    }, { once: false });
-
-    // Also unlock on click for desktop
-    document.addEventListener('click', function unlockVideosClick() {
-      if (touchUnlocked) return;
-      touchUnlocked = true;
-      document.querySelectorAll('video').forEach(v => {
-        if (v.dataset.error !== 'true') {
-          v.muted = true;
-          v.play().catch(() => {});
-        }
-      });
-    }, { once: true });
-
     async function loadAllReels() {
+      console.log('🔍 Loading reels from Firestore...');
+      
       try {
         const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
         const snap = await getDocs(q);
+        console.log('📡 Total posts found:', snap.size);
+        
         snap.forEach(doc => {
           const d = doc.data();
           const src = d.data || d.url || '';
           const username = d.username || d.userId || '@anonymous';
-          const isVideo = src && (src.startsWith('data:video/') || d.type === 'reel' || d.type === 'video');
-          if (isVideo && !allReels.find(r => r.src === src)) {
-            allReels.push({ id: doc.id, username, caption: d.caption || d.fileName || '', src, likes: d.likes || 0, comments: d.comments || 0, liked: false });
+          
+          const isVideo = src && (
+            src.startsWith('data:video/') ||
+            d.type === 'reel' ||
+            d.type === 'video'
+          );
+          
+          if (isVideo) {
+            if (!allReels.find(r => r.src === src)) {
+              allReels.push({
+                id: doc.id,
+                username: username,
+                caption: d.caption || d.fileName || '',
+                src: src,
+                likes: d.likes || 0,
+                comments: d.comments || 0,
+                liked: false
+              });
+              console.log('✅ Added reel by:', username);
+            }
           }
         });
-      } catch(e) {}
+      } catch(e) {
+        console.log('❌ Firestore error:', e.message);
+      }
+
       const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
-      (profile.posts || []).filter(p => p.type === 'video').forEach(p => {
+      const localReels = (profile.posts || []).filter(p => p.type === 'video');
+      localReels.forEach(p => {
         if (!allReels.find(r => r.src === p.src)) {
-          allReels.unshift({ id: 'local_' + Date.now(), username: p.username || profile.username || '@user', caption: p.caption || '', src: p.src, likes: 0, comments: 0, liked: false });
+          allReels.unshift({
+            id: 'local_' + Date.now(),
+            username: p.username || profile.username || '@user',
+            caption: p.caption || '',
+            src: p.src,
+            likes: 0,
+            comments: 0,
+            liked: false
+          });
         }
       });
+
+      console.log('🎬 Total reels loaded:', allReels.length);
     }
 
     function renderReels() {
@@ -194,43 +185,25 @@
         return;
       }
 
+      // [FIX 1] Added: playsinline, webkit-playsinline, preload="auto"
       wrapper.innerHTML = allReels.map((reel, i) => `
         <div class="reel-slide" id="slide${i}">
-          <video id="video${i}" 
-            src="${reel.src}" 
-            muted 
-            loop 
-            playsinline 
-            webkit-playsinline
-            preload="auto"
-            controls="false"
-            poster="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='100%' height='100%'><rect fill='%23000' width='100%' height='100%'/></svg>"
-            style="display:block;width:100%;height:100%;object-fit:cover;background:#000;"
-            data-error="false"
-            onerror="window._handleVideoError(${i})"
-            onloadeddata="window._handleVideoLoaded(${i})"
-            onclick="window._togglePlay(${i})"
-          ></video>
+          <video id="video${i}" src="${reel.src}" muted loop playsinline webkit-playsinline preload="auto" onclick="togglePlay(${i})"></video>
           <div class="play-overlay" id="overlay${i}"><i class="fas fa-play-circle"></i></div>
-          <div class="video-error-overlay" id="errorOverlay${i}">
-            <i class="fas fa-exclamation-triangle"></i>
-            <span>Video failed to load</span>
-            <button onclick="window._retryVideo(${i})"><i class="fas fa-redo"></i> Retry</button>
-          </div>
           <div class="user-tag">
             <div class="avatar"><i class="fas fa-user"></i></div>
             <span class="name">${reel.username}</span>
           </div>
           <div class="actions-bar">
-            <button class="action-btn ${reel.liked?'liked':''}" onclick="window._toggleLike(${i})">
+            <button class="action-btn ${reel.liked?'liked':''}" onclick="toggleLike(${i})">
               <i class="${reel.liked?'fas':'far'} fa-heart"></i>
               <span id="likes${i}">${reel.likes}</span>
             </button>
-            <button class="action-btn" onclick="window._showToast('Comments coming soon! 💬')">
+            <button class="action-btn" onclick="showToast('Comments coming soon! 💬')">
               <i class="far fa-comment"></i>
               <span>${reel.comments}</span>
             </button>
-            <button class="action-btn" onclick="window._shareReel(${i})">
+            <button class="action-btn" onclick="shareReel(${i})">
               <i class="far fa-share-square"></i>
               <span>Share</span>
             </button>
@@ -238,170 +211,139 @@
           ${reel.caption ? `<div class="caption-bar"><div class="caption-text">${reel.caption}</div></div>` : ''}
         </div>
       `).join('');
-
-      // ===== FIX 2: Force Android attributes =====
-      document.querySelectorAll('video').forEach(v => {
-        v.setAttribute("playsinline", "");
-        v.setAttribute("webkit-playsinline", "");
-        v.muted = true;
-        v.loop = true;
-        v.preload = "auto";
-      });
-
-      // Play first video
-      setTimeout(() => { playVideo(0); }, 800);
-
-      // ===== FIX 6: IntersectionObserver with scroll fallback =====
-      if (window.IntersectionObserver) {
-        const observer = new IntersectionObserver((entries) => {
-          entries.forEach(entry => {
-            const idx = parseInt(entry.target.id.replace('slide', ''));
-            if (entry.isIntersecting) {
-              currentIndex = idx;
-              playVideo(idx);
-            } else {
-              pauseVideo(idx);
-            }
-          });
-        }, { threshold: 0.6 });
-        document.querySelectorAll('.reel-slide').forEach(s => observer.observe(s));
-      }
-
-      // Scroll fallback for old browsers
-      let scrollTimeout;
-      wrapper.addEventListener('scroll', function() {
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(() => handleScrollPlay(), 200);
-      });
-    }
-
-    function handleScrollPlay() {
-      const wrapper = document.getElementById('reelWrapper');
-      const wrapperHeight = wrapper.clientHeight;
-      document.querySelectorAll('.reel-slide').forEach((slide, i) => {
-        const rect = slide.getBoundingClientRect();
-        const slideCenter = rect.top + rect.height / 2;
-        if (slideCenter > 0 && slideCenter < wrapperHeight) {
-          currentIndex = i;
-          playVideo(i);
-        } else {
-          pauseVideo(i);
-        }
-      });
-    }
-
-    function playVideo(i) {
-      const v = document.getElementById('video' + i);
-      const o = document.getElementById('overlay' + i);
-      if (!v || v.dataset.error === 'true') return;
-      if (v.readyState === 0) { v.load(); }
-      v.muted = true;
-      v.play().then(() => {
-        if (o) o.style.display = 'none';
-      }).catch(err => {
-        console.log('Play failed for video', i, err);
-        if (o) o.style.display = 'none';
-      });
-    }
-
-    function pauseVideo(i) {
-      const v = document.getElementById('video' + i);
-      const o = document.getElementById('overlay' + i);
-      if (v) { v.pause(); if (o) o.style.display = 'flex'; }
-    }
-
-    // ===== FIX 5: Error handling with reload button =====
-    window._handleVideoError = function(i) {
-      console.log('❌ Video error for index:', i);
-      const v = document.getElementById('video' + i);
-      const o = document.getElementById('overlay' + i);
-      const e = document.getElementById('errorOverlay' + i);
-      if (v) { v.dataset.error = 'true'; v.style.display = 'none'; }
-      if (o) o.style.display = 'none';
-      if (e) e.classList.add('show');
-    };
-
-    window._handleVideoLoaded = function(i) {
-      console.log('✅ Video loaded for index:', i);
-      const v = document.getElementById('video' + i);
-      const e = document.getElementById('errorOverlay' + i);
-      if (v) { v.dataset.error = 'false'; v.style.display = 'block'; }
-      if (e) e.classList.remove('show');
-    };
-
-    window._retryVideo = function(i) {
-      console.log('🔄 Retrying video:', i);
-      const v = document.getElementById('video' + i);
-      const e = document.getElementById('errorOverlay' + i);
-      const o = document.getElementById('overlay' + i);
-      const reel = allReels[i];
       
-      if (e) e.classList.remove('show');
-      if (v) {
-        v.dataset.error = 'false';
-        v.style.display = 'block';
-        v.src = '';
-        setTimeout(() => {
-          v.src = reel.src;
-          v.load();
-          v.muted = true;
-          v.setAttribute("playsinline", "");
-          v.setAttribute("webkit-playsinline", "");
-          v.play().then(() => {
-            if (o) o.style.display = 'none';
+      // [FIX 2] Force video.load() on all videos after render + retry if needed
+      setTimeout(() => {
+        allReels.forEach((reel, i) => {
+          const v = document.getElementById('video' + i);
+          if (v) {
+            // Force load for old Android
+            v.load();
+            
+            // [FIX 3] Fallback: if 'loadeddata' doesn't fire within 3s, retry loading source
+            let loaded = false;
+            const onLoaded = () => { loaded = true; };
+            v.addEventListener('loadeddata', onLoaded, { once: true });
+            
+            setTimeout(() => {
+              if (!loaded) {
+                console.log('Retrying video load for:', i);
+                const currentSrc = v.src;
+                v.src = '';
+                v.load();
+                setTimeout(() => {
+                  v.src = currentSrc;
+                  v.load();
+                }, 100);
+              }
+            }, 3000);
+          }
+        });
+        
+        // [FIX 4] Play first video after user interaction (old Android Chrome requires this)
+        const v0 = document.getElementById('video0');
+        if (v0) {
+          // Muted autoplay is allowed, but some old Android need a play attempt after load
+          v0.play().then(() => {
+            const overlay = document.getElementById('overlay0');
+            if (overlay) overlay.style.display = 'none';
           }).catch(() => {
-            if (o) o.style.display = 'none';
+            // If autoplay fails, show overlay and wait for tap
+            const overlay = document.getElementById('overlay0');
+            if (overlay) overlay.style.display = 'flex';
           });
-        }, 200);
-      }
-    };
+        }
+      }, 500);
+      
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          const idx = entry.target.id.replace('slide', '');
+          const video = document.getElementById('video' + idx);
+          const overlay = document.getElementById('overlay' + idx);
+          
+          if (entry.isIntersecting) {
+            if (video) {
+              // [FIX 2] Ensure video is loaded before playing
+              if (video.readyState === 0) video.load();
+              video.play().catch(() => {});
+              if (overlay) overlay.style.display = 'none';
+            }
+          } else {
+            if (video) {
+              video.pause();
+              if (overlay) overlay.style.display = 'flex';
+            }
+          }
+        });
+      }, { threshold: 0.6 });
+      
+      document.querySelectorAll('.reel-slide').forEach(s => observer.observe(s));
+    }
 
-    window._togglePlay = function(i) {
+    window.togglePlay = function(i) {
       const v = document.getElementById('video' + i);
       const o = document.getElementById('overlay' + i);
-      if (!v || v.dataset.error === 'true') return;
-      if (v.paused || v.ended) {
+      if (!v) return;
+      if (v.paused) {
+        // [FIX 2] Load if not ready
         if (v.readyState === 0) v.load();
-        v.muted = true;
-        v.play().then(() => { if (o) o.style.display = 'none'; }).catch(() => { if (o) o.style.display = 'none'; });
+        v.play().catch(() => {});
+        if (o) o.style.display = 'none';
       } else {
-        v.pause(); if (o) o.style.display = 'flex';
+        v.pause();
+        if (o) o.style.display = 'flex';
       }
     };
 
-    window._toggleLike = async function(i) {
+    window.toggleLike = async function(i) {
       allReels[i].liked = !allReels[i].liked;
       allReels[i].likes += allReels[i].liked ? 1 : -1;
-      const likesEl = document.getElementById('likes' + i);
-      if (likesEl) likesEl.textContent = allReels[i].likes;
+      
+      document.getElementById('likes' + i).textContent = allReels[i].likes;
+      
       const slide = document.getElementById('slide' + i);
-      if (slide) {
-        const likeBtn = slide.querySelector('.action-btn');
-        if (likeBtn) {
-          likeBtn.classList.toggle('liked', allReels[i].liked);
-          const icon = likeBtn.querySelector('i');
-          if (icon) icon.className = allReels[i].liked ? 'fas fa-heart' : 'far fa-heart';
+      const likeBtn = slide.querySelector('.action-btn');
+      likeBtn.classList.toggle('liked', allReels[i].liked);
+      likeBtn.querySelector('i').className = allReels[i].liked ? 'fas fa-heart' : 'far fa-heart';
+      
+      showToast(allReels[i].liked ? 'Liked! ❤️' : 'Unliked');
+      
+      if (!allReels[i].id.startsWith('local_')) {
+        try {
+          await updateDoc(doc(db, 'posts', allReels[i].id), {
+            likes: increment(allReels[i].liked ? 1 : -1)
+          });
+        } catch(e) {
+          console.log('Like update error:', e);
         }
       }
-      window._showToast(allReels[i].liked ? 'Liked! ❤️' : 'Unliked');
-      if (!allReels[i].id.startsWith('local_')) {
-        try { await updateDoc(doc(db, 'posts', allReels[i].id), { likes: increment(allReels[i].liked ? 1 : -1) }); } catch(e) {}
-      }
     };
 
-    window._shareReel = async function(i) {
+    window.shareReel = async function(i) {
       const reel = allReels[i];
       if (navigator.share) {
-        try { await navigator.share({ title: `${reel.username}'s reel`, text: reel.caption || 'Check out this reel!' }); } catch(e) {}
+        try {
+          await navigator.share({
+            title: `${reel.username}'s reel`,
+            text: reel.caption || 'Check out this reel!',
+          });
+        } catch(e) {
+          console.log('Share cancelled');
+        }
       } else {
-        try { await navigator.clipboard.writeText(window.location.href); window._showToast('Link copied! 📋'); } catch(e) { prompt('Copy:', window.location.href); }
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          showToast('Link copied! 📋');
+        } catch(e) {
+          console.log('Copy failed');
+        }
       }
     };
 
-    window._showToast = function(msg) {
+    window.showToast = function(msg) {
       const t = document.getElementById('toast');
-      if (!t) return;
-      t.textContent = msg; t.classList.add('show');
+      t.textContent = msg;
+      t.classList.add('show');
       clearTimeout(t._t);
       t._t = setTimeout(() => t.classList.remove('show'), 2000);
     };

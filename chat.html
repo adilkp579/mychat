@@ -242,10 +242,10 @@
       .nav-center a { font-size:1.4rem;width:2.6rem;height:2.6rem; }
       .nav-center a::before { bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0); }
       .nav-center a.active::before { transform:translateY(-50%) scale(1); }
-      .page { padding-left:5.5rem; }
+      .page { padding-left:5.5rem;max-width:800px;margin:0 auto; }
       .chat-header { padding-left:1.5rem;padding-right:1.5rem; }
-      .messages-container { padding-left:1.2rem;padding-right:1.2rem; }
-      .chat-input-area { padding-left:1.2rem;padding-right:1.2rem; }
+      .messages-container { padding-left:1.5rem;padding-right:1.5rem; }
+      .chat-input-area { padding-left:1.5rem;padding-right:1.5rem; }
       .chat-list-header { padding-left:1.5rem;padding-right:1.5rem; }
       .user-list-item { padding-left:1.5rem;padding-right:1.5rem; }
     }
@@ -271,13 +271,11 @@
       <button class="header-new-chat-btn" id="newChatBtn" onclick="showNewChatModal()"><i class="fas fa-plus"></i></button>
     </div>
 
-    <!-- ===== CHAT LIST (Only messaged users) ===== -->
     <div class="chat-list-full" id="chatListFull">
       <div class="chat-list-header">Messages <span id="chatCount"></span></div>
       <div class="chat-list-scroll" id="userList"></div>
     </div>
 
-    <!-- ===== CHAT VIEW ===== -->
     <div class="chat-view" id="chatView">
       <div class="messages-container" id="messagesContainer">
         <div class="empty-chat" id="emptyChat">Send a message!</div>
@@ -293,7 +291,6 @@
       </div>
     </div>
 
-    <!-- ===== NEW CHAT MODAL ===== -->
     <div class="contacts-overlay" id="newChatModal">
       <div class="contacts-modal">
         <h3>👥 New Chat</h3>
@@ -316,7 +313,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, getDocs, where, limit, writeBatch } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
@@ -338,7 +335,6 @@
     loadAllUsers();
     setupRealtimeChatList();
 
-    // ===== LOAD ALL USERS =====
     async function loadAllUsers() {
       allUsersList = [];
       try {
@@ -397,13 +393,8 @@
       if (e.target === this) closeNewChatModal();
     });
 
-    // ===== WHATSAPP-STYLE REALTIME CHAT LIST WITH lastMessageTime =====
     function setupRealtimeChatList() {
       if (unsubChatList) unsubChatList();
-      
-      // Listen to chats where current user is a participant
-      // We use onSnapshot on the parent 'chats' collection and filter client-side
-      // This ensures real-time updates when any message changes
       unsubChatList = onSnapshot(collection(db, 'chats'), (snap) => {
         loadChatListFromSnapshot(snap);
       });
@@ -413,7 +404,6 @@
       let chatUsers = [];
       const processedPartners = new Set();
       
-      // Find all chats involving current user
       snap.forEach(chatDoc => {
         const cid = chatDoc.id;
         const ids = cid.split('_');
@@ -425,67 +415,37 @@
         }
       });
       
-      // For each partner, get last message and unread count
       const promises = [];
       for (const partnerId of processedPartners) {
         const cid = [currentUserId, partnerId].sort().join('_');
-        
         const promise = (async () => {
           try {
-            // Get ALL messages for this chat, ordered by createdAt desc
             const msgSnap = await getDocs(query(
               collection(db, 'chats', cid, 'messages'),
               orderBy('createdAt', 'desc')
             ));
-            
-            let lastMsg = '';
-            let lastTime = null;
-            let unreadCount = 0;
-            
+            let lastMsg = '', lastTime = new Date(0), unreadCount = 0;
             if (!msgSnap.empty) {
-              // First doc is the most recent message
               const lastMsgData = msgSnap.docs[0].data();
               lastMsg = lastMsgData.text || '';
-              
-              // Get Firebase server timestamp or fallback to client time
               if (lastMsgData.createdAt) {
                 lastTime = lastMsgData.createdAt.toDate ? lastMsgData.createdAt.toDate() : new Date(lastMsgData.createdAt);
               }
-              
-              // Count unread messages (not sent by me AND not seen)
               msgSnap.forEach(doc => {
                 const msg = doc.data();
-                if (msg.sender !== currentUserId && !msg.seen) {
-                  unreadCount++;
-                }
+                if (msg.sender !== currentUserId && !msg.seen) unreadCount++;
               });
             }
-            
-            return {
-              username: '@' + partnerId,
-              lastMsg: lastMsg,
-              lastTime: lastTime || new Date(0),
-              unreadCount: unreadCount
-            };
+            return { username: '@' + partnerId, lastMsg, lastTime, unreadCount };
           } catch(e) {
-            console.error('Error loading chat for', partnerId, e);
-            return {
-              username: '@' + partnerId,
-              lastMsg: '',
-              lastTime: new Date(0),
-              unreadCount: 0
-            };
+            return { username: '@' + partnerId, lastMsg: '', lastTime: new Date(0), unreadCount: 0 };
           }
         })();
-        
         promises.push(promise);
       }
       
       chatUsers = await Promise.all(promises);
-      
-      // SORT: Most recent first (WhatsApp style)
       chatUsers.sort((a, b) => b.lastTime - a.lastTime);
-      
       chatListData = chatUsers;
       renderChatList(chatUsers);
     }
@@ -494,25 +454,20 @@
       const list = document.getElementById('userList');
       const count = document.getElementById('chatCount');
       const totalUnread = chatUsers.reduce((sum, c) => sum + c.unreadCount, 0);
-      
       count.textContent = chatUsers.length > 0 ? '(' + chatUsers.length + ')' : '';
-      
       if (totalUnread > 0) {
         document.getElementById('partnerName').textContent = 'Chats (' + totalUnread + ')';
       } else {
         document.getElementById('partnerName').textContent = 'Chats';
       }
-      
       if (chatUsers.length === 0) {
         list.innerHTML = '<div style="text-align:center;color:#555;padding:3rem;font-size:0.8rem;">No messages yet<br><br>Tap <b style="color:#FFFC00;">+</b> to start a chat</div>';
         return;
       }
-
       list.innerHTML = chatUsers.map(c => {
         const timeStr = c.lastTime.getTime() > 0 ? formatTime(c.lastTime) : '';
         const name = c.username.replace('@','');
         const isActive = chatPartner === c.username;
-        
         return `
           <div class="user-list-item ${isActive ? 'active' : ''}" onclick="openChat('${c.username}')">
             <div class="user-avatar">${name.charAt(0).toUpperCase()}</div>
@@ -545,7 +500,6 @@
       return date.toLocaleDateString([], {month:'short',day:'numeric'});
     }
 
-    // ===== OPEN CHAT =====
     window.openChat = function(username) {
       chatPartner = username;
       const partnerId = username.replace('@', '');
@@ -621,45 +575,23 @@
       }
     }
 
-    // ===== SEND MESSAGE - Updates lastMessageTime in parent chat =====
     window.sendMessage = async function() {
       const input = document.getElementById('chatInput');
       const text = input.value.trim();
       if (!text || !chatId) return;
       input.value = '';
-      
       try {
         const batch = writeBatch(db);
-        
-        // Add the message
         const msgRef = doc(collection(db, 'chats', chatId, 'messages'));
-        batch.set(msgRef, {
-          text, sender: currentUserId, createdAt: serverTimestamp(), seen: false
-        });
-        
-        // Update lastMessageTime on the chat document
+        batch.set(msgRef, { text, sender: currentUserId, createdAt: serverTimestamp(), seen: false });
         const chatRef = doc(db, 'chats', chatId);
-        batch.set(chatRef, {
-          lastMessageTime: serverTimestamp(),
-          lastMessage: text,
-          lastSender: currentUserId
-        }, { merge: true });
-        
+        batch.set(chatRef, { lastMessageTime: serverTimestamp(), lastMessage: text, lastSender: currentUserId }, { merge: true });
         await batch.commit();
       } catch(e) {
-        // Fallback: just add message without batch
         try {
-          await addDoc(collection(db, 'chats', chatId, 'messages'), {
-            text, sender: currentUserId, createdAt: serverTimestamp(), seen: false
-          });
-          await setDoc(doc(db, 'chats', chatId), {
-            lastMessageTime: serverTimestamp(),
-            lastMessage: text,
-            lastSender: currentUserId
-          }, { merge: true });
-        } catch(e2) {
-          console.error('Send error:', e2);
-        }
+          await addDoc(collection(db, 'chats', chatId, 'messages'), { text, sender: currentUserId, createdAt: serverTimestamp(), seen: false });
+          await setDoc(doc(db, 'chats', chatId), { lastMessageTime: serverTimestamp(), lastMessage: text, lastSender: currentUserId }, { merge: true });
+        } catch(e2) {}
       }
     };
 

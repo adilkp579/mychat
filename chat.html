@@ -316,7 +316,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, getDocs, where, limit, writeBatch } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
@@ -328,7 +328,7 @@
     let chatPartner = null;
     let chatId = null;
     let unsubMessages = null;
-    let unsubAllChats = null;
+    let unsubChatList = null;
     let allUsersList = [];
     let chatListData = [];
 
@@ -397,55 +397,95 @@
       if (e.target === this) closeNewChatModal();
     });
 
-    // ===== REAL-TIME CHAT LIST =====
+    // ===== WHATSAPP-STYLE REALTIME CHAT LIST WITH lastMessageTime =====
     function setupRealtimeChatList() {
-      if (unsubAllChats) unsubAllChats();
-      unsubAllChats = onSnapshot(collection(db, 'chats'), (snap) => {
-        loadChatList(snap);
+      if (unsubChatList) unsubChatList();
+      
+      // Listen to chats where current user is a participant
+      // We use onSnapshot on the parent 'chats' collection and filter client-side
+      // This ensures real-time updates when any message changes
+      unsubChatList = onSnapshot(collection(db, 'chats'), (snap) => {
+        loadChatListFromSnapshot(snap);
       });
     }
 
-    async function loadChatList(snap) {
+    async function loadChatListFromSnapshot(snap) {
       let chatUsers = [];
-      const processedPartners = [];
+      const processedPartners = new Set();
       
+      // Find all chats involving current user
       snap.forEach(chatDoc => {
         const cid = chatDoc.id;
         const ids = cid.split('_');
         if (ids.includes(currentUserId)) {
           const partnerId = ids.find(id => id !== currentUserId);
-          if (partnerId && !processedPartners.includes(partnerId)) {
-            processedPartners.push(partnerId);
+          if (partnerId && !processedPartners.has(partnerId)) {
+            processedPartners.add(partnerId);
           }
         }
       });
       
+      // For each partner, get last message and unread count
+      const promises = [];
       for (const partnerId of processedPartners) {
         const cid = [currentUserId, partnerId].sort().join('_');
-        try {
-          const allMsgSnap = await getDocs(query(
-            collection(db, 'chats', cid, 'messages'),
-            orderBy('createdAt', 'desc')
-          ));
-          
-          let lastMsg = '', lastTime = new Date(0), unreadCount = 0;
-          
-          if (!allMsgSnap.empty) {
-            const lastMsgData = allMsgSnap.docs[0].data();
-            lastMsg = lastMsgData.text || '';
-            lastTime = lastMsgData.createdAt ? lastMsgData.createdAt.toDate() : new Date(0);
+        
+        const promise = (async () => {
+          try {
+            // Get ALL messages for this chat, ordered by createdAt desc
+            const msgSnap = await getDocs(query(
+              collection(db, 'chats', cid, 'messages'),
+              orderBy('createdAt', 'desc')
+            ));
             
-            allMsgSnap.forEach(doc => {
-              const msg = doc.data();
-              if (msg.sender !== currentUserId && !msg.seen) unreadCount++;
-            });
+            let lastMsg = '';
+            let lastTime = null;
+            let unreadCount = 0;
+            
+            if (!msgSnap.empty) {
+              // First doc is the most recent message
+              const lastMsgData = msgSnap.docs[0].data();
+              lastMsg = lastMsgData.text || '';
+              
+              // Get Firebase server timestamp or fallback to client time
+              if (lastMsgData.createdAt) {
+                lastTime = lastMsgData.createdAt.toDate ? lastMsgData.createdAt.toDate() : new Date(lastMsgData.createdAt);
+              }
+              
+              // Count unread messages (not sent by me AND not seen)
+              msgSnap.forEach(doc => {
+                const msg = doc.data();
+                if (msg.sender !== currentUserId && !msg.seen) {
+                  unreadCount++;
+                }
+              });
+            }
+            
+            return {
+              username: '@' + partnerId,
+              lastMsg: lastMsg,
+              lastTime: lastTime || new Date(0),
+              unreadCount: unreadCount
+            };
+          } catch(e) {
+            console.error('Error loading chat for', partnerId, e);
+            return {
+              username: '@' + partnerId,
+              lastMsg: '',
+              lastTime: new Date(0),
+              unreadCount: 0
+            };
           }
-          
-          chatUsers.push({ username: '@' + partnerId, lastMsg, lastTime, unreadCount });
-        } catch(e) {}
+        })();
+        
+        promises.push(promise);
       }
       
+      chatUsers = await Promise.all(promises);
+      
+      // SORT: Most recent first (WhatsApp style)
       chatUsers.sort((a, b) => b.lastTime - a.lastTime);
+      
       chatListData = chatUsers;
       renderChatList(chatUsers);
     }
@@ -519,7 +559,6 @@
       document.getElementById('partnerAvatar').innerHTML = username.replace('@','').charAt(0).toUpperCase();
       document.getElementById('partnerStatus').innerHTML = '<span class="dot"></span> online';
       
-      // HIDE NAV BAR on mobile
       document.getElementById('floatingNav').classList.add('hidden');
       
       const container = document.getElementById('messagesContainer');
@@ -545,7 +584,6 @@
       document.getElementById('partnerAvatar').innerHTML = '<i class="fas fa-comment-dots"></i>';
       document.getElementById('partnerStatus').textContent = '';
       
-      // SHOW NAV BAR on mobile
       document.getElementById('floatingNav').classList.remove('hidden');
       
       loadAllUsers();
@@ -583,16 +621,46 @@
       }
     }
 
+    // ===== SEND MESSAGE - Updates lastMessageTime in parent chat =====
     window.sendMessage = async function() {
       const input = document.getElementById('chatInput');
       const text = input.value.trim();
       if (!text || !chatId) return;
       input.value = '';
+      
       try {
-        await addDoc(collection(db, 'chats', chatId, 'messages'), {
+        const batch = writeBatch(db);
+        
+        // Add the message
+        const msgRef = doc(collection(db, 'chats', chatId, 'messages'));
+        batch.set(msgRef, {
           text, sender: currentUserId, createdAt: serverTimestamp(), seen: false
         });
-      } catch(e) {}
+        
+        // Update lastMessageTime on the chat document
+        const chatRef = doc(db, 'chats', chatId);
+        batch.set(chatRef, {
+          lastMessageTime: serverTimestamp(),
+          lastMessage: text,
+          lastSender: currentUserId
+        }, { merge: true });
+        
+        await batch.commit();
+      } catch(e) {
+        // Fallback: just add message without batch
+        try {
+          await addDoc(collection(db, 'chats', chatId, 'messages'), {
+            text, sender: currentUserId, createdAt: serverTimestamp(), seen: false
+          });
+          await setDoc(doc(db, 'chats', chatId), {
+            lastMessageTime: serverTimestamp(),
+            lastMessage: text,
+            lastSender: currentUserId
+          }, { merge: true });
+        } catch(e2) {
+          console.error('Send error:', e2);
+        }
+      }
     };
 
     function listenToTyping() {

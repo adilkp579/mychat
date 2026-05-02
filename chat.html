@@ -71,70 +71,15 @@
     </div></nav>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",
-      authDomain: "mychat-a97bf.firebaseapp.com",
-      projectId: "mychat-a97bf",
-      storageBucket: "mychat-a97bf.firebasestorage.app",
-      messagingSenderId: "206620858913",
-      appId: "1:206620858913:web:e8171ed8c1a2dbda3da160"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    // ===== AUTHENTICATION CHECK =====
-    async function checkAuth() {
-      const currentUser = localStorage.getItem('currentUser');
-      
-      if (!currentUser) {
-        // No user in localStorage - redirect to login
-        window.location.href = 'login.html';
-        return false;
-      }
-
-      try {
-        // Check if user exists in Firestore database
-        const q = query(collection(db, 'users'), where('username', '==', currentUser));
-        const snap = await getDocs(q);
-        
-        if (snap.empty) {
-          // User NOT in database - clear localStorage and redirect
-          localStorage.removeItem('currentUser');
-          localStorage.removeItem('userProfile');
-          window.location.href = 'login.html';
-          return false;
-        }
-        
-        // User EXISTS in database - allow access
-        return true;
-        
-      } catch (e) {
-        console.error('Auth check error:', e);
-        // If Firebase fails, allow localStorage fallback
-        return !!currentUser;
-      }
-    }
-
-    // ===== INITIALIZE AFTER AUTH CHECK =====
-    async function init() {
-      const isAuthenticated = await checkAuth();
-      
-      if (!isAuthenticated) {
-        return; // Already redirected to login
-      }
-      
-      // Hide loading, show main page
+  <script>
+    // ===== AUTH GATE (Instant block - No Firebase needed) =====
+    if (!localStorage.getItem("uid")) {
+      window.location.replace("login.html");
+    } else {
+      // Hide loading, show main page instantly
       document.getElementById('loadingScreen').style.display = 'none';
       document.getElementById('mainPage').style.display = 'flex';
     }
-
-    // Start the app
-    init();
   </script>
 </body>
 </html>

@@ -123,6 +123,28 @@
     .loading-overlay i { font-size:2rem;color:#3897f0;animation:spin 1s linear infinite; }
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 
+    /* ===== AUTH BOOT LOADER ===== */
+    .auth-boot-loader {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #000;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .auth-boot-loader i {
+      font-size: 2.5rem;
+      color: #3897f0;
+      animation: spin 1s linear infinite;
+    }
+    .auth-boot-loader span {
+      color: #888;
+      font-size: 0.8rem;
+    }
+
     @media (min-width:1024px) {
       .top-icons{display:none}.nav-upload,.nav-search{display:flex!important}
       .floating-nav{top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column}
@@ -139,7 +161,13 @@
   </style>
 </head>
 <body>
-  <div class="loading-overlay" id="loadingOverlay"><i class="fas fa-spinner"></i></div>
+  <!-- ===== AUTH BOOT LOADER (blocks everything until auth confirmed) ===== -->
+  <div class="auth-boot-loader" id="authBootLoader">
+    <i class="fas fa-spinner"></i>
+    <span>Loading...</span>
+  </div>
+
+  <div class="loading-overlay" id="loadingOverlay" style="display:none;"><i class="fas fa-spinner"></i></div>
 
   <div class="page" id="mainPage" style="display:none;">
     <div class="content">
@@ -177,35 +205,36 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    // ===== AUTH GATE =====
-    function checkAccess() {
-      return new Promise((resolve) => {
-        // First check: Firebase Auth
-        onAuthStateChanged(auth, (user) => {
-          if (user) {
-            localStorage.setItem("uid", user.uid);
-            resolve(true);
-            return;
-          }
-          // Second check: localStorage uid (Firestore-only users)
-          const localUid = localStorage.getItem("uid");
-          if (localUid) {
-            resolve(true);
-            return;
-          }
-          // No access - redirect to login
+    // ===== AUTH BOOT LOADER (No flash, no re-render) =====
+    onAuthStateChanged(auth, (user) => {
+      const bootLoader = document.getElementById('authBootLoader');
+      
+      if (user) {
+        localStorage.setItem("uid", user.uid);
+        if (bootLoader) bootLoader.style.display = 'none';
+        document.getElementById('loadingOverlay').style.display = 'none';
+        document.getElementById('mainPage').style.display = 'flex';
+        setupLiveListener();
+        renderStories();
+        renderFeed();
+      } else {
+        const localUid = localStorage.getItem("uid");
+        if (localUid) {
+          if (bootLoader) bootLoader.style.display = 'none';
+          document.getElementById('loadingOverlay').style.display = 'none';
+          document.getElementById('mainPage').style.display = 'flex';
+          setupLiveListener();
+          renderStories();
+          renderFeed();
+        } else {
           window.location.replace("login.html");
-          resolve(false);
-        });
-      });
-    }
+        }
+      }
+    });
 
-    // ===== LIVE LISTENER =====
     function setupLiveListener() {
       const liveRef = collection(db, 'live');
-      onSnapshot(liveRef, () => {
-        renderStories();
-      });
+      onSnapshot(liveRef, () => { renderStories(); });
     }
 
     async function loadLiveUsers() {
@@ -335,20 +364,6 @@
         </div>
       `).join('');
     }
-
-    async function init() {
-      const hasAccess = await checkAccess();
-      if (!hasAccess) return;
-      
-      document.getElementById('loadingOverlay').style.display = 'none';
-      document.getElementById('mainPage').style.display = 'flex';
-      
-      setupLiveListener();
-      await renderStories();
-      await renderFeed();
-    }
-
-    init();
   </script>
 </body>
 </html>

@@ -9,7 +9,7 @@
     * { margin:0;padding:0;box-sizing:border-box; }
     body { background:#000;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center; }
     .page { width:100%;height:100vh;height:100dvh;background:#000;display:flex;flex-direction:column;position:relative;overflow:hidden; }
-    .content { flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;color:#fff;padding:0.5rem 1rem 7rem 1rem;text-align:center;gap:0.3rem; }
+    .content { flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;color:#fff;padding:0.5rem 1rem 6rem 1rem;text-align:center;gap:0.3rem; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
     @keyframes livePulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.7)} 50%{box-shadow:0 0 0 10px rgba(239,68,68,0)} }
@@ -62,17 +62,13 @@
     .you-label-outside { color:#777;font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;margin-right:0.3rem; }
     .user-info { display:flex;align-items:center;gap:0.3rem;background:rgba(255,255,255,0.06);padding:0.25rem 0.6rem;border-radius:1rem;font-size:0.7rem;color:#ccc;opacity:0;transition:all 0.3s;border:1px solid rgba(255,255,255,0.08); }
     .user-info.active { opacity:1; }
-    
-    .buttons-container { 
-      display:flex;gap:0.8rem;flex-wrap:wrap;justify-content:center;
-      padding:0.5rem 0;align-items:center;
-      position:relative;z-index:50;pointer-events:auto;
-    }
+    .buttons-container { display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;padding:0.2rem 0;align-items:center;position:relative;z-index:50;pointer-events:auto; }
     .btn { 
-      height:44px;min-height:44px;border-radius:2rem;
+      height:36px;border-radius:2rem;
+      backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
       display:inline-flex;align-items:center;justify-content:center;gap:0.3rem;
-      cursor:pointer;border:2px solid transparent;outline:none;
-      font-size:0.85rem;font-weight:600;padding:0 1.2rem;color:#fff;
+      cursor:pointer;border:1px solid transparent;outline:none;
+      font-size:0.75rem;font-weight:600;padding:0 1rem;color:#fff;
       transition:all 0.3s;
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
@@ -83,21 +79,20 @@
       pointer-events:auto;
       -webkit-appearance: none;
       appearance: none;
-      background:rgba(255,255,255,0.12);
     }
-    .btn:active { transform:scale(0.95);background:rgba(255,255,255,0.25); }
-    .start-button { min-width:100px;background:rgba(74,222,128,0.2);border-color:rgba(74,222,128,0.5);color:#4ade80; }
+    .btn:active { transform:scale(0.95); }
+    .start-button { width:80px;background:rgba(74,222,128,0.2);border-color:rgba(74,222,128,0.5);color:#4ade80; }
     .start-button.searching { background:rgba(251,191,36,0.2);border-color:rgba(251,191,36,0.5);color:#fbbf24;animation:pulse 1s infinite; }
-    .stop-button { min-width:90px;background:rgba(239,68,68,0.2);border-color:rgba(239,68,68,0.5);color:#ef4444;display:none; }
+    .stop-button { width:70px;background:rgba(239,68,68,0.2);border-color:rgba(239,68,68,0.5);color:#ef4444;display:none; }
     .stop-button.visible { display:inline-flex; }
-    .next-button { min-width:90px;background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.3);color:#ccc;display:none; }
+    .next-button { width:70px;background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);color:#ccc;display:none; }
     .next-button.visible { display:inline-flex; }
-    .mic-button { width:44px;height:44px;min-width:44px;border-radius:50%;background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.3);color:#4ade80;display:none;padding:0; }
+    .mic-button { width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);color:#4ade80;display:none;padding:0; }
     .mic-button.visible { display:inline-flex;align-items:center;justify-content:center; }
     .mic-button.muted { color:#ef4444;background:rgba(239,68,68,0.2);border-color:rgba(239,68,68,0.5); }
     
     .live-button { 
-      min-width:100px;
+      width:80px;
       background:rgba(74,222,128,0.2);
       border-color:rgba(74,222,128,0.5);
       color:#4ade80;
@@ -112,14 +107,13 @@
       animation:livePulse 2s infinite;
     }
 
-    /* HTTPS Warning Bar */
     .https-warning {
       display:none;
       background:#ef4444;
       color:#fff;
       text-align:center;
-      padding:0.5rem;
-      font-size:0.7rem;
+      padding:0.4rem;
+      font-size:0.65rem;
       font-weight:600;
       position:sticky;
       top:0;
@@ -133,19 +127,7 @@
     .loading-screen i { font-size:2rem;color:#3897f0;animation:spin 1s infinite; }
     .loading-screen span { font-size:0.75rem;color:#888; }
 
-    .floating-nav { 
-      position:fixed;
-      bottom:max(1rem,env(safe-area-inset-bottom,1rem));
-      left:50%;transform:translateX(-50%);
-      width:92%;max-width:500px;
-      background:rgba(20,20,20,0.95);
-      border-radius:2.5rem;
-      padding:0.7rem 1.5rem;
-      display:flex;align-items:center;justify-content:center;
-      border:1px solid rgba(255,255,255,0.15);
-      box-shadow:0 20px 40px rgba(0,0,0,0.8);
-      z-index:45;
-    }
+    .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6);z-index:100; }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
     .nav-center a { color:rgba(255,255,255,0.6);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;position:relative; }
     .nav-center a::before { content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:4px;height:4px;border-radius:50%;background:#fff;transition:all 0.3s; }
@@ -164,27 +146,21 @@
       .stranger-camera { max-height:70vh; }
       .my-camera { max-height:180px; }
     }
-    @media (max-width:768px) {
-      .content { padding:0.3rem 0.6rem 8rem 0.6rem; }
-      .btn { height:48px;min-height:48px;font-size:0.9rem;padding:0 1.5rem; }
-      .buttons-container { gap:0.8rem;padding:0.8rem 0; }
-    }
     @media (max-width:380px) { 
-      .content{padding:0.3rem 0.6rem 7rem 0.6rem}
-      .stranger-camera{max-height:45vh}.my-camera{max-height:100px}
-      .btn{height:44px;min-height:44px;font-size:0.8rem;padding:0 1rem}
-      .start-button,.live-button{min-width:85px}.stop-button,.next-button{min-width:75px}
-      .mic-button{width:44px;height:44px;min-width:44px}
-      .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.5rem}
+      .content{padding:0.3rem 0.6rem 5rem 0.6rem}
+      .stranger-camera{max-height:56vh}.my-camera{max-height:100px}
+      .btn{height:34px;font-size:0.7rem;padding:0 0.7rem}
+      .start-button,.live-button{width:65px}.stop-button,.next-button{width:60px}
+      .mic-button{width:34px;height:34px}
+      .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem}
       .nav-center a{font-size:1.1rem;width:2rem;height:2rem}
-      .buttons-container { gap:0.6rem;padding:0.6rem 0; }
+      .buttons-container { gap:0.4rem; }
     }
   </style>
 </head>
 <body>
-  <!-- HTTPS Warning - shown only on HTTP connections -->
   <div class="https-warning" id="httpsWarning">
-    ⚠️ Camera requires HTTPS! <a href="javascript:void(0)" onclick="switchToHTTPS()">Switch to secure connection</a>
+    ⚠️ Camera requires HTTPS! <a href="javascript:void(0)" onclick="switchToHTTPS()">Switch to secure</a>
   </div>
 
   <div class="loading-screen" id="loadingScreen">
@@ -238,12 +214,8 @@
   </div>
 
   <script>
-    // ===== AUTH GATE =====
-    if (!localStorage.getItem("uid")) {
-      window.location.replace("login.html");
-    }
+    if (!localStorage.getItem("uid")) { window.location.replace("login.html"); }
 
-    // ===== HTTPS CHECK =====
     if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
       document.getElementById('httpsWarning').classList.add('show');
     }
@@ -252,39 +224,22 @@
       window.location.href = window.location.href.replace('http://', 'https://');
     };
 
-    // Placeholder functions (replaced when module loads)
-    window._toggleLive = function() { 
-      alert('Page still loading... Please wait or refresh.'); 
-    };
-    window._startChat = function() { 
-      alert('Page still loading... Please wait or refresh.'); 
-    };
-    window._stopChat = function() { 
-      alert('Page still loading... Please wait or refresh.'); 
-    };
-    window._nextChat = function() { 
-      alert('Page still loading... Please wait or refresh.'); 
-    };
-    window._toggleMute = function() { 
-      alert('Page still loading... Please wait or refresh.'); 
-    };
+    window._toggleLive = function() { alert('Loading... Please wait.'); };
+    window._startChat = function() { alert('Loading... Please wait.'); };
+    window._stopChat = function() { alert('Loading... Please wait.'); };
+    window._nextChat = function() { alert('Loading... Please wait.'); };
+    window._toggleMute = function() { alert('Loading... Please wait.'); };
   </script>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, addDoc, onSnapshot, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-    const app = initializeApp({
-      apiKey: "AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",
-      authDomain: "mychat-a97bf.firebaseapp.com",
-      projectId: "mychat-a97bf"
-    });
+    const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
 
-    // Show UI
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('mainPage').style.display = 'flex';
-    
     startWebChat();
 
     function startWebChat() {
@@ -313,12 +268,7 @@
       let liveViewers = {};
       let liveUnsub = null;
 
-      const servers = {
-        iceServers: [
-          { urls: "stun:stun.l.google.com:19302" },
-          { urls: "stun:stun1.l.google.com:19302" }
-        ]
-      };
+      const servers = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "stun:stun1.l.google.com:19302" }] };
 
       function updateLiveButton() {
         if (isLive) {
@@ -331,377 +281,126 @@
       }
 
       async function startLive() {
-        if (!localStream) {
-          alert('⚠️ Camera not started!\n\nPlease tap START button first to enable your camera. Then tap LIVE.');
-          return;
-        }
-        isLive = true;
-        updateLiveButton();
+        if (!localStream) { alert('Start camera first! Tap START button then LIVE.'); return; }
+        isLive = true; updateLiveButton();
         try {
-          await setDoc(doc(db, 'live', liveUserId), {
-            userId: currentUser, active: true, startedAt: serverTimestamp(),
-            viewers: 0, hasStranger: !!strangerStream
-          });
-          strangerCamera.classList.add('live-active');
-          liveStatus.classList.add('show');
-          const viewersRef = collection(db, 'live_viewers');
-          liveUnsub = onSnapshot(viewersRef, (snap) => {
+          await setDoc(doc(db, 'live', liveUserId), { userId: currentUser, active: true, startedAt: serverTimestamp(), viewers: 0, hasStranger: !!strangerStream });
+          strangerCamera.classList.add('live-active'); liveStatus.classList.add('show');
+          liveUnsub = onSnapshot(collection(db, 'live_viewers'), (snap) => {
             snap.docChanges().forEach(async (change) => {
               const vd = change.doc.data();
-              if (change.type === 'added' && vd.liveUser === currentUser && vd.offer && vd.active) {
-                await handleNewViewer(change.doc.id, vd);
-              }
-              if (change.type === 'modified' && vd.streamEnded) {
-                cleanupViewer(change.doc.id);
-              }
+              if (change.type === 'added' && vd.liveUser === currentUser && vd.offer && vd.active) { await handleNewViewer(change.doc.id, vd); }
+              if (change.type === 'modified' && vd.streamEnded) { cleanupViewer(change.doc.id); }
             });
           });
           updateLiveViewerCount();
-          console.log('🔴 LIVE started');
-        } catch(e) {
-          console.error('Start live error:', e);
-          isLive = false;
-          updateLiveButton();
-          alert('Failed to start live stream. Please try again.');
-        }
+        } catch(e) { isLive = false; updateLiveButton(); }
       }
 
       async function handleNewViewer(viewerId, viewerData) {
         try {
           const vpc = new RTCPeerConnection(servers);
           if (localStream) localStream.getTracks().forEach(track => vpc.addTrack(track, localStream));
-          if (strangerStream) {
-            strangerStream.getTracks().forEach(track => {
-              if (track.readyState === 'live') vpc.addTrack(track, strangerStream);
-            });
-          }
-          vpc.onicecandidate = async (e) => {
-            if (e.candidate) {
-              const ref = doc(db, 'live_viewers', viewerId);
-              const snap = await getDoc(ref);
-              const existing = snap.data()?.hostCandidates || [];
-              existing.push(e.candidate.toJSON());
-              await setDoc(ref, { hostCandidates: existing }, { merge: true });
-            }
-          };
-          vpc.onconnectionstatechange = () => {
-            if (vpc.connectionState === 'failed' || vpc.connectionState === 'disconnected') {
-              cleanupViewer(viewerId);
-            }
-          };
+          if (strangerStream) { strangerStream.getTracks().forEach(track => { if (track.readyState === 'live') vpc.addTrack(track, strangerStream); }); }
+          vpc.onicecandidate = async (e) => { if (e.candidate) { const ref = doc(db, 'live_viewers', viewerId); const snap = await getDoc(ref); const existing = snap.data()?.hostCandidates || []; existing.push(e.candidate.toJSON()); await setDoc(ref, { hostCandidates: existing }, { merge: true }); } };
+          vpc.onconnectionstatechange = () => { if (vpc.connectionState === 'failed' || vpc.connectionState === 'disconnected') { cleanupViewer(viewerId); } };
           await vpc.setRemoteDescription(new RTCSessionDescription(viewerData.offer));
-          const answer = await vpc.createAnswer();
-          await vpc.setLocalDescription(answer);
-          await setDoc(doc(db, 'live_viewers', viewerId), {
-            answer: { type: answer.type, sdp: answer.sdp }, status: 'connected'
-          }, { merge: true });
-          liveViewers[viewerId] = vpc;
-          updateLiveViewerCount();
-        } catch(e) {
-          console.error('Viewer error:', e);
-        }
+          const answer = await vpc.createAnswer(); await vpc.setLocalDescription(answer);
+          await setDoc(doc(db, 'live_viewers', viewerId), { answer: { type: answer.type, sdp: answer.sdp }, status: 'connected' }, { merge: true });
+          liveViewers[viewerId] = vpc; updateLiveViewerCount();
+        } catch(e) {}
       }
 
-      function cleanupViewer(viewerId) {
-        if (liveViewers[viewerId]) {
-          liveViewers[viewerId].close();
-          delete liveViewers[viewerId];
-          updateLiveViewerCount();
-        }
-      }
+      function cleanupViewer(viewerId) { if (liveViewers[viewerId]) { liveViewers[viewerId].close(); delete liveViewers[viewerId]; updateLiveViewerCount(); } }
 
-      async function updateLiveViewerCount() {
-        const count = Object.keys(liveViewers).length;
-        liveViewerCount.textContent = count;
-        try { await setDoc(doc(db, 'live', liveUserId), { viewers: count }, { merge: true }); } catch(e) {}
-      }
+      async function updateLiveViewerCount() { const count = Object.keys(liveViewers).length; liveViewerCount.textContent = count; try { await setDoc(doc(db, 'live', liveUserId), { viewers: count }, { merge: true }); } catch(e) {} }
 
       async function endLive() {
-        isLive = false;
-        updateLiveButton();
-        Object.keys(liveViewers).forEach(id => { if (liveViewers[id]) liveViewers[id].close(); });
-        liveViewers = {};
-        try {
-          const viewersSnap = await getDocs(collection(db, 'live_viewers'));
-          viewersSnap.forEach(async (docSnap) => {
-            if (docSnap.data().liveUser === currentUser) {
-              await setDoc(doc(db, 'live_viewers', docSnap.id), {
-                streamEnded: true, active: false
-              }, { merge: true }).catch(() => {});
-            }
-          });
-        } catch(e) {}
+        isLive = false; updateLiveButton();
+        Object.keys(liveViewers).forEach(id => { if (liveViewers[id]) liveViewers[id].close(); }); liveViewers = {};
+        try { const viewersSnap = await getDocs(collection(db, 'live_viewers')); viewersSnap.forEach(async (docSnap) => { if (docSnap.data().liveUser === currentUser) { await setDoc(doc(db, 'live_viewers', docSnap.id), { streamEnded: true, active: false }, { merge: true }).catch(() => {}); } }); } catch(e) {}
         await deleteDoc(doc(db, 'live', liveUserId)).catch(() => {});
         if (liveUnsub) { liveUnsub(); liveUnsub = null; }
-        strangerCamera.classList.remove('live-active');
-        liveStatus.classList.remove('show');
-        liveViewerCount.textContent = '0';
-        console.log('🔴 LIVE ended');
+        strangerCamera.classList.remove('live-active'); liveStatus.classList.remove('show'); liveViewerCount.textContent = '0';
       }
 
-      async function toggleLive() {
-        console.log('toggleLive called, isLive:', isLive);
-        if (isLive) {
-          await endLive();
-        } else {
-          if (!localStream) {
-            const started = await startCamera();
-            if (!started) return;
-          }
-          await startLive();
-        }
-      }
+      async function toggleLive() { if (isLive) { await endLive(); } else { if (!localStream) { const started = await startCamera(); if (!started) return; } await startLive(); } }
 
       async function startCamera() {
-        // Check HTTPS
         if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-          alert('⚠️ Camera requires HTTPS!\n\nYou are on HTTP (insecure connection).\n\nPlease use: https://' + window.location.hostname + '\n\niOS and many browsers block camera on HTTP.\n\nTapping OK will redirect you to HTTPS.');
-          window.location.href = window.location.href.replace('http://', 'https://');
-          return false;
+          alert('⚠️ Camera requires HTTPS!\n\nSwitching to secure connection...');
+          window.location.href = window.location.href.replace('http://', 'https://'); return false;
         }
-
         try {
           if(localStream){ localStream.getTracks().forEach(t=>t.stop()); }
-          localStream = await navigator.mediaDevices.getUserMedia({
-            video: { width:480, height:640, facingMode:'user' },
-            audio: { echoCancellation:true, noiseSuppression:true, autoGainControl:true }
-          });
-          myFeed.srcObject = localStream;
-          await myFeed.play();
-          myFeed.style.display='block';
-          myPlaceholder.style.display='none';
-          myCameraEl.classList.add('active');
-          console.log('📷 Camera started');
+          localStream = await navigator.mediaDevices.getUserMedia({ video: { width:480, height:640, facingMode:'user' }, audio: { echoCancellation:true, noiseSuppression:true, autoGainControl:true } });
+          myFeed.srcObject = localStream; await myFeed.play();
+          myFeed.style.display='block'; myPlaceholder.style.display='none'; myCameraEl.classList.add('active');
           return true;
         } catch(e) {
-          console.error('Camera error:', e.name, e.message);
-          
-          // Specific error messages
           if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
-            alert('❌ Camera access blocked!\n\nTo fix this:\n1. Open iPhone Settings\n2. Scroll down to Safari\n3. Tap Camera → Allow\n4. Tap Microphone → Allow\n5. Reload this page\n\nOr try a different browser like Chrome.');
-          } else if (e.name === 'NotFoundError' || e.name === 'DevicesNotFoundError') {
-            alert('❌ No camera found!\n\nThis device does not have a camera, or it is not connected.');
-          } else if (e.name === 'NotReadableError' || e.name === 'TrackStartError') {
-            alert('❌ Camera busy!\n\nYour camera is being used by another app.\nPlease close other apps (FaceTime, WhatsApp, etc.) and try again.');
-          } else if (e.name === 'OverconstrainedError') {
-            alert('❌ Camera resolution not supported.\nTrying lower resolution...');
-            // Retry with lower resolution
-            try {
-              if(localStream){ localStream.getTracks().forEach(t=>t.stop()); }
-              localStream = await navigator.mediaDevices.getUserMedia({
-                video: { width:320, height:240, facingMode:'user' },
-                audio: true
-              });
-              myFeed.srcObject = localStream;
-              await myFeed.play();
-              myFeed.style.display='block';
-              myPlaceholder.style.display='none';
-              myCameraEl.classList.add('active');
-              return true;
-            } catch(e2) {
-              alert('❌ Camera still not working. Please try a different device.');
-              return false;
-            }
-          } else if (e.name === 'TypeError' || !navigator.mediaDevices) {
-            alert('❌ Camera not supported!\n\nThis browser does not support camera access.\n\nMake sure you are using HTTPS (https://).\n\nTry: https://' + window.location.hostname);
-          } else {
-            alert('❌ Camera error: ' + (e.message || 'Unknown error') + '\n\nMake sure:\n✅ You are using HTTPS\n✅ Camera permission is allowed\n✅ No other app is using the camera');
-          }
+            alert('📷 Camera blocked!\n\niPhone: Settings > Safari > Camera > Allow\n\nAndroid: Settings > Apps > Browser > Permissions > Camera');
+          } else if (e.name === 'NotFoundError') {
+            alert('📷 No camera found on this device.');
+          } else { alert('📷 Camera error. Ensure HTTPS and camera permission is allowed.'); }
           return false;
         }
       }
 
-      function stopCamera() {
-        if(localStream){ localStream.getTracks().forEach(t=>t.stop()); localStream=null; }
-        myFeed.style.display='none'; myFeed.srcObject=null;
-        myPlaceholder.style.display=''; myCameraEl.classList.remove('active');
-        console.log('📷 Camera stopped');
-      }
-
-      function resetStranger() {
-        strangerStream = null;
-        strangerFeed.style.display='none'; strangerFeed.srcObject=null;
-        strangerPlaceholder.style.display=''; strangerCamera.classList.remove('connected','live-active');
-      }
-
-      function showConnected() {
-        startBtn.style.display='none';
-        stopBtnEl.classList.add('visible'); nextBtn.classList.add('visible');
-        micBtn.classList.add('visible'); userInfo.classList.add('active');
-      }
-
-      function showDisconnected() {
-        startBtn.style.display='inline-flex';
-        stopBtnEl.classList.remove('visible'); nextBtn.classList.remove('visible');
-        micBtn.classList.remove('visible');
-        startBtn.classList.remove('searching');
-        startBtn.querySelector('span').textContent='Start';
-        startBtn.querySelector('i').className='fas fa-play';
-        startBtn.disabled=false;
-        userInfo.classList.remove('active');
-      }
-
-      function toggleMute() {
-        console.log('toggleMute called');
-        if(!localStream) return;
-        const tracks = localStream.getAudioTracks();
-        if(tracks.length>0){
-          isMuted=!isMuted;
-          tracks.forEach(t=>t.enabled=!isMuted);
-          micBtn.classList.toggle('muted',isMuted);
-          micBtn.querySelector('i').className=isMuted?'fas fa-microphone-slash':'fas fa-microphone';
-        }
-      }
+      function stopCamera() { if(localStream){ localStream.getTracks().forEach(t=>t.stop()); localStream=null; } myFeed.style.display='none'; myFeed.srcObject=null; myPlaceholder.style.display=''; myCameraEl.classList.remove('active'); }
+      function resetStranger() { strangerStream = null; strangerFeed.style.display='none'; strangerFeed.srcObject=null; strangerPlaceholder.style.display=''; strangerCamera.classList.remove('connected','live-active'); }
+      function showConnected() { startBtn.style.display='none'; stopBtnEl.classList.add('visible'); nextBtn.classList.add('visible'); micBtn.classList.add('visible'); userInfo.classList.add('active'); }
+      function showDisconnected() { startBtn.style.display='inline-flex'; stopBtnEl.classList.remove('visible'); nextBtn.classList.remove('visible'); micBtn.classList.remove('visible'); startBtn.classList.remove('searching'); startBtn.querySelector('span').textContent='Start'; startBtn.querySelector('i').className='fas fa-play'; startBtn.disabled=false; userInfo.classList.remove('active'); }
+      function toggleMute() { if(!localStream) return; const tracks = localStream.getAudioTracks(); if(tracks.length>0){ isMuted=!isMuted; tracks.forEach(t=>t.enabled=!isMuted); micBtn.classList.toggle('muted',isMuted); micBtn.querySelector('i').className=isMuted?'fas fa-microphone-slash':'fas fa-microphone'; } }
 
       async function createRoom(otherId, isCaller) {
-        roomId=[myId,otherId].sort().join('_');
-        const roomRef=doc(db,'rooms',roomId);
-        showConnected();
-        if(pc){pc.close();pc=null;}
-        unsubs.forEach(u=>u()); unsubs=[];
-        pc=new RTCPeerConnection(servers);
-        localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));
-        pc.ontrack=(e)=>{
-          if(e.streams[0]){
-            strangerStream = e.streams[0];
-            strangerFeed.srcObject=e.streams[0];
-            strangerFeed.style.display='block';
-            strangerPlaceholder.style.display='none';
-            strangerCamera.classList.add('connected');
-            if(isLive) {
-              Object.values(liveViewers).forEach(vpc => {
-                try { strangerStream.getTracks().forEach(track => { if(track.readyState==='live') vpc.addTrack(track,strangerStream); }); } catch(e) {}
-              });
-            }
-          }
-        };
+        roomId=[myId,otherId].sort().join('_'); const roomRef=doc(db,'rooms',roomId); showConnected();
+        if(pc){pc.close();pc=null;} unsubs.forEach(u=>u()); unsubs=[];
+        pc=new RTCPeerConnection(servers); localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));
+        pc.ontrack=(e)=>{ if(e.streams[0]){ strangerStream = e.streams[0]; strangerFeed.srcObject=e.streams[0]; strangerFeed.style.display='block'; strangerPlaceholder.style.display='none'; strangerCamera.classList.add('connected'); if(isLive) { Object.values(liveViewers).forEach(vpc => { try { strangerStream.getTracks().forEach(track => { if(track.readyState==='live') vpc.addTrack(track,strangerStream); }); } catch(e) {} }); } } };
         pc.onicecandidate=async(e)=>{ if(e.candidate) await addDoc(collection(roomRef,'ice'),{sender:myId,candidate:e.candidate.toJSON()}); };
-        unsubs.push(onSnapshot(collection(roomRef,'ice'),(snap)=>{
-          snap.docChanges().forEach(async(c)=>{
-            if(c.type==='added'&&c.doc.data().sender!==myId&&pc){
-              try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate));}catch(e){}
-            }
-          });
-        }));
-        if(isCaller){
-          const offer=await pc.createOffer({offerToReceiveVideo:true,offerToReceiveAudio:true});
-          await pc.setLocalDescription(offer);
-          await setDoc(doc(db,'invites',otherId),{from:myId,offer:{type:offer.type,sdp:offer.sdp}});
-          unsubs.push(onSnapshot(doc(db,'invites',otherId),async(snap)=>{
-            const d=snap.data();
-            if(d?.answer&&!pc.currentRemoteDescription&&pc.signalingState!=='closed'){
-              await pc.setRemoteDescription(new RTCSessionDescription(d.answer));
-            }
-          }));
-        }
+        unsubs.push(onSnapshot(collection(roomRef,'ice'),(snap)=>{ snap.docChanges().forEach(async(c)=>{ if(c.type==='added'&&c.doc.data().sender!==myId&&pc){ try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate));}catch(e){} } }); }));
+        if(isCaller){ const offer=await pc.createOffer({offerToReceiveVideo:true,offerToReceiveAudio:true}); await pc.setLocalDescription(offer); await setDoc(doc(db,'invites',otherId),{from:myId,offer:{type:offer.type,sdp:offer.sdp}}); unsubs.push(onSnapshot(doc(db,'invites',otherId),async(snap)=>{ const d=snap.data(); if(d?.answer&&!pc.currentRemoteDescription&&pc.signalingState!=='closed'){ await pc.setRemoteDescription(new RTCSessionDescription(d.answer)); } })); }
       }
 
       function listenForInvites() {
         unsubs.push(onSnapshot(doc(db,'invites',myId),async(snap)=>{
-          if(!snap.exists()) return;
-          const d=snap.data();
-          await deleteDoc(doc(db,'waiting',myId)).catch(()=>{});
-          roomId=[myId,d.from].sort().join('_');
-          const roomRef=doc(db,'rooms',roomId);
-          showConnected();
-          if(pc){pc.close();pc=null;}
-          unsubs.forEach(u=>u()); unsubs=[];
-          pc=new RTCPeerConnection(servers);
-          localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));
-          pc.ontrack=(e)=>{
-            if(e.streams[0]){
-              strangerStream = e.streams[0];
-              strangerFeed.srcObject=e.streams[0];
-              strangerFeed.style.display='block';
-              strangerPlaceholder.style.display='none';
-              strangerCamera.classList.add('connected');
-              if(isLive) {
-                Object.values(liveViewers).forEach(vpc => {
-                  try { strangerStream.getTracks().forEach(track => { if(track.readyState==='live') vpc.addTrack(track,strangerStream); }); } catch(e) {}
-                });
-              }
-            }
-          };
+          if(!snap.exists()) return; const d=snap.data(); await deleteDoc(doc(db,'waiting',myId)).catch(()=>{});
+          roomId=[myId,d.from].sort().join('_'); const roomRef=doc(db,'rooms',roomId); showConnected();
+          if(pc){pc.close();pc=null;} unsubs.forEach(u=>u()); unsubs=[];
+          pc=new RTCPeerConnection(servers); localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));
+          pc.ontrack=(e)=>{ if(e.streams[0]){ strangerStream = e.streams[0]; strangerFeed.srcObject=e.streams[0]; strangerFeed.style.display='block'; strangerPlaceholder.style.display='none'; strangerCamera.classList.add('connected'); if(isLive) { Object.values(liveViewers).forEach(vpc => { try { strangerStream.getTracks().forEach(track => { if(track.readyState==='live') vpc.addTrack(track,strangerStream); }); } catch(e) {} }); } } };
           pc.onicecandidate=async(e)=>{ if(e.candidate) await addDoc(collection(roomRef,'ice'),{sender:myId,candidate:e.candidate.toJSON()}); };
-          if(d.offer&&pc.signalingState!=='closed'){
-            await pc.setRemoteDescription(new RTCSessionDescription(d.offer));
-            const answer=await pc.createAnswer();
-            await pc.setLocalDescription(answer);
-            await setDoc(doc(db,'invites',myId),{from:d.from,offer:d.offer,answer:{type:answer.type,sdp:answer.sdp}},{merge:true});
-          }
-          unsubs.push(onSnapshot(collection(roomRef,'ice'),(snap)=>{
-            snap.docChanges().forEach(async(c)=>{
-              if(c.type==='added'&&c.doc.data().sender!==myId&&pc){
-                try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate));}catch(e){}
-              }
-            });
-          }));
+          if(d.offer&&pc.signalingState!=='closed'){ await pc.setRemoteDescription(new RTCSessionDescription(d.offer)); const answer=await pc.createAnswer(); await pc.setLocalDescription(answer); await setDoc(doc(db,'invites',myId),{from:d.from,offer:d.offer,answer:{type:answer.type,sdp:answer.sdp}},{merge:true}); }
+          unsubs.push(onSnapshot(collection(roomRef,'ice'),(snap)=>{ snap.docChanges().forEach(async(c)=>{ if(c.type==='added'&&c.doc.data().sender!==myId&&pc){ try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate));}catch(e){} } }); }));
         }));
       }
 
       async function startChat() {
-        console.log('startChat called');
-        if(isLive) { alert('Please tap END first to stop live stream before starting a new chat.'); return; }
-        startBtn.disabled=true;
-        startBtn.classList.add('searching');
-        startBtn.querySelector('span').textContent='Searching...';
-        startBtn.querySelector('i').className='fas fa-spinner fa-spin';
+        if(isLive) { alert('Please tap END to stop live stream first.'); return; }
+        startBtn.disabled=true; startBtn.classList.add('searching'); startBtn.querySelector('span').textContent='Searching'; startBtn.querySelector('i').className='fas fa-spinner fa-spin';
         if(!(await startCamera())){ showDisconnected(); return; }
-        const snap=await getDocs(collection(db,'waiting'));
-        let found=null;
+        const snap=await getDocs(collection(db,'waiting')); let found=null;
         snap.forEach(d=>{if(d.data().userId!==myId&&!found)found=d.data().userId;});
-        if(found){
-          await deleteDoc(doc(db,'waiting',myId)).catch(()=>{});
-          await deleteDoc(doc(db,'waiting',found)).catch(()=>{});
-          await createRoom(found,true);
-        }else{
-          await setDoc(doc(db,'waiting',myId),{userId:myId});
-          listenForInvites();
-        }
+        if(found){ await deleteDoc(doc(db,'waiting',myId)).catch(()=>{}); await deleteDoc(doc(db,'waiting',found)).catch(()=>{}); await createRoom(found,true); }
+        else { await setDoc(doc(db,'waiting',myId),{userId:myId}); listenForInvites(); }
       }
 
       function stopChat() {
-        console.log('stopChat called');
         if(connectionTimeout) clearTimeout(connectionTimeout);
-        if(pc){pc.close();pc=null;}
-        unsubs.forEach(u=>u()); unsubs=[];
+        if(pc){pc.close();pc=null;} unsubs.forEach(u=>u()); unsubs=[];
         if(roomId){deleteDoc(doc(db,'rooms',roomId)).catch(()=>{});roomId=null;}
-        deleteDoc(doc(db,'waiting',myId)).catch(()=>{});
-        deleteDoc(doc(db,'invites',myId)).catch(()=>{});
-        if(isLive){endLive();}
-        resetStranger(); stopCamera(); showDisconnected();
+        deleteDoc(doc(db,'waiting',myId)).catch(()=>{}); deleteDoc(doc(db,'invites',myId)).catch(()=>{});
+        if(isLive){endLive();} resetStranger(); stopCamera(); showDisconnected();
       }
 
-      // ===== REPLACE GLOBAL FUNCTIONS =====
-      window._toggleLive = function() { 
-        console.log('🔘 LIVE button pressed');
-        toggleLive(); 
-      };
-      window._startChat = function() { 
-        console.log('🔘 START button pressed');
-        startChat(); 
-      };
-      window._stopChat = function() { 
-        console.log('🔘 STOP button pressed');
-        stopChat(); 
-      };
-      window._nextChat = function() { 
-        console.log('🔘 NEXT button pressed');
-        stopChat(); 
-        setTimeout(function() { startChat(); }, 500); 
-      };
-      window._toggleMute = function() { 
-        console.log('🔘 MIC button pressed');
-        toggleMute(); 
-      };
+      window._toggleLive = function() { toggleLive(); };
+      window._startChat = function() { startChat(); };
+      window._stopChat = function() { stopChat(); };
+      window._nextChat = function() { stopChat(); setTimeout(function() { startChat(); }, 500); };
+      window._toggleMute = function() { toggleMute(); };
 
-      console.log('✅ All buttons ready - LIVE, START, STOP, NEXT, MIC');
-
-      window.addEventListener('beforeunload', () => {
-        if(isLive) { endLive().catch(()=>{}); }
-        if(pc) pc.close();
-        if(localStream) localStream.getTracks().forEach(t=>t.stop());
-      });
+      window.addEventListener('beforeunload', () => { if(isLive) { endLive().catch(()=>{}); } if(pc) pc.close(); if(localStream) localStream.getTracks().forEach(t=>t.stop()); });
     }
   </script>
 </body>

@@ -171,19 +171,28 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getFirestore, collection, query, where, getDocs, doc, getDoc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
+    const auth = getAuth(app);
 
-    async function checkAuth() {
-      const currentUser = localStorage.getItem('currentUser');
-      if (!currentUser) { window.location.href = 'login.html'; return null; }
-      try {
-        const q = query(collection(db, 'users'), where('username', '==', currentUser));
-        const snap = await getDocs(q);
-        if (snap.empty) { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; return null; }
-        return currentUser;
-      } catch(e) { return currentUser; }
+    // ===== AUTH GATE (Single source of truth - NO DOUBLE RENDER) =====
+    function initAuthGate() {
+      return new Promise((resolve) => {
+        // This runs instantly if already logged in, or waits for Firebase to confirm
+        onAuthStateChanged(auth, (user) => {
+          if (user) {
+            // Store uid in localStorage for other pages to check
+            localStorage.setItem("uid", user.uid);
+            resolve(user);
+          } else {
+            // Not logged in - redirect to login
+            localStorage.removeItem("uid");
+            window.location.replace("login.html");
+          }
+        });
+      });
     }
 
     // ===== LIVE LISTENER =====
@@ -323,14 +332,15 @@
     }
 
     async function init() {
-      const user = await checkAuth();
-      if (!user) return;
+      // Single auth check - no double render
+      await initAuthGate();
       
+      // Show UI instantly after auth confirmed
       document.getElementById('loadingOverlay').style.display = 'none';
       document.getElementById('mainPage').style.display = 'flex';
       
+      // Load content
       setupLiveListener();
-      
       await renderStories();
       await renderFeed();
     }

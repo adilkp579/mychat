@@ -83,7 +83,7 @@
     .contact-name { flex:1; }
     .contact-close { text-align:center;margin-top:0.6rem;color:#ef4444;cursor:pointer;font-size:0.75rem;padding:0.4rem; }
 
-    /* ===== WHATSAPP-STYLE CHAT LIST ===== */
+    /* ===== CHAT LIST ===== */
     .chat-list-full {
       flex:1;display:flex;flex-direction:column;
       overflow:hidden;
@@ -114,7 +114,7 @@
       background:linear-gradient(135deg,#FFFC00,#FFD600);
       display:flex;align-items:center;justify-content:center;
       font-size:1.1rem;color:#000;font-weight:700;
-      flex-shrink:0;position:relative;
+      flex-shrink:0;
     }
     .user-info { flex:1;min-width:0; }
     .user-name-row { display:flex;align-items:center;justify-content:space-between; }
@@ -316,7 +316,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, getDocs, limit } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
@@ -338,7 +338,7 @@
     loadAllUsers();
     setupRealtimeChatList();
 
-    // ===== LOAD ALL USERS FOR NEW CHAT =====
+    // ===== LOAD ALL USERS =====
     async function loadAllUsers() {
       allUsersList = [];
       try {
@@ -397,7 +397,7 @@
       if (e.target === this) closeNewChatModal();
     });
 
-    // ===== REAL-TIME CHAT LIST (Only messaged users) =====
+    // ===== REAL-TIME CHAT LIST =====
     function setupRealtimeChatList() {
       if (unsubAllChats) unsubAllChats();
       unsubAllChats = onSnapshot(collection(db, 'chats'), (snap) => {
@@ -445,7 +445,6 @@
         } catch(e) {}
       }
       
-      // SORT: Most recent first
       chatUsers.sort((a, b) => b.lastTime - a.lastTime);
       chatListData = chatUsers;
       renderChatList(chatUsers);
@@ -520,6 +519,9 @@
       document.getElementById('partnerAvatar').innerHTML = username.replace('@','').charAt(0).toUpperCase();
       document.getElementById('partnerStatus').innerHTML = '<span class="dot"></span> online';
       
+      // HIDE NAV BAR on mobile
+      document.getElementById('floatingNav').classList.add('hidden');
+      
       const container = document.getElementById('messagesContainer');
       container.querySelectorAll('.message-wrapper').forEach(el => el.remove());
       document.getElementById('emptyChat').style.display = 'flex';
@@ -542,6 +544,9 @@
       document.getElementById('partnerName').textContent = 'Chats';
       document.getElementById('partnerAvatar').innerHTML = '<i class="fas fa-comment-dots"></i>';
       document.getElementById('partnerStatus').textContent = '';
+      
+      // SHOW NAV BAR on mobile
+      document.getElementById('floatingNav').classList.remove('hidden');
       
       loadAllUsers();
       setupRealtimeChatList();

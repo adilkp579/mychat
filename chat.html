@@ -39,6 +39,63 @@
     }
     .chat-partner-status .dot { width:5px;height:5px;border-radius:50%;background:#4ade80;display:inline-block; }
 
+    /* ===== TOP RIGHT CONTACT ICON ===== */
+    .header-contact-btn {
+      width:2.2rem;height:2.2rem;border-radius:50%;
+      background:rgba(255,255,255,0.08);
+      display:flex;align-items:center;justify-content:center;
+      color:#fff;font-size:0.85rem;cursor:pointer;
+      border:none;flex-shrink:0;
+    }
+    .header-contact-btn.hidden { display:none; }
+
+    /* ===== CONTACTS MODAL ===== */
+    .contacts-overlay {
+      position:fixed;top:0;left:0;right:0;bottom:0;
+      background:rgba(0,0,0,0.85);
+      z-index:300;display:none;
+      align-items:center;justify-content:center;
+      padding:1rem;
+    }
+    .contacts-overlay.show { display:flex; }
+    .contacts-modal {
+      background:#1a1a1a;
+      border-radius:1rem;
+      padding:1.2rem;
+      width:100%;max-width:360px;
+      max-height:70vh;overflow-y:auto;
+      border:1px solid rgba(255,255,255,0.1);
+    }
+    .contacts-modal h3 {
+      font-size:0.9rem;color:#fff;margin-bottom:0.8rem;
+      text-align:center;
+    }
+    .contacts-modal input {
+      width:100%;padding:0.6rem 0.8rem;
+      border-radius:0.5rem;border:1px solid #333;
+      background:#111;color:#fff;font-size:0.8rem;
+      margin-bottom:0.6rem;outline:none;
+    }
+    .contacts-modal input:focus { border-color:#FFFC00; }
+    .contact-item {
+      display:flex;align-items:center;gap:0.6rem;
+      padding:0.6rem;border-radius:0.5rem;
+      cursor:pointer;color:#fff;font-size:0.8rem;
+    }
+    .contact-item:hover { background:rgba(255,255,255,0.05); }
+    .contact-avatar {
+      width:32px;height:32px;border-radius:50%;
+      background:linear-gradient(135deg,#FFFC00,#FFD600);
+      display:flex;align-items:center;justify-content:center;
+      color:#000;font-weight:700;font-size:0.7rem;flex-shrink:0;
+    }
+    .contact-name { flex:1; }
+    .contact-close {
+      text-align:center;margin-top:0.6rem;
+      color:#ef4444;cursor:pointer;font-size:0.75rem;
+      padding:0.4rem;
+    }
+
     /* ===== USER LIST ===== */
     .user-list {
       flex:1;overflow-y:auto;
@@ -156,7 +213,7 @@
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
     .loading-screen span { font-size:0.75rem;color:#888; }
 
-    /* ===== FLOATING NAV (Mobile only - hidden when in chat) ===== */
+    /* ===== FLOATING NAV ===== */
     .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6);z-index:100; }
     .floating-nav.hidden { display:none; }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
@@ -201,6 +258,7 @@
         <div class="chat-partner-name" id="partnerName">Chats</div>
         <div class="chat-partner-status" id="partnerStatus"></div>
       </div>
+      <button class="header-contact-btn" id="contactBtn" onclick="showContacts()"><i class="fas fa-address-book"></i></button>
     </div>
 
     <!-- USER LIST -->
@@ -220,6 +278,16 @@
       <button class="send-btn" id="sendBtn" onclick="sendMessage()">
         <i class="fas fa-paper-plane"></i>
       </button>
+    </div>
+
+    <!-- CONTACTS MODAL -->
+    <div class="contacts-overlay" id="contactsModal">
+      <div class="contacts-modal">
+        <h3>👥 All Users</h3>
+        <input type="text" id="contactSearch" placeholder="Search users..." oninput="filterContacts()">
+        <div id="contactList"></div>
+        <div class="contact-close" onclick="closeContacts()">Close ✕</div>
+      </div>
     </div>
 
     <nav class="floating-nav" id="floatingNav"><div class="nav-center">
@@ -247,12 +315,79 @@
     let chatPartner = null;
     let chatId = null;
     let unsubMessages = null;
+    let allUsersList = [];
 
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('mainPage').style.display = 'flex';
     
     loadUserList();
+    loadAllUsersForContacts();
 
+    // ===== LOAD ALL USERS FROM FIRESTORE FOR CONTACTS =====
+    async function loadAllUsersForContacts() {
+      allUsersList = [];
+      try {
+        const snap = await getDocs(collection(db, 'users'));
+        snap.forEach(doc => {
+          const d = doc.data();
+          if (d.username !== currentUser) {
+            allUsersList.push({ username: d.username, name: d.name || d.username });
+          }
+        });
+      } catch(e) {
+        // Fallback from profile
+        const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+        const friends = (profile.friends || []).map(f => ({ username: f.name, name: f.name }));
+        const besties = (profile.besties || []).map(b => ({ username: b.name, name: b.name }));
+        allUsersList = [...friends, ...besties].filter((v,i,a) => a.findIndex(t => t.username === v.username) === i);
+      }
+    }
+
+    // ===== SHOW CONTACTS MODAL =====
+    window.showContacts = function() {
+      document.getElementById('contactsModal').classList.add('show');
+      document.getElementById('contactSearch').value = '';
+      renderContactList(allUsersList);
+    };
+
+    window.closeContacts = function() {
+      document.getElementById('contactsModal').classList.remove('show');
+    };
+
+    window.filterContacts = function() {
+      const q = document.getElementById('contactSearch').value.toLowerCase();
+      const filtered = allUsersList.filter(u => 
+        (u.name || u.username).toLowerCase().includes(q)
+      );
+      renderContactList(filtered);
+    };
+
+    function renderContactList(users) {
+      const list = document.getElementById('contactList');
+      if (users.length === 0) {
+        list.innerHTML = '<p style="color:#666;text-align:center;padding:1rem;font-size:0.75rem;">No users found</p>';
+        return;
+      }
+      list.innerHTML = users.map(u => `
+        <div class="contact-item" onclick="startChatFromContacts('${u.username}','${u.name || u.username}')">
+          <div class="contact-avatar">${(u.name || u.username).charAt(0).toUpperCase()}</div>
+          <span class="contact-name">${u.name || u.username}</span>
+          <i class="fas fa-comment" style="color:#FFFC00;font-size:0.7rem;"></i>
+        </div>
+      `).join('');
+    }
+
+    // ===== START CHAT FROM CONTACTS =====
+    window.startChatFromContacts = function(username, name) {
+      closeContacts();
+      openChat(username);
+    };
+
+    document.getElementById('contactsModal').addEventListener('click', function(e) {
+      if (e.target === this) closeContacts();
+    });
+
+    // ===== LOAD FRIENDS FOR MAIN LIST =====
     async function loadUserList() {
       let users = [];
       const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
@@ -272,7 +407,7 @@
 
       const list = document.getElementById('userList');
       if (users.length === 0) {
-        list.innerHTML = '<div style="text-align:center;color:#555;padding:3rem;font-size:0.8rem;">No friends yet<br><br>Go to profile to add friends</div>';
+        list.innerHTML = '<div style="text-align:center;color:#555;padding:3rem;font-size:0.8rem;">No friends yet<br><br>Tap <b style="color:#FFFC00;">☰</b> to see all users</div>';
         return;
       }
 
@@ -297,11 +432,11 @@
       document.getElementById('messagesContainer').classList.add('show');
       document.getElementById('chatInputArea').classList.add('show');
       document.getElementById('backBtn').classList.add('show');
+      document.getElementById('contactBtn').classList.add('hidden');
       document.getElementById('partnerName').textContent = username;
       document.getElementById('partnerAvatar').innerHTML = username.replace('@','').charAt(0).toUpperCase();
       document.getElementById('partnerStatus').innerHTML = '<span class="dot"></span> Active';
       
-      // HIDE nav bar on mobile when in chat
       document.getElementById('floatingNav').classList.add('hidden');
       
       const container = document.getElementById('messagesContainer');
@@ -319,14 +454,15 @@
       document.getElementById('messagesContainer').classList.remove('show');
       document.getElementById('chatInputArea').classList.remove('show');
       document.getElementById('backBtn').classList.remove('show');
+      document.getElementById('contactBtn').classList.remove('hidden');
       document.getElementById('partnerName').textContent = 'Chats';
       document.getElementById('partnerStatus').textContent = '';
       document.getElementById('partnerAvatar').innerHTML = '<i class="fas fa-user"></i>';
       
-      // SHOW nav bar on mobile when back to list
       document.getElementById('floatingNav').classList.remove('hidden');
       
       loadUserList();
+      loadAllUsersForContacts();
     };
 
     function listenToMessages() {

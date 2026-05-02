@@ -10,19 +10,37 @@
     body { background:#000;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center; }
     .page { width:100%;height:100vh;height:100dvh;background:#000;display:flex;flex-direction:column;position:relative;overflow:hidden; }
     
-    .reel-wrapper { flex:1;position:relative;overflow-y:scroll;scroll-snap-type:y mandatory;padding-bottom:5rem; }
+    /* ===== INSTAGRAM REELS STYLE SCROLL CONTAINER ===== */
+    .reel-wrapper { 
+      flex:1;position:relative;
+      overflow-y:scroll;
+      scroll-snap-type:y mandatory;
+      scroll-snap-stop:always;
+      -webkit-overflow-scrolling:touch;
+      padding-bottom:0;
+      height:100%;
+      max-height:100vh;
+      max-height:100dvh;
+    }
     .reel-wrapper::-webkit-scrollbar { width:0; }
     
+    /* ===== EACH SLIDE = FULL SCREEN ===== */
     .reel-slide { 
-      width:100%;height:100%;scroll-snap-align:start;
-      position:relative;display:flex;align-items:center;justify-content:center;
+      width:100%;height:100vh;
+      height:100dvh;
+      scroll-snap-align:start;
+      scroll-snap-stop:always;
+      position:relative;
+      display:flex;align-items:center;justify-content:center;
       background:#000;
-      max-width:500px;
-      margin:0 auto;
+      flex-shrink:0;
     }
     .reel-slide video { 
-      width:100%;height:100%;object-fit:contain;background:#000;
-      max-height:100%;
+      width:100%;height:100%;
+      object-fit:cover;  /* Fill screen, cropping edges */
+      background:#000;
+      position:absolute;
+      top:0;left:0;
     }
     
     .user-tag { position:absolute;top:1rem;left:1rem;display:flex;align-items:center;gap:0.5rem;background:rgba(0,0,0,0.5);backdrop-filter:blur(10px);padding:0.4rem 0.8rem;border-radius:1.5rem;z-index:10;border:1px solid rgba(255,255,255,0.1); }
@@ -66,11 +84,12 @@
       .floating-nav{top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column}
       .nav-center{flex-direction:column;gap:1.2rem;max-width:none}.nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
       .nav-center a::before{bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0)}.nav-center a.active::before{transform:translateY(-50%) scale(1)}
-      .reel-wrapper{padding-bottom:0;margin-left:6rem}
-      .reel-slide{max-width:500px}
+      .reel-wrapper{padding-bottom:0;margin-left:0}
       .actions-bar{right:2rem}
     }
-    @media (max-width:380px) { .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem}.nav-center a{font-size:1.1rem;width:2rem;height:2rem} }
+    @media (max-width:380px) { 
+      .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem}.nav-center a{font-size:1.1rem;width:2rem;height:2rem}
+    }
   </style>
 </head>
 <body>
@@ -112,6 +131,7 @@
     const db = getFirestore(app);
 
     let allReels = [];
+    let currentIndex = 0;  // Track which video is visible
 
     // Show UI instantly - auth already verified
     document.getElementById('loadingScreen').style.display = 'none';
@@ -185,7 +205,6 @@
         return;
       }
 
-      // [FIX 1] Added: playsinline, webkit-playsinline, preload="auto"
       wrapper.innerHTML = allReels.map((reel, i) => `
         <div class="reel-slide" id="slide${i}">
           <video id="video${i}" src="${reel.src}" muted loop playsinline webkit-playsinline preload="auto" onclick="togglePlay(${i})"></video>
@@ -212,72 +231,106 @@
         </div>
       `).join('');
       
-      // [FIX 2] Force video.load() on all videos after render + retry if needed
+      // Force video.load() on all videos
       setTimeout(() => {
         allReels.forEach((reel, i) => {
           const v = document.getElementById('video' + i);
           if (v) {
-            // Force load for old Android
             v.load();
-            
-            // [FIX 3] Fallback: if 'loadeddata' doesn't fire within 3s, retry loading source
             let loaded = false;
             const onLoaded = () => { loaded = true; };
             v.addEventListener('loadeddata', onLoaded, { once: true });
-            
             setTimeout(() => {
               if (!loaded) {
-                console.log('Retrying video load for:', i);
                 const currentSrc = v.src;
                 v.src = '';
                 v.load();
-                setTimeout(() => {
-                  v.src = currentSrc;
-                  v.load();
-                }, 100);
+                setTimeout(() => { v.src = currentSrc; v.load(); }, 100);
               }
             }, 3000);
           }
         });
         
-        // [FIX 4] Play first video after user interaction (old Android Chrome requires this)
-        const v0 = document.getElementById('video0');
-        if (v0) {
-          // Muted autoplay is allowed, but some old Android need a play attempt after load
-          v0.play().then(() => {
-            const overlay = document.getElementById('overlay0');
-            if (overlay) overlay.style.display = 'none';
-          }).catch(() => {
-            // If autoplay fails, show overlay and wait for tap
-            const overlay = document.getElementById('overlay0');
-            if (overlay) overlay.style.display = 'flex';
-          });
-        }
+        // Play first video
+        playVideo(0);
       }, 500);
       
+      // ===== INSTAGRAM REELS: Only play visible video =====
+      // Use IntersectionObserver with high threshold for precise detection
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-          const idx = entry.target.id.replace('slide', '');
-          const video = document.getElementById('video' + idx);
-          const overlay = document.getElementById('overlay' + idx);
+          const idx = parseInt(entry.target.id.replace('slide', ''));
           
-          if (entry.isIntersecting) {
-            if (video) {
-              // [FIX 2] Ensure video is loaded before playing
-              if (video.readyState === 0) video.load();
-              video.play().catch(() => {});
-              if (overlay) overlay.style.display = 'none';
-            }
-          } else {
-            if (video) {
-              video.pause();
-              if (overlay) overlay.style.display = 'flex';
-            }
+          if (entry.isIntersecting && entry.intersectionRatio > 0.8) {
+            // This video is fully visible - play it
+            currentIndex = idx;
+            playVideo(idx);
+            // Pause all other videos
+            allReels.forEach((_, j) => {
+              if (j !== idx) pauseVideo(j);
+            });
+          } else if (entry.intersectionRatio < 0.3) {
+            // Video is mostly off screen - pause it
+            pauseVideo(idx);
           }
         });
-      }, { threshold: 0.6 });
+      }, { 
+        threshold: [0, 0.3, 0.5, 0.8, 1.0]  // Multiple thresholds for precise detection
+      });
       
       document.querySelectorAll('.reel-slide').forEach(s => observer.observe(s));
+
+      // Backup: Scroll event for phones without IntersectionObserver
+      let scrollTimeout;
+      wrapper.addEventListener('scroll', function() {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+          handleScrollSnap();
+        }, 100);
+      });
+    }
+
+    // Determine which video is most visible based on scroll position
+    function handleScrollSnap() {
+      const wrapper = document.getElementById('reelWrapper');
+      const slideHeight = wrapper.clientHeight;
+      const scrollTop = wrapper.scrollTop;
+      
+      // Calculate which slide is most visible
+      const newIndex = Math.round(scrollTop / slideHeight);
+      
+      if (newIndex !== currentIndex && newIndex >= 0 && newIndex < allReels.length) {
+        currentIndex = newIndex;
+        // Play the new visible video, pause all others
+        allReels.forEach((_, j) => {
+          if (j === currentIndex) {
+            playVideo(j);
+          } else {
+            pauseVideo(j);
+          }
+        });
+      }
+    }
+
+    function playVideo(i) {
+      const v = document.getElementById('video' + i);
+      const o = document.getElementById('overlay' + i);
+      if (!v) return;
+      if (v.readyState === 0) v.load();
+      v.play().then(() => {
+        if (o) o.style.display = 'none';
+      }).catch(() => {
+        if (o) o.style.display = 'none';
+      });
+    }
+
+    function pauseVideo(i) {
+      const v = document.getElementById('video' + i);
+      const o = document.getElementById('overlay' + i);
+      if (v) {
+        v.pause();
+        if (o) o.style.display = 'flex';
+      }
     }
 
     window.togglePlay = function(i) {
@@ -285,10 +338,11 @@
       const o = document.getElementById('overlay' + i);
       if (!v) return;
       if (v.paused) {
-        // [FIX 2] Load if not ready
         if (v.readyState === 0) v.load();
         v.play().catch(() => {});
         if (o) o.style.display = 'none';
+        // Pause others
+        allReels.forEach((_, j) => { if (j !== i) pauseVideo(j); });
       } else {
         v.pause();
         if (o) o.style.display = 'flex';

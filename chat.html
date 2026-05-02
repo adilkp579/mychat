@@ -83,61 +83,60 @@
     .contact-name { flex:1; }
     .contact-close { text-align:center;margin-top:0.6rem;color:#ef4444;cursor:pointer;font-size:0.75rem;padding:0.4rem; }
 
-    .chat-list-container {
-      flex:1;display:flex;flex-direction:column;
-      overflow:hidden;
-    }
-    .chat-list-header {
-      padding:0.6rem 1rem;
-      font-size:0.65rem;color:#666;
-      text-transform:uppercase;letter-spacing:1px;
+    /* ===== BOTTOM CHAT LIST ===== */
+    .bottom-chat-list {
+      border-top:1px solid rgba(255,255,255,0.06);
+      background:#0a0a0a;
       flex-shrink:0;
-      display:flex;justify-content:space-between;align-items:center;
-    }
-    .user-list {
-      flex:1;overflow-y:auto;
-      padding:0 0 6rem 0;
+      max-height:40vh;
+      overflow-y:auto;
       -webkit-overflow-scrolling:touch;
     }
-    .user-list::-webkit-scrollbar { width:0; }
+    .bottom-chat-list.hidden { display:none; }
+    .bottom-chat-list::-webkit-scrollbar { width:0; }
+    .bottom-chat-header {
+      padding:0.5rem 1rem;
+      font-size:0.6rem;color:#666;
+      text-transform:uppercase;letter-spacing:1px;
+      position:sticky;top:0;background:#0a0a0a;
+      z-index:1;
+    }
     .user-list-item {
       display:flex;align-items:center;gap:0.7rem;
-      padding:0.7rem 1rem;
+      padding:0.6rem 1rem;
       cursor:pointer;
-      border-bottom:1px solid rgba(255,255,255,0.03);
+      border-bottom:1px solid rgba(255,255,255,0.02);
     }
     .user-list-item:active { background:rgba(255,255,255,0.03); }
     .user-list-item.unread { background:rgba(255,252,0,0.04); }
     .user-avatar {
-      width:44px;height:44px;border-radius:50%;
+      width:40px;height:40px;border-radius:50%;
       background:linear-gradient(135deg,#FFFC00,#FFD600);
       display:flex;align-items:center;justify-content:center;
-      font-size:1rem;color:#000;font-weight:700;
+      font-size:0.9rem;color:#000;font-weight:700;
       flex-shrink:0;
     }
     .user-info { flex:1;min-width:0; }
-    .user-name { font-size:0.85rem;color:#fff;font-weight:500; }
+    .user-name { font-size:0.8rem;color:#fff;font-weight:500; }
     .user-last-msg {
-      font-size:0.7rem;color:#666;margin-top:0.1rem;
+      font-size:0.65rem;color:#666;margin-top:0.1rem;
       white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-      max-width:180px;
     }
     .user-last-msg.unread-msg { color:#ddd;font-weight:500; }
-    .user-time { font-size:0.6rem;color:#555;flex-shrink:0;text-align:right; }
+    .user-time { font-size:0.6rem;color:#555;flex-shrink:0; }
     .unread-badge {
       background:#FFFC00;color:#000;
-      font-size:0.55rem;font-weight:700;
-      padding:2px 6px;border-radius:8px;
-      margin-top:0.2rem;display:inline-block;
+      font-size:0.5rem;font-weight:700;
+      padding:1px 5px;border-radius:6px;
+      margin-left:0.3rem;display:inline-block;
     }
 
     .messages-container {
       flex:1;overflow-y:auto;
       padding:0.8rem 0.8rem 0.5rem 0.8rem;
-      display:none;flex-direction:column;gap:0.2rem;
+      display:flex;flex-direction:column;gap:0.2rem;
       -webkit-overflow-scrolling:touch;
     }
-    .messages-container.show { display:flex; }
     .messages-container::-webkit-scrollbar { width:0; }
 
     .message-wrapper {
@@ -182,14 +181,13 @@
     }
 
     .chat-input-area {
-      display:none;align-items:center;gap:0.5rem;
+      display:flex;align-items:center;gap:0.5rem;
       padding:0.5rem 0.8rem;
       padding-bottom:max(0.5rem,env(safe-area-inset-bottom,0.5rem));
       background:#0a0a0a;
       border-top:1px solid rgba(255,255,255,0.06);
       flex-shrink:0;z-index:50;
     }
-    .chat-input-area.show { display:flex; }
     .chat-input {
       flex:1;padding:0.6rem 1rem;border-radius:1.5rem;
       border:1px solid rgba(255,255,255,0.12);background:#1c1c1e;
@@ -235,11 +233,10 @@
       .nav-center a.active::before { transform:translateY(-50%) scale(1); }
       .page { padding-left:5.5rem; }
       .chat-header { padding-left:1.5rem;padding-right:1.5rem; }
-      .user-list { padding-left:0.5rem;padding-right:0.5rem; }
-      .user-list-item { padding-left:1.5rem;padding-right:1.5rem; }
       .messages-container { padding-left:1.2rem;padding-right:1.2rem; }
       .chat-input-area { padding-left:1.2rem;padding-right:1.2rem; }
-      .chat-list-header { padding-left:1.5rem;padding-right:1.5rem; }
+      .bottom-chat-header { padding-left:1.5rem;padding-right:1.5rem; }
+      .user-list-item { padding-left:1.5rem;padding-right:1.5rem; }
     }
     @media (max-width:380px) { 
       .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem}.nav-center a{font-size:1.1rem;width:2rem;height:2rem}
@@ -263,21 +260,23 @@
       <button class="header-contact-btn" id="contactBtn" onclick="showContacts()"><i class="fas fa-address-book"></i></button>
     </div>
 
-    <div class="chat-list-container" id="chatListContainer">
-      <div class="chat-list-header">Messages <span id="chatCount"></span></div>
-      <div class="user-list" id="userList"></div>
-    </div>
-
+    <!-- Messages area (top) -->
     <div class="messages-container" id="messagesContainer">
-      <div class="empty-chat" id="emptyChat">Send a message!</div>
+      <div class="empty-chat" id="emptyChat">Select a chat to start messaging</div>
       <div class="typing-bubble" id="typingBubble">
         <div class="tb-dot"></div><div class="tb-dot"></div><div class="tb-dot"></div>
       </div>
     </div>
 
+    <!-- Chat list at bottom -->
+    <div class="bottom-chat-list" id="bottomChatList">
+      <div class="bottom-chat-header">Messages <span id="chatCount"></span></div>
+      <div id="userList"></div>
+    </div>
+
     <div class="chat-input-area" id="chatInputArea">
-      <input type="text" class="chat-input" id="chatInput" placeholder="Message...">
-      <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+      <input type="text" class="chat-input" id="chatInput" placeholder="Message..." disabled>
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>
         <i class="fas fa-paper-plane"></i>
       </button>
     </div>
@@ -324,12 +323,13 @@
     
     loadAllUsersForContacts();
     setupRealtimeChatList();
+    // Hide nav bar
+    document.getElementById('floatingNav').classList.add('hidden');
 
-    // ===== REAL-TIME CHAT LIST LISTENER =====
+    // ===== REAL-TIME CHAT LIST =====
     function setupRealtimeChatList() {
       if (unsubAllChats) unsubAllChats();
       
-      // Listen to ALL chats collection
       unsubAllChats = onSnapshot(collection(db, 'chats'), (snap) => {
         loadChatListFromSnapshot(snap);
       });
@@ -337,22 +337,20 @@
 
     async function loadChatListFromSnapshot(snap) {
       let chatUsers = [];
-      const processedChats = [];
+      const processedPartners = [];
       
-      // Find chats where current user is a participant
       snap.forEach(chatDoc => {
         const cid = chatDoc.id;
         const ids = cid.split('_');
         if (ids.includes(currentUserId)) {
           const partnerId = ids.find(id => id !== currentUserId);
-          if (partnerId && !processedChats.includes(partnerId)) {
-            processedChats.push(partnerId);
+          if (partnerId && !processedPartners.includes(partnerId)) {
+            processedPartners.push(partnerId);
           }
         }
       });
       
-      // Get last message for each partner
-      for (const partnerId of processedChats) {
+      for (const partnerId of processedPartners) {
         const cid = [currentUserId, partnerId].sort().join('_');
         try {
           const msgSnap = await getDocs(query(
@@ -378,41 +376,36 @@
             lastTime,
             unread
           });
-        } catch(e) {
-          console.error('Error loading chat for', partnerId, e);
-        }
+        } catch(e) {}
       }
       
-      // Sort by most recent
       chatUsers.sort((a, b) => b.lastTime - a.lastTime);
-      renderChatList(chatUsers);
+      renderBottomChatList(chatUsers);
     }
 
-    function renderChatList(chatUsers) {
+    function renderBottomChatList(chatUsers) {
       const list = document.getElementById('userList');
       const count = document.getElementById('chatCount');
       
       count.textContent = chatUsers.length > 0 ? '(' + chatUsers.length + ')' : '';
       
       if (chatUsers.length === 0) {
-        list.innerHTML = '<div style="text-align:center;color:#555;padding:3rem;font-size:0.8rem;">No messages yet<br><br>Tap <b style="color:#FFFC00;">📒</b> to start a chat</div>';
+        list.innerHTML = '<div style="text-align:center;color:#555;padding:1rem;font-size:0.7rem;">No messages yet. Tap 📒 to start a chat.</div>';
         return;
       }
 
       list.innerHTML = chatUsers.map(c => {
         const timeStr = c.lastTime.getTime() > 0 ? formatTime(c.lastTime) : '';
+        const name = c.username.replace('@','');
         
         return `
           <div class="user-list-item ${c.unread ? 'unread' : ''}" onclick="openChat('${c.username}')">
-            <div class="user-avatar">${c.username.replace('@','').charAt(0).toUpperCase()}</div>
+            <div class="user-avatar">${name.charAt(0).toUpperCase()}</div>
             <div class="user-info">
-              <div class="user-name">${c.username}</div>
-              <div class="user-last-msg ${c.unread ? 'unread-msg' : ''}">${c.lastMsg || 'Tap to chat'}</div>
+              <div class="user-name">${c.username} ${c.unread ? '<span class="unread-badge">NEW</span>' : ''}</div>
+              <div class="user-last-msg ${c.unread ? 'unread-msg' : ''}">${c.lastMsg || 'No messages'}</div>
             </div>
-            <div style="text-align:right;">
-              <div class="user-time">${timeStr}</div>
-              ${c.unread ? '<div class="unread-badge">NEW</div>' : ''}
-            </div>
+            <div class="user-time">${timeStr}</div>
           </div>
         `;
       }).join('');
@@ -430,7 +423,7 @@
       return date.toLocaleDateString([], {month:'short',day:'numeric'});
     }
 
-    // ===== ALL USERS FOR CONTACTS =====
+    // ===== CONTACTS =====
     async function loadAllUsersForContacts() {
       allUsersList = [];
       try {
@@ -495,16 +488,12 @@
       const partnerId = username.replace('@', '');
       chatId = [currentUserId, partnerId].sort().join('_');
 
-      document.getElementById('chatListContainer').style.display = 'none';
-      document.getElementById('messagesContainer').classList.add('show');
-      document.getElementById('chatInputArea').classList.add('show');
-      document.getElementById('backBtn').classList.add('show');
-      document.getElementById('contactBtn').classList.add('hidden');
       document.getElementById('partnerName').textContent = username;
       document.getElementById('partnerAvatar').innerHTML = username.replace('@','').charAt(0).toUpperCase();
       document.getElementById('partnerStatus').innerHTML = '<span class="dot"></span> Active';
-      
-      document.getElementById('floatingNav').classList.add('hidden');
+      document.getElementById('chatInput').disabled = false;
+      document.getElementById('sendBtn').disabled = false;
+      document.getElementById('chatInput').placeholder = 'Message ' + username + '...';
       
       const container = document.getElementById('messagesContainer');
       container.querySelectorAll('.message-wrapper').forEach(el => el.remove());
@@ -512,25 +501,7 @@
       
       listenToMessages();
       listenToTyping();
-    };
-
-    window.goBack = function() {
-      if (unsubMessages) { unsubMessages(); unsubMessages = null; }
-      chatPartner = null;
-      chatId = null;
-      document.getElementById('chatListContainer').style.display = 'flex';
-      document.getElementById('messagesContainer').classList.remove('show');
-      document.getElementById('chatInputArea').classList.remove('show');
-      document.getElementById('backBtn').classList.remove('show');
-      document.getElementById('contactBtn').classList.remove('hidden');
-      document.getElementById('partnerName').textContent = 'Chats';
-      document.getElementById('partnerStatus').textContent = '';
-      document.getElementById('partnerAvatar').innerHTML = '<i class="fas fa-user"></i>';
-      
-      document.getElementById('floatingNav').classList.remove('hidden');
-      
-      loadAllUsersForContacts();
-      setupRealtimeChatList();
+      scrollToBottom();
     };
 
     function listenToMessages() {

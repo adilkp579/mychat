@@ -62,6 +62,7 @@
     .you-label-outside { color:#777;font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;margin-right:0.3rem; }
     .user-info { display:flex;align-items:center;gap:0.3rem;background:rgba(255,255,255,0.06);padding:0.25rem 0.6rem;border-radius:1rem;font-size:0.7rem;color:#ccc;opacity:0;transition:all 0.3s;border:1px solid rgba(255,255,255,0.08); }
     .user-info.active { opacity:1; }
+    
     .buttons-container { 
       display:flex;gap:0.8rem;flex-wrap:wrap;justify-content:center;
       padding:0.5rem 0;align-items:center;
@@ -110,6 +111,23 @@
       color:#ef4444;
       animation:livePulse 2s infinite;
     }
+
+    /* HTTPS Warning Bar */
+    .https-warning {
+      display:none;
+      background:#ef4444;
+      color:#fff;
+      text-align:center;
+      padding:0.5rem;
+      font-size:0.7rem;
+      font-weight:600;
+      position:sticky;
+      top:0;
+      z-index:200;
+      width:100%;
+    }
+    .https-warning.show { display:block; }
+    .https-warning a { color:#fff;text-decoration:underline; }
 
     .loading-screen { position:fixed;top:0;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:0.5rem; }
     .loading-screen i { font-size:2rem;color:#3897f0;animation:spin 1s infinite; }
@@ -164,6 +182,11 @@
   </style>
 </head>
 <body>
+  <!-- HTTPS Warning - shown only on HTTP connections -->
+  <div class="https-warning" id="httpsWarning">
+    ⚠️ Camera requires HTTPS! <a href="javascript:void(0)" onclick="switchToHTTPS()">Switch to secure connection</a>
+  </div>
+
   <div class="loading-screen" id="loadingScreen">
     <i class="fas fa-spinner"></i>
     <span>Loading...</span>
@@ -215,21 +238,36 @@
   </div>
 
   <script>
-    // ===== AUTH GATE - Runs before everything =====
+    // ===== AUTH GATE =====
     if (!localStorage.getItem("uid")) {
       window.location.replace("login.html");
     }
-  </script>
 
-  <script>
-    // ===== ALL FUNCTIONS IN GLOBAL SCOPE FOR OLD PHONES =====
-    
-    // These will be filled when the module loads
-    window._toggleLive = function() { console.log('LIVE button tapped - waiting for init...'); };
-    window._startChat = function() { console.log('START button tapped - waiting for init...'); };
-    window._stopChat = function() { console.log('STOP button tapped - waiting for init...'); };
-    window._nextChat = function() { console.log('NEXT button tapped - waiting for init...'); };
-    window._toggleMute = function() { console.log('MIC button tapped - waiting for init...'); };
+    // ===== HTTPS CHECK =====
+    if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      document.getElementById('httpsWarning').classList.add('show');
+    }
+
+    window.switchToHTTPS = function() {
+      window.location.href = window.location.href.replace('http://', 'https://');
+    };
+
+    // Placeholder functions (replaced when module loads)
+    window._toggleLive = function() { 
+      alert('Page still loading... Please wait or refresh.'); 
+    };
+    window._startChat = function() { 
+      alert('Page still loading... Please wait or refresh.'); 
+    };
+    window._stopChat = function() { 
+      alert('Page still loading... Please wait or refresh.'); 
+    };
+    window._nextChat = function() { 
+      alert('Page still loading... Please wait or refresh.'); 
+    };
+    window._toggleMute = function() { 
+      alert('Page still loading... Please wait or refresh.'); 
+    };
   </script>
 
   <script type="module">
@@ -247,13 +285,12 @@
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('mainPage').style.display = 'flex';
     
-    // Start the web chat
     startWebChat();
 
     function startWebChat() {
       const myFeed = document.getElementById('myFeed');
       const myPlaceholder = document.getElementById('myPlaceholder');
-      const myCamera = document.getElementById('myCamera');
+      const myCameraEl = document.getElementById('myCamera');
       const strangerFeed = document.getElementById('strangerFeed');
       const strangerPlaceholder = document.getElementById('strangerPlaceholder');
       const strangerCamera = document.getElementById('strangerCamera');
@@ -295,7 +332,7 @@
 
       async function startLive() {
         if (!localStream) {
-          alert('Start camera first! Click START button');
+          alert('⚠️ Camera not started!\n\nPlease tap START button first to enable your camera. Then tap LIVE.');
           return;
         }
         isLive = true;
@@ -320,11 +357,12 @@
             });
           });
           updateLiveViewerCount();
-          console.log('LIVE started');
+          console.log('🔴 LIVE started');
         } catch(e) {
           console.error('Start live error:', e);
           isLive = false;
           updateLiveButton();
+          alert('Failed to start live stream. Please try again.');
         }
       }
 
@@ -398,7 +436,7 @@
         strangerCamera.classList.remove('live-active');
         liveStatus.classList.remove('show');
         liveViewerCount.textContent = '0';
-        console.log('LIVE ended');
+        console.log('🔴 LIVE ended');
       }
 
       async function toggleLive() {
@@ -415,6 +453,13 @@
       }
 
       async function startCamera() {
+        // Check HTTPS
+        if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+          alert('⚠️ Camera requires HTTPS!\n\nYou are on HTTP (insecure connection).\n\nPlease use: https://' + window.location.hostname + '\n\niOS and many browsers block camera on HTTP.\n\nTapping OK will redirect you to HTTPS.');
+          window.location.href = window.location.href.replace('http://', 'https://');
+          return false;
+        }
+
         try {
           if(localStream){ localStream.getTracks().forEach(t=>t.stop()); }
           localStream = await navigator.mediaDevices.getUserMedia({
@@ -425,11 +470,43 @@
           await myFeed.play();
           myFeed.style.display='block';
           myPlaceholder.style.display='none';
-          myCamera.classList.add('active');
+          myCameraEl.classList.add('active');
+          console.log('📷 Camera started');
           return true;
         } catch(e) {
-          console.error('Camera error:', e);
-          alert('Camera & Microphone needed! Please allow camera access in your browser settings.');
+          console.error('Camera error:', e.name, e.message);
+          
+          // Specific error messages
+          if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
+            alert('❌ Camera access blocked!\n\nTo fix this:\n1. Open iPhone Settings\n2. Scroll down to Safari\n3. Tap Camera → Allow\n4. Tap Microphone → Allow\n5. Reload this page\n\nOr try a different browser like Chrome.');
+          } else if (e.name === 'NotFoundError' || e.name === 'DevicesNotFoundError') {
+            alert('❌ No camera found!\n\nThis device does not have a camera, or it is not connected.');
+          } else if (e.name === 'NotReadableError' || e.name === 'TrackStartError') {
+            alert('❌ Camera busy!\n\nYour camera is being used by another app.\nPlease close other apps (FaceTime, WhatsApp, etc.) and try again.');
+          } else if (e.name === 'OverconstrainedError') {
+            alert('❌ Camera resolution not supported.\nTrying lower resolution...');
+            // Retry with lower resolution
+            try {
+              if(localStream){ localStream.getTracks().forEach(t=>t.stop()); }
+              localStream = await navigator.mediaDevices.getUserMedia({
+                video: { width:320, height:240, facingMode:'user' },
+                audio: true
+              });
+              myFeed.srcObject = localStream;
+              await myFeed.play();
+              myFeed.style.display='block';
+              myPlaceholder.style.display='none';
+              myCameraEl.classList.add('active');
+              return true;
+            } catch(e2) {
+              alert('❌ Camera still not working. Please try a different device.');
+              return false;
+            }
+          } else if (e.name === 'TypeError' || !navigator.mediaDevices) {
+            alert('❌ Camera not supported!\n\nThis browser does not support camera access.\n\nMake sure you are using HTTPS (https://).\n\nTry: https://' + window.location.hostname);
+          } else {
+            alert('❌ Camera error: ' + (e.message || 'Unknown error') + '\n\nMake sure:\n✅ You are using HTTPS\n✅ Camera permission is allowed\n✅ No other app is using the camera');
+          }
           return false;
         }
       }
@@ -437,7 +514,8 @@
       function stopCamera() {
         if(localStream){ localStream.getTracks().forEach(t=>t.stop()); localStream=null; }
         myFeed.style.display='none'; myFeed.srcObject=null;
-        myPlaceholder.style.display=''; myCamera.classList.remove('active');
+        myPlaceholder.style.display=''; myCameraEl.classList.remove('active');
+        console.log('📷 Camera stopped');
       }
 
       function resetStranger() {
@@ -563,7 +641,7 @@
 
       async function startChat() {
         console.log('startChat called');
-        if(isLive) { alert('Please end live stream before starting a new chat'); return; }
+        if(isLive) { alert('Please tap END first to stop live stream before starting a new chat.'); return; }
         startBtn.disabled=true;
         startBtn.classList.add('searching');
         startBtn.querySelector('span').textContent='Searching...';
@@ -594,30 +672,30 @@
         resetStranger(); stopCamera(); showDisconnected();
       }
 
-      // ===== REPLACE GLOBAL FUNCTIONS WITH REAL ONES =====
+      // ===== REPLACE GLOBAL FUNCTIONS =====
       window._toggleLive = function() { 
-        console.log('_toggleLive clicked');
+        console.log('🔘 LIVE button pressed');
         toggleLive(); 
       };
       window._startChat = function() { 
-        console.log('_startChat clicked');
+        console.log('🔘 START button pressed');
         startChat(); 
       };
       window._stopChat = function() { 
-        console.log('_stopChat clicked');
+        console.log('🔘 STOP button pressed');
         stopChat(); 
       };
       window._nextChat = function() { 
-        console.log('_nextChat clicked');
+        console.log('🔘 NEXT button pressed');
         stopChat(); 
         setTimeout(function() { startChat(); }, 500); 
       };
       window._toggleMute = function() { 
-        console.log('_toggleMute clicked');
+        console.log('🔘 MIC button pressed');
         toggleMute(); 
       };
 
-      console.log('✅ ALL BUTTONS READY - LIVE, START, STOP, NEXT, MIC');
+      console.log('✅ All buttons ready - LIVE, START, STOP, NEXT, MIC');
 
       window.addEventListener('beforeunload', () => {
         if(isLive) { endLive().catch(()=>{}); }

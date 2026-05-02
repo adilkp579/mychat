@@ -10,7 +10,6 @@
     body { background:#000;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center; }
     .page { width:100%;height:100vh;height:100dvh;background:#000;display:flex;flex-direction:column;position:relative;overflow:hidden; }
     
-    /* ===== INSTAGRAM REELS STYLE SCROLL CONTAINER ===== */
     .reel-wrapper { 
       flex:1;position:relative;
       overflow-y:scroll;
@@ -24,7 +23,6 @@
     }
     .reel-wrapper::-webkit-scrollbar { width:0; }
     
-    /* ===== EACH SLIDE = FULL SCREEN ===== */
     .reel-slide { 
       width:100%;height:100vh;
       height:100dvh;
@@ -37,7 +35,7 @@
     }
     .reel-slide video { 
       width:100%;height:100%;
-      object-fit:cover;  /* Fill screen, cropping edges */
+      object-fit:contain;
       background:#000;
       position:absolute;
       top:0;left:0;
@@ -84,7 +82,8 @@
       .floating-nav{top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column}
       .nav-center{flex-direction:column;gap:1.2rem;max-width:none}.nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
       .nav-center a::before{bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0)}.nav-center a.active::before{transform:translateY(-50%) scale(1)}
-      .reel-wrapper{padding-bottom:0;margin-left:0}
+      .reel-wrapper{margin-left:5rem}
+      .reel-slide{max-width:500px;margin:0 auto}
       .actions-bar{right:2rem}
     }
     @media (max-width:380px) { 
@@ -116,7 +115,6 @@
   </div>
 
   <script>
-    // ===== AUTH GATE - Instant block, zero lag =====
     if (!localStorage.getItem("uid")) {
       window.location.replace("login.html");
       throw new Error("Unauthorized");
@@ -131,69 +129,33 @@
     const db = getFirestore(app);
 
     let allReels = [];
-    let currentIndex = 0;  // Track which video is visible
+    let currentIndex = 0;
 
-    // Show UI instantly - auth already verified
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('mainPage').style.display = 'flex';
     
     loadAllReels().then(() => renderReels());
 
     async function loadAllReels() {
-      console.log('🔍 Loading reels from Firestore...');
-      
       try {
         const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
         const snap = await getDocs(q);
-        console.log('📡 Total posts found:', snap.size);
-        
         snap.forEach(doc => {
           const d = doc.data();
           const src = d.data || d.url || '';
           const username = d.username || d.userId || '@anonymous';
-          
-          const isVideo = src && (
-            src.startsWith('data:video/') ||
-            d.type === 'reel' ||
-            d.type === 'video'
-          );
-          
-          if (isVideo) {
-            if (!allReels.find(r => r.src === src)) {
-              allReels.push({
-                id: doc.id,
-                username: username,
-                caption: d.caption || d.fileName || '',
-                src: src,
-                likes: d.likes || 0,
-                comments: d.comments || 0,
-                liked: false
-              });
-              console.log('✅ Added reel by:', username);
-            }
+          const isVideo = src && (src.startsWith('data:video/') || d.type === 'reel' || d.type === 'video');
+          if (isVideo && !allReels.find(r => r.src === src)) {
+            allReels.push({ id: doc.id, username, caption: d.caption || d.fileName || '', src, likes: d.likes || 0, comments: d.comments || 0, liked: false });
           }
         });
-      } catch(e) {
-        console.log('❌ Firestore error:', e.message);
-      }
-
+      } catch(e) {}
       const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
-      const localReels = (profile.posts || []).filter(p => p.type === 'video');
-      localReels.forEach(p => {
+      (profile.posts || []).filter(p => p.type === 'video').forEach(p => {
         if (!allReels.find(r => r.src === p.src)) {
-          allReels.unshift({
-            id: 'local_' + Date.now(),
-            username: p.username || profile.username || '@user',
-            caption: p.caption || '',
-            src: p.src,
-            likes: 0,
-            comments: 0,
-            liked: false
-          });
+          allReels.unshift({ id: 'local_' + Date.now(), username: p.username || profile.username || '@user', caption: p.caption || '', src: p.src, likes: 0, comments: 0, liked: false });
         }
       });
-
-      console.log('🎬 Total reels loaded:', allReels.length);
     }
 
     function renderReels() {
@@ -231,7 +193,6 @@
         </div>
       `).join('');
       
-      // Force video.load() on all videos
       setTimeout(() => {
         allReels.forEach((reel, i) => {
           const v = document.getElementById('video' + i);
@@ -250,66 +211,40 @@
             }, 3000);
           }
         });
-        
-        // Play first video
         playVideo(0);
       }, 500);
       
-      // ===== INSTAGRAM REELS: Only play visible video =====
-      // Use IntersectionObserver with high threshold for precise detection
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           const idx = parseInt(entry.target.id.replace('slide', ''));
-          
           if (entry.isIntersecting && entry.intersectionRatio > 0.8) {
-            // This video is fully visible - play it
             currentIndex = idx;
             playVideo(idx);
-            // Pause all other videos
-            allReels.forEach((_, j) => {
-              if (j !== idx) pauseVideo(j);
-            });
+            allReels.forEach((_, j) => { if (j !== idx) pauseVideo(j); });
           } else if (entry.intersectionRatio < 0.3) {
-            // Video is mostly off screen - pause it
             pauseVideo(idx);
           }
         });
-      }, { 
-        threshold: [0, 0.3, 0.5, 0.8, 1.0]  // Multiple thresholds for precise detection
-      });
+      }, { threshold: [0, 0.3, 0.5, 0.8, 1.0] });
       
       document.querySelectorAll('.reel-slide').forEach(s => observer.observe(s));
 
-      // Backup: Scroll event for phones without IntersectionObserver
       let scrollTimeout;
       wrapper.addEventListener('scroll', function() {
         clearTimeout(scrollTimeout);
         scrollTimeout = setTimeout(() => {
-          handleScrollSnap();
+          const slideHeight = wrapper.clientHeight;
+          const scrollTop = wrapper.scrollTop;
+          const newIndex = Math.round(scrollTop / slideHeight);
+          if (newIndex !== currentIndex && newIndex >= 0 && newIndex < allReels.length) {
+            currentIndex = newIndex;
+            allReels.forEach((_, j) => {
+              if (j === currentIndex) playVideo(j);
+              else pauseVideo(j);
+            });
+          }
         }, 100);
       });
-    }
-
-    // Determine which video is most visible based on scroll position
-    function handleScrollSnap() {
-      const wrapper = document.getElementById('reelWrapper');
-      const slideHeight = wrapper.clientHeight;
-      const scrollTop = wrapper.scrollTop;
-      
-      // Calculate which slide is most visible
-      const newIndex = Math.round(scrollTop / slideHeight);
-      
-      if (newIndex !== currentIndex && newIndex >= 0 && newIndex < allReels.length) {
-        currentIndex = newIndex;
-        // Play the new visible video, pause all others
-        allReels.forEach((_, j) => {
-          if (j === currentIndex) {
-            playVideo(j);
-          } else {
-            pauseVideo(j);
-          }
-        });
-      }
     }
 
     function playVideo(i) {
@@ -317,20 +252,13 @@
       const o = document.getElementById('overlay' + i);
       if (!v) return;
       if (v.readyState === 0) v.load();
-      v.play().then(() => {
-        if (o) o.style.display = 'none';
-      }).catch(() => {
-        if (o) o.style.display = 'none';
-      });
+      v.play().then(() => { if (o) o.style.display = 'none'; }).catch(() => { if (o) o.style.display = 'none'; });
     }
 
     function pauseVideo(i) {
       const v = document.getElementById('video' + i);
       const o = document.getElementById('overlay' + i);
-      if (v) {
-        v.pause();
-        if (o) o.style.display = 'flex';
-      }
+      if (v) { v.pause(); if (o) o.style.display = 'flex'; }
     }
 
     window.togglePlay = function(i) {
@@ -341,7 +269,6 @@
         if (v.readyState === 0) v.load();
         v.play().catch(() => {});
         if (o) o.style.display = 'none';
-        // Pause others
         allReels.forEach((_, j) => { if (j !== i) pauseVideo(j); });
       } else {
         v.pause();
@@ -352,52 +279,29 @@
     window.toggleLike = async function(i) {
       allReels[i].liked = !allReels[i].liked;
       allReels[i].likes += allReels[i].liked ? 1 : -1;
-      
       document.getElementById('likes' + i).textContent = allReels[i].likes;
-      
       const slide = document.getElementById('slide' + i);
       const likeBtn = slide.querySelector('.action-btn');
       likeBtn.classList.toggle('liked', allReels[i].liked);
       likeBtn.querySelector('i').className = allReels[i].liked ? 'fas fa-heart' : 'far fa-heart';
-      
       showToast(allReels[i].liked ? 'Liked! ❤️' : 'Unliked');
-      
       if (!allReels[i].id.startsWith('local_')) {
-        try {
-          await updateDoc(doc(db, 'posts', allReels[i].id), {
-            likes: increment(allReels[i].liked ? 1 : -1)
-          });
-        } catch(e) {
-          console.log('Like update error:', e);
-        }
+        try { await updateDoc(doc(db, 'posts', allReels[i].id), { likes: increment(allReels[i].liked ? 1 : -1) }); } catch(e) {}
       }
     };
 
     window.shareReel = async function(i) {
       const reel = allReels[i];
       if (navigator.share) {
-        try {
-          await navigator.share({
-            title: `${reel.username}'s reel`,
-            text: reel.caption || 'Check out this reel!',
-          });
-        } catch(e) {
-          console.log('Share cancelled');
-        }
+        try { await navigator.share({ title: `${reel.username}'s reel`, text: reel.caption || 'Check out this reel!' }); } catch(e) {}
       } else {
-        try {
-          await navigator.clipboard.writeText(window.location.href);
-          showToast('Link copied! 📋');
-        } catch(e) {
-          console.log('Copy failed');
-        }
+        try { await navigator.clipboard.writeText(window.location.href); showToast('Link copied! 📋'); } catch(e) {}
       }
     };
 
     window.showToast = function(msg) {
       const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.classList.add('show');
+      t.textContent = msg; t.classList.add('show');
       clearTimeout(t._t);
       t._t = setTimeout(() => t.classList.remove('show'), 2000);
     };

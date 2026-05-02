@@ -249,11 +249,11 @@
       .nav-center a::before { bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0); }
       .nav-center a.active::before { transform:translateY(-50%) scale(1); }
       .page { padding:0 0 0 5.5rem; }
-      .chat-header { padding-left:1.5rem;padding-right:1.5rem; }
-      .messages-container { padding-left:1.5rem;padding-right:1.5rem; }
-      .chat-input-area { padding-left:1.5rem;padding-right:1.5rem; }
-      .chat-list-header { padding-left:1.5rem;padding-right:1.5rem; }
-      .user-list-item { padding-left:1.5rem;padding-right:1.5rem; }
+      .chat-header { max-width:550px;margin:0 auto;width:100%;padding-left:1rem;padding-right:1rem; }
+      .chat-list-full { max-width:550px;margin:0 auto;width:100%; }
+      .chat-view { max-width:550px;margin:0 auto;width:100%; }
+      .messages-container { padding-left:1rem;padding-right:1rem; }
+      .chat-input-area { max-width:550px;margin:0 auto;width:100%;padding-left:1rem;padding-right:1rem; }
     }
 
     @media (max-width:380px) { 
@@ -329,12 +329,8 @@
 
     const currentUser = localStorage.getItem('currentUser') || '@anonymous';
     const currentUserId = currentUser.replace('@', '');
-    let chatPartner = null;
-    let chatId = null;
-    let unsubMessages = null;
-    let unsubChatList = null;
-    let allUsersList = [];
-    let chatListData = [];
+    let chatPartner = null, chatId = null, unsubMessages = null, unsubChatList = null;
+    let allUsersList = [], chatListData = [];
 
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('mainPage').style.display = 'flex';

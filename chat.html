@@ -39,7 +39,6 @@
     }
     .chat-partner-status .dot { width:5px;height:5px;border-radius:50%;background:#4ade80;display:inline-block; }
 
-    /* ===== TOP RIGHT CONTACT ICON ===== */
     .header-contact-btn {
       width:2.2rem;height:2.2rem;border-radius:50%;
       background:rgba(255,255,255,0.08);
@@ -59,22 +58,16 @@
     }
     .contacts-overlay.show { display:flex; }
     .contacts-modal {
-      background:#1a1a1a;
-      border-radius:1rem;
-      padding:1.2rem;
-      width:100%;max-width:360px;
+      background:#1a1a1a;border-radius:1rem;
+      padding:1.2rem;width:100%;max-width:360px;
       max-height:70vh;overflow-y:auto;
       border:1px solid rgba(255,255,255,0.1);
     }
-    .contacts-modal h3 {
-      font-size:0.9rem;color:#fff;margin-bottom:0.8rem;
-      text-align:center;
-    }
+    .contacts-modal h3 { font-size:0.9rem;color:#fff;margin-bottom:0.8rem;text-align:center; }
     .contacts-modal input {
-      width:100%;padding:0.6rem 0.8rem;
-      border-radius:0.5rem;border:1px solid #333;
-      background:#111;color:#fff;font-size:0.8rem;
-      margin-bottom:0.6rem;outline:none;
+      width:100%;padding:0.6rem 0.8rem;border-radius:0.5rem;
+      border:1px solid #333;background:#111;color:#fff;
+      font-size:0.8rem;margin-bottom:0.6rem;outline:none;
     }
     .contacts-modal input:focus { border-color:#FFFC00; }
     .contact-item {
@@ -90,16 +83,22 @@
       color:#000;font-weight:700;font-size:0.7rem;flex-shrink:0;
     }
     .contact-name { flex:1; }
-    .contact-close {
-      text-align:center;margin-top:0.6rem;
-      color:#ef4444;cursor:pointer;font-size:0.75rem;
-      padding:0.4rem;
-    }
+    .contact-close { text-align:center;margin-top:0.6rem;color:#ef4444;cursor:pointer;font-size:0.75rem;padding:0.4rem; }
 
-    /* ===== USER LIST ===== */
+    /* ===== USER LIST (Chats) ===== */
+    .chat-list-container {
+      flex:1;display:flex;flex-direction:column;
+      overflow:hidden;
+    }
+    .chat-list-header {
+      padding:0.6rem 1rem;
+      font-size:0.65rem;color:#666;
+      text-transform:uppercase;letter-spacing:1px;
+      flex-shrink:0;
+    }
     .user-list {
       flex:1;overflow-y:auto;
-      padding:0.5rem 0 6rem 0;
+      padding:0 0 6rem 0;
       -webkit-overflow-scrolling:touch;
     }
     .user-list::-webkit-scrollbar { width:0; }
@@ -108,19 +107,43 @@
       padding:0.7rem 1rem;
       cursor:pointer;
       border-bottom:1px solid rgba(255,255,255,0.03);
+      transition:background 0.2s;
     }
     .user-list-item:active { background:rgba(255,255,255,0.03); }
+    .user-list-item.unread { background:rgba(255,252,0,0.03); }
     .user-avatar {
       width:44px;height:44px;border-radius:50%;
       background:linear-gradient(135deg,#FFFC00,#FFD600);
       display:flex;align-items:center;justify-content:center;
       font-size:1rem;color:#000;font-weight:700;
-      flex-shrink:0;
+      flex-shrink:0;position:relative;
+    }
+    .online-dot-indicator {
+      position:absolute;bottom:0;right:0;
+      width:10px;height:10px;border-radius:50%;
+      background:#4ade80;border:2px solid #0a0a0a;
     }
     .user-info { flex:1;min-width:0; }
+    .user-name-row {
+      display:flex;align-items:center;gap:0.3rem;
+    }
     .user-name { font-size:0.85rem;color:#fff;font-weight:500; }
-    .user-last-msg { font-size:0.7rem;color:#666;margin-top:0.1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
-    .user-time { font-size:0.6rem;color:#555;flex-shrink:0; }
+    .user-last-msg {
+      font-size:0.7rem;color:#666;margin-top:0.1rem;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+      max-width:200px;
+    }
+    .user-last-msg.unread-msg { color:#fff;font-weight:500; }
+    .user-time {
+      font-size:0.6rem;color:#555;flex-shrink:0;
+      text-align:right;
+    }
+    .unread-badge {
+      background:#FFFC00;color:#000;
+      font-size:0.55rem;font-weight:700;
+      padding:2px 6px;border-radius:8px;
+      margin-top:0.2rem;display:inline-block;
+    }
 
     /* ===== MESSAGES AREA ===== */
     .messages-container {
@@ -213,7 +236,6 @@
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
     .loading-screen span { font-size:0.75rem;color:#888; }
 
-    /* ===== FLOATING NAV ===== */
     .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6);z-index:100; }
     .floating-nav.hidden { display:none; }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
@@ -237,6 +259,7 @@
       .user-list-item { padding-left:1.5rem;padding-right:1.5rem; }
       .messages-container { padding-left:1.2rem;padding-right:1.2rem; }
       .chat-input-area { padding-left:1.2rem;padding-right:1.2rem; }
+      .chat-list-header { padding-left:1.5rem;padding-right:1.5rem; }
     }
     @media (max-width:380px) { 
       .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem}.nav-center a{font-size:1.1rem;width:2rem;height:2rem}
@@ -261,8 +284,11 @@
       <button class="header-contact-btn" id="contactBtn" onclick="showContacts()"><i class="fas fa-address-book"></i></button>
     </div>
 
-    <!-- USER LIST -->
-    <div class="user-list" id="userList"></div>
+    <!-- CHAT LIST (with sorted items) -->
+    <div class="chat-list-container" id="chatListContainer">
+      <div class="chat-list-header">Recent Chats</div>
+      <div class="user-list" id="userList"></div>
+    </div>
 
     <!-- MESSAGES -->
     <div class="messages-container" id="messagesContainer">
@@ -303,7 +329,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, getDocs, limit } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
@@ -316,14 +342,141 @@
     let chatId = null;
     let unsubMessages = null;
     let allUsersList = [];
+    let chatListData = []; // { username, lastMsg, lastTime, unread }
+    let unsubChatList = null;
 
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('mainPage').style.display = 'flex';
     
-    loadUserList();
     loadAllUsersForContacts();
+    listenToAllChats(); // Real-time chat list
 
-    // ===== LOAD ALL USERS FROM FIRESTORE FOR CONTACTS =====
+    // ===== LISTEN TO ALL CHATS FOR THIS USER (Real-time chat list) =====
+    function listenToAllChats() {
+      // Get all users first
+      const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+      const friends = (profile.friends || []).map(f => f.name);
+      const besties = (profile.besties || []).map(b => b.name);
+      const initialUsers = [...new Set([...friends, ...besties])].filter(u => u !== currentUser);
+      
+      // Also get from firestore
+      getDocs(collection(db, 'users')).then(snap => {
+        snap.forEach(doc => {
+          const d = doc.data();
+          if (d.username !== currentUser && !initialUsers.includes(d.username)) {
+            initialUsers.push(d.username);
+          }
+        });
+      });
+
+      // Listen to last message for each chat
+      // We'll use a simpler approach: listen to all chats collection
+      if (unsubChatList) unsubChatList();
+      
+      // Listen to chats collection for updates
+      unsubChatList = onSnapshot(collection(db, 'chats'), (snap) => {
+        const chatUpdates = {};
+        
+        snap.forEach(doc => {
+          const chatId = doc.id;
+          // Check if this chat involves current user
+          const ids = chatId.split('_');
+          if (!ids.includes(currentUserId)) return;
+          
+          const partnerId = ids.find(id => id !== currentUserId);
+          const partnerUsername = '@' + partnerId;
+          
+          // Get last message
+          const messagesRef = collection(db, 'chats', chatId, 'messages');
+          getDocs(query(messagesRef, orderBy('createdAt', 'desc'), limit(1))).then(msgSnap => {
+            if (!msgSnap.empty) {
+              const lastMsg = msgSnap.docs[0].data();
+              chatUpdates[partnerUsername] = {
+                lastMsg: lastMsg.text || '',
+                lastTime: lastMsg.createdAt ? lastMsg.createdAt.toDate() : new Date(),
+                unread: lastMsg.sender !== currentUserId && !lastMsg.seen,
+                sender: lastMsg.sender
+              };
+            }
+            updateChatList(chatUpdates);
+          });
+        });
+      });
+    }
+
+    function updateChatList(chatUpdates) {
+      // Merge with existing data
+      const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+      const friends = (profile.friends || []).map(f => f.name);
+      const besties = (profile.besties || []).map(b => b.name);
+      let allUsers = [...new Set([...friends, ...besties])].filter(u => u !== currentUser);
+      
+      // Also add users from chatUpdates
+      Object.keys(chatUpdates).forEach(u => {
+        if (!allUsers.includes(u)) allUsers.push(u);
+      });
+
+      // Build chat list with data
+      chatListData = allUsers.map(username => {
+        const chat = chatUpdates[username] || {};
+        return {
+          username,
+          lastMsg: chat.lastMsg || '',
+          lastTime: chat.lastTime || new Date(0),
+          unread: chat.unread || false
+        };
+      });
+
+      // SORT: Most recent first
+      chatListData.sort((a, b) => b.lastTime - a.lastTime);
+
+      renderChatList();
+    }
+
+    function renderChatList() {
+      const list = document.getElementById('userList');
+      
+      if (chatListData.length === 0) {
+        list.innerHTML = '<div style="text-align:center;color:#555;padding:3rem;font-size:0.8rem;">No friends yet<br><br>Tap <b style="color:#FFFC00;">📒</b> to see all users</div>';
+        return;
+      }
+
+      list.innerHTML = chatListData.map(c => {
+        const timeStr = c.lastTime.getTime() > 0 ? 
+          formatTime(c.lastTime) : '';
+        
+        return `
+          <div class="user-list-item ${c.unread ? 'unread' : ''}" onclick="openChat('${c.username}')">
+            <div class="user-avatar">
+              ${c.username.replace('@','').charAt(0).toUpperCase()}
+              ${c.lastTime.getTime() > Date.now() - 300000 ? '<div class="online-dot-indicator"></div>' : ''}
+            </div>
+            <div class="user-info">
+              <div class="user-name-row">
+                <span class="user-name">${c.username}</span>
+              </div>
+              <div class="user-last-msg ${c.unread ? 'unread-msg' : ''}">${c.lastMsg || 'Tap to chat'}</div>
+            </div>
+            <div style="text-align:right;">
+              <div class="user-time">${timeStr}</div>
+              ${c.unread ? '<div class="unread-badge">NEW</div>' : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function formatTime(date) {
+      if (!date || date.getTime() === 0) return '';
+      const now = new Date();
+      const diff = now - date;
+      if (diff < 60000) return 'Now';
+      if (diff < 3600000) return Math.floor(diff/60000) + 'm';
+      if (diff < 86400000) return date.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+      return date.toLocaleDateString([], {month:'short',day:'numeric'});
+    }
+
+    // ===== ALL USERS FOR CONTACTS =====
     async function loadAllUsersForContacts() {
       allUsersList = [];
       try {
@@ -335,7 +488,6 @@
           }
         });
       } catch(e) {
-        // Fallback from profile
         const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
         const friends = (profile.friends || []).map(f => ({ username: f.name, name: f.name }));
         const besties = (profile.besties || []).map(b => ({ username: b.name, name: b.name }));
@@ -343,7 +495,6 @@
       }
     }
 
-    // ===== SHOW CONTACTS MODAL =====
     window.showContacts = function() {
       document.getElementById('contactsModal').classList.add('show');
       document.getElementById('contactSearch').value = '';
@@ -356,9 +507,7 @@
 
     window.filterContacts = function() {
       const q = document.getElementById('contactSearch').value.toLowerCase();
-      const filtered = allUsersList.filter(u => 
-        (u.name || u.username).toLowerCase().includes(q)
-      );
+      const filtered = allUsersList.filter(u => (u.name || u.username).toLowerCase().includes(q));
       renderContactList(filtered);
     };
 
@@ -377,7 +526,6 @@
       `).join('');
     }
 
-    // ===== START CHAT FROM CONTACTS =====
     window.startChatFromContacts = function(username, name) {
       closeContacts();
       openChat(username);
@@ -387,48 +535,13 @@
       if (e.target === this) closeContacts();
     });
 
-    // ===== LOAD FRIENDS FOR MAIN LIST =====
-    async function loadUserList() {
-      let users = [];
-      const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
-      const friends = (profile.friends || []).map(f => f.name);
-      const besties = (profile.besties || []).map(b => b.name);
-      users = [...new Set([...friends, ...besties])].filter(u => u !== currentUser);
-      
-      try {
-        const snap = await getDocs(collection(db, 'users'));
-        snap.forEach(doc => {
-          const d = doc.data();
-          if (d.username !== currentUser && !users.includes(d.username)) {
-            users.push(d.username);
-          }
-        });
-      } catch(e) {}
-
-      const list = document.getElementById('userList');
-      if (users.length === 0) {
-        list.innerHTML = '<div style="text-align:center;color:#555;padding:3rem;font-size:0.8rem;">No friends yet<br><br>Tap <b style="color:#FFFC00;">☰</b> to see all users</div>';
-        return;
-      }
-
-      list.innerHTML = users.map(u => `
-        <div class="user-list-item" onclick="openChat('${u}')">
-          <div class="user-avatar">${u.replace('@','').charAt(0).toUpperCase()}</div>
-          <div class="user-info">
-            <div class="user-name">${u}</div>
-            <div class="user-last-msg">Tap to chat</div>
-          </div>
-          <div class="user-time"><i class="fas fa-chevron-right" style="color:#444;"></i></div>
-        </div>
-      `).join('');
-    }
-
+    // ===== OPEN CHAT =====
     window.openChat = function(username) {
       chatPartner = username;
       const partnerId = username.replace('@', '');
       chatId = [currentUserId, partnerId].sort().join('_');
 
-      document.getElementById('userList').style.display = 'none';
+      document.getElementById('chatListContainer').style.display = 'none';
       document.getElementById('messagesContainer').classList.add('show');
       document.getElementById('chatInputArea').classList.add('show');
       document.getElementById('backBtn').classList.add('show');
@@ -450,7 +563,7 @@
       if (unsubMessages) { unsubMessages(); unsubMessages = null; }
       chatPartner = null;
       chatId = null;
-      document.getElementById('userList').style.display = 'block';
+      document.getElementById('chatListContainer').style.display = 'flex';
       document.getElementById('messagesContainer').classList.remove('show');
       document.getElementById('chatInputArea').classList.remove('show');
       document.getElementById('backBtn').classList.remove('show');
@@ -461,7 +574,7 @@
       
       document.getElementById('floatingNav').classList.remove('hidden');
       
-      loadUserList();
+      listenToAllChats();
       loadAllUsersForContacts();
     };
 

@@ -83,59 +83,70 @@
     .contact-name { flex:1; }
     .contact-close { text-align:center;margin-top:0.6rem;color:#ef4444;cursor:pointer;font-size:0.75rem;padding:0.4rem; }
 
-    /* ===== BOTTOM CHAT LIST ===== */
-    .bottom-chat-list {
-      border-top:1px solid rgba(255,255,255,0.06);
-      background:#0a0a0a;
-      flex-shrink:0;
-      max-height:40vh;
-      overflow-y:auto;
+    /* ===== WHATSAPP-STYLE CHAT LIST ===== */
+    .chat-list-full {
+      flex:1;display:flex;flex-direction:column;
+      overflow:hidden;
+    }
+    .chat-list-full.hidden { display:none; }
+    .chat-list-scroll {
+      flex:1;overflow-y:auto;
+      padding-bottom:6rem;
       -webkit-overflow-scrolling:touch;
     }
-    .bottom-chat-list.hidden { display:none; }
-    .bottom-chat-list::-webkit-scrollbar { width:0; }
-    .bottom-chat-header {
+    .chat-list-scroll::-webkit-scrollbar { width:0; }
+    .chat-list-header {
       padding:0.5rem 1rem;
       font-size:0.6rem;color:#666;
       text-transform:uppercase;letter-spacing:1px;
-      position:sticky;top:0;background:#0a0a0a;
-      z-index:1;
+      display:flex;justify-content:space-between;align-items:center;
     }
     .user-list-item {
       display:flex;align-items:center;gap:0.7rem;
-      padding:0.6rem 1rem;
+      padding:0.7rem 1rem;
       cursor:pointer;
       border-bottom:1px solid rgba(255,255,255,0.02);
     }
     .user-list-item:active { background:rgba(255,255,255,0.03); }
-    .user-list-item.unread { background:rgba(255,252,0,0.04); }
+    .user-list-item.active { background:rgba(255,252,0,0.06); }
     .user-avatar {
-      width:40px;height:40px;border-radius:50%;
+      width:48px;height:48px;border-radius:50%;
       background:linear-gradient(135deg,#FFFC00,#FFD600);
       display:flex;align-items:center;justify-content:center;
-      font-size:0.9rem;color:#000;font-weight:700;
-      flex-shrink:0;
+      font-size:1.1rem;color:#000;font-weight:700;
+      flex-shrink:0;position:relative;
     }
     .user-info { flex:1;min-width:0; }
-    .user-name { font-size:0.8rem;color:#fff;font-weight:500; }
-    .user-last-msg {
-      font-size:0.65rem;color:#666;margin-top:0.1rem;
-      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-    }
-    .user-last-msg.unread-msg { color:#ddd;font-weight:500; }
+    .user-name-row { display:flex;align-items:center;justify-content:space-between; }
+    .user-name { font-size:0.85rem;color:#fff;font-weight:500; }
     .user-time { font-size:0.6rem;color:#555;flex-shrink:0; }
-    .unread-badge {
+    .user-msg-row { display:flex;align-items:center;justify-content:space-between;margin-top:2px; }
+    .user-last-msg {
+      font-size:0.7rem;color:#666;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+      max-width:180px;
+    }
+    .user-last-msg.unread-msg { color:#fff;font-weight:500; }
+    .unread-count {
       background:#FFFC00;color:#000;
-      font-size:0.5rem;font-weight:700;
-      padding:1px 5px;border-radius:6px;
-      margin-left:0.3rem;display:inline-block;
+      font-size:0.6rem;font-weight:700;
+      min-width:18px;height:18px;border-radius:9px;
+      display:flex;align-items:center;justify-content:center;
+      flex-shrink:0;
     }
 
+    /* ===== MESSAGES AREA ===== */
+    .chat-view {
+      flex:1;display:none;flex-direction:column;
+      overflow:hidden;
+    }
+    .chat-view.show { display:flex; }
     .messages-container {
       flex:1;overflow-y:auto;
       padding:0.8rem 0.8rem 0.5rem 0.8rem;
       display:flex;flex-direction:column;gap:0.2rem;
       -webkit-overflow-scrolling:touch;
+      background:#0a0a0a;
     }
     .messages-container::-webkit-scrollbar { width:0; }
 
@@ -235,7 +246,7 @@
       .chat-header { padding-left:1.5rem;padding-right:1.5rem; }
       .messages-container { padding-left:1.2rem;padding-right:1.2rem; }
       .chat-input-area { padding-left:1.2rem;padding-right:1.2rem; }
-      .bottom-chat-header { padding-left:1.5rem;padding-right:1.5rem; }
+      .chat-list-header { padding-left:1.5rem;padding-right:1.5rem; }
       .user-list-item { padding-left:1.5rem;padding-right:1.5rem; }
     }
     @media (max-width:380px) { 
@@ -252,7 +263,7 @@
   <div class="page" id="mainPage" style="display:none;">
     <div class="chat-header">
       <button class="chat-back" id="backBtn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
-      <div class="chat-avatar" id="partnerAvatar"><i class="fas fa-user"></i></div>
+      <div class="chat-avatar" id="partnerAvatar"><i class="fas fa-comment-dots"></i></div>
       <div class="chat-partner-info">
         <div class="chat-partner-name" id="partnerName">Chats</div>
         <div class="chat-partner-status" id="partnerStatus"></div>
@@ -260,25 +271,26 @@
       <button class="header-contact-btn" id="contactBtn" onclick="showContacts()"><i class="fas fa-address-book"></i></button>
     </div>
 
-    <!-- Messages area (top) -->
-    <div class="messages-container" id="messagesContainer">
-      <div class="empty-chat" id="emptyChat">Select a chat to start messaging</div>
-      <div class="typing-bubble" id="typingBubble">
-        <div class="tb-dot"></div><div class="tb-dot"></div><div class="tb-dot"></div>
+    <!-- ===== WHATSAPP-STYLE CHAT LIST (Full screen) ===== -->
+    <div class="chat-list-full" id="chatListFull">
+      <div class="chat-list-header">Messages <span id="chatCount"></span></div>
+      <div class="chat-list-scroll" id="userList"></div>
+    </div>
+
+    <!-- ===== CHAT VIEW (hidden until user selected) ===== -->
+    <div class="chat-view" id="chatView">
+      <div class="messages-container" id="messagesContainer">
+        <div class="empty-chat" id="emptyChat">Send a message!</div>
+        <div class="typing-bubble" id="typingBubble">
+          <div class="tb-dot"></div><div class="tb-dot"></div><div class="tb-dot"></div>
+        </div>
       </div>
-    </div>
-
-    <!-- Chat list at bottom -->
-    <div class="bottom-chat-list" id="bottomChatList">
-      <div class="bottom-chat-header">Messages <span id="chatCount"></span></div>
-      <div id="userList"></div>
-    </div>
-
-    <div class="chat-input-area" id="chatInputArea">
-      <input type="text" class="chat-input" id="chatInput" placeholder="Message..." disabled>
-      <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>
-        <i class="fas fa-paper-plane"></i>
-      </button>
+      <div class="chat-input-area">
+        <input type="text" class="chat-input" id="chatInput" placeholder="Message...">
+        <button class="send-btn" onclick="sendMessage()">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
     </div>
 
     <div class="contacts-overlay" id="contactsModal">
@@ -290,7 +302,7 @@
       </div>
     </div>
 
-    <nav class="floating-nav" id="floatingNav"><div class="nav-center">
+    <nav class="floating-nav hidden" id="floatingNav"><div class="nav-center">
       <a href="index.html"><i class="fas fa-home"></i></a>
       <a href="web.html"><i class="fas fa-globe"></i></a>
       <a href="reel.html"><i class="fas fa-film"></i></a>
@@ -317,19 +329,19 @@
     let unsubMessages = null;
     let allUsersList = [];
     let unsubAllChats = null;
+    let chatListData = [];
 
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('mainPage').style.display = 'flex';
     
     loadAllUsersForContacts();
     setupRealtimeChatList();
-    // Hide nav bar
-    document.getElementById('floatingNav').classList.add('hidden');
 
-    // ===== REAL-TIME CHAT LIST =====
+    // ===== REAL-TIME CHAT LIST (WhatsApp style) =====
     function setupRealtimeChatList() {
       if (unsubAllChats) unsubAllChats();
       
+      // Listen to ALL chats for real-time updates
       unsubAllChats = onSnapshot(collection(db, 'chats'), (snap) => {
         loadChatListFromSnapshot(snap);
       });
@@ -338,7 +350,9 @@
     async function loadChatListFromSnapshot(snap) {
       let chatUsers = [];
       const processedPartners = [];
+      const chatMessageCounts = {};
       
+      // Find all chats with current user
       snap.forEach(chatDoc => {
         const cid = chatDoc.id;
         const ids = cid.split('_');
@@ -350,62 +364,90 @@
         }
       });
       
+      // Get last message + unread count for each chat
       for (const partnerId of processedPartners) {
         const cid = [currentUserId, partnerId].sort().join('_');
         try {
-          const msgSnap = await getDocs(query(
+          // Get ALL messages for unread count
+          const allMsgSnap = await getDocs(query(
             collection(db, 'chats', cid, 'messages'),
-            orderBy('createdAt', 'desc'),
-            limit(1)
+            orderBy('createdAt', 'desc')
           ));
           
           let lastMsg = '';
           let lastTime = new Date(0);
-          let unread = false;
+          let unreadCount = 0;
           
-          if (!msgSnap.empty) {
-            const msgData = msgSnap.docs[0].data();
-            lastMsg = msgData.text || '';
-            lastTime = msgData.createdAt ? msgData.createdAt.toDate() : new Date(0);
-            unread = msgData.sender !== currentUserId && !msgData.seen;
+          if (!allMsgSnap.empty) {
+            // First message is the last one
+            const lastMsgData = allMsgSnap.docs[0].data();
+            lastMsg = lastMsgData.text || '';
+            lastTime = lastMsgData.createdAt ? lastMsgData.createdAt.toDate() : new Date(0);
+            
+            // Count unread (messages NOT sent by me AND not seen)
+            allMsgSnap.forEach(doc => {
+              const msg = doc.data();
+              if (msg.sender !== currentUserId && !msg.seen) {
+                unreadCount++;
+              }
+            });
           }
           
           chatUsers.push({
             username: '@' + partnerId,
             lastMsg,
             lastTime,
-            unread
+            unreadCount
           });
-        } catch(e) {}
+          
+        } catch(e) {
+          console.error('Error for', partnerId, e);
+        }
       }
       
+      // SORT: Most recent first (WhatsApp style)
       chatUsers.sort((a, b) => b.lastTime - a.lastTime);
-      renderBottomChatList(chatUsers);
+      chatListData = chatUsers;
+      renderWhatsAppChatList(chatUsers);
     }
 
-    function renderBottomChatList(chatUsers) {
+    function renderWhatsAppChatList(chatUsers) {
       const list = document.getElementById('userList');
       const count = document.getElementById('chatCount');
       
-      count.textContent = chatUsers.length > 0 ? '(' + chatUsers.length + ')' : '';
+      const totalUnread = chatUsers.reduce((sum, c) => sum + c.unreadCount, 0);
+      count.textContent = chatUsers.length > 0 ? `(${chatUsers.length})` : '';
+      
+      // Update header unread count
+      if (totalUnread > 0) {
+        document.getElementById('partnerName').textContent = 'Chats (' + totalUnread + ')';
+      } else {
+        document.getElementById('partnerName').textContent = 'Chats';
+      }
       
       if (chatUsers.length === 0) {
-        list.innerHTML = '<div style="text-align:center;color:#555;padding:1rem;font-size:0.7rem;">No messages yet. Tap 📒 to start a chat.</div>';
+        list.innerHTML = '<div style="text-align:center;color:#555;padding:3rem;font-size:0.8rem;">No messages yet<br><br>Tap <b style="color:#FFFC00;">📒</b> to start a chat</div>';
         return;
       }
 
-      list.innerHTML = chatUsers.map(c => {
+      list.innerHTML = chatUsers.map((c, i) => {
         const timeStr = c.lastTime.getTime() > 0 ? formatTime(c.lastTime) : '';
         const name = c.username.replace('@','');
+        const isActive = chatPartner === c.username;
         
         return `
-          <div class="user-list-item ${c.unread ? 'unread' : ''}" onclick="openChat('${c.username}')">
+          <div class="user-list-item ${isActive ? 'active' : ''}" onclick="openChat('${c.username}')" id="chatItem${i}">
             <div class="user-avatar">${name.charAt(0).toUpperCase()}</div>
             <div class="user-info">
-              <div class="user-name">${c.username} ${c.unread ? '<span class="unread-badge">NEW</span>' : ''}</div>
-              <div class="user-last-msg ${c.unread ? 'unread-msg' : ''}">${c.lastMsg || 'No messages'}</div>
+              <div class="user-name-row">
+                <span class="user-name">${c.username}</span>
+                <span class="user-time">${timeStr}</span>
+              </div>
+              <div class="user-msg-row">
+                <span class="user-last-msg ${c.unreadCount > 0 ? 'unread-msg' : ''}">${c.lastMsg || 'Tap to chat'}</span>
+                ${c.unreadCount > 0 ? `<span class="unread-count">${c.unreadCount}</span>` : ''}
+              </div>
             </div>
-            <div class="user-time">${timeStr}</div>
           </div>
         `;
       }).join('');
@@ -419,6 +461,10 @@
       if (diff < 3600000) return Math.floor(diff/60000) + 'm';
       if (date.toDateString() === now.toDateString()) {
         return date.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+      }
+      if (now - date < 604800000) {
+        const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        return days[date.getDay()];
       }
       return date.toLocaleDateString([], {month:'short',day:'numeric'});
     }
@@ -482,26 +528,51 @@
       if (e.target === this) closeContacts();
     });
 
-    // ===== OPEN CHAT =====
+    // ===== OPEN CHAT (WhatsApp style) =====
     window.openChat = function(username) {
       chatPartner = username;
       const partnerId = username.replace('@', '');
       chatId = [currentUserId, partnerId].sort().join('_');
 
+      // Switch to chat view
+      document.getElementById('chatListFull').classList.add('hidden');
+      document.getElementById('chatView').classList.add('show');
+      document.getElementById('backBtn').classList.add('show');
+      document.getElementById('contactBtn').classList.add('hidden');
       document.getElementById('partnerName').textContent = username;
       document.getElementById('partnerAvatar').innerHTML = username.replace('@','').charAt(0).toUpperCase();
-      document.getElementById('partnerStatus').innerHTML = '<span class="dot"></span> Active';
-      document.getElementById('chatInput').disabled = false;
-      document.getElementById('sendBtn').disabled = false;
-      document.getElementById('chatInput').placeholder = 'Message ' + username + '...';
+      document.getElementById('partnerStatus').innerHTML = '<span class="dot"></span> online';
       
+      // Clear old messages
       const container = document.getElementById('messagesContainer');
       container.querySelectorAll('.message-wrapper').forEach(el => el.remove());
       document.getElementById('emptyChat').style.display = 'flex';
       
+      // Update list highlighting
+      renderWhatsAppChatList(chatListData);
+      
       listenToMessages();
       listenToTyping();
       scrollToBottom();
+    };
+
+    // Go back to chat list
+    window.goBack = function() {
+      chatPartner = null;
+      chatId = null;
+      if (unsubMessages) { unsubMessages(); unsubMessages = null; }
+      
+      document.getElementById('chatListFull').classList.remove('hidden');
+      document.getElementById('chatView').classList.remove('show');
+      document.getElementById('backBtn').classList.remove('show');
+      document.getElementById('contactBtn').classList.remove('hidden');
+      document.getElementById('partnerName').textContent = 'Chats';
+      document.getElementById('partnerAvatar').innerHTML = '<i class="fas fa-comment-dots"></i>';
+      document.getElementById('partnerStatus').textContent = '';
+      
+      // Refresh list
+      setupRealtimeChatList();
+      loadAllUsersForContacts();
     };
 
     function listenToMessages() {
@@ -565,7 +636,7 @@
           status.innerHTML = '<span class="dot"></span> typing...';
           tb.classList.add('show');
         } else {
-          status.innerHTML = '<span class="dot"></span> Active';
+          status.innerHTML = '<span class="dot"></span> online';
           tb.classList.remove('show');
         }
       });

@@ -174,6 +174,51 @@
     .sent .message-time { justify-content:flex-end;color:rgba(0,0,0,0.45); }
     .received .message-time { color:rgba(255,255,255,0.35); }
 
+    /* Voice message bubble */
+    .voice-bubble {
+      display:flex;align-items:center;gap:0.5rem;
+      padding:0.5rem 0.8rem;
+    }
+    .voice-play-btn {
+      width:32px;height:32px;border-radius:50%;
+      background:rgba(0,0,0,0.2);border:none;
+      color:#fff;font-size:0.8rem;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      flex-shrink:0;
+    }
+    .sent .voice-play-btn { color:#000;background:rgba(0,0,0,0.15); }
+    .voice-wave {
+      flex:1;height:30px;
+      display:flex;align-items:center;gap:2px;
+    }
+    .voice-wave-bar {
+      width:2px;background:currentColor;
+      border-radius:1px;opacity:0.5;
+    }
+    .sent .voice-wave-bar { background:#000; }
+    .received .voice-wave-bar { background:#fff; }
+
+    /* Recording indicator */
+    .recording-indicator {
+      display:none;align-items:center;gap:0.5rem;
+      padding:0.5rem 1rem;background:#ef4444;
+      border-radius:1.5rem;color:#fff;font-size:0.8rem;
+      animation:pulse 1s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity:1; }
+      50% { opacity:0.6; }
+    }
+    .recording-indicator.show { display:flex; }
+    .recording-dot {
+      width:8px;height:8px;border-radius:50%;
+      background:#fff;animation:blink 0.5s infinite;
+    }
+    @keyframes blink {
+      0%,100% { opacity:1; }
+      50% { opacity:0; }
+    }
+
     .typing-bubble {
       display:none;align-self:flex-start;
       padding:0.45rem 0.8rem;background:#1c1c1e;
@@ -192,13 +237,9 @@
       100% { transform:translateY(-4px);opacity:1; }
     }
 
-    /* ===== IMAGE MESSAGE BUBBLE ===== */
     .message-image {
-      max-width:200px;
-      max-height:200px;
-      border-radius:0.8rem;
-      object-fit:cover;
-      cursor:pointer;
+      max-width:200px;max-height:200px;
+      border-radius:0.8rem;object-fit:cover;cursor:pointer;
     }
     .sent .message-image { border-bottom-right-radius:0.3rem; }
     .received .message-image { border-bottom-left-radius:0.3rem; }
@@ -211,7 +252,7 @@
       border-top:1px solid rgba(255,255,255,0.06);
       flex-shrink:0;z-index:50;
     }
-    .camera-btn {
+    .camera-btn, .mic-btn {
       width:38px;height:38px;border-radius:50%;
       background:rgba(255,255,255,0.1);
       border:none;color:#fff;
@@ -219,7 +260,8 @@
       display:flex;align-items:center;justify-content:center;
       flex-shrink:0;transition:all 0.15s;
     }
-    .camera-btn:active { transform:scale(0.9);background:rgba(255,255,255,0.2); }
+    .camera-btn:active, .mic-btn:active { transform:scale(0.9);background:rgba(255,255,255,0.2); }
+    .mic-btn.recording { background:#ef4444;color:#fff;animation:pulse 1s infinite; }
     .chat-input {
       flex:1;padding:0.6rem 1rem;border-radius:1.5rem;
       border:1px solid rgba(255,255,255,0.12);background:#1c1c1e;
@@ -311,13 +353,22 @@
           <div class="tb-dot"></div><div class="tb-dot"></div><div class="tb-dot"></div>
         </div>
       </div>
+      <!-- Recording indicator -->
+      <div class="recording-indicator" id="recordingIndicator">
+        <div class="recording-dot"></div>
+        <span id="recordingTime">00:00</span>
+        <button onclick="cancelRecording()" style="background:none;border:none;color:#fff;cursor:pointer;font-size:1rem;">✕</button>
+      </div>
       <div class="chat-input-area">
         <button class="camera-btn" id="cameraBtn" onclick="document.getElementById('imageInput').click()" title="Send photo">
           <i class="fas fa-camera"></i>
         </button>
         <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="sendImage(event)">
         <input type="text" class="chat-input" id="chatInput" placeholder="Message...">
-        <button class="send-btn" onclick="sendMessage()">
+        <button class="mic-btn" id="micBtn" onclick="toggleRecording()" title="Voice message">
+          <i class="fas fa-microphone"></i>
+        </button>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
           <i class="fas fa-paper-plane"></i>
         </button>
       </div>
@@ -358,18 +409,22 @@
     let allUsersList = [], chatListData = [];
     let userProfiles = {};
 
+    // Voice recording variables
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let recordingTimer = null;
+    let recordingSeconds = 0;
+    let isRecording = false;
+
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('mainPage').style.display = 'flex';
     loadAllUsers();
     setupRealtimeChatList();
 
-    function cleanName(username) {
-      return (username || '').replace(/^@/, '');
-    }
+    function cleanName(username) { return (username || '').replace(/^@/, ''); }
 
     async function loadAllUsers() {
-      allUsersList = [];
-      userProfiles = {};
+      allUsersList = []; userProfiles = {};
       try {
         const snap = await getDocs(collection(db, 'users'));
         snap.forEach(doc => {
@@ -400,6 +455,103 @@
       return profile ? profile.name : cleanName(username);
     }
 
+    // ===== VOICE RECORDING =====
+    window.toggleRecording = async function() {
+      if (isRecording) {
+        stopRecording();
+      } else {
+        startRecording();
+      }
+    };
+
+    async function startRecording() {
+      if (!chatId) { alert('Select a chat first!'); return; }
+      
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+        
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) audioChunks.push(e.data);
+        };
+        
+        mediaRecorder.onstop = async () => {
+          const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+          const reader = new FileReader();
+          reader.onload = async function(e) {
+            const audioData = e.target.result;
+            try {
+              await addDoc(collection(db, 'chats', chatId, 'messages'), {
+                audioUrl: audioData,
+                audioDuration: recordingSeconds,
+                sender: currentUserId,
+                createdAt: serverTimestamp(),
+                seen: false
+              });
+              await setDoc(doc(db, 'chats', chatId), {
+                lastMessageTime: serverTimestamp(),
+                lastMessage: '🎤 Voice message',
+                lastSender: currentUserId
+              }, { merge: true });
+            } catch(err) { console.error('Voice send error:', err); }
+          };
+          reader.readAsDataURL(audioBlob);
+          
+          // Stop all tracks
+          stream.getTracks().forEach(t => t.stop());
+        };
+        
+        mediaRecorder.start();
+        isRecording = true;
+        
+        // Update UI
+        document.getElementById('micBtn').classList.add('recording');
+        document.getElementById('micBtn').querySelector('i').className = 'fas fa-stop';
+        document.getElementById('recordingIndicator').classList.add('show');
+        document.getElementById('sendBtn').style.display = 'none';
+        
+        // Start timer
+        recordingSeconds = 0;
+        updateRecordingTime();
+        recordingTimer = setInterval(() => {
+          recordingSeconds++;
+          updateRecordingTime();
+        }, 1000);
+        
+      } catch(e) {
+        console.error('Recording error:', e);
+        alert('Microphone access denied! Please allow microphone permission.');
+      }
+    }
+
+    function stopRecording() {
+      if (mediaRecorder && isRecording) {
+        mediaRecorder.stop();
+        isRecording = false;
+        clearInterval(recordingTimer);
+        
+        document.getElementById('micBtn').classList.remove('recording');
+        document.getElementById('micBtn').querySelector('i').className = 'fas fa-microphone';
+        document.getElementById('recordingIndicator').classList.remove('show');
+        document.getElementById('sendBtn').style.display = 'flex';
+      }
+    }
+
+    window.cancelRecording = function() {
+      if (mediaRecorder && isRecording) {
+        audioChunks = [];
+        stopRecording();
+      }
+    };
+
+    function updateRecordingTime() {
+      const mins = Math.floor(recordingSeconds / 60);
+      const secs = recordingSeconds % 60;
+      document.getElementById('recordingTime').textContent = 
+        String(mins).padStart(2,'0') + ':' + String(secs).padStart(2,'0');
+    }
+
     window.showNewChatModal = function() {
       document.getElementById('newChatModal').classList.add('show');
       document.getElementById('contactSearch').value = '';
@@ -424,8 +576,7 @@
     }
 
     async function loadChatListFromSnapshot(snap) {
-      let chatUsers = [];
-      const processedPartners = new Set();
+      let chatUsers = []; const processedPartners = new Set();
       snap.forEach(chatDoc => {
         const ids = chatDoc.id.split('_');
         if (ids.includes(currentUserId)) {
@@ -442,7 +593,9 @@
             let lastMsg = '', lastTime = new Date(0), unreadCount = 0;
             if (!msgSnap.empty) {
               const d = msgSnap.docs[0].data();
-              lastMsg = d.imageUrl ? '📷 Photo' : (d.text || '');
+              if (d.imageUrl) lastMsg = '📷 Photo';
+              else if (d.audioUrl) lastMsg = '🎤 Voice message';
+              else lastMsg = d.text || '';
               if (d.createdAt) lastTime = d.createdAt.toDate ? d.createdAt.toDate() : new Date(d.createdAt);
               msgSnap.forEach(doc => { const m = doc.data(); if (m.sender !== currentUserId && !m.seen) unreadCount++; });
             }
@@ -503,6 +656,7 @@
     window.goBack = function() {
       chatPartner = null; chatId = null;
       if (unsubMessages) { unsubMessages(); unsubMessages = null; }
+      stopRecording();
       document.getElementById('chatListFull').classList.remove('hidden');
       document.getElementById('chatView').classList.remove('show');
       document.getElementById('backBtn').classList.remove('show');
@@ -542,6 +696,17 @@
       
       if (msg.imageUrl) {
         wrapper.innerHTML = `<div class="message-bubble"><img src="${msg.imageUrl}" class="message-image" onclick="window.open('${msg.imageUrl}')"><div class="message-time">${time}</div></div>`;
+      } else if (msg.audioUrl) {
+        const duration = msg.audioDuration || 0;
+        const mins = Math.floor(duration / 60);
+        const secs = duration % 60;
+        const durStr = String(mins).padStart(2,'0') + ':' + String(secs).padStart(2,'0');
+        wrapper.innerHTML = `<div class="message-bubble voice-bubble" onclick="playVoiceMessage(this, '${msg.audioUrl}')">
+          <button class="voice-play-btn"><i class="fas fa-play"></i></button>
+          <div class="voice-wave">${generateWaveBars(15)}</div>
+          <span style="font-size:0.55rem;margin-left:0.3rem;">${durStr}</span>
+          <div class="message-time">${time}</div>
+        </div>`;
       } else {
         wrapper.innerHTML = `<div class="message-bubble">${msg.text||''}<div class="message-time">${time}</div></div>`;
       }
@@ -550,29 +715,40 @@
       if (!isSent && !msg.seen) setDoc(doc(db, 'chats', chatId, 'messages', id), { seen: true }, { merge: true });
     }
 
-    // ===== SEND IMAGE =====
+    function generateWaveBars(count) {
+      let html = '';
+      for (let i = 0; i < count; i++) {
+        const h = Math.floor(Math.random() * 20) + 5;
+        html += `<div class="voice-wave-bar" style="height:${h}px;"></div>`;
+      }
+      return html;
+    }
+
+    window.playVoiceMessage = function(element, audioUrl) {
+      const audio = new Audio(audioUrl);
+      const btn = element.querySelector('.voice-play-btn i');
+      btn.className = 'fas fa-pause';
+      audio.play();
+      audio.onended = () => { btn.className = 'fas fa-play'; };
+      element.onclick = function() {
+        if (audio.paused) { audio.play(); btn.className = 'fas fa-pause'; }
+        else { audio.pause(); btn.className = 'fas fa-play'; }
+      };
+    };
+
     window.sendImage = async function(event) {
       const file = event.target.files[0];
       if (!file || !chatId) return;
-      
       const reader = new FileReader();
       reader.onload = async function(e) {
-        const imageData = e.target.result;
         try {
           await addDoc(collection(db, 'chats', chatId, 'messages'), {
-            imageUrl: imageData,
-            sender: currentUserId,
-            createdAt: serverTimestamp(),
-            seen: false
+            imageUrl: e.target.result, sender: currentUserId, createdAt: serverTimestamp(), seen: false
           });
           await setDoc(doc(db, 'chats', chatId), {
-            lastMessageTime: serverTimestamp(),
-            lastMessage: '📷 Photo',
-            lastSender: currentUserId
+            lastMessageTime: serverTimestamp(), lastMessage: '📷 Photo', lastSender: currentUserId
           }, { merge: true });
-        } catch(err) {
-          console.error('Image send error:', err);
-        }
+        } catch(err) { console.error('Image send error:', err); }
       };
       reader.readAsDataURL(file);
       event.target.value = '';

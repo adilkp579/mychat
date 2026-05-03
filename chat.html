@@ -28,7 +28,10 @@
     .chat-avatar {
       width:36px;height:36px;border-radius:50%;
       background:#333;display:flex;align-items:center;justify-content:center;
-      font-size:0.85rem;color:#fff;flex-shrink:0;
+      font-size:0.85rem;color:#fff;flex-shrink:0;overflow:hidden;
+    }
+    .chat-avatar img {
+      width:100%;height:100%;object-fit:cover;
     }
     .chat-partner-info { flex:1;min-width:0; }
     .chat-partner-name { font-size:0.9rem;font-weight:600;color:#fff; }
@@ -76,10 +79,11 @@
     .contact-item:hover { background:rgba(255,255,255,0.05); }
     .contact-avatar {
       width:32px;height:32px;border-radius:50%;
-      background:linear-gradient(135deg,#FFFC00,#FFD600);
+      background:#333;
       display:flex;align-items:center;justify-content:center;
-      color:#000;font-weight:700;font-size:0.7rem;flex-shrink:0;
+      color:#fff;font-weight:700;font-size:0.7rem;flex-shrink:0;overflow:hidden;
     }
+    .contact-avatar img { width:100%;height:100%;object-fit:cover; }
     .contact-name { flex:1; }
     .contact-close { text-align:center;margin-top:0.6rem;color:#ef4444;cursor:pointer;font-size:0.75rem;padding:0.4rem; }
 
@@ -110,10 +114,13 @@
     .user-list-item.active { background:rgba(255,252,0,0.06); }
     .user-avatar {
       width:48px;height:48px;border-radius:50%;
-      background:linear-gradient(135deg,#FFFC00,#FFD600);
+      background:#333;
       display:flex;align-items:center;justify-content:center;
-      font-size:1.1rem;color:#000;font-weight:700;
-      flex-shrink:0;
+      font-size:1.1rem;color:#fff;font-weight:700;
+      flex-shrink:0;overflow:hidden;
+    }
+    .user-avatar img {
+      width:100%;height:100%;object-fit:cover;
     }
     .user-info { flex:1;min-width:0; }
     .user-name-row { display:flex;align-items:center;justify-content:space-between; }
@@ -223,7 +230,6 @@
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
     .loading-screen span { font-size:0.75rem;color:#888; }
 
-    /* Mobile nav - bottom */
     .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6);z-index:100; }
     .floating-nav.hidden { display:none; }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
@@ -330,6 +336,7 @@
     const currentUserId = currentUser.replace('@', '');
     let chatPartner = null, chatId = null, unsubMessages = null, unsubChatList = null;
     let allUsersList = [], chatListData = [];
+    let userProfiles = {}; // Cache for profile photos
 
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('mainPage').style.display = 'flex';
@@ -338,18 +345,31 @@
 
     async function loadAllUsers() {
       allUsersList = [];
+      userProfiles = {};
       try {
         const snap = await getDocs(collection(db, 'users'));
         snap.forEach(doc => {
           const d = doc.data();
-          if (d.username !== currentUser) allUsersList.push({ username: d.username, name: d.name || d.username });
+          if (d.username !== currentUser) {
+            allUsersList.push({ username: d.username, name: d.name || d.username, avatar: d.avatar || null });
+            userProfiles[d.username] = { name: d.name || d.username, avatar: d.avatar || null };
+          }
         });
       } catch(e) {
         const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
-        const friends = (profile.friends || []).map(f => ({ username: f.name, name: f.name }));
-        const besties = (profile.besties || []).map(b => ({ username: b.name, name: b.name }));
+        const friends = (profile.friends || []).map(f => ({ username: f.name, name: f.name, avatar: null }));
+        const besties = (profile.besties || []).map(b => ({ username: b.name, name: b.name, avatar: null }));
         allUsersList = [...friends, ...besties].filter((v,i,a) => a.findIndex(t => t.username === v.username) === i);
+        allUsersList.forEach(u => { userProfiles[u.username] = { name: u.name, avatar: null }; });
       }
+    }
+
+    function getUserAvatarHTML(username) {
+      const profile = userProfiles[username];
+      if (profile && profile.avatar) {
+        return `<img src="${profile.avatar}" alt="${username}">`;
+      }
+      return username.replace('@','').charAt(0).toUpperCase();
     }
 
     window.showNewChatModal = function() {
@@ -365,7 +385,7 @@
     function renderContactList(users) {
       const list = document.getElementById('contactList');
       if (users.length === 0) { list.innerHTML = '<p style="color:#666;text-align:center;padding:1rem;font-size:0.75rem;">No users found</p>'; return; }
-      list.innerHTML = users.map(u => `<div class="contact-item" onclick="startNewChat('${u.username}')"><div class="contact-avatar">${(u.name||u.username).charAt(0).toUpperCase()}</div><span class="contact-name">${u.name||u.username}</span><i class="fas fa-comment" style="color:#FFFC00;font-size:0.7rem;"></i></div>`).join('');
+      list.innerHTML = users.map(u => `<div class="contact-item" onclick="startNewChat('${u.username}')"><div class="contact-avatar">${getUserAvatarHTML(u.username)}</div><span class="contact-name">${u.name||u.username}</span><i class="fas fa-comment" style="color:#FFFC00;font-size:0.7rem;"></i></div>`).join('');
     }
     window.startNewChat = function(username) { closeNewChatModal(); openChat(username); };
     document.getElementById('newChatModal').addEventListener('click', function(e) { if (e.target === this) closeNewChatModal(); });
@@ -417,7 +437,7 @@
       if (chatUsers.length === 0) { list.innerHTML = '<div style="text-align:center;color:#555;padding:3rem;font-size:0.8rem;">No messages yet<br><br>Tap <b style="color:#FFFC00;">+</b> to start a chat</div>'; return; }
       list.innerHTML = chatUsers.map(c => {
         const timeStr = c.lastTime.getTime() > 0 ? formatTime(c.lastTime) : '';
-        return `<div class="user-list-item ${chatPartner===c.username?'active':''}" onclick="openChat('${c.username}')"><div class="user-avatar">${c.username.replace('@','').charAt(0).toUpperCase()}</div><div class="user-info"><div class="user-name-row"><span class="user-name">${c.username}</span><span class="user-time">${timeStr}</span></div><div class="user-msg-row"><span class="user-last-msg ${c.unreadCount>0?'unread-msg':''}">${c.lastMsg||'No messages'}</span>${c.unreadCount>0?`<span class="unread-count">${c.unreadCount}</span>`:''}</div></div></div>`;
+        return `<div class="user-list-item ${chatPartner===c.username?'active':''}" onclick="openChat('${c.username}')"><div class="user-avatar">${getUserAvatarHTML(c.username)}</div><div class="user-info"><div class="user-name-row"><span class="user-name">${c.username}</span><span class="user-time">${timeStr}</span></div><div class="user-msg-row"><span class="user-last-msg ${c.unreadCount>0?'unread-msg':''}">${c.lastMsg||'No messages'}</span>${c.unreadCount>0?`<span class="unread-count">${c.unreadCount}</span>`:''}</div></div></div>`;
       }).join('');
     }
 
@@ -439,7 +459,8 @@
       document.getElementById('backBtn').classList.add('show');
       document.getElementById('newChatBtn').classList.add('hidden');
       document.getElementById('partnerName').textContent = username;
-      document.getElementById('partnerAvatar').innerHTML = username.replace('@','').charAt(0).toUpperCase();
+      // Show partner avatar in header
+      document.getElementById('partnerAvatar').innerHTML = getUserAvatarHTML(username);
       document.getElementById('partnerStatus').innerHTML = '<span class="dot"></span> online';
       document.getElementById('floatingNav').classList.add('hidden');
       const container = document.getElementById('messagesContainer');

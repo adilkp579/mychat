@@ -192,14 +192,34 @@
       100% { transform:translateY(-4px);opacity:1; }
     }
 
+    /* ===== IMAGE MESSAGE BUBBLE ===== */
+    .message-image {
+      max-width:200px;
+      max-height:200px;
+      border-radius:0.8rem;
+      object-fit:cover;
+      cursor:pointer;
+    }
+    .sent .message-image { border-bottom-right-radius:0.3rem; }
+    .received .message-image { border-bottom-left-radius:0.3rem; }
+
     .chat-input-area {
-      display:flex;align-items:center;gap:0.5rem;
+      display:flex;align-items:center;gap:0.4rem;
       padding:0.5rem 0.8rem;
       padding-bottom:max(0.5rem,env(safe-area-inset-bottom,0.5rem));
       background:#0a0a0a;
       border-top:1px solid rgba(255,255,255,0.06);
       flex-shrink:0;z-index:50;
     }
+    .camera-btn {
+      width:38px;height:38px;border-radius:50%;
+      background:rgba(255,255,255,0.1);
+      border:none;color:#fff;
+      font-size:0.9rem;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      flex-shrink:0;transition:all 0.15s;
+    }
+    .camera-btn:active { transform:scale(0.9);background:rgba(255,255,255,0.2); }
     .chat-input {
       flex:1;padding:0.6rem 1rem;border-radius:1.5rem;
       border:1px solid rgba(255,255,255,0.12);background:#1c1c1e;
@@ -292,6 +312,10 @@
         </div>
       </div>
       <div class="chat-input-area">
+        <button class="camera-btn" id="cameraBtn" onclick="document.getElementById('imageInput').click()" title="Send photo">
+          <i class="fas fa-camera"></i>
+        </button>
+        <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="sendImage(event)">
         <input type="text" class="chat-input" id="chatInput" placeholder="Message...">
         <button class="send-btn" onclick="sendMessage()">
           <i class="fas fa-paper-plane"></i>
@@ -339,7 +363,6 @@
     loadAllUsers();
     setupRealtimeChatList();
 
-    // Remove @ from username for display
     function cleanName(username) {
       return (username || '').replace(/^@/, '');
     }
@@ -359,14 +382,8 @@
         });
       } catch(e) {
         const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
-        const friends = (profile.friends || []).map(f => {
-          const cleaned = cleanName(f.name);
-          return { username: f.name, displayName: cleaned, avatar: null };
-        });
-        const besties = (profile.besties || []).map(b => {
-          const cleaned = cleanName(b.name);
-          return { username: b.name, displayName: cleaned, avatar: null };
-        });
+        const friends = (profile.friends || []).map(f => ({ username: f.name, displayName: cleanName(f.name), avatar: null }));
+        const besties = (profile.besties || []).map(b => ({ username: b.name, displayName: cleanName(b.name), avatar: null }));
         allUsersList = [...friends, ...besties].filter((v,i,a) => a.findIndex(t => t.username === v.username) === i);
         allUsersList.forEach(u => { userProfiles[u.username] = { name: u.displayName, avatar: null }; });
       }
@@ -374,9 +391,7 @@
 
     function getUserAvatarHTML(username) {
       const profile = userProfiles[username];
-      if (profile && profile.avatar) {
-        return `<img src="${profile.avatar}" alt="${profile.name}">`;
-      }
+      if (profile && profile.avatar) return `<img src="${profile.avatar}" alt="${profile.name}">`;
       return cleanName(username).charAt(0).toUpperCase();
     }
 
@@ -427,7 +442,7 @@
             let lastMsg = '', lastTime = new Date(0), unreadCount = 0;
             if (!msgSnap.empty) {
               const d = msgSnap.docs[0].data();
-              lastMsg = d.text || '';
+              lastMsg = d.imageUrl ? '📷 Photo' : (d.text || '');
               if (d.createdAt) lastTime = d.createdAt.toDate ? d.createdAt.toDate() : new Date(d.createdAt);
               msgSnap.forEach(doc => { const m = doc.data(); if (m.sender !== currentUserId && !m.seen) unreadCount++; });
             }
@@ -508,7 +523,9 @@
         if (snap.empty) { emptyChat.style.display = 'flex'; return; }
         emptyChat.style.display = 'none';
         snap.docChanges().forEach(change => {
-          if (change.type === 'added' && !document.getElementById('msg-' + change.doc.id)) renderMessage(change.doc.id, change.doc.data());
+          if (change.type === 'added' && !document.getElementById('msg-' + change.doc.id)) {
+            renderMessage(change.doc.id, change.doc.data());
+          }
         });
         scrollToBottom();
       });
@@ -522,10 +539,44 @@
       wrapper.className = 'message-wrapper ' + (isSent ? 'sent' : 'received');
       wrapper.id = 'msg-' + id;
       const time = msg.createdAt ? new Date(msg.createdAt.toDate()).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '';
-      wrapper.innerHTML = `<div class="message-bubble">${msg.text||''}<div class="message-time">${time}</div></div>`;
+      
+      if (msg.imageUrl) {
+        wrapper.innerHTML = `<div class="message-bubble"><img src="${msg.imageUrl}" class="message-image" onclick="window.open('${msg.imageUrl}')"><div class="message-time">${time}</div></div>`;
+      } else {
+        wrapper.innerHTML = `<div class="message-bubble">${msg.text||''}<div class="message-time">${time}</div></div>`;
+      }
+      
       container.insertBefore(wrapper, typingBubble);
       if (!isSent && !msg.seen) setDoc(doc(db, 'chats', chatId, 'messages', id), { seen: true }, { merge: true });
     }
+
+    // ===== SEND IMAGE =====
+    window.sendImage = async function(event) {
+      const file = event.target.files[0];
+      if (!file || !chatId) return;
+      
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        const imageData = e.target.result;
+        try {
+          await addDoc(collection(db, 'chats', chatId, 'messages'), {
+            imageUrl: imageData,
+            sender: currentUserId,
+            createdAt: serverTimestamp(),
+            seen: false
+          });
+          await setDoc(doc(db, 'chats', chatId), {
+            lastMessageTime: serverTimestamp(),
+            lastMessage: '📷 Photo',
+            lastSender: currentUserId
+          }, { merge: true });
+        } catch(err) {
+          console.error('Image send error:', err);
+        }
+      };
+      reader.readAsDataURL(file);
+      event.target.value = '';
+    };
 
     window.sendMessage = async function() {
       const input = document.getElementById('chatInput');

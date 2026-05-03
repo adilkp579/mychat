@@ -30,9 +30,7 @@
       background:#333;display:flex;align-items:center;justify-content:center;
       font-size:0.85rem;color:#fff;flex-shrink:0;overflow:hidden;
     }
-    .chat-avatar img {
-      width:100%;height:100%;object-fit:cover;
-    }
+    .chat-avatar img { width:100%;height:100%;object-fit:cover; }
     .chat-partner-info { flex:1;min-width:0; }
     .chat-partner-name { font-size:0.9rem;font-weight:600;color:#fff; }
     .chat-partner-status {
@@ -79,9 +77,9 @@
     .contact-item:hover { background:rgba(255,255,255,0.05); }
     .contact-avatar {
       width:32px;height:32px;border-radius:50%;
-      background:#333;
+      background:#333;overflow:hidden;
       display:flex;align-items:center;justify-content:center;
-      color:#fff;font-weight:700;font-size:0.7rem;flex-shrink:0;overflow:hidden;
+      color:#fff;font-weight:700;font-size:0.7rem;flex-shrink:0;
     }
     .contact-avatar img { width:100%;height:100%;object-fit:cover; }
     .contact-name { flex:1; }
@@ -114,14 +112,12 @@
     .user-list-item.active { background:rgba(255,252,0,0.06); }
     .user-avatar {
       width:48px;height:48px;border-radius:50%;
-      background:#333;
+      background:#333;overflow:hidden;
       display:flex;align-items:center;justify-content:center;
       font-size:1.1rem;color:#fff;font-weight:700;
-      flex-shrink:0;overflow:hidden;
+      flex-shrink:0;
     }
-    .user-avatar img {
-      width:100%;height:100%;object-fit:cover;
-    }
+    .user-avatar img { width:100%;height:100%;object-fit:cover; }
     .user-info { flex:1;min-width:0; }
     .user-name-row { display:flex;align-items:center;justify-content:space-between; }
     .user-name { font-size:0.85rem;color:#fff;font-weight:500; }
@@ -336,12 +332,17 @@
     const currentUserId = currentUser.replace('@', '');
     let chatPartner = null, chatId = null, unsubMessages = null, unsubChatList = null;
     let allUsersList = [], chatListData = [];
-    let userProfiles = {}; // Cache for profile photos
+    let userProfiles = {};
 
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('mainPage').style.display = 'flex';
     loadAllUsers();
     setupRealtimeChatList();
+
+    // Remove @ from username for display
+    function cleanName(username) {
+      return (username || '').replace(/^@/, '');
+    }
 
     async function loadAllUsers() {
       allUsersList = [];
@@ -351,25 +352,37 @@
         snap.forEach(doc => {
           const d = doc.data();
           if (d.username !== currentUser) {
-            allUsersList.push({ username: d.username, name: d.name || d.username, avatar: d.avatar || null });
-            userProfiles[d.username] = { name: d.name || d.username, avatar: d.avatar || null };
+            const cleaned = cleanName(d.username);
+            allUsersList.push({ username: d.username, displayName: cleaned, avatar: d.avatar || null });
+            userProfiles[d.username] = { name: cleaned, avatar: d.avatar || null };
           }
         });
       } catch(e) {
         const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
-        const friends = (profile.friends || []).map(f => ({ username: f.name, name: f.name, avatar: null }));
-        const besties = (profile.besties || []).map(b => ({ username: b.name, name: b.name, avatar: null }));
+        const friends = (profile.friends || []).map(f => {
+          const cleaned = cleanName(f.name);
+          return { username: f.name, displayName: cleaned, avatar: null };
+        });
+        const besties = (profile.besties || []).map(b => {
+          const cleaned = cleanName(b.name);
+          return { username: b.name, displayName: cleaned, avatar: null };
+        });
         allUsersList = [...friends, ...besties].filter((v,i,a) => a.findIndex(t => t.username === v.username) === i);
-        allUsersList.forEach(u => { userProfiles[u.username] = { name: u.name, avatar: null }; });
+        allUsersList.forEach(u => { userProfiles[u.username] = { name: u.displayName, avatar: null }; });
       }
     }
 
     function getUserAvatarHTML(username) {
       const profile = userProfiles[username];
       if (profile && profile.avatar) {
-        return `<img src="${profile.avatar}" alt="${username}">`;
+        return `<img src="${profile.avatar}" alt="${profile.name}">`;
       }
-      return username.replace('@','').charAt(0).toUpperCase();
+      return cleanName(username).charAt(0).toUpperCase();
+    }
+
+    function getDisplayName(username) {
+      const profile = userProfiles[username];
+      return profile ? profile.name : cleanName(username);
     }
 
     window.showNewChatModal = function() {
@@ -380,12 +393,12 @@
     window.closeNewChatModal = function() { document.getElementById('newChatModal').classList.remove('show'); };
     window.filterContacts = function() {
       const q = document.getElementById('contactSearch').value.toLowerCase();
-      renderContactList(allUsersList.filter(u => (u.name || u.username).toLowerCase().includes(q)));
+      renderContactList(allUsersList.filter(u => u.displayName.toLowerCase().includes(q)));
     };
     function renderContactList(users) {
       const list = document.getElementById('contactList');
       if (users.length === 0) { list.innerHTML = '<p style="color:#666;text-align:center;padding:1rem;font-size:0.75rem;">No users found</p>'; return; }
-      list.innerHTML = users.map(u => `<div class="contact-item" onclick="startNewChat('${u.username}')"><div class="contact-avatar">${getUserAvatarHTML(u.username)}</div><span class="contact-name">${u.name||u.username}</span><i class="fas fa-comment" style="color:#FFFC00;font-size:0.7rem;"></i></div>`).join('');
+      list.innerHTML = users.map(u => `<div class="contact-item" onclick="startNewChat('${u.username}')"><div class="contact-avatar">${getUserAvatarHTML(u.username)}</div><span class="contact-name">${u.displayName}</span><i class="fas fa-comment" style="color:#FFFC00;font-size:0.7rem;"></i></div>`).join('');
     }
     window.startNewChat = function(username) { closeNewChatModal(); openChat(username); };
     document.getElementById('newChatModal').addEventListener('click', function(e) { if (e.target === this) closeNewChatModal(); });
@@ -437,7 +450,8 @@
       if (chatUsers.length === 0) { list.innerHTML = '<div style="text-align:center;color:#555;padding:3rem;font-size:0.8rem;">No messages yet<br><br>Tap <b style="color:#FFFC00;">+</b> to start a chat</div>'; return; }
       list.innerHTML = chatUsers.map(c => {
         const timeStr = c.lastTime.getTime() > 0 ? formatTime(c.lastTime) : '';
-        return `<div class="user-list-item ${chatPartner===c.username?'active':''}" onclick="openChat('${c.username}')"><div class="user-avatar">${getUserAvatarHTML(c.username)}</div><div class="user-info"><div class="user-name-row"><span class="user-name">${c.username}</span><span class="user-time">${timeStr}</span></div><div class="user-msg-row"><span class="user-last-msg ${c.unreadCount>0?'unread-msg':''}">${c.lastMsg||'No messages'}</span>${c.unreadCount>0?`<span class="unread-count">${c.unreadCount}</span>`:''}</div></div></div>`;
+        const displayName = getDisplayName(c.username);
+        return `<div class="user-list-item ${chatPartner===c.username?'active':''}" onclick="openChat('${c.username}')"><div class="user-avatar">${getUserAvatarHTML(c.username)}</div><div class="user-info"><div class="user-name-row"><span class="user-name">${displayName}</span><span class="user-time">${timeStr}</span></div><div class="user-msg-row"><span class="user-last-msg ${c.unreadCount>0?'unread-msg':''}">${c.lastMsg||'No messages'}</span>${c.unreadCount>0?`<span class="unread-count">${c.unreadCount}</span>`:''}</div></div></div>`;
       }).join('');
     }
 
@@ -458,8 +472,7 @@
       document.getElementById('chatView').classList.add('show');
       document.getElementById('backBtn').classList.add('show');
       document.getElementById('newChatBtn').classList.add('hidden');
-      document.getElementById('partnerName').textContent = username;
-      // Show partner avatar in header
+      document.getElementById('partnerName').textContent = getDisplayName(username);
       document.getElementById('partnerAvatar').innerHTML = getUserAvatarHTML(username);
       document.getElementById('partnerStatus').innerHTML = '<span class="dot"></span> online';
       document.getElementById('floatingNav').classList.add('hidden');

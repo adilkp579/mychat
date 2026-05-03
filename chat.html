@@ -81,14 +81,11 @@
 
     .chat-list-full { flex:1;display:flex;flex-direction:column;overflow:hidden; }
     .chat-list-full.hidden { display:none; }
-    .chat-list-scroll {
-      flex:1;overflow-y:auto;padding-bottom:6rem;-webkit-overflow-scrolling:touch;
-    }
+    .chat-list-scroll { flex:1;overflow-y:auto;padding-bottom:6rem;-webkit-overflow-scrolling:touch; }
     .chat-list-scroll::-webkit-scrollbar { width:0; }
     .chat-list-header {
       padding:0.5rem 1rem;font-size:0.6rem;color:#666;
-      text-transform:uppercase;letter-spacing:1px;
-      display:flex;justify-content:space-between;align-items:center;
+      text-transform:uppercase;letter-spacing:1px;display:flex;justify-content:space-between;align-items:center;
     }
     .user-list-item {
       display:flex;align-items:center;gap:0.7rem;
@@ -111,16 +108,14 @@
     .user-last-msg.unread-msg { color:#fff;font-weight:500; }
     .unread-count {
       background:#FFFC00;color:#000;font-size:0.6rem;font-weight:700;
-      min-width:18px;height:18px;border-radius:9px;
-      display:flex;align-items:center;justify-content:center;flex-shrink:0;
+      min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
     }
 
     .chat-view { flex:1;display:none;flex-direction:column;overflow:hidden; }
     .chat-view.show { display:flex; }
     .messages-container {
       flex:1;overflow-y:auto;padding:0.8rem 0.8rem 0.5rem 0.8rem;
-      display:flex;flex-direction:column;gap:0.2rem;
-      -webkit-overflow-scrolling:touch;background:#0a0a0a;
+      display:flex;flex-direction:column;gap:0.2rem;-webkit-overflow-scrolling:touch;background:#0a0a0a;
     }
     .messages-container::-webkit-scrollbar { width:0; }
 
@@ -194,7 +189,6 @@
       display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;
     }
 
-    /* ===== INCOMING CALL OVERLAY ===== */
     .incoming-call-overlay {
       position:fixed;top:0;left:0;right:0;bottom:0;
       background:#000;z-index:9999;display:none;
@@ -202,9 +196,8 @@
     }
     .incoming-call-overlay.show { display:flex; }
     .incoming-call-avatar {
-      width:80px;height:80px;border-radius:50%;
-      background:#333;display:flex;align-items:center;justify-content:center;
-      font-size:2rem;color:#fff;overflow:hidden;
+      width:80px;height:80px;border-radius:50%;background:#333;
+      display:flex;align-items:center;justify-content:center;font-size:2rem;color:#fff;overflow:hidden;
     }
     .incoming-call-avatar img { width:100%;height:100%;object-fit:cover; }
     .incoming-call-name { font-size:1.2rem;color:#fff;font-weight:600; }
@@ -219,7 +212,6 @@
     .incoming-call-btn.reject { background:#ef4444;color:#fff; }
     .incoming-call-btn.accept { background:#4ade80;color:#fff;width:65px;height:65px;font-size:1.5rem; }
 
-    /* ===== ACTIVE CALL OVERLAY ===== */
     .call-overlay {
       position:fixed;top:0;left:0;right:0;bottom:0;
       background:#000;z-index:400;display:none;
@@ -230,26 +222,21 @@
       position:absolute;top:0;left:0;right:0;bottom:0;
       display:flex;align-items:center;justify-content:center;
     }
-    .call-remote-video {
-      width:100%;height:100%;object-fit:cover;background:#111;
-    }
+    .call-remote-video { width:100%;height:100%;object-fit:cover;background:#111; }
     .call-local-video {
       position:absolute;top:1rem;right:1rem;
       width:120px;height:160px;border-radius:0.8rem;
       object-fit:cover;background:#222;border:2px solid rgba(255,255,255,0.3);z-index:10;
     }
     .call-info {
-      position:absolute;top:2rem;left:50%;transform:translateX(-50%);
-      text-align:center;z-index:10;
+      position:absolute;top:2rem;left:50%;transform:translateX(-50%);text-align:center;z-index:10;
     }
     .call-info .call-name { font-size:1.2rem;color:#fff;font-weight:600; }
     .call-info .call-status { font-size:0.9rem;color:#fff;margin-top:0.3rem; }
     .call-info .call-status.ringing { animation:pulse 1s infinite;color:#4ade80; }
     .call-info .call-status.calling { color:#888; }
     .call-info .call-status.connected { color:#4ade80; }
-    .call-actions {
-      position:absolute;bottom:3rem;display:flex;gap:1.5rem;z-index:10;
-    }
+    .call-actions { position:absolute;bottom:3rem;display:flex;gap:1.5rem;z-index:10; }
     .call-action-btn {
       width:55px;height:55px;border-radius:50%;border:none;cursor:pointer;
       font-size:1.3rem;display:flex;align-items:center;justify-content:center;transition:all 0.2s;
@@ -334,7 +321,6 @@
       </div>
     </div>
 
-    <!-- INCOMING CALL OVERLAY -->
     <div class="incoming-call-overlay" id="incomingCallOverlay">
       <div class="incoming-call-avatar" id="incomingCallAvatar"><i class="fas fa-user"></i></div>
       <div class="incoming-call-name" id="incomingCallName">User</div>
@@ -345,7 +331,6 @@
       </div>
     </div>
 
-    <!-- ACTIVE CALL OVERLAY -->
     <div class="call-overlay" id="callOverlay">
       <div class="call-video-container">
         <video id="remoteVideo" class="call-remote-video" autoplay playsinline></video>
@@ -403,7 +388,17 @@
     let isCallActive = false, isCallConnected = false, isMuted = false, isVideoOff = false;
     let unsubCallSignal = null, unsubIncomingCall = null;
 
-    const servers = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "stun:stun1.l.google.com:19302" }] };
+    const servers = { 
+      iceServers: [
+        { urls: "stun:stun.l.google.com:19302" },
+        { urls: "stun:stun1.l.google.com:19302" },
+        { urls: "stun:stun2.l.google.com:19302" },
+        { urls: "stun:stun3.l.google.com:19302" },
+        { urls: "stun:stun4.l.google.com:19302" },
+        { urls: "turn:openrelay.metered.ca:80", username: "openrelayproject", credential: "openrelayproject" },
+        { urls: "turn:openrelay.metered.ca:443", username: "openrelayproject", credential: "openrelayproject" }
+      ] 
+    };
 
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('mainPage').style.display = 'flex';
@@ -413,18 +408,10 @@
     checkPendingCall();
     updateOnlineStatus();
 
-    // ===== ONLINE STATUS =====
     function updateOnlineStatus() {
-      setDoc(doc(db, 'users_status', currentUserId), {
-        online: true,
-        lastSeen: serverTimestamp()
-      }, { merge: true });
-      
+      setDoc(doc(db, 'users_status', currentUserId), { online: true, lastSeen: serverTimestamp() }, { merge: true });
       window.addEventListener('beforeunload', () => {
-        setDoc(doc(db, 'users_status', currentUserId), {
-          online: false,
-          lastSeen: serverTimestamp()
-        }, { merge: true });
+        setDoc(doc(db, 'users_status', currentUserId), { online: false, lastSeen: serverTimestamp() }, { merge: true });
       });
     }
 
@@ -451,72 +438,43 @@
     function listenForIncomingCalls() {
       if (unsubIncomingCall) unsubIncomingCall();
       unsubIncomingCall = onSnapshot(doc(db, 'calls', currentUserId), (snap) => {
-        if (!snap.exists()) {
-          document.getElementById('incomingCallOverlay').classList.remove('show');
-          return;
-        }
+        if (!snap.exists()) { document.getElementById('incomingCallOverlay').classList.remove('show'); return; }
         const data = snap.data();
-        
         if (data.receiver === currentUser && data.status === 'calling' && !isCallActive) {
           document.getElementById('incomingCallOverlay').classList.add('show');
           document.getElementById('incomingCallName').textContent = dispName(data.caller) || cleanName(data.caller);
           document.getElementById('incomingCallType').textContent = data.type === 'video' ? '📹 Video call...' : '📞 Audio call...';
           document.getElementById('incomingCallAvatar').innerHTML = avatarHTML(data.caller);
-          window._incomingCaller = data.caller;
-          window._incomingCallType = data.type;
+          window._incomingCaller = data.caller; window._incomingCallType = data.type;
         }
-        
-        if (data.status === 'ended') {
-          document.getElementById('incomingCallOverlay').classList.remove('show');
-          if (isCallActive) endCallInternal();
-        }
+        if (data.status === 'ended') { document.getElementById('incomingCallOverlay').classList.remove('show'); if (isCallActive) endCallInternal(); }
       });
     }
 
     window.acceptIncomingCall = async function() {
       document.getElementById('incomingCallOverlay').classList.remove('show');
-      chatPartner = window._incomingCaller;
-      callType = window._incomingCallType;
-      
+      chatPartner = window._incomingCaller; callType = window._incomingCallType;
       try {
-        const constraints = {
-          audio: true,
-          video: callType === 'video' ? { width: 640, height: 480, facingMode: 'user' } : false
-        };
+        const constraints = { audio: { echoCancellation: true, noiseSuppression: true }, video: callType === 'video' ? { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' } : false };
         localStream = await navigator.mediaDevices.getUserMedia(constraints);
-        document.getElementById('localVideo').srcObject = localStream;
-        if (callType === 'audio') document.getElementById('localVideo').style.display = 'none';
-        else document.getElementById('localVideo').style.display = 'block';
-      } catch(e) { console.error('Media error:', e); }
-      
-      document.getElementById('callOverlay').classList.add('show');
-      document.getElementById('callName').textContent = dispName(chatPartner) || cleanName(chatPartner);
-      
-      // Show "Connecting..." until WebRTC connects
-      document.getElementById('callStatus').textContent = 'Connecting...';
-      document.getElementById('callStatus').className = 'call-status';
-      
-      await createPeerConnection();
-      if (localStream) localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-      
-      const snap = await getDoc(doc(db, 'calls', currentUserId));
-      if (!snap.exists()) return;
-      const data = snap.data();
-      
-      if (data.offer) {
-        await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
-        const answer = await peerConnection.createAnswer();
-        await peerConnection.setLocalDescription(answer);
-        await setDoc(doc(db, 'calls', currentUserId), {
-          answer: { type: answer.type, sdp: answer.sdp },
-          status: 'connected'
-        }, { merge: true });
-      }
-      
-      isCallActive = true;
-      // Timer starts ONLY when connected (handled in onconnectionstatechange)
-      listenForCallSignal(currentUserId);
-      openChat(chatPartner);
+        const lv = document.getElementById('localVideo'); lv.srcObject = localStream; lv.play().catch(()=>{});
+        if (callType === 'audio') { lv.style.display = 'none'; document.getElementById('toggleVideoBtn').style.display = 'none'; }
+        else { lv.style.display = 'block'; document.getElementById('toggleVideoBtn').style.display = 'flex'; }
+        document.getElementById('callOverlay').classList.add('show');
+        document.getElementById('callName').textContent = dispName(chatPartner) || cleanName(chatPartner);
+        document.getElementById('callStatus').textContent = 'Connecting...'; document.getElementById('callStatus').className = 'call-status';
+        await createPeerConnection();
+        localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+        const snap = await getDoc(doc(db, 'calls', currentUserId)); if (!snap.exists()) return;
+        const data = snap.data();
+        if (data.offer) {
+          await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+          if (data.iceCandidates) { for (const c of data.iceCandidates) { try { await peerConnection.addIceCandidate(new RTCIceCandidate(c)); } catch(e) {} } }
+          const answer = await peerConnection.createAnswer(); await peerConnection.setLocalDescription(answer);
+          await setDoc(doc(db, 'calls', currentUserId), { answer: { type: answer.type, sdp: answer.sdp }, status: 'connected' }, { merge: true });
+        }
+        isCallActive = true; listenForCallSignal(currentUserId); openChat(chatPartner);
+      } catch(e) { console.error('Accept error:', e); endCall(); }
     };
 
     window.rejectIncomingCall = async function() {
@@ -527,183 +485,93 @@
 
     function checkPendingCall() {
       const pending = localStorage.getItem('pendingCall');
-      if (pending === 'true') {
-        localStorage.removeItem('pendingCall');
-        setTimeout(async () => {
-          const snap = await getDoc(doc(db, 'calls', currentUserId));
-          if (snap.exists() && snap.data().status === 'calling') {
-            window._incomingCaller = snap.data().caller;
-            window._incomingCallType = snap.data().type;
-            await acceptIncomingCall();
-          }
-        }, 800);
-      }
+      if (pending === 'true') { localStorage.removeItem('pendingCall'); setTimeout(async () => { const snap = await getDoc(doc(db, 'calls', currentUserId)); if (snap.exists() && snap.data().status === 'calling') { window._incomingCaller = snap.data().caller; window._incomingCallType = snap.data().type; await acceptIncomingCall(); } }, 800); }
     }
 
     // ===== START OUTGOING CALL =====
     window.startCall = async function(type) {
-      if (!chatPartner) return;
-      callType = type;
-      
+      if (!chatPartner) return; callType = type;
       try {
-        const constraints = {
-          audio: true,
-          video: type === 'video' ? { width: 640, height: 480, facingMode: 'user' } : false
-        };
+        const constraints = { audio: { echoCancellation: true, noiseSuppression: true }, video: type === 'video' ? { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' } : false };
         localStream = await navigator.mediaDevices.getUserMedia(constraints);
-        document.getElementById('localVideo').srcObject = localStream;
-        if (type === 'audio') document.getElementById('localVideo').style.display = 'none';
-        else document.getElementById('localVideo').style.display = 'block';
-        
+        const lv = document.getElementById('localVideo'); lv.srcObject = localStream; lv.play().catch(()=>{});
+        if (type === 'audio') { lv.style.display = 'none'; document.getElementById('toggleVideoBtn').style.display = 'none'; }
+        else { lv.style.display = 'block'; document.getElementById('toggleVideoBtn').style.display = 'flex'; }
         document.getElementById('callOverlay').classList.add('show');
         document.getElementById('callName').textContent = dispName(chatPartner);
-        
-        // Show "Ringing..." or "Calling..." based on receiver status
         const receiverId = chatPartner.replace('@','');
         const statusSnap = await getDoc(doc(db, 'users_status', receiverId));
-        if (statusSnap.exists() && statusSnap.data().online) {
-          document.getElementById('callStatus').textContent = 'Ringing...';
-          document.getElementById('callStatus').className = 'call-status ringing';
-        } else {
-          document.getElementById('callStatus').textContent = 'Calling...';
-          document.getElementById('callStatus').className = 'call-status calling';
-        }
-        
+        if (statusSnap.exists() && statusSnap.data().online) { document.getElementById('callStatus').textContent = 'Ringing...'; document.getElementById('callStatus').className = 'call-status ringing'; }
+        else { document.getElementById('callStatus').textContent = 'Calling...'; document.getElementById('callStatus').className = 'call-status calling'; }
         await createPeerConnection();
         localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-        
-        const offer = await peerConnection.createOffer();
+        const offer = await peerConnection.createOffer({ offerToReceiveAudio: true, offerToReceiveVideo: true });
         await peerConnection.setLocalDescription(offer);
-        
-        await setDoc(doc(db, 'calls', receiverId), {
-          caller: currentUser,
-          receiver: chatPartner,
-          type: type,
-          status: 'calling',
-          offer: { type: offer.type, sdp: offer.sdp },
-          timestamp: serverTimestamp()
-        });
-        
-        listenForCallSignal(receiverId);
-        isCallActive = true;
-        // Timer starts ONLY when connected (handled in onconnectionstatechange)
-      } catch(e) {
-        console.error('Call error:', e);
-        alert('Camera/microphone access needed!');
-        endCall();
-      }
+        await setDoc(doc(db, 'calls', receiverId), { caller: currentUser, receiver: chatPartner, type: type, status: 'calling', offer: { type: offer.type, sdp: offer.sdp }, timestamp: serverTimestamp() });
+        listenForCallSignal(receiverId); isCallActive = true;
+      } catch(e) { console.error('Call error:', e); alert('Camera/microphone access needed!'); endCall(); }
     };
 
     async function createPeerConnection() {
-      if (peerConnection) peerConnection.close();
+      if (peerConnection) { peerConnection.close(); peerConnection = null; }
       peerConnection = new RTCPeerConnection(servers);
-      
-      peerConnection.ontrack = (event) => {
-        if (event.streams[0]) {
-          document.getElementById('remoteVideo').srcObject = event.streams[0];
-        }
-      };
-      
-      // ===== START TIMER ONLY WHEN ACTUALLY CONNECTED =====
+      peerConnection.ontrack = (event) => { if (event.streams && event.streams[0]) { const rv = document.getElementById('remoteVideo'); rv.srcObject = event.streams[0]; rv.play().catch(()=>{}); } };
+      peerConnection.onicecandidate = async (event) => { if (event.candidate) { const ref = doc(db, 'calls', currentUserId); const snap = await getDoc(ref); const data = snap.data() || {}; const existing = data.iceCandidates || []; existing.push(event.candidate.toJSON()); await setDoc(ref, { iceCandidates: existing }, { merge: true }); } };
       peerConnection.onconnectionstatechange = () => {
         const state = peerConnection.connectionState;
-        console.log('WebRTC state:', state);
-        
-        if (state === 'connected' && !isCallConnected) {
-          isCallConnected = true;
-          document.getElementById('callStatus').textContent = '00:00';
-          document.getElementById('callStatus').className = 'call-status connected';
-          
-          // Start the call timer NOW
-          callSeconds = 0;
-          callTimer = setInterval(() => {
-            callSeconds++;
-            const m = Math.floor(callSeconds/60), s = callSeconds%60;
-            document.getElementById('callStatus').textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
-          }, 1000);
-        }
-        
-        if (state === 'failed' || state === 'disconnected' || state === 'closed') {
-          if (isCallConnected) endCall();
-        }
+        if (state === 'connected' && !isCallConnected) { isCallConnected = true; document.getElementById('callStatus').textContent = '00:00'; document.getElementById('callStatus').className = 'call-status connected'; callSeconds = 0; if (callTimer) clearInterval(callTimer); callTimer = setInterval(() => { callSeconds++; const m = Math.floor(callSeconds/60), s = callSeconds%60; document.getElementById('callStatus').textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); }, 1000); }
+        if (state === 'failed' || state === 'disconnected') { if (isCallConnected) endCall(); }
       };
-      
-      peerConnection.onicecandidate = async (event) => {
-        if (event.candidate) {
-          const ref = doc(db, 'calls', currentUserId);
-          const snap = await getDoc(ref);
-          const existing = snap.data()?.iceCandidates || [];
-          existing.push(event.candidate.toJSON());
-          await setDoc(ref, { iceCandidates: existing }, { merge: true });
-        }
-      };
+      peerConnection.oniceconnectionstatechange = () => { if (peerConnection.iceConnectionState === 'failed') { peerConnection.restartIce(); } };
     }
 
     function listenForCallSignal(signalId) {
       if (unsubCallSignal) unsubCallSignal();
+      let iceIndex = 0;
       unsubCallSignal = onSnapshot(doc(db, 'calls', signalId), async (snap) => {
         if (!snap.exists() || !isCallActive) return;
         const data = snap.data();
-        
-        if (data.answer && peerConnection && peerConnection.signalingState !== 'closed') {
-          try {
-            if (!peerConnection.currentRemoteDescription) {
-              await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
-            }
-          } catch(e) {}
+        if (data.answer && peerConnection && peerConnection.signalingState === 'have-local-offer') {
+          try { await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer)); if (data.iceCandidates) { for (const c of data.iceCandidates) { try { await peerConnection.addIceCandidate(new RTCIceCandidate(c)); } catch(e) {} } } } catch(e) {}
         }
-        
-        if (data.iceCandidates && peerConnection) {
-          const key = '_iceIdx_' + signalId;
-          const processed = window[key] || 0;
-          for (let i = processed; i < data.iceCandidates.length; i++) {
-            try { await peerConnection.addIceCandidate(new RTCIceCandidate(data.iceCandidates[i])); } catch(e) {}
-          }
-          window[key] = data.iceCandidates.length;
-        }
-        
-        if (data.status === 'ended') {
-          endCallInternal();
-        }
+        if (data.iceCandidates && peerConnection && peerConnection.remoteDescription) { for (let i = iceIndex; i < data.iceCandidates.length; i++) { try { await peerConnection.addIceCandidate(new RTCIceCandidate(data.iceCandidates[i])); } catch(e) {} } iceIndex = data.iceCandidates.length; }
+        if (data.status === 'ended') { endCallInternal(); }
       });
     }
 
     window.endCall = function() {
-      if (isCallActive) {
-        const partnerId = chatPartner ? chatPartner.replace('@','') : currentUserId;
-        setDoc(doc(db, 'calls', partnerId), { status: 'ended' }, { merge: true });
-        setDoc(doc(db, 'calls', currentUserId), { status: 'ended' }, { merge: true });
-      }
+      if (isCallActive) { const pid = chatPartner ? chatPartner.replace('@','') : currentUserId; setDoc(doc(db, 'calls', pid), { status: 'ended' }, { merge: true }); setDoc(doc(db, 'calls', currentUserId), { status: 'ended' }, { merge: true }); }
       endCallInternal();
     };
 
     function endCallInternal() {
-      isCallActive = false;
-      isCallConnected = false;
+      isCallActive = false; isCallConnected = false;
       if (callTimer) { clearInterval(callTimer); callTimer = null; }
       if (unsubCallSignal) { unsubCallSignal(); unsubCallSignal = null; }
-      if (peerConnection) { peerConnection.close(); peerConnection = null; }
-      if (localStream) { localStream.getTracks().forEach(track => track.stop()); localStream = null; }
+      if (peerConnection) { peerConnection.getSenders().forEach(s => { if (s.track) s.track.stop(); }); peerConnection.close(); peerConnection = null; }
+      if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
       document.getElementById('remoteVideo').srcObject = null;
       document.getElementById('localVideo').srcObject = null;
       document.getElementById('callOverlay').classList.remove('show');
       document.getElementById('callStatus').className = 'call-status';
       document.getElementById('incomingCallOverlay').classList.remove('show');
       deleteDoc(doc(db, 'calls', currentUserId)).catch(()=>{});
+      isMuted = false; isVideoOff = false;
+      document.getElementById('toggleMicBtn').classList.remove('muted'); document.getElementById('toggleMicBtn').querySelector('i').className = 'fas fa-microphone';
+      document.getElementById('toggleVideoBtn').classList.remove('off'); document.getElementById('toggleVideoBtn').querySelector('i').className = 'fas fa-video';
+      document.getElementById('toggleVideoBtn').style.display = 'flex'; document.getElementById('localVideo').style.display = 'block';
     }
 
     window.toggleMic = function() {
-      if (!localStream) return;
-      isMuted = !isMuted;
-      localStream.getAudioTracks().forEach(track => { track.enabled = !isMuted; });
+      if (!localStream) return; isMuted = !isMuted;
+      localStream.getAudioTracks().forEach(t => { t.enabled = !isMuted; });
       document.getElementById('toggleMicBtn').classList.toggle('muted', isMuted);
       document.getElementById('toggleMicBtn').querySelector('i').className = isMuted ? 'fas fa-microphone-slash' : 'fas fa-microphone';
     };
 
     window.toggleVideo = function() {
-      if (!localStream) return;
-      isVideoOff = !isVideoOff;
-      localStream.getVideoTracks().forEach(track => { track.enabled = !isVideoOff; });
+      if (!localStream) return; isVideoOff = !isVideoOff;
+      localStream.getVideoTracks().forEach(t => { t.enabled = !isVideoOff; });
       document.getElementById('toggleVideoBtn').classList.toggle('off', isVideoOff);
       document.getElementById('toggleVideoBtn').querySelector('i').className = isVideoOff ? 'fas fa-video-slash' : 'fas fa-video';
       document.getElementById('localVideo').style.display = isVideoOff ? 'none' : 'block';

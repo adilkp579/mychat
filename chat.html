@@ -159,7 +159,6 @@
     .sent .message-time { justify-content:flex-end;color:rgba(0,0,0,0.45); }
     .received .message-time { color:rgba(255,255,255,0.35); }
 
-    /* Voice message bubble */
     .voice-msg {
       display:flex;align-items:center;gap:0.5rem;
       padding:0.5rem 0.8rem;cursor:pointer;min-width:150px;
@@ -172,17 +171,11 @@
     }
     .sent .voice-play-btn { color:#000;background:rgba(0,0,0,0.15); }
     .voice-wave-container { flex:1;display:flex;align-items:center;gap:1px;height:28px; }
-    .voice-wave-bar {
-      width:2px;border-radius:1px;opacity:0.6;
-      transition:height 0.1s;
-    }
+    .voice-wave-bar { width:2px;border-radius:1px;opacity:0.6; }
     .sent .voice-wave-bar { background:#000; }
     .received .voice-wave-bar { background:#fff; }
-    .voice-duration {
-      font-size:0.6rem;opacity:0.7;
-    }
+    .voice-duration { font-size:0.6rem;opacity:0.7; }
 
-    /* Recording UI */
     .recording-bar {
       display:none;align-items:center;gap:0.5rem;
       padding:0.4rem 1rem;background:#1c1c1e;
@@ -193,21 +186,10 @@
       width:10px;height:10px;border-radius:50%;
       background:#ef4444;animation:recPulse 0.8s infinite;
     }
-    @keyframes recPulse {
-      0%,100% { opacity:1;transform:scale(1); }
-      50% { opacity:0.4;transform:scale(0.7); }
-    }
+    @keyframes recPulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.4;transform:scale(0.7);} }
     .recording-time-text { color:#ef4444;font-size:0.85rem;font-weight:600; }
-    .recording-cancel {
-      margin-left:auto;background:none;border:none;
-      color:#888;font-size:1.2rem;cursor:pointer;
-    }
-    .recording-send {
-      width:38px;height:38px;border-radius:50%;
-      background:#FFFC00;border:none;color:#000;
-      font-size:0.9rem;cursor:pointer;
-      display:flex;align-items:center;justify-content:center;
-    }
+    .recording-cancel { margin-left:auto;background:none;border:none;color:#888;font-size:1.2rem;cursor:pointer; }
+    .recording-send { width:38px;height:38px;border-radius:50%;background:#FFFC00;border:none;color:#000;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center; }
 
     .typing-bubble {
       display:none;align-self:flex-start;
@@ -221,28 +203,20 @@
     }
     .typing-bubble .tb-dot:nth-child(2) { animation-delay:0.15s; }
     .typing-bubble .tb-dot:nth-child(3) { animation-delay:0.3s; }
-    @keyframes typingBounce {
-      0% { transform:translateY(0);opacity:0.4; }
-      100% { transform:translateY(-4px);opacity:1; }
-    }
+    @keyframes typingBounce { 0%{transform:translateY(0);opacity:0.4;} 100%{transform:translateY(-4px);opacity:1;} }
 
-    .message-image {
-      max-width:200px;max-height:200px;
-      border-radius:0.8rem;object-fit:cover;cursor:pointer;
-    }
+    .message-image { max-width:200px;max-height:200px;border-radius:0.8rem;object-fit:cover;cursor:pointer; }
 
     .chat-input-area {
       display:flex;align-items:center;gap:0.4rem;
       padding:0.5rem 0.8rem;
       padding-bottom:max(0.5rem,env(safe-area-inset-bottom,0.5rem));
-      background:#0a0a0a;
-      border-top:1px solid rgba(255,255,255,0.06);
+      background:#0a0a0a;border-top:1px solid rgba(255,255,255,0.06);
       flex-shrink:0;z-index:50;
     }
     .camera-btn, .mic-btn {
       width:38px;height:38px;border-radius:50%;
-      background:rgba(255,255,255,0.1);
-      border:none;color:#fff;
+      background:rgba(255,255,255,0.1);border:none;color:#fff;
       font-size:0.9rem;cursor:pointer;
       display:flex;align-items:center;justify-content:center;
       flex-shrink:0;transition:all 0.15s;
@@ -332,7 +306,6 @@
           <div class="tb-dot"></div><div class="tb-dot"></div><div class="tb-dot"></div>
         </div>
       </div>
-      <!-- Recording bar -->
       <div class="recording-bar" id="recordingBar">
         <div class="recording-dot"></div>
         <span class="recording-time-text" id="recTime">00:00</span>
@@ -340,17 +313,11 @@
         <button class="recording-send" onclick="sendVoice()"><i class="fas fa-paper-plane"></i></button>
       </div>
       <div class="chat-input-area">
-        <button class="camera-btn" onclick="document.getElementById('imageInput').click()" title="Send photo">
-          <i class="fas fa-camera"></i>
-        </button>
+        <button class="camera-btn" onclick="document.getElementById('imageInput').click()"><i class="fas fa-camera"></i></button>
         <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="sendImage(event)">
         <input type="text" class="chat-input" id="chatInput" placeholder="Message...">
-        <button class="mic-btn" id="micBtn" onclick="toggleVoice()" title="Voice message">
-          <i class="fas fa-microphone"></i>
-        </button>
-        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
-          <i class="fas fa-paper-plane"></i>
-        </button>
+        <button class="mic-btn" id="micBtn" onclick="toggleVoice()"><i class="fas fa-microphone"></i></button>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
       </div>
     </div>
 
@@ -387,8 +354,6 @@
     const currentUserId = currentUser.replace('@', '');
     let chatPartner = null, chatId = null, unsubMessages = null, unsubChatList = null;
     let allUsersList = [], chatListData = [], userProfiles = {};
-
-    // Voice
     let mediaRecorder = null, audioChunks = [], voiceTimer = null, voiceSeconds = 0, isRecording = false;
 
     document.getElementById('loadingScreen').style.display = 'none';
@@ -422,21 +387,15 @@
     function avatarHTML(u){const p=userProfiles[u];return p&&p.avatar?`<img src="${p.avatar}">`:cleanName(u).charAt(0).toUpperCase();}
     function dispName(u){const p=userProfiles[u];return p?p.name:cleanName(u);}
 
-    // ===== VOICE =====
-    window.toggleVoice = function(){
-      if(isRecording){ stopVoice(false); }
-      else { startVoice(); }
-    };
-
+    // Voice
+    window.toggleVoice=function(){if(isRecording){stopVoice(false);}else{startVoice();}};
     async function startVoice(){
       if(!chatId){alert('Select a chat first!');return;}
       try{
         const stream=await navigator.mediaDevices.getUserMedia({audio:true});
         mediaRecorder=new MediaRecorder(stream);audioChunks=[];
         mediaRecorder.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data);};
-        mediaRecorder.onstop=()=>{
-          stream.getTracks().forEach(t=>t.stop());
-        };
+        mediaRecorder.onstop=()=>{stream.getTracks().forEach(t=>t.stop());};
         mediaRecorder.start();isRecording=true;voiceSeconds=0;
         document.getElementById('recordingBar').classList.add('show');
         document.getElementById('micBtn').style.display='none';
@@ -446,7 +405,6 @@
         voiceTimer=setInterval(()=>{voiceSeconds++;const m=Math.floor(voiceSeconds/60);const s=voiceSeconds%60;document.getElementById('recTime').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');},1000);
       }catch(e){alert('Microphone needed! Allow mic permission.');}
     }
-
     function stopVoice(cancel){
       if(mediaRecorder&&isRecording){
         if(cancel){audioChunks=[];}
@@ -457,10 +415,8 @@
         document.getElementById('chatInput').style.display='block';
       }
     }
-
-    window.cancelVoice = function(){ stopVoice(true); };
-
-    window.sendVoice = async function(){
+    window.cancelVoice=function(){stopVoice(true);};
+    window.sendVoice=async function(){
       if(!mediaRecorder||!isRecording)return;
       const stream=mediaRecorder.stream;
       mediaRecorder.onstop=async()=>{
@@ -469,10 +425,7 @@
         const reader=new FileReader();
         reader.onload=async function(e){
           try{
-            await addDoc(collection(db,'chats',chatId,'messages'),{
-              audioUrl:e.target.result,audioDuration:voiceSeconds,
-              sender:currentUserId,createdAt:serverTimestamp(),seen:false
-            });
+            await addDoc(collection(db,'chats',chatId,'messages'),{audioUrl:e.target.result,audioDuration:voiceSeconds,sender:currentUserId,createdAt:serverTimestamp(),seen:false});
             await setDoc(doc(db,'chats',chatId),{lastMessageTime:serverTimestamp(),lastMessage:'🎤 Voice',lastSender:currentUserId},{merge:true});
           }catch(err){}
         };
@@ -521,7 +474,10 @@
       const l=document.getElementById('userList'),cnt=document.getElementById('chatCount');
       const tu=cu.reduce((s,c)=>s+c.unreadCount,0);
       cnt.textContent=cu.length>0?'('+cu.length+')':'';
-      document.getElementById('partnerName').textContent=tu>0?'Chats ('+tu+')':'Chats';
+      // Only show "Chats" when on the list view, username is shown when chat is open
+      if(!chatPartner){
+        document.getElementById('partnerName').textContent=tu>0?'Chats ('+tu+')':'Chats';
+      }
       if(cu.length===0){l.innerHTML='<div style="text-align:center;color:#555;padding:3rem;font-size:0.8rem;">No messages yet<br><br>Tap <b style="color:#FFFC00;">+</b> to start a chat</div>';return;}
       l.innerHTML=cu.map(c=>{const ts=c.lastTime.getTime()>0?fmtTime(c.lastTime):'';const dn=dispName(c.username);return`<div class="user-list-item ${chatPartner===c.username?'active':''}" onclick="openChat('${c.username}')"><div class="user-avatar">${avatarHTML(c.username)}</div><div class="user-info"><div class="user-name-row"><span class="user-name">${dn}</span><span class="user-time">${ts}</span></div><div class="user-msg-row"><span class="user-last-msg ${c.unreadCount>0?'unread-msg':''}">${c.lastMsg||'No messages'}</span>${c.unreadCount>0?`<span class="unread-count">${c.unreadCount}</span>`:''}</div></div></div>`;}).join('');
     }
@@ -534,6 +490,7 @@
       document.getElementById('chatView').classList.add('show');
       document.getElementById('backBtn').classList.add('show');
       document.getElementById('newChatBtn').classList.add('hidden');
+      // ===== SHOW USERNAME INSTEAD OF "Chats" =====
       document.getElementById('partnerName').textContent=dispName(u);
       document.getElementById('partnerAvatar').innerHTML=avatarHTML(u);
       document.getElementById('partnerStatus').innerHTML='<span class="dot"></span> online';
@@ -552,6 +509,7 @@
       document.getElementById('chatView').classList.remove('show');
       document.getElementById('backBtn').classList.remove('show');
       document.getElementById('newChatBtn').classList.remove('hidden');
+      // ===== SHOW "Chats" WHEN BACK TO LIST =====
       document.getElementById('partnerName').textContent='Chats';
       document.getElementById('partnerAvatar').innerHTML='<i class="fas fa-comment-dots"></i>';
       document.getElementById('partnerStatus').textContent='';
@@ -577,15 +535,8 @@
       if(msg.imageUrl){
         w.innerHTML=`<div class="message-bubble"><img src="${msg.imageUrl}" class="message-image" onclick="window.open('${msg.imageUrl}')"><div class="message-time">${time}</div></div>`;
       }else if(msg.audioUrl){
-        const dur=msg.audioDuration||0;
-        const mm=Math.floor(dur/60),ss=dur%60;
-        const ds=String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0');
-        w.innerHTML=`<div class="message-bubble voice-msg" data-audio="${msg.audioUrl}" onclick="playVoice(this)">
-          <button class="voice-play-btn"><i class="fas fa-play"></i></button>
-          <div class="voice-wave-container">${genBars(12)}</div>
-          <span class="voice-duration">${ds}</span>
-          <div class="message-time">${time}</div>
-        </div>`;
+        const dur=msg.audioDuration||0;const mm=Math.floor(dur/60),ss=dur%60;const ds=String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0');
+        w.innerHTML=`<div class="message-bubble voice-msg" data-audio="${msg.audioUrl}" onclick="playVoice(this)"><button class="voice-play-btn"><i class="fas fa-play"></i></button><div class="voice-wave-container">${genBars(12)}</div><span class="voice-duration">${ds}</span><div class="message-time">${time}</div></div>`;
       }else{
         w.innerHTML=`<div class="message-bubble">${msg.text||''}<div class="message-time">${time}</div></div>`;
       }
@@ -596,15 +547,9 @@
     function genBars(n){let h='';for(let i=0;i<n;i++){const rh=Math.floor(Math.random()*22)+4;h+=`<div class="voice-wave-bar" style="height:${rh}px;"></div>`;}return h;}
 
     window.playVoice=function(el){
-      const audioUrl=el.getAttribute('data-audio');
-      const btn=el.querySelector('.voice-play-btn i');
-      if(!el._audio){
-        el._audio=new Audio(audioUrl);
-        el._audio.onended=()=>{btn.className='fas fa-play';};
-      }
-      const a=el._audio;
-      if(a.paused){a.play();btn.className='fas fa-pause';}
-      else{a.pause();btn.className='fas fa-play';}
+      const audioUrl=el.getAttribute('data-audio');const btn=el.querySelector('.voice-play-btn i');
+      if(!el._audio){el._audio=new Audio(audioUrl);el._audio.onended=()=>{btn.className='fas fa-play';};}
+      const a=el._audio;if(a.paused){a.play();btn.className='fas fa-pause';}else{a.pause();btn.className='fas fa-play';}
     };
 
     window.sendImage=async function(e){

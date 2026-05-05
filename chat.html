@@ -140,7 +140,7 @@
     .voice-wave-container { flex:1;display:flex;align-items:center;gap:1px;height:28px; }
     .voice-wave-bar { width:2px;border-radius:1px;opacity:0.6; }
     .sent .voice-wave-bar { background:#000; }.received .voice-wave-bar { background:#fff; }
-    .voice-duration { font-size:0.6rem;opacity:0.7; }
+    .voice-duration { font-size:0.6rem;opacity:0.7;min-width:35px;text-align:center; }
 
     .message-image { max-width:200px;max-height:200px;border-radius:0.8rem;object-fit:cover;cursor:pointer; }
 
@@ -450,77 +450,51 @@
     function avatarHTML(u){const p=userProfiles[u];return p&&p.avatar?`<img src="${p.avatar}">`:cleanName(u).charAt(0).toUpperCase();}
     function dispName(u){const p=userProfiles[u];return p?p.name:cleanName(u);}
 
-    // ===== VOICE RECORDING (FIXED) =====
+    // ===== FORMAT DURATION HELPER =====
+    function formatDuration(seconds) {
+      const m = Math.floor(seconds / 60);
+      const s = Math.floor(seconds % 60);
+      return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    }
+
+    // ===== VOICE RECORDING =====
     window.toggleVoice = function() {
-      if (isRecording) {
-        window.sendVoice();
-      } else {
-        startVoice();
-      }
+      if (isRecording) { window.sendVoice(); }
+      else { startVoice(); }
     };
 
     async function startVoice() {
       if (!chatId) { alert('Select a chat first!'); return; }
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          audio: {
-            echoCancellation: true,
-            noiseSuppression: true,
-            autoGainControl: true,
-            sampleRate: 44100,
-            channelCount: 1
-          }
+          audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, sampleRate: 44100, channelCount: 1 }
         });
-        
-        const options = {
-          audioBitsPerSecond: 128000,
-          mimeType: 'audio/webm;codecs=opus'
-        };
-        
-        if (!MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
-          options.mimeType = 'audio/webm';
-        }
-        
+        const options = { audioBitsPerSecond: 128000, mimeType: 'audio/webm;codecs=opus' };
+        if (!MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) { options.mimeType = 'audio/webm'; }
         mediaRecorder = new MediaRecorder(stream, options);
         audioChunks = [];
-        
-        mediaRecorder.ondataavailable = (e) => {
-          if (e.data.size > 0) audioChunks.push(e.data);
-        };
-        
-        mediaRecorder.onstop = () => {
-          stream.getTracks().forEach(t => t.stop());
-        };
-        
+        mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunks.push(e.data); };
+        mediaRecorder.onstop = () => { stream.getTracks().forEach(t => t.stop()); };
         mediaRecorder.start(100);
-        isRecording = true;
-        voiceSeconds = 0;
-        
+        isRecording = true; voiceSeconds = 0;
         document.getElementById('recordingBar').classList.add('show');
         document.getElementById('micBtn').style.display = 'none';
         document.getElementById('sendBtn').style.display = 'none';
         document.getElementById('chatInput').style.display = 'none';
         document.getElementById('recTime').textContent = '00:00';
-        
         voiceTimer = setInterval(() => {
           voiceSeconds++;
-          const m = Math.floor(voiceSeconds / 60);
-          const s = voiceSeconds % 60;
+          const m = Math.floor(voiceSeconds / 60), s = voiceSeconds % 60;
           document.getElementById('recTime').textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
         }, 1000);
-        
-      } catch(e) {
-        console.error('Mic error:', e);
-        alert('Microphone permission needed! Please allow mic access in browser settings.');
-      }
+      } catch(e) { console.error('Mic error:', e); alert('Microphone permission needed!'); }
     }
 
     function stopVoice(cancel) {
       if (mediaRecorder && isRecording) {
         if (cancel) { audioChunks = []; }
         if (mediaRecorder.state === 'recording') { mediaRecorder.stop(); }
-        isRecording = false;
-        clearInterval(voiceTimer);
+        isRecording = false; clearInterval(voiceTimer);
         document.getElementById('recordingBar').classList.remove('show');
         document.getElementById('micBtn').style.display = 'flex';
         document.getElementById('sendBtn').style.display = 'flex';
@@ -532,62 +506,76 @@
 
     window.sendVoice = async function() {
       if (!mediaRecorder || !isRecording) return;
-      if (voiceSeconds < 1) {
-        alert('Recording too short! Hold the button longer.');
-        stopVoice(true);
-        return;
-      }
-      
+      if (voiceSeconds < 1) { alert('Recording too short! Hold the button longer.'); stopVoice(true); return; }
       const stream = mediaRecorder.stream;
-      
       mediaRecorder.onstop = async () => {
         stream.getTracks().forEach(t => t.stop());
         const mimeType = mediaRecorder.mimeType || 'audio/webm';
         const audioBlob = new Blob(audioChunks, { type: mimeType });
         console.log('🎤 Voice size:', (audioBlob.size / 1024).toFixed(1), 'KB, duration:', voiceSeconds, 's');
-        
         const reader = new FileReader();
         reader.onload = async function(e) {
           try {
             await addDoc(collection(db, 'chats', chatId, 'messages'), {
-              audioUrl: e.target.result,
-              audioDuration: voiceSeconds,
-              audioMime: mimeType,
-              sender: currentUserId,
-              createdAt: serverTimestamp(),
-              seen: false
+              audioUrl: e.target.result, audioDuration: voiceSeconds, audioMime: mimeType,
+              sender: currentUserId, createdAt: serverTimestamp(), seen: false
             });
             await setDoc(doc(db, 'chats', chatId), {
-              lastMessageTime: serverTimestamp(),
-              lastMessage: '🎤 Voice message',
-              lastSender: currentUserId
+              lastMessageTime: serverTimestamp(), lastMessage: '🎤 Voice message', lastSender: currentUserId
             }, { merge: true });
-            console.log('✅ Voice sent');
           } catch(err) { console.error('Voice send error:', err); }
         };
         reader.readAsDataURL(audioBlob);
       };
-      
-      mediaRecorder.stop();
-      isRecording = false;
-      clearInterval(voiceTimer);
+      mediaRecorder.stop(); isRecording = false; clearInterval(voiceTimer);
       document.getElementById('recordingBar').classList.remove('show');
       document.getElementById('micBtn').style.display = 'flex';
       document.getElementById('sendBtn').style.display = 'flex';
       document.getElementById('chatInput').style.display = 'block';
     };
 
+    // ===== PLAY VOICE WITH LIVE TIMER =====
     window.playVoice = function(el) {
       const audioUrl = el.getAttribute('data-audio');
       const btn = el.querySelector('.voice-play-btn i');
+      const durationSpan = el.querySelector('.voice-duration');
+      const totalDuration = parseFloat(el.getAttribute('data-duration') || '0');
       
+      // Stop all other playing audio
       document.querySelectorAll('.voice-msg').forEach(msg => {
-        if (msg !== el && msg._audio) { msg._audio.pause(); const ob = msg.querySelector('.voice-play-btn i'); if (ob) ob.className = 'fas fa-play'; }
+        if (msg !== el && msg._audio) {
+          msg._audio.pause();
+          const ob = msg.querySelector('.voice-play-btn i');
+          if (ob) ob.className = 'fas fa-play';
+          const otherDur = msg.querySelector('.voice-duration');
+          if (otherDur && msg._totalDur) { otherDur.textContent = formatDuration(msg._totalDur); }
+        }
       });
       
       if (!el._audio) {
         el._audio = new Audio(audioUrl);
-        el._audio.onended = () => { btn.className = 'fas fa-play'; };
+        el._totalDur = totalDuration;
+        if (durationSpan && totalDuration > 0) { durationSpan.textContent = formatDuration(totalDuration); }
+        
+        el._audio.ontimeupdate = () => {
+          if (durationSpan && el._audio) {
+            const remaining = Math.max(0, totalDuration - el._audio.currentTime);
+            durationSpan.textContent = formatDuration(remaining);
+          }
+        };
+        
+        el._audio.onloadedmetadata = () => {
+          if (el._audio.duration && !totalDuration) {
+            el._totalDur = el._audio.duration;
+            if (durationSpan) durationSpan.textContent = formatDuration(el._audio.duration);
+          }
+        };
+        
+        el._audio.onended = () => {
+          btn.className = 'fas fa-play';
+          if (durationSpan && el._totalDur) { durationSpan.textContent = formatDuration(el._totalDur); }
+        };
+        
         el._audio.onerror = () => { btn.className = 'fas fa-exclamation-triangle'; };
       }
       
@@ -598,6 +586,7 @@
       } else {
         audio.pause();
         btn.className = 'fas fa-play';
+        if (durationSpan && el._totalDur) { durationSpan.textContent = formatDuration(el._totalDur); }
       }
     };
 
@@ -655,7 +644,6 @@
       unsubCallSignal = onSnapshot(doc(db, 'calls', signalId), async (snap) => {
         if (!snap.exists() || !isCallActive || !peerConnection) return;
         const data = snap.data();
-        
         if (data.answer && peerConnection.signalingState === 'have-local-offer') {
           try {
             await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
@@ -663,11 +651,9 @@
             pendingIceCandidates = [];
           } catch(e) {}
         }
-        
         if (data.iceCandidates && peerConnection.remoteDescription) {
           for (const c of data.iceCandidates) { try { await peerConnection.addIceCandidate(new RTCIceCandidate(c)); } catch(e) { pendingIceCandidates.push(c); } }
         }
-        
         if (data.status === 'ended') endCallInternal();
       });
     }
@@ -818,7 +804,7 @@
     window.goBack=function(){chatPartner=null;chatId=null;if(unsubMessages){unsubMessages();unsubMessages=null;}stopVoice(true);if(!isCallActive)endCallInternal();document.getElementById('chatListFull').classList.remove('hidden');document.getElementById('chatView').classList.remove('show');document.getElementById('backBtn').classList.remove('show');document.getElementById('newChatBtn').classList.remove('hidden');document.getElementById('callBtns').classList.remove('show');document.getElementById('partnerName').textContent='Chats';document.getElementById('partnerAvatar').innerHTML='<i class="fas fa-comment-dots"></i>';document.getElementById('partnerStatus').textContent='';document.getElementById('floatingNav').classList.remove('hidden');loadAllUsers();setupRealtimeChatList();};
 
     function listenToMessages(){if(unsubMessages)unsubMessages();unsubMessages=onSnapshot(query(collection(db,'chats',chatId,'messages'),orderBy('createdAt','asc')),snap=>{const c=document.getElementById('messagesContainer'),ec=document.getElementById('emptyChat');if(snap.empty){ec.style.display='flex';return;}ec.style.display='none';snap.docChanges().forEach(ch=>{if(ch.type==='added'&&!document.getElementById('msg-'+ch.doc.id))renderMsg(ch.doc.id,ch.doc.data());});scrollToBottom();});}
-    function renderMsg(id,msg){const c=document.getElementById('messagesContainer'),tb=document.getElementById('typingBubble');const isSent=msg.sender===currentUserId;const w=document.createElement('div');w.className='message-wrapper '+(isSent?'sent':'received');w.id='msg-'+id;const time=msg.createdAt?new Date(msg.createdAt.toDate()).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';if(msg.imageUrl){w.innerHTML=`<div class="message-bubble"><img src="${msg.imageUrl}" class="message-image" onclick="window.open('${msg.imageUrl}')"><div class="message-time">${time}</div></div>`;}else if(msg.audioUrl){const dur=msg.audioDuration||0;const mm=Math.floor(dur/60),ss=dur%60;const ds=String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0');w.innerHTML=`<div class="message-bubble voice-msg" data-audio="${msg.audioUrl}" onclick="playVoice(this)"><button class="voice-play-btn"><i class="fas fa-play"></i></button><div class="voice-wave-container">${genBars(18)}</div><span class="voice-duration">${ds}</span><div class="message-time">${time}</div></div>`;}else{w.innerHTML=`<div class="message-bubble">${msg.text||''}<div class="message-time">${time}</div></div>`;}c.insertBefore(w,tb);if(!isSent&&!msg.seen)setDoc(doc(db,'chats',chatId,'messages',id),{seen:true},{merge:true});}
+    function renderMsg(id,msg){const c=document.getElementById('messagesContainer'),tb=document.getElementById('typingBubble');const isSent=msg.sender===currentUserId;const w=document.createElement('div');w.className='message-wrapper '+(isSent?'sent':'received');w.id='msg-'+id;const time=msg.createdAt?new Date(msg.createdAt.toDate()).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';if(msg.imageUrl){w.innerHTML=`<div class="message-bubble"><img src="${msg.imageUrl}" class="message-image" onclick="window.open('${msg.imageUrl}')"><div class="message-time">${time}</div></div>`;}else if(msg.audioUrl){const dur=msg.audioDuration||0;const ds=formatDuration(dur);w.innerHTML=`<div class="message-bubble voice-msg" data-audio="${msg.audioUrl}" data-duration="${dur}" onclick="playVoice(this)"><button class="voice-play-btn"><i class="fas fa-play"></i></button><div class="voice-wave-container">${genBars(18)}</div><span class="voice-duration">${ds}</span><div class="message-time">${time}</div></div>`;}else{w.innerHTML=`<div class="message-bubble">${msg.text||''}<div class="message-time">${time}</div></div>`;}c.insertBefore(w,tb);if(!isSent&&!msg.seen)setDoc(doc(db,'chats',chatId,'messages',id),{seen:true},{merge:true});}
     function genBars(n){let h='';for(let i=0;i<n;i++){h+=`<div class="voice-wave-bar" style="height:${Math.floor(Math.random()*22)+4}px;"></div>`;}return h;}
     window.sendImage=async function(e){const file=e.target.files[0];if(!file||!chatId)return;const r=new FileReader();r.onload=async function(ev){try{await addDoc(collection(db,'chats',chatId,'messages'),{imageUrl:ev.target.result,sender:currentUserId,createdAt:serverTimestamp(),seen:false});await setDoc(doc(db,'chats',chatId),{lastMessageTime:serverTimestamp(),lastMessage:'📷 Photo',lastSender:currentUserId},{merge:true});}catch(err){}};r.readAsDataURL(file);e.target.value='';};
     window.sendMessage=async function(){const input=document.getElementById('chatInput');const text=input.value.trim();if(!text||!chatId)return;input.value='';try{const batch=writeBatch(db);const msgRef=doc(collection(db,'chats',chatId,'messages'));batch.set(msgRef,{text,sender:currentUserId,createdAt:serverTimestamp(),seen:false});batch.set(doc(db,'chats',chatId),{lastMessageTime:serverTimestamp(),lastMessage:text,lastSender:currentUserId},{merge:true});await batch.commit();}catch(e){await addDoc(collection(db,'chats',chatId,'messages'),{text,sender:currentUserId,createdAt:serverTimestamp(),seen:false});await setDoc(doc(db,'chats',chatId),{lastMessageTime:serverTimestamp(),lastMessage:text,lastSender:currentUserId},{merge:true});}};

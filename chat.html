@@ -400,9 +400,8 @@
         const iceServers = await response.json();
         if (iceServers && iceServers.length > 0) {
           servers = { iceServers: [{ urls: "stun:stun.l.google.com:19302" },{ urls: "stun:stun1.l.google.com:19302" },...iceServers], iceCandidatePoolSize: 10 };
-          console.log('✅ TURN servers loaded:', iceServers.length);
         }
-      } catch(e) { console.log('⚠️ TURN fetch failed'); }
+      } catch(e) {}
     }
 
     document.getElementById('loadingScreen').style.display = 'none';
@@ -422,52 +421,94 @@
     }
 
     function cleanName(u) { return (u||'').replace(/^@/,''); }
+    function formatDuration(seconds) { const m=Math.floor(seconds/60); const s=Math.floor(seconds%60); return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); }
 
+    // ===== LOAD ALL USERS WITH PROFILE PHOTOS =====
     async function loadAllUsers() {
-      allUsersList=[];userProfiles={};
-      try {const snap=await getDocs(collection(db,'users'));snap.forEach(doc=>{const d=doc.data();if(d.username!==currentUser){const c=cleanName(d.username);allUsersList.push({username:d.username,displayName:c,avatar:d.avatar||null});userProfiles[d.username]={name:c,avatar:d.avatar||null};}});}
-      catch(e){const p=JSON.parse(localStorage.getItem('userProfile')||'{}');const f=(p.friends||[]).map(x=>({username:x.name,displayName:cleanName(x.name),avatar:null}));const b=(p.besties||[]).map(x=>({username:x.name,displayName:cleanName(x.name),avatar:null}));allUsersList=[...f,...b].filter((v,i,a)=>a.findIndex(t=>t.username===v.username)===i);allUsersList.forEach(u=>{userProfiles[u.username]={name:u.displayName,avatar:null};});}
+      allUsersList = [];
+      userProfiles = {};
+      
+      // Load from Firestore
+      try {
+        const snap = await getDocs(collection(db, 'users'));
+        snap.forEach(doc => {
+          const d = doc.data();
+          if (d.username !== currentUser) {
+            const c = cleanName(d.username);
+            allUsersList.push({ username: d.username, displayName: c, avatar: d.avatar || null });
+            userProfiles[d.username] = { name: c, avatar: d.avatar || null };
+          }
+        });
+      } catch(e) {}
+      
+      // Load from localStorage profile (friends/besties with avatars)
+      const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+      const friends = profile.friends || [];
+      const besties = profile.besties || [];
+      
+      [...friends, ...besties].forEach(f => {
+        const username = f.name;
+        if (username && username !== currentUser) {
+          if (!allUsersList.find(u => u.username === username)) {
+            const cleaned = cleanName(username);
+            allUsersList.push({ username: username, displayName: cleaned, avatar: f.avatar || null });
+          }
+          if (!userProfiles[username]) {
+            userProfiles[username] = { name: cleanName(username), avatar: null };
+          }
+          if (f.avatar) {
+            userProfiles[username].avatar = f.avatar;
+          }
+        }
+      });
+      
+      // Also try to get avatars from saved profiles in localStorage
+      for (const key of Object.keys(localStorage)) {
+        if (key.startsWith('profile_')) {
+          try {
+            const savedProfile = JSON.parse(localStorage.getItem(key));
+            const username = key.replace('profile_', '');
+            if (savedProfile.avatar && userProfiles[username]) {
+              userProfiles[username].avatar = savedProfile.avatar;
+            }
+          } catch(e) {}
+        }
+      }
     }
 
-    function avatarHTML(u){const p=userProfiles[u];return p&&p.avatar?`<img src="${p.avatar}">`:cleanName(u).charAt(0).toUpperCase();}
-    function dispName(u){const p=userProfiles[u];return p?p.name:cleanName(u);}
-    function formatDuration(seconds) {const m=Math.floor(seconds/60);const s=Math.floor(seconds%60);return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}
+    function avatarHTML(u) {
+      const p = userProfiles[u];
+      if (p && p.avatar && p.avatar !== 'null' && p.avatar !== 'undefined') {
+        return `<img src="${p.avatar}" alt="${p.name || cleanName(u)}" onerror="this.style.display='none';this.parentElement.innerHTML='${cleanName(u).charAt(0).toUpperCase()}';" />`;
+      }
+      return cleanName(u).charAt(0).toUpperCase();
+    }
+    function dispName(u) { const p = userProfiles[u]; return p ? p.name : cleanName(u); }
 
-    // ===== VOICE RECORDING =====
+    // ===== VOICE =====
     window.toggleVoice=function(){if(isRecording){window.sendVoice();}else{startVoice();}};
-    async function startVoice(){if(!chatId){alert('Select a chat first!');return;}try{const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true,sampleRate:44100,channelCount:1}});const opts={audioBitsPerSecond:128000,mimeType:'audio/webm;codecs=opus'};if(!MediaRecorder.isTypeSupported('audio/webm;codecs=opus'))opts.mimeType='audio/webm';mediaRecorder=new MediaRecorder(stream,opts);audioChunks=[];mediaRecorder.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data);};mediaRecorder.onstop=()=>{stream.getTracks().forEach(t=>t.stop());};mediaRecorder.start(100);isRecording=true;voiceSeconds=0;document.getElementById('recordingBar').classList.add('show');document.getElementById('micBtn').style.display='none';document.getElementById('sendBtn').style.display='none';document.getElementById('chatInput').style.display='none';document.getElementById('recTime').textContent='00:00';voiceTimer=setInterval(()=>{voiceSeconds++;const m=Math.floor(voiceSeconds/60),s=voiceSeconds%60;document.getElementById('recTime').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');},1000);}catch(e){console.error('Mic error:',e);alert('Microphone permission needed!');}}
+    async function startVoice(){if(!chatId){alert('Select a chat first!');return;}try{const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true,sampleRate:44100,channelCount:1}});const opts={audioBitsPerSecond:128000,mimeType:'audio/webm;codecs=opus'};if(!MediaRecorder.isTypeSupported('audio/webm;codecs=opus'))opts.mimeType='audio/webm';mediaRecorder=new MediaRecorder(stream,opts);audioChunks=[];mediaRecorder.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data);};mediaRecorder.onstop=()=>{stream.getTracks().forEach(t=>t.stop());};mediaRecorder.start(100);isRecording=true;voiceSeconds=0;document.getElementById('recordingBar').classList.add('show');document.getElementById('micBtn').style.display='none';document.getElementById('sendBtn').style.display='none';document.getElementById('chatInput').style.display='none';document.getElementById('recTime').textContent='00:00';voiceTimer=setInterval(()=>{voiceSeconds++;document.getElementById('recTime').textContent=formatDuration(voiceSeconds);},1000);}catch(e){alert('Microphone permission needed!');}}
     function stopVoice(cancel){if(mediaRecorder&&isRecording){if(cancel)audioChunks=[];if(mediaRecorder.state==='recording')mediaRecorder.stop();isRecording=false;clearInterval(voiceTimer);document.getElementById('recordingBar').classList.remove('show');document.getElementById('micBtn').style.display='flex';document.getElementById('sendBtn').style.display='flex';document.getElementById('chatInput').style.display='block';}}
     window.cancelVoice=function(){stopVoice(true);};
     window.sendVoice=async function(){if(!mediaRecorder||!isRecording)return;if(voiceSeconds<1){alert('Recording too short!');stopVoice(true);return;}const stream=mediaRecorder.stream;mediaRecorder.onstop=async()=>{stream.getTracks().forEach(t=>t.stop());const mimeType=mediaRecorder.mimeType||'audio/webm';const blob=new Blob(audioChunks,{type:mimeType});const reader=new FileReader();reader.onload=async function(e){try{await addDoc(collection(db,'chats',chatId,'messages'),{audioUrl:e.target.result,audioDuration:voiceSeconds,audioMime:mimeType,sender:currentUserId,createdAt:serverTimestamp(),seen:false});await setDoc(doc(db,'chats',chatId),{lastMessageTime:serverTimestamp(),lastMessage:'🎤 Voice message',lastSender:currentUserId},{merge:true});}catch(err){}};reader.readAsDataURL(blob);};mediaRecorder.stop();isRecording=false;clearInterval(voiceTimer);document.getElementById('recordingBar').classList.remove('show');document.getElementById('micBtn').style.display='flex';document.getElementById('sendBtn').style.display='flex';document.getElementById('chatInput').style.display='block';};
 
-    // ===== PLAY VOICE WITH FORWARD TIMER (0:01, 0:02, 0:03...) =====
+    // ===== PLAY VOICE WITH FORWARD TIMER =====
     window.playVoice=function(el){
-      const audioUrl=el.getAttribute('data-audio');
-      const btn=el.querySelector('.voice-play-btn i');
-      const durationSpan=el.querySelector('.voice-duration');
-      const totalDuration=parseFloat(el.getAttribute('data-duration')||'0');
+      const audioUrl=el.getAttribute('data-audio');const btn=el.querySelector('.voice-play-btn i');
+      const durationSpan=el.querySelector('.voice-duration');const totalDuration=parseFloat(el.getAttribute('data-duration')||'0');
       document.querySelectorAll('.voice-msg').forEach(msg=>{if(msg!==el&&msg._audio){msg._audio.pause();const ob=msg.querySelector('.voice-play-btn i');if(ob)ob.className='fas fa-play';const od=msg.querySelector('.voice-duration');if(od&&msg._totalDur)od.textContent='0:00 / '+formatDuration(msg._totalDur);}});
-      if(!el._audio){
-        el._audio=new Audio(audioUrl);el._totalDur=totalDuration;
-        if(durationSpan)durationSpan.textContent='0:00 / '+formatDuration(totalDuration);
-        el._audio.ontimeupdate=()=>{if(durationSpan&&el._audio&&el._totalDur){durationSpan.textContent=formatDuration(el._audio.currentTime)+' / '+formatDuration(el._totalDur);}};
-        el._audio.onloadedmetadata=()=>{if(el._audio.duration&&!totalDuration){el._totalDur=el._audio.duration;if(durationSpan)durationSpan.textContent='0:00 / '+formatDuration(el._audio.duration);}};
-        el._audio.onended=()=>{btn.className='fas fa-play';if(durationSpan&&el._totalDur)durationSpan.textContent='0:00 / '+formatDuration(el._totalDur);};
-        el._audio.onerror=()=>{btn.className='fas fa-exclamation-triangle';};
-      }
-      const audio=el._audio;
-      if(audio.paused){audio.play().catch(()=>{btn.className='fas fa-exclamation-triangle';});btn.className='fas fa-pause';}
-      else{audio.pause();btn.className='fas fa-play';if(durationSpan&&el._totalDur)durationSpan.textContent=formatDuration(audio.currentTime)+' / '+formatDuration(el._totalDur);}
+      if(!el._audio){el._audio=new Audio(audioUrl);el._totalDur=totalDuration;if(durationSpan)durationSpan.textContent='0:00 / '+formatDuration(totalDuration);el._audio.ontimeupdate=()=>{if(durationSpan&&el._audio&&el._totalDur){durationSpan.textContent=formatDuration(el._audio.currentTime)+' / '+formatDuration(el._totalDur);}};el._audio.onloadedmetadata=()=>{if(el._audio.duration&&!totalDuration){el._totalDur=el._audio.duration;if(durationSpan)durationSpan.textContent='0:00 / '+formatDuration(el._audio.duration);}};el._audio.onended=()=>{btn.className='fas fa-play';if(durationSpan&&el._totalDur)durationSpan.textContent='0:00 / '+formatDuration(el._totalDur);};el._audio.onerror=()=>{btn.className='fas fa-exclamation-triangle';};}
+      const audio=el._audio;if(audio.paused){audio.play().catch(()=>{btn.className='fas fa-exclamation-triangle';});btn.className='fas fa-pause';}else{audio.pause();btn.className='fas fa-play';if(durationSpan&&el._totalDur)durationSpan.textContent=formatDuration(audio.currentTime)+' / '+formatDuration(el._totalDur);}
     };
 
     // ===== WEBRTC =====
     async function createPeerConnection(){if(peerConnection){peerConnection.close();peerConnection=null;}pendingIceCandidates=[];const config={...servers,iceTransportPolicy:"all"};peerConnection=new RTCPeerConnection(config);peerConnection.ontrack=event=>{if(event.streams&&event.streams[0])document.getElementById('remoteVideo').srcObject=event.streams[0];};peerConnection.onicecandidate=async event=>{if(event.candidate){const ref=doc(db,'calls',currentUserId);const snap=await getDoc(ref);const existing=(snap.data()?.iceCandidates)||[];existing.push(event.candidate.toJSON());await setDoc(ref,{iceCandidates:existing},{merge:true});}};peerConnection.onconnectionstatechange=()=>{const state=peerConnection.connectionState;if(state==='connected'&&!isCallConnected){isCallConnected=true;document.getElementById('callStatus').textContent='00:00';document.getElementById('callStatus').className='call-status connected';callSeconds=0;if(callTimer)clearInterval(callTimer);callTimer=setInterval(()=>{callSeconds++;document.getElementById('callStatus').textContent=formatDuration(callSeconds);},1000);}if(state==='failed'||state==='disconnected')endCall();};peerConnection.oniceconnectionstatechange=()=>{if(peerConnection.iceConnectionState==='failed')peerConnection.restartIce();};}
     function listenForCallSignal(signalId){if(unsubCallSignal)unsubCallSignal();unsubCallSignal=onSnapshot(doc(db,'calls',signalId),async snap=>{if(!snap.exists()||!isCallActive||!peerConnection)return;const data=snap.data();if(data.answer&&peerConnection.signalingState==='have-local-offer'){try{await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));for(const c of pendingIceCandidates){try{await peerConnection.addIceCandidate(new RTCIceCandidate(c));}catch(e){}}pendingIceCandidates=[];}catch(e){}}if(data.iceCandidates&&peerConnection.remoteDescription){for(const c of data.iceCandidates){try{await peerConnection.addIceCandidate(new RTCIceCandidate(c));}catch(e){pendingIceCandidates.push(c);}}}if(data.status==='ended')endCallInternal();});}
     function listenForIncomingCalls(){if(unsubIncomingCall)unsubIncomingCall();unsubIncomingCall=onSnapshot(doc(db,'calls',currentUserId),snap=>{if(!snap.exists()){document.getElementById('incomingCallOverlay').classList.remove('show');return;}const data=snap.data();if(data.receiver===currentUser&&data.status==='calling'&&!isCallActive){document.getElementById('incomingCallOverlay').classList.add('show');document.getElementById('incomingCallName').textContent=dispName(data.caller)||cleanName(data.caller);document.getElementById('incomingCallType').textContent=data.type==='video'?'📹 Video call...':'📞 Audio call...';document.getElementById('incomingCallAvatar').innerHTML=avatarHTML(data.caller);window._incomingCaller=data.caller;window._incomingCallType=data.type;}if(data.status==='ended'){document.getElementById('incomingCallOverlay').classList.remove('show');if(isCallActive)endCallInternal();}});}
-    window.acceptIncomingCall=async function(){document.getElementById('incomingCallOverlay').classList.remove('show');chatPartner=window._incomingCaller;callType=window._incomingCallType;try{const constraints={audio:true,video:callType==='video'?{width:{ideal:640},height:{ideal:480},facingMode:'user'}:false};localStream=await navigator.mediaDevices.getUserMedia(constraints);const lv=document.getElementById('localVideo');lv.srcObject=localStream;if(callType==='audio'){lv.style.display='none';document.getElementById('toggleVideoBtn').style.display='none';}else{lv.style.display='block';document.getElementById('toggleVideoBtn').style.display='flex';}document.getElementById('callOverlay').classList.add('show');document.getElementById('callName').textContent=dispName(chatPartner)||cleanName(chatPartner);document.getElementById('callStatus').textContent='Connecting...';document.getElementById('callStatus').className='call-status';await createPeerConnection();localStream.getTracks().forEach(track=>peerConnection.addTrack(track,localStream));const snap=await getDoc(doc(db,'calls',currentUserId));if(!snap.exists())return;const data=snap.data();if(data.offer){await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));const answer=await peerConnection.createAnswer();await peerConnection.setLocalDescription(answer);await setDoc(doc(db,'calls',currentUserId),{answer:{type:answer.type,sdp:answer.sdp},status:'connected'},{merge:true});}isCallActive=true;listenForCallSignal(currentUserId);openChat(chatPartner);}catch(e){console.error('Accept error:',e);endCall();}};
+    window.acceptIncomingCall=async function(){document.getElementById('incomingCallOverlay').classList.remove('show');chatPartner=window._incomingCaller;callType=window._incomingCallType;try{const constraints={audio:true,video:callType==='video'?{width:{ideal:640},height:{ideal:480},facingMode:'user'}:false};localStream=await navigator.mediaDevices.getUserMedia(constraints);const lv=document.getElementById('localVideo');lv.srcObject=localStream;if(callType==='audio'){lv.style.display='none';document.getElementById('toggleVideoBtn').style.display='none';}else{lv.style.display='block';document.getElementById('toggleVideoBtn').style.display='flex';}document.getElementById('callOverlay').classList.add('show');document.getElementById('callName').textContent=dispName(chatPartner)||cleanName(chatPartner);document.getElementById('callStatus').textContent='Connecting...';document.getElementById('callStatus').className='call-status';await createPeerConnection();localStream.getTracks().forEach(track=>peerConnection.addTrack(track,localStream));const snap=await getDoc(doc(db,'calls',currentUserId));if(!snap.exists())return;const data=snap.data();if(data.offer){await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));const answer=await peerConnection.createAnswer();await peerConnection.setLocalDescription(answer);await setDoc(doc(db,'calls',currentUserId),{answer:{type:answer.type,sdp:answer.sdp},status:'connected'},{merge:true});}isCallActive=true;listenForCallSignal(currentUserId);openChat(chatPartner);}catch(e){endCall();}};
     window.rejectIncomingCall=async function(){document.getElementById('incomingCallOverlay').classList.remove('show');await setDoc(doc(db,'calls',currentUserId),{status:'ended'},{merge:true});setTimeout(()=>deleteDoc(doc(db,'calls',currentUserId)).catch(()=>{}),500);};
     function checkPendingCall(){if(localStorage.getItem('pendingCall')==='true'){localStorage.removeItem('pendingCall');setTimeout(async()=>{const snap=await getDoc(doc(db,'calls',currentUserId));if(snap.exists()&&snap.data().status==='calling'){window._incomingCaller=snap.data().caller;window._incomingCallType=snap.data().type;await acceptIncomingCall();}},800);}}
-    window.startCall=async function(type){if(!chatPartner)return;callType=type;try{const constraints={audio:true,video:type==='video'?{width:{ideal:640},height:{ideal:480},facingMode:'user'}:false};localStream=await navigator.mediaDevices.getUserMedia(constraints);const lv=document.getElementById('localVideo');lv.srcObject=localStream;if(type==='audio'){lv.style.display='none';document.getElementById('toggleVideoBtn').style.display='none';}else{lv.style.display='block';document.getElementById('toggleVideoBtn').style.display='flex';}document.getElementById('callOverlay').classList.add('show');document.getElementById('callName').textContent=dispName(chatPartner);const receiverId=chatPartner.replace('@','');try{const statusSnap=await getDoc(doc(db,'users_status',receiverId));if(statusSnap.exists()&&statusSnap.data().online){document.getElementById('callStatus').textContent='Ringing...';document.getElementById('callStatus').className='call-status ringing';}else{document.getElementById('callStatus').textContent='Calling...';document.getElementById('callStatus').className='call-status calling';}}catch(e){document.getElementById('callStatus').textContent='Calling...';document.getElementById('callStatus').className='call-status calling';}await createPeerConnection();localStream.getTracks().forEach(track=>peerConnection.addTrack(track,localStream));const offer=await peerConnection.createOffer({offerToReceiveAudio:true,offerToReceiveVideo:true});await peerConnection.setLocalDescription(offer);await setDoc(doc(db,'calls',receiverId),{caller:currentUser,receiver:chatPartner,type:type,status:'calling',offer:{type:offer.type,sdp:offer.sdp},timestamp:serverTimestamp()});listenForCallSignal(receiverId);isCallActive=true;}catch(e){console.error('Call error:',e);alert('Camera/microphone access needed!');endCall();}};
+    window.startCall=async function(type){if(!chatPartner)return;callType=type;try{const constraints={audio:true,video:type==='video'?{width:{ideal:640},height:{ideal:480},facingMode:'user'}:false};localStream=await navigator.mediaDevices.getUserMedia(constraints);const lv=document.getElementById('localVideo');lv.srcObject=localStream;if(type==='audio'){lv.style.display='none';document.getElementById('toggleVideoBtn').style.display='none';}else{lv.style.display='block';document.getElementById('toggleVideoBtn').style.display='flex';}document.getElementById('callOverlay').classList.add('show');document.getElementById('callName').textContent=dispName(chatPartner);const receiverId=chatPartner.replace('@','');try{const statusSnap=await getDoc(doc(db,'users_status',receiverId));if(statusSnap.exists()&&statusSnap.data().online){document.getElementById('callStatus').textContent='Ringing...';document.getElementById('callStatus').className='call-status ringing';}else{document.getElementById('callStatus').textContent='Calling...';document.getElementById('callStatus').className='call-status calling';}}catch(e){document.getElementById('callStatus').textContent='Calling...';document.getElementById('callStatus').className='call-status calling';}await createPeerConnection();localStream.getTracks().forEach(track=>peerConnection.addTrack(track,localStream));const offer=await peerConnection.createOffer({offerToReceiveAudio:true,offerToReceiveVideo:true});await peerConnection.setLocalDescription(offer);await setDoc(doc(db,'calls',receiverId),{caller:currentUser,receiver:chatPartner,type:type,status:'calling',offer:{type:offer.type,sdp:offer.sdp},timestamp:serverTimestamp()});listenForCallSignal(receiverId);isCallActive=true;}catch(e){alert('Camera/microphone access needed!');endCall();}};
     window.endCall=function(){if(isCallActive&&chatPartner){const pid=chatPartner.replace('@','');setDoc(doc(db,'calls',pid),{status:'ended'},{merge:true}).catch(()=>{});setDoc(doc(db,'calls',currentUserId),{status:'ended'},{merge:true}).catch(()=>{});}endCallInternal();};
     function endCallInternal(){isCallActive=false;isCallConnected=false;if(callTimer){clearInterval(callTimer);callTimer=null;}if(unsubCallSignal){unsubCallSignal();unsubCallSignal=null;}if(peerConnection){peerConnection.close();peerConnection=null;}if(localStream){localStream.getTracks().forEach(t=>t.stop());localStream=null;}document.getElementById('remoteVideo').srcObject=null;document.getElementById('localVideo').srcObject=null;document.getElementById('callOverlay').classList.remove('show');document.getElementById('callStatus').className='call-status';document.getElementById('incomingCallOverlay').classList.remove('show');deleteDoc(doc(db,'calls',currentUserId)).catch(()=>{});isMuted=false;isVideoOff=false;pendingIceCandidates=[];document.getElementById('toggleMicBtn').classList.remove('muted');document.getElementById('toggleMicBtn').querySelector('i').className='fas fa-microphone';document.getElementById('toggleVideoBtn').classList.remove('off');document.getElementById('toggleVideoBtn').querySelector('i').className='fas fa-video';document.getElementById('toggleVideoBtn').style.display='flex';document.getElementById('localVideo').style.display='block';}
     window.toggleMic=function(){if(!localStream)return;isMuted=!isMuted;localStream.getAudioTracks().forEach(t=>{t.enabled=!isMuted;});document.getElementById('toggleMicBtn').classList.toggle('muted',isMuted);document.getElementById('toggleMicBtn').querySelector('i').className=isMuted?'fas fa-microphone-slash':'fas fa-microphone';};

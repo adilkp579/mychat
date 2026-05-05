@@ -28,7 +28,8 @@
     }
     .chat-avatar img { width:100%;height:100%;object-fit:cover; }
     .chat-partner-info { flex:1;min-width:0; }
-    .chat-partner-name { font-size:0.9rem;font-weight:600;color:#fff; }
+    .chat-partner-name { font-size:0.9rem;font-weight:600;color:#fff;cursor:pointer; }
+    .chat-partner-name:hover { text-decoration:underline;text-underline-offset:3px; }
     .chat-partner-status { font-size:0.65rem;color:#4ade80;display:flex;align-items:center;gap:0.2rem; }
     .chat-partner-status .dot { width:5px;height:5px;border-radius:50%;background:#4ade80;display:inline-block; }
 
@@ -189,6 +190,78 @@
       display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;
     }
 
+    /* ===== USER PROFILE MODAL ===== */
+    .profile-modal-overlay {
+      position:fixed;top:0;left:0;right:0;bottom:0;
+      background:rgba(0,0,0,0.9);z-index:500;
+      display:none;align-items:center;justify-content:center;padding:1rem;
+    }
+    .profile-modal-overlay.show { display:flex; }
+    .profile-modal {
+      background:#0a0a0a;border-radius:1.2rem;
+      width:100%;max-width:380px;max-height:80vh;
+      overflow-y:auto;border:1px solid rgba(255,255,255,0.1);
+    }
+    .profile-modal::-webkit-scrollbar { width:0; }
+    .profile-modal-header {
+      display:flex;align-items:center;gap:0.8rem;
+      padding:1rem;border-bottom:1px solid rgba(255,255,255,0.06);
+    }
+    .profile-modal-avatar {
+      width:60px;height:60px;border-radius:50%;background:#333;
+      display:flex;align-items:center;justify-content:center;
+      font-size:1.5rem;color:#fff;overflow:hidden;flex-shrink:0;
+    }
+    .profile-modal-avatar img { width:100%;height:100%;object-fit:cover; }
+    .profile-modal-name { font-size:1rem;font-weight:600;color:#fff; }
+    .profile-modal-username { font-size:0.7rem;color:#888; }
+    .profile-modal-bio { font-size:0.75rem;color:#bbb;margin-top:0.2rem; }
+    .profile-modal-close {
+      width:28px;height:28px;border-radius:50%;
+      background:rgba(255,255,255,0.1);border:none;color:#fff;
+      font-size:0.8rem;cursor:pointer;display:flex;
+      align-items:center;justify-content:center;flex-shrink:0;
+    }
+    .profile-modal-stats {
+      display:flex;justify-content:space-around;
+      padding:1rem;border-bottom:1px solid rgba(255,255,255,0.06);
+    }
+    .profile-modal-stat { text-align:center; }
+    .profile-modal-stat-num { font-size:1rem;font-weight:700;color:#fff; }
+    .profile-modal-stat-label { font-size:0.6rem;color:#888; }
+    .profile-modal-actions {
+      display:flex;gap:0.5rem;padding:1rem;
+      border-bottom:1px solid rgba(255,255,255,0.06);
+    }
+    .profile-modal-action {
+      flex:1;padding:0.5rem;border-radius:0.5rem;
+      border:1px solid rgba(255,255,255,0.15);
+      background:rgba(255,255,255,0.04);color:#fff;
+      font-size:0.75rem;font-weight:600;cursor:pointer;text-align:center;
+    }
+    .profile-modal-action.primary { background:#3897f0;border:none; }
+    .profile-modal-action.following { background:#333;border-color:#555; }
+    .profile-modal-tabs {
+      display:flex;border-bottom:1px solid rgba(255,255,255,0.06);
+    }
+    .profile-modal-tab {
+      flex:1;text-align:center;padding:0.6rem 0;
+      color:#666;font-size:0.7rem;cursor:pointer;
+      border-bottom:1px solid transparent;
+    }
+    .profile-modal-tab.active { color:#fff;border-bottom-color:#fff; }
+    .profile-modal-tab i { font-size:1rem;display:block;margin-bottom:0.1rem; }
+    .profile-modal-grid {
+      display:grid;grid-template-columns:repeat(3,1fr);gap:1px;padding:1px;
+    }
+    .profile-modal-grid-item {
+      aspect-ratio:1;background:#111;
+      display:flex;align-items:center;justify-content:center;overflow:hidden;
+    }
+    .profile-modal-grid-item img { width:100%;height:100%;object-fit:cover; }
+    .profile-modal-grid-item video { width:100%;height:100%;object-fit:cover; }
+    .profile-empty { text-align:center;color:#555;padding:2rem;font-size:0.75rem; }
+
     .incoming-call-overlay {
       position:fixed;top:0;left:0;right:0;bottom:0;
       background:#000;z-index:9999;display:none;
@@ -321,6 +394,36 @@
       </div>
     </div>
 
+    <!-- ===== USER PROFILE MODAL ===== -->
+    <div class="profile-modal-overlay" id="profileModal">
+      <div class="profile-modal">
+        <div class="profile-modal-header">
+          <div class="profile-modal-avatar" id="profileModalAvatar"><i class="fas fa-user"></i></div>
+          <div style="flex:1;min-width:0;">
+            <div class="profile-modal-name" id="profileModalName">User</div>
+            <div class="profile-modal-username" id="profileModalUsername">@user</div>
+            <div class="profile-modal-bio" id="profileModalBio"></div>
+          </div>
+          <button class="profile-modal-close" onclick="closeProfileModal()">✕</button>
+        </div>
+        <div class="profile-modal-stats">
+          <div class="profile-modal-stat"><div class="profile-modal-stat-num" id="profileModalPosts">0</div><div class="profile-modal-stat-label">Posts</div></div>
+          <div class="profile-modal-stat"><div class="profile-modal-stat-num" id="profileModalFriends">0</div><div class="profile-modal-stat-label">Friends</div></div>
+          <div class="profile-modal-stat"><div class="profile-modal-stat-num" id="profileModalReels">0</div><div class="profile-modal-stat-label">Reels</div></div>
+        </div>
+        <div class="profile-modal-actions">
+          <button class="profile-modal-action primary" id="profileModalFollowBtn" onclick="toggleFollow()">Follow</button>
+          <button class="profile-modal-action" onclick="closeProfileModal();if(window._profileModalUser)openChat(window._profileModalUser)">💬 Message</button>
+        </div>
+        <div class="profile-modal-tabs">
+          <div class="profile-modal-tab active" onclick="switchProfileTab(this,'posts')"><i class="fas fa-grid-2"></i>Posts</div>
+          <div class="profile-modal-tab" onclick="switchProfileTab(this,'reels')"><i class="fas fa-film"></i>Reels</div>
+        </div>
+        <div class="profile-modal-grid" id="profileModalGrid"></div>
+        <div class="profile-empty" id="profileModalEmpty">No posts yet</div>
+      </div>
+    </div>
+
     <div class="incoming-call-overlay" id="incomingCallOverlay">
       <div class="incoming-call-avatar" id="incomingCallAvatar"><i class="fas fa-user"></i></div>
       <div class="incoming-call-name" id="incomingCallName">User</div>
@@ -381,6 +484,7 @@
     let chatPartner = null, chatId = null, unsubMessages = null, unsubChatList = null;
     let allUsersList = [], chatListData = [], userProfiles = {};
     let mediaRecorder = null, audioChunks = [], voiceTimer = null, voiceSeconds = 0, isRecording = false;
+    let currentProfileModalUser = null, currentProfileData = null;
 
     // WebRTC
     let localStream = null, peerConnection = null;
@@ -389,18 +493,13 @@
     let unsubCallSignal = null, unsubIncomingCall = null;
     let pendingIceCandidates = [];
 
-    let servers = { 
-      iceServers: [{ urls: "stun:stun.l.google.com:19302" },{ urls: "stun:stun1.l.google.com:19302" }],
-      iceCandidatePoolSize: 10
-    };
+    let servers = { iceServers: [{ urls: "stun:stun.l.google.com:19302" },{ urls: "stun:stun1.l.google.com:19302" }], iceCandidatePoolSize: 10 };
 
     async function fetchTurnServers() {
       try {
-        const response = await fetch("https://adilchat.metered.live/api/v1/turn/credentials?apiKey=b62386e600aa4fd1a57f91dd569043e6d713");
-        const iceServers = await response.json();
-        if (iceServers && iceServers.length > 0) {
-          servers = { iceServers: [{ urls: "stun:stun.l.google.com:19302" },{ urls: "stun:stun1.l.google.com:19302" },...iceServers], iceCandidatePoolSize: 10 };
-        }
+        const r = await fetch("https://adilchat.metered.live/api/v1/turn/credentials?apiKey=b62386e600aa4fd1a57f91dd569043e6d713");
+        const ice = await r.json();
+        if (ice && ice.length > 0) { servers = { iceServers: [{ urls: "stun:stun.l.google.com:19302" },{ urls: "stun:stun1.l.google.com:19302" },...ice], iceCandidatePoolSize: 10 }; }
       } catch(e) {}
     }
 
@@ -415,75 +514,97 @@
 
     function updateOnlineStatus() {
       setDoc(doc(db, 'users_status', currentUserId), { online: true, lastSeen: serverTimestamp() }, { merge: true });
-      window.addEventListener('beforeunload', () => {
-        setDoc(doc(db, 'users_status', currentUserId), { online: false, lastSeen: serverTimestamp() }, { merge: true });
-      });
+      window.addEventListener('beforeunload', () => { setDoc(doc(db, 'users_status', currentUserId), { online: false, lastSeen: serverTimestamp() }, { merge: true }); });
     }
 
     function cleanName(u) { return (u||'').replace(/^@/,''); }
-    function formatDuration(seconds) { const m=Math.floor(seconds/60); const s=Math.floor(seconds%60); return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); }
+    function formatDuration(s) { const m=Math.floor(s/60); const sec=Math.floor(s%60); return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0'); }
 
-    // ===== LOAD ALL USERS WITH PROFILE PHOTOS =====
+    // ===== LOAD USERS =====
     async function loadAllUsers() {
-      allUsersList = [];
-      userProfiles = {};
-      
-      // Load from Firestore
-      try {
-        const snap = await getDocs(collection(db, 'users'));
-        snap.forEach(doc => {
-          const d = doc.data();
-          if (d.username !== currentUser) {
-            const c = cleanName(d.username);
-            allUsersList.push({ username: d.username, displayName: c, avatar: d.avatar || null });
-            userProfiles[d.username] = { name: c, avatar: d.avatar || null };
-          }
-        });
-      } catch(e) {}
-      
-      // Load from localStorage profile (friends/besties with avatars)
-      const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
-      const friends = profile.friends || [];
-      const besties = profile.besties || [];
-      
-      [...friends, ...besties].forEach(f => {
-        const username = f.name;
-        if (username && username !== currentUser) {
-          if (!allUsersList.find(u => u.username === username)) {
-            const cleaned = cleanName(username);
-            allUsersList.push({ username: username, displayName: cleaned, avatar: f.avatar || null });
-          }
-          if (!userProfiles[username]) {
-            userProfiles[username] = { name: cleanName(username), avatar: null };
-          }
-          if (f.avatar) {
-            userProfiles[username].avatar = f.avatar;
-          }
-        }
-      });
-      
-      // Also try to get avatars from saved profiles in localStorage
-      for (const key of Object.keys(localStorage)) {
-        if (key.startsWith('profile_')) {
-          try {
-            const savedProfile = JSON.parse(localStorage.getItem(key));
-            const username = key.replace('profile_', '');
-            if (savedProfile.avatar && userProfiles[username]) {
-              userProfiles[username].avatar = savedProfile.avatar;
-            }
-          } catch(e) {}
-        }
-      }
+      allUsersList=[];userProfiles={};
+      try{const snap=await getDocs(collection(db,'users'));snap.forEach(doc=>{const d=doc.data();if(d.username!==currentUser){const c=cleanName(d.username);allUsersList.push({username:d.username,displayName:c,avatar:d.avatar||null});userProfiles[d.username]={name:c,avatar:d.avatar||null};}});}catch(e){}
+      const profile=JSON.parse(localStorage.getItem('userProfile')||'{}');
+      [...(profile.friends||[]),...(profile.besties||[])].forEach(f=>{const u=f.name;if(u&&u!==currentUser){if(!allUsersList.find(x=>x.username===u)){allUsersList.push({username:u,displayName:cleanName(u),avatar:f.avatar||null});}if(!userProfiles[u])userProfiles[u]={name:cleanName(u),avatar:null};if(f.avatar)userProfiles[u].avatar=f.avatar;}});
+      for(const key of Object.keys(localStorage)){if(key.startsWith('profile_')){try{const sp=JSON.parse(localStorage.getItem(key));const un=key.replace('profile_','');if(sp.avatar&&userProfiles[un])userProfiles[un].avatar=sp.avatar;}catch(e){}}}
     }
 
-    function avatarHTML(u) {
-      const p = userProfiles[u];
-      if (p && p.avatar && p.avatar !== 'null' && p.avatar !== 'undefined') {
-        return `<img src="${p.avatar}" alt="${p.name || cleanName(u)}" onerror="this.style.display='none';this.parentElement.innerHTML='${cleanName(u).charAt(0).toUpperCase()}';" />`;
-      }
-      return cleanName(u).charAt(0).toUpperCase();
+    function avatarHTML(u){const p=userProfiles[u];if(p&&p.avatar&&p.avatar!=='null'&&p.avatar!=='undefined'){return`<img src="${p.avatar}" alt="" onerror="this.style.display='none';this.parentElement.innerHTML='${cleanName(u).charAt(0).toUpperCase()}';"/>`;}return cleanName(u).charAt(0).toUpperCase();}
+    function dispName(u){const p=userProfiles[u];return p?p.name:cleanName(u);}
+
+    // ===== USER PROFILE MODAL =====
+    window.showUserProfile = function(username) {
+      currentProfileModalUser = username;
+      window._profileModalUser = username;
+      let profileData = null;
+      const savedProfile = localStorage.getItem('profile_' + username);
+      if (savedProfile) { try { profileData = JSON.parse(savedProfile); } catch(e) {} }
+      const myProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+      const allFriends = [...(myProfile.friends || []), ...(myProfile.besties || [])];
+      const friendData = allFriends.find(f => f.name === username);
+      if (friendData) { profileData = profileData || {}; profileData.name = friendData.name; profileData.avatar = friendData.avatar || profileData.avatar; }
+      getDoc(doc(db, 'users', username)).then(snap => {
+        if (snap.exists()) { const d = snap.data(); profileData = profileData || {}; profileData.name = profileData.name || d.name || cleanName(username); profileData.avatar = profileData.avatar || d.avatar; profileData.bio = profileData.bio || d.bio || ''; profileData.posts = profileData.posts || d.posts || []; }
+        renderProfileModal(profileData, username);
+      }).catch(() => { renderProfileModal(profileData, username); });
+      document.getElementById('profileModal').classList.add('show');
+    };
+
+    function renderProfileModal(data, username) {
+      currentProfileData = data || {};
+      const posts = currentProfileData.posts || [];
+      const imagePosts = posts.filter(p => p.type === 'image');
+      const videoPosts = posts.filter(p => p.type === 'video');
+      document.getElementById('profileModalAvatar').innerHTML = avatarHTML(username);
+      document.getElementById('profileModalName').textContent = currentProfileData.name || cleanName(username);
+      document.getElementById('profileModalUsername').textContent = username;
+      document.getElementById('profileModalBio').textContent = currentProfileData.bio || '';
+      document.getElementById('profileModalPosts').textContent = imagePosts.length;
+      document.getElementById('profileModalFriends').textContent = (currentProfileData.friends || []).length;
+      document.getElementById('profileModalReels').textContent = videoPosts.length;
+      const myP = JSON.parse(localStorage.getItem('userProfile') || '{}');
+      const isFollowing = (myP.friends || []).some(f => f.name === username);
+      const fb = document.getElementById('profileModalFollowBtn');
+      if (isFollowing) { fb.textContent = 'Following'; fb.classList.add('following'); }
+      else { fb.textContent = 'Follow'; fb.classList.remove('following'); }
+      switchProfileTab(document.querySelector('.profile-modal-tab.active'), 'posts');
     }
-    function dispName(u) { const p = userProfiles[u]; return p ? p.name : cleanName(u); }
+
+    window.closeProfileModal = function() { document.getElementById('profileModal').classList.remove('show'); currentProfileModalUser = null; };
+
+    window.toggleFollow = function() {
+      if (!currentProfileModalUser) return;
+      const myP = JSON.parse(localStorage.getItem('userProfile') || '{}');
+      let friends = myP.friends || [];
+      const idx = friends.findIndex(f => f.name === currentProfileModalUser);
+      const fb = document.getElementById('profileModalFollowBtn');
+      if (idx >= 0) { friends.splice(idx, 1); fb.textContent = 'Follow'; fb.classList.remove('following'); }
+      else { friends.push({ name: currentProfileModalUser, avatar: currentProfileData?.avatar || null }); fb.textContent = 'Following'; fb.classList.add('following'); if (currentProfileData) { localStorage.setItem('profile_' + currentProfileModalUser, JSON.stringify(currentProfileData)); } }
+      myP.friends = friends; localStorage.setItem('userProfile', JSON.stringify(myP));
+      document.getElementById('profileModalFriends').textContent = friends.length;
+      loadAllUsers(); setupRealtimeChatList();
+    };
+
+    window.switchProfileTab = function(el, type) {
+      document.querySelectorAll('.profile-modal-tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      const grid = document.getElementById('profileModalGrid');
+      const empty = document.getElementById('profileModalEmpty');
+      const posts = currentProfileData?.posts || [];
+      if (type === 'posts') {
+        const ip = posts.filter(p => p.type === 'image');
+        if (ip.length === 0) { grid.style.display = 'none'; empty.style.display = 'block'; empty.textContent = 'No posts yet'; return; }
+        grid.style.display = 'grid'; empty.style.display = 'none';
+        grid.innerHTML = ip.map(p => `<div class="profile-modal-grid-item"><img src="${p.src}" alt="post"></div>`).join('');
+      } else {
+        const vp = posts.filter(p => p.type === 'video');
+        if (vp.length === 0) { grid.style.display = 'none'; empty.style.display = 'block'; empty.textContent = 'No reels yet'; return; }
+        grid.style.display = 'grid'; empty.style.display = 'none';
+        grid.innerHTML = vp.map(p => `<div class="profile-modal-grid-item"><video src="${p.src}" muted loop playsinline></video></div>`).join('');
+      }
+    };
+
+    document.getElementById('profileModal').addEventListener('click', function(e) { if (e.target === this) closeProfileModal(); });
 
     // ===== VOICE =====
     window.toggleVoice=function(){if(isRecording){window.sendVoice();}else{startVoice();}};
@@ -492,14 +613,8 @@
     window.cancelVoice=function(){stopVoice(true);};
     window.sendVoice=async function(){if(!mediaRecorder||!isRecording)return;if(voiceSeconds<1){alert('Recording too short!');stopVoice(true);return;}const stream=mediaRecorder.stream;mediaRecorder.onstop=async()=>{stream.getTracks().forEach(t=>t.stop());const mimeType=mediaRecorder.mimeType||'audio/webm';const blob=new Blob(audioChunks,{type:mimeType});const reader=new FileReader();reader.onload=async function(e){try{await addDoc(collection(db,'chats',chatId,'messages'),{audioUrl:e.target.result,audioDuration:voiceSeconds,audioMime:mimeType,sender:currentUserId,createdAt:serverTimestamp(),seen:false});await setDoc(doc(db,'chats',chatId),{lastMessageTime:serverTimestamp(),lastMessage:'🎤 Voice message',lastSender:currentUserId},{merge:true});}catch(err){}};reader.readAsDataURL(blob);};mediaRecorder.stop();isRecording=false;clearInterval(voiceTimer);document.getElementById('recordingBar').classList.remove('show');document.getElementById('micBtn').style.display='flex';document.getElementById('sendBtn').style.display='flex';document.getElementById('chatInput').style.display='block';};
 
-    // ===== PLAY VOICE WITH FORWARD TIMER =====
-    window.playVoice=function(el){
-      const audioUrl=el.getAttribute('data-audio');const btn=el.querySelector('.voice-play-btn i');
-      const durationSpan=el.querySelector('.voice-duration');const totalDuration=parseFloat(el.getAttribute('data-duration')||'0');
-      document.querySelectorAll('.voice-msg').forEach(msg=>{if(msg!==el&&msg._audio){msg._audio.pause();const ob=msg.querySelector('.voice-play-btn i');if(ob)ob.className='fas fa-play';const od=msg.querySelector('.voice-duration');if(od&&msg._totalDur)od.textContent='0:00 / '+formatDuration(msg._totalDur);}});
-      if(!el._audio){el._audio=new Audio(audioUrl);el._totalDur=totalDuration;if(durationSpan)durationSpan.textContent='0:00 / '+formatDuration(totalDuration);el._audio.ontimeupdate=()=>{if(durationSpan&&el._audio&&el._totalDur){durationSpan.textContent=formatDuration(el._audio.currentTime)+' / '+formatDuration(el._totalDur);}};el._audio.onloadedmetadata=()=>{if(el._audio.duration&&!totalDuration){el._totalDur=el._audio.duration;if(durationSpan)durationSpan.textContent='0:00 / '+formatDuration(el._audio.duration);}};el._audio.onended=()=>{btn.className='fas fa-play';if(durationSpan&&el._totalDur)durationSpan.textContent='0:00 / '+formatDuration(el._totalDur);};el._audio.onerror=()=>{btn.className='fas fa-exclamation-triangle';};}
-      const audio=el._audio;if(audio.paused){audio.play().catch(()=>{btn.className='fas fa-exclamation-triangle';});btn.className='fas fa-pause';}else{audio.pause();btn.className='fas fa-play';if(durationSpan&&el._totalDur)durationSpan.textContent=formatDuration(audio.currentTime)+' / '+formatDuration(el._totalDur);}
-    };
+    // ===== PLAY VOICE =====
+    window.playVoice=function(el){const audioUrl=el.getAttribute('data-audio');const btn=el.querySelector('.voice-play-btn i');const durationSpan=el.querySelector('.voice-duration');const totalDuration=parseFloat(el.getAttribute('data-duration')||'0');document.querySelectorAll('.voice-msg').forEach(msg=>{if(msg!==el&&msg._audio){msg._audio.pause();const ob=msg.querySelector('.voice-play-btn i');if(ob)ob.className='fas fa-play';const od=msg.querySelector('.voice-duration');if(od&&msg._totalDur)od.textContent='0:00 / '+formatDuration(msg._totalDur);}});if(!el._audio){el._audio=new Audio(audioUrl);el._totalDur=totalDuration;if(durationSpan)durationSpan.textContent='0:00 / '+formatDuration(totalDuration);el._audio.ontimeupdate=()=>{if(durationSpan&&el._audio&&el._totalDur){durationSpan.textContent=formatDuration(el._audio.currentTime)+' / '+formatDuration(el._totalDur);}};el._audio.onloadedmetadata=()=>{if(el._audio.duration&&!totalDuration){el._totalDur=el._audio.duration;if(durationSpan)durationSpan.textContent='0:00 / '+formatDuration(el._audio.duration);}};el._audio.onended=()=>{btn.className='fas fa-play';if(durationSpan&&el._totalDur)durationSpan.textContent='0:00 / '+formatDuration(el._totalDur);};el._audio.onerror=()=>{btn.className='fas fa-exclamation-triangle';};}const audio=el._audio;if(audio.paused){audio.play().catch(()=>{btn.className='fas fa-exclamation-triangle';});btn.className='fas fa-pause';}else{audio.pause();btn.className='fas fa-play';if(durationSpan&&el._totalDur)durationSpan.textContent=formatDuration(audio.currentTime)+' / '+formatDuration(el._totalDur);}};
 
     // ===== WEBRTC =====
     async function createPeerConnection(){if(peerConnection){peerConnection.close();peerConnection=null;}pendingIceCandidates=[];const config={...servers,iceTransportPolicy:"all"};peerConnection=new RTCPeerConnection(config);peerConnection.ontrack=event=>{if(event.streams&&event.streams[0])document.getElementById('remoteVideo').srcObject=event.streams[0];};peerConnection.onicecandidate=async event=>{if(event.candidate){const ref=doc(db,'calls',currentUserId);const snap=await getDoc(ref);const existing=(snap.data()?.iceCandidates)||[];existing.push(event.candidate.toJSON());await setDoc(ref,{iceCandidates:existing},{merge:true});}};peerConnection.onconnectionstatechange=()=>{const state=peerConnection.connectionState;if(state==='connected'&&!isCallConnected){isCallConnected=true;document.getElementById('callStatus').textContent='00:00';document.getElementById('callStatus').className='call-status connected';callSeconds=0;if(callTimer)clearInterval(callTimer);callTimer=setInterval(()=>{callSeconds++;document.getElementById('callStatus').textContent=formatDuration(callSeconds);},1000);}if(state==='failed'||state==='disconnected')endCall();};peerConnection.oniceconnectionstatechange=()=>{if(peerConnection.iceConnectionState==='failed')peerConnection.restartIce();};}
@@ -526,7 +641,7 @@
     function renderChatList(cu){const l=document.getElementById('userList'),cnt=document.getElementById('chatCount');const tu=cu.reduce((s,c)=>s+c.unreadCount,0);cnt.textContent=cu.length>0?'('+cu.length+')':'';if(!chatPartner)document.getElementById('partnerName').textContent=tu>0?'Chats ('+tu+')':'Chats';if(cu.length===0){l.innerHTML='<div style="text-align:center;color:#555;padding:3rem;font-size:0.8rem;">No messages yet<br><br>Tap <b style="color:#FFFC00;">+</b> to start a chat</div>';return;}l.innerHTML=cu.map(c=>{const ts=c.lastTime.getTime()>0?fmtTime(c.lastTime):'';const dn=dispName(c.username);return`<div class="user-list-item ${chatPartner===c.username?'active':''}" onclick="openChat('${c.username}')"><div class="user-avatar">${avatarHTML(c.username)}</div><div class="user-info"><div class="user-name-row"><span class="user-name">${dn}</span><span class="user-time">${ts}</span></div><div class="user-msg-row"><span class="user-last-msg ${c.unreadCount>0?'unread-msg':''}">${c.lastMsg||'No messages'}</span>${c.unreadCount>0?`<span class="unread-count">${c.unreadCount}</span>`:''}</div></div></div>`;}).join('');}
     function fmtTime(d){if(!d||d.getTime()===0)return'';const n=new Date(),df=n-d;if(df<60000)return'Now';if(df<3600000)return Math.floor(df/60000)+'m';if(d.toDateString()===n.toDateString())return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});if(n-d<604800000)return['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];return d.toLocaleDateString([],{month:'short',day:'numeric'});}
 
-    window.openChat=function(u){chatPartner=u;chatId=[currentUserId,u.replace('@','')].sort().join('_');document.getElementById('chatListFull').classList.add('hidden');document.getElementById('chatView').classList.add('show');document.getElementById('backBtn').classList.add('show');document.getElementById('newChatBtn').classList.add('hidden');document.getElementById('callBtns').classList.add('show');document.getElementById('partnerName').textContent=dispName(u);document.getElementById('partnerAvatar').innerHTML=avatarHTML(u);document.getElementById('partnerStatus').innerHTML='<span class="dot"></span> online';document.getElementById('floatingNav').classList.add('hidden');const c=document.getElementById('messagesContainer');c.querySelectorAll('.message-wrapper').forEach(el=>el.remove());document.getElementById('emptyChat').style.display='flex';renderChatList(chatListData);listenToMessages();listenToTyping();scrollToBottom();};
+    window.openChat=function(u){chatPartner=u;chatId=[currentUserId,u.replace('@','')].sort().join('_');document.getElementById('chatListFull').classList.add('hidden');document.getElementById('chatView').classList.add('show');document.getElementById('backBtn').classList.add('show');document.getElementById('newChatBtn').classList.add('hidden');document.getElementById('callBtns').classList.add('show');document.getElementById('partnerName').innerHTML=`<span onclick="showUserProfile('${u}')" style="cursor:pointer;">${dispName(u)}</span>`;document.getElementById('partnerAvatar').innerHTML=avatarHTML(u);document.getElementById('partnerStatus').innerHTML='<span class="dot"></span> online';document.getElementById('floatingNav').classList.add('hidden');const c=document.getElementById('messagesContainer');c.querySelectorAll('.message-wrapper').forEach(el=>el.remove());document.getElementById('emptyChat').style.display='flex';renderChatList(chatListData);listenToMessages();listenToTyping();scrollToBottom();};
     window.goBack=function(){chatPartner=null;chatId=null;if(unsubMessages){unsubMessages();unsubMessages=null;}stopVoice(true);if(!isCallActive)endCallInternal();document.getElementById('chatListFull').classList.remove('hidden');document.getElementById('chatView').classList.remove('show');document.getElementById('backBtn').classList.remove('show');document.getElementById('newChatBtn').classList.remove('hidden');document.getElementById('callBtns').classList.remove('show');document.getElementById('partnerName').textContent='Chats';document.getElementById('partnerAvatar').innerHTML='<i class="fas fa-comment-dots"></i>';document.getElementById('partnerStatus').textContent='';document.getElementById('floatingNav').classList.remove('hidden');loadAllUsers();setupRealtimeChatList();};
 
     function listenToMessages(){if(unsubMessages)unsubMessages();unsubMessages=onSnapshot(query(collection(db,'chats',chatId,'messages'),orderBy('createdAt','asc')),snap=>{const c=document.getElementById('messagesContainer'),ec=document.getElementById('emptyChat');if(snap.empty){ec.style.display='flex';return;}ec.style.display='none';snap.docChanges().forEach(ch=>{if(ch.type==='added'&&!document.getElementById('msg-'+ch.doc.id))renderMsg(ch.doc.id,ch.doc.data());});scrollToBottom();});}

@@ -45,7 +45,6 @@
     .feed-caption span { font-weight:600;color:#3897f0;cursor:pointer;margin-right:0.3rem; }
     .view-comments-btn { padding:0 0.8rem 0.5rem 0.8rem;font-size:0.65rem;color:#888;cursor:pointer;background:#000; }
 
-    /* ===== COMMENTS OVERLAY ===== */
     .comments-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:700;display:none;flex-direction:column; }
     .comments-overlay.show { display:flex; }
     .comments-header { display:flex;align-items:center;justify-content:space-between;padding:1rem;border-bottom:1px solid rgba(255,255,255,0.1);flex-shrink:0; }
@@ -54,7 +53,6 @@
     .comments-list { flex:1;overflow-y:auto;padding:0.5rem 1rem;-webkit-overflow-scrolling:touch; }
     .comments-list::-webkit-scrollbar { width:0; }
     
-    /* Comment Block */
     .cmt-block { padding:0.4rem 0;border-bottom:1px solid rgba(255,255,255,0.02); }
     .cmt-row { display:flex;gap:0.5rem;align-items:flex-start; }
     .cmt-avatar { width:28px;height:28px;border-radius:50%;background:#333;display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:#fff;overflow:hidden;flex-shrink:0; }
@@ -69,15 +67,12 @@
     .cmt-btn.del-btn { color:#ef4444;display:none; }
     .cmt-btn.del-btn.show { display:inline; }
     
-    /* Voice play button - looks like text */
     .vc-play-btn { display:flex;align-items:center;gap:0.3rem;padding:0.2rem 0.5rem;background:rgba(255,252,0,0.08);border:1px solid rgba(255,252,0,0.15);border-radius:0.8rem;cursor:pointer;font-size:0.7rem;color:#FFFC00;margin-top:0.1rem;width:fit-content; }
     .vc-play-btn i { font-size:0.5rem; }
     .vc-duration { font-size:0.55rem;color:#777;margin-left:0.2rem; }
     
-    /* Nested thread */
     .cmt-thread { margin-left:1.5rem;padding-left:0.5rem;border-left:1px solid rgba(255,255,255,0.06); }
     
-    /* Reply Box */
     .reply-box { display:none;align-items:center;gap:0.3rem;margin-top:0.3rem;padding:0.2rem 0; }
     .reply-box.show { display:flex; }
     .reply-input-wrap { flex:1;display:flex;align-items:center;background:#1a1a1a;border-radius:0.8rem;border:1px solid rgba(255,255,255,0.12);overflow:hidden; }
@@ -87,7 +82,6 @@
     .reply-input { flex:1;padding:0.35rem 0;border:none;background:transparent;color:#fff;font-size:0.65rem;outline:none; }
     .reply-post-btn { background:#FFFC00;border:none;color:#000;font-size:0.6rem;font-weight:600;padding:0.35rem 0.6rem;border-radius:0.8rem;cursor:pointer;flex-shrink:0; }
 
-    /* Main input area */
     .cmt-input-area { display:flex;align-items:center;gap:0.3rem;padding:0.5rem 1rem;padding-bottom:max(0.5rem,env(safe-area-inset-bottom,0.5rem));border-top:1px solid rgba(255,255,255,0.08);flex-shrink:0;background:#0a0a0a; }
     .cmt-input-wrap { flex:1;display:flex;align-items:center;background:#1a1a1a;border-radius:1.2rem;border:1px solid rgba(255,255,255,0.12);overflow:hidden; }
     .cmt-input-wrap:focus-within { border-color:#FFFC00; }
@@ -173,7 +167,7 @@
     const db = getFirestore(app); const auth = getAuth(app);
     let userProfiles = {};
     const currentUser = localStorage.getItem('currentUser') || '@anonymous';
-    let activePostId = null, voiceTargetId = null, voiceTargetParentId = '';
+    let activePostId = null, voiceTargetCid = '', voiceTargetPath = '';
     let voiceRecorder = null, voiceChunks = [], voiceTimer = null, voiceSeconds = 0;
     const MAX_VOICE_SEC = 10;
 
@@ -222,25 +216,19 @@
       c.innerHTML = posts.map(p => `<div class="feed-card"><div class="feed-header"><div class="feed-avatar" onclick="window.location.href='profile.html?user=${encodeURIComponent(p.userId)}'">${getAvt(p.userId)}</div><div><div class="feed-username" onclick="window.location.href='profile.html?user=${encodeURIComponent(p.userId)}'">${cname(p.userId)}</div></div><span class="feed-time">${p.time}</span></div><div class="feed-image" onclick="openImageViewer('${p.src}')"><img src="${p.src}" alt="post" onerror="this.style.display='none'"></div><div class="feed-actions"><button class="feed-action" id="likeBtn-${p.id}" onclick="toggleLike('${p.id}')"><i class="far fa-heart"></i></button><button class="feed-action" onclick="openComments('${p.id}')"><i class="far fa-comment"></i></button><button class="feed-action" onclick="sharePost('${p.src}')"><i class="far fa-share-square"></i></button></div><div class="feed-likes" id="likes-${p.id}">${p.likes||0} likes</div><div class="feed-caption"><span onclick="window.location.href='profile.html?user=${encodeURIComponent(p.userId)}'">${cname(p.userId)}</span>${p.caption}</div><div class="view-comments-btn" onclick="openComments('${p.id}')">View all comments</div></div>`).join('');
     }
 
-    window.toggleLike = async function(pid) {
-      const b = document.getElementById('likeBtn-'+pid), l = document.getElementById('likes-'+pid); if (!b || !l) return;
-      const liked = b.classList.contains('liked');
-      if (liked) { b.classList.remove('liked'); b.querySelector('i').className='far fa-heart'; l.textContent=(Math.max(0,parseInt(l.textContent)-1))+' likes'; try { await updateDoc(doc(db,'posts',pid),{likes:increment(-1)}); } catch(e) {} }
-      else { b.classList.add('liked'); b.querySelector('i').className='fas fa-heart'; l.textContent=(parseInt(l.textContent)+1)+' likes'; try { await updateDoc(doc(db,'posts',pid),{likes:increment(1)}); } catch(e) {} }
-    };
+    window.toggleLike = async function(pid) { const b = document.getElementById('likeBtn-'+pid), l = document.getElementById('likes-'+pid); if (!b||!l) return; const liked = b.classList.contains('liked'); if (liked) { b.classList.remove('liked'); b.querySelector('i').className='far fa-heart'; l.textContent=(Math.max(0,parseInt(l.textContent)-1))+' likes'; try { await updateDoc(doc(db,'posts',pid),{likes:increment(-1)}); } catch(e) {} } else { b.classList.add('liked'); b.querySelector('i').className='fas fa-heart'; l.textContent=(parseInt(l.textContent)+1)+' likes'; try { await updateDoc(doc(db,'posts',pid),{likes:increment(1)}); } catch(e) {} } };
 
-    // ===== OPEN/CLOSE COMMENTS =====
     window.openComments = function(pid) { activePostId = pid; document.getElementById('commentsOverlay').classList.add('show'); document.getElementById('cmtInput').value = ''; renderComments(pid); };
     window.closeComments = function() { document.getElementById('commentsOverlay').classList.remove('show'); cancelRecording(); activePostId = null; };
 
     // ===== RECURSIVE RENDER =====
-    async function renderComments(pid, parentId = '', containerEl = null, level = 0) {
-      if (level > 20) return;
-      const isRoot = !parentId;
+    async function renderComments(pid, parentPath = '', containerEl = null, level = 0) {
+      if (level > 25) return;
+      const isRoot = !parentPath;
       const listEl = containerEl || document.getElementById('commentsList');
       if (isRoot) listEl.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;font-size:0.7rem;">Loading...</div>';
 
-      const colPath = parentId ? `posts/${pid}/comments/${parentId}/replies` : `posts/${pid}/comments`;
+      const colPath = parentPath ? `posts/${pid}/comments/${parentPath}/replies` : `posts/${pid}/comments`;
       try {
         const snap = await getDocs(query(collection(db, colPath), orderBy('createdAt', 'asc')));
         if (isRoot && snap.empty) { listEl.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;font-size:0.7rem;">No comments yet</div>'; return; }
@@ -253,26 +241,28 @@
         for (const doc of snap.docs) {
           const d = doc.data(); const cid = doc.id; if (d._deleted) continue;
           const canDel = (d.username === currentUser || postOwner === currentUser);
-          const delBtn = canDel ? `<button class="cmt-btn del-btn show" onclick="event.stopPropagation();deleteCmt('${pid}','${cid}','${parentId}')">🗑️</button>` : '';
-          const fullParentId = parentId ? `${parentId}/${cid}` : cid;
+          const delBtn = canDel ? `<button class="cmt-btn del-btn show" onclick="event.stopPropagation();deleteCmt('${pid}','${cid}','${parentPath}')">🗑️</button>` : '';
+          // THE FIX: Path includes this comment's ID for nested replies
+          const myPath = parentPath ? `${parentPath}/${cid}` : cid;
 
           const wrapper = document.createElement('div'); wrapper.className = 'cmt-block'; wrapper.id = 'c-' + cid;
 
           if (d.type === 'voice') {
             const src = (d.audioData || '').replace(/'/g, "\\'");
-            wrapper.innerHTML = `<div class="cmt-row"><div class="cmt-avatar">${getAvt(d.username)}</div><div class="cmt-body"><div class="cmt-username">${cname(d.username)}</div><div class="vc-play-btn" onclick="playVC('${src}', this)"><i class="fas fa-play"></i><span>Voice</span><span class="vc-duration">${fmtDur(d.duration||0)}</span></div><div class="cmt-meta"><span class="cmt-time">${d.createdAt?timeAgo(d.createdAt.toDate()):''}</span><button class="cmt-btn reply-btn" onclick="toggleReplyBox('${cid}')">Reply</button>${delBtn}</div><div class="reply-box" id="rb-${cid}"><div class="reply-input-wrap"><button class="reply-mic-btn" id="rmic-${cid}" onclick="startVoiceFor('${cid}','${parentId}')"><i class="fas fa-microphone"></i></button><input class="reply-input" id="ri-${cid}" placeholder="Reply..."></div><button class="reply-post-btn" onclick="postReply('${pid}','${cid}','${parentId}')">Post</button></div><div class="cmt-thread" id="thread-${cid}"></div></div></div>`;
+            wrapper.innerHTML = `<div class="cmt-row"><div class="cmt-avatar">${getAvt(d.username)}</div><div class="cmt-body"><div class="cmt-username">${cname(d.username)}</div><div class="vc-play-btn" onclick="playVC('${src}', this)"><i class="fas fa-play"></i><span>Voice</span><span class="vc-duration">${fmtDur(d.duration||0)}</span></div><div class="cmt-meta"><span class="cmt-time">${d.createdAt?timeAgo(d.createdAt.toDate()):''}</span><button class="cmt-btn reply-btn" onclick="toggleReplyBox('${cid}')">Reply</button>${delBtn}</div><div class="reply-box" id="rb-${cid}"><div class="reply-input-wrap"><button class="reply-mic-btn" id="rmic-${cid}" onclick="startVoiceFor('${cid}','${parentPath}')"><i class="fas fa-microphone"></i></button><input class="reply-input" id="ri-${cid}" placeholder="Reply..."></div><button class="reply-post-btn" onclick="postReply('${pid}','${cid}','${parentPath}')">Post</button></div><div class="cmt-thread" id="thread-${cid}"></div></div></div>`;
           } else {
-            wrapper.innerHTML = `<div class="cmt-row"><div class="cmt-avatar">${getAvt(d.username)}</div><div class="cmt-body"><div class="cmt-username">${cname(d.username)}</div><div class="cmt-content">${d.text||''}</div><div class="cmt-meta"><span class="cmt-time">${d.createdAt?timeAgo(d.createdAt.toDate()):''}</span><button class="cmt-btn reply-btn" onclick="toggleReplyBox('${cid}')">Reply</button>${delBtn}</div><div class="reply-box" id="rb-${cid}"><div class="reply-input-wrap"><button class="reply-mic-btn" id="rmic-${cid}" onclick="startVoiceFor('${cid}','${parentId}')"><i class="fas fa-microphone"></i></button><input class="reply-input" id="ri-${cid}" placeholder="Reply..."></div><button class="reply-post-btn" onclick="postReply('${pid}','${cid}','${parentId}')">Post</button></div><div class="cmt-thread" id="thread-${cid}"></div></div></div>`;
+            wrapper.innerHTML = `<div class="cmt-row"><div class="cmt-avatar">${getAvt(d.username)}</div><div class="cmt-body"><div class="cmt-username">${cname(d.username)}</div><div class="cmt-content">${d.text||''}</div><div class="cmt-meta"><span class="cmt-time">${d.createdAt?timeAgo(d.createdAt.toDate()):''}</span><button class="cmt-btn reply-btn" onclick="toggleReplyBox('${cid}')">Reply</button>${delBtn}</div><div class="reply-box" id="rb-${cid}"><div class="reply-input-wrap"><button class="reply-mic-btn" id="rmic-${cid}" onclick="startVoiceFor('${cid}','${parentPath}')"><i class="fas fa-microphone"></i></button><input class="reply-input" id="ri-${cid}" placeholder="Reply..."></div><button class="reply-post-btn" onclick="postReply('${pid}','${cid}','${parentPath}')">Post</button></div><div class="cmt-thread" id="thread-${cid}"></div></div></div>`;
           }
           listEl.appendChild(wrapper);
           const threadEl = document.getElementById('thread-' + cid);
-          if (threadEl) await renderComments(pid, fullParentId, threadEl, level + 1);
+          if (threadEl) await renderComments(pid, myPath, threadEl, level + 1);
         }
       } catch(e) { if (isRoot) listEl.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;">Error</div>'; }
     }
 
     window.toggleReplyBox = function(cid) { document.querySelectorAll('.reply-box').forEach(e => e.classList.remove('show')); const b = document.getElementById('rb-'+cid); if (b) { b.classList.add('show'); document.getElementById('ri-'+cid)?.focus(); } };
 
+    // ===== POST REPLY (Text) =====
     window.postReply = async function(pid, commentId, parentPath) {
       const input = document.getElementById('ri-' + commentId); const text = input?.value?.trim();
       if (!text || !pid || !commentId) return; input.value = '';
@@ -286,14 +276,13 @@
       try { await setDoc(doc(db, colPath, cid), { _deleted: true }, { merge: true }); document.getElementById('c-'+cid)?.remove(); showToast('Deleted'); } catch(e) { showToast('Failed',true); }
     };
 
-    // ===== MAIN COMMENT (Text or Voice) =====
     window.postMainComment = async function() {
       const input = document.getElementById('cmtInput'); const text = input.value.trim();
       if (!text || !activePostId) return; input.value = '';
       try { await addDoc(collection(db, 'posts', activePostId, 'comments'), { type:'text', text, username:currentUser, createdAt:serverTimestamp() }); renderComments(activePostId); } catch(e) {}
     };
 
-    // ===== VOICE RECORDING =====
+    // ===== VOICE =====
     window.toggleMainMic = function() { if (voiceRecorder) sendRecording(); else startVoiceFor('', ''); };
     window.startVoiceFor = function(cid, parentPath) { if (voiceRecorder) sendRecording(); else startVoiceRecording(cid, parentPath); };
 
@@ -304,10 +293,8 @@
         voiceChunks = []; voiceRecorder.ondataavailable = e => { if (e.data.size > 0) voiceChunks.push(e.data); };
         voiceRecorder.onstop = () => { stream.getTracks().forEach(t => t.stop()); };
         voiceRecorder.start(200); voiceSeconds = 0;
-        voiceTargetId = cid || ''; voiceTargetParentId = parentPath || '';
-        document.getElementById('globalRecBar').classList.add('show');
-        document.getElementById('grecTimer').textContent = '00:00';
-        // Highlight correct mic
+        voiceTargetCid = cid || ''; voiceTargetPath = parentPath || '';
+        document.getElementById('globalRecBar').classList.add('show'); document.getElementById('grecTimer').textContent = '00:00';
         if (cid) { const m = document.getElementById('rmic-'+cid); if (m) m.classList.add('recording'); }
         else { const m = document.getElementById('mainMicBtn'); if (m) m.classList.add('recording'); document.getElementById('cmtPostBtn').disabled = true; }
         voiceTimer = setInterval(() => { voiceSeconds++; document.getElementById('grecTimer').textContent = fmtDur(voiceSeconds); if (voiceSeconds >= MAX_VOICE_SEC) sendRecording(); }, 1000);
@@ -327,25 +314,28 @@
 
     function resetVoiceUI() {
       clearInterval(voiceTimer); voiceRecorder = null; voiceChunks = [];
-      document.getElementById('globalRecBar').classList.remove('show');
-      document.getElementById('cmtPostBtn').disabled = false;
-      if (voiceTargetId) { const m = document.getElementById('rmic-'+voiceTargetId); if (m) m.classList.remove('recording'); }
+      document.getElementById('globalRecBar').classList.remove('show'); document.getElementById('cmtPostBtn').disabled = false;
+      if (voiceTargetCid) { const m = document.getElementById('rmic-'+voiceTargetCid); if (m) m.classList.remove('recording'); }
       else { const m = document.getElementById('mainMicBtn'); if (m) m.classList.remove('recording'); }
-      voiceTargetId = null; voiceTargetParentId = '';
+      voiceTargetCid = ''; voiceTargetPath = '';
     }
 
+    // ===== THE FIX: Voice reply saves to the CORRECT reply path =====
     async function saveVoice(audioBlob, duration) {
       showToast('Saving...'); const reader = new FileReader();
       reader.onload = async function(e) {
         try {
-          if (voiceTargetId) {
-            const colPath = voiceTargetParentId ? `posts/${activePostId}/comments/${voiceTargetParentId}/replies` : `posts/${activePostId}/comments/${voiceTargetId}/replies`;
+          if (voiceTargetCid) {
+            // Voice REPLY to a comment → goes into that comment's replies
+            const colPath = voiceTargetPath ? `posts/${activePostId}/comments/${voiceTargetPath}/replies` : `posts/${activePostId}/comments/${voiceTargetCid}/replies`;
+            console.log('📁 Saving voice reply to:', colPath);
             await addDoc(collection(db, colPath), { type:'voice', username:currentUser, audioData:e.target.result, duration, createdAt:serverTimestamp() });
           } else {
+            // Main voice comment on post
             await addDoc(collection(db, 'posts', activePostId, 'comments'), { type:'voice', username:currentUser, audioData:e.target.result, duration, createdAt:serverTimestamp() });
           }
           showToast('✅ Voice added!');
-        } catch(err) { showToast('❌ Failed', true); }
+        } catch(err) { console.error(err); showToast('❌ Failed', true); }
       };
       reader.readAsDataURL(audioBlob);
     }

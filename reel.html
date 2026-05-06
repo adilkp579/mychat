@@ -127,25 +127,25 @@
 
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
-    const storage = getStorage(app);
 
     // ---------- STATE ----------
-    const allReels = [];          // full data array (lightweight objects)
-    const DOM_POOL = [];         // references to currently mounted slide DOM elements
+    const allReels = [];
+    const DOM_POOL = [];
     let currentIndex = 0;
     let lastDoc = null;
     let isLoadingMore = false;
     let allLoaded = false;
     const PAGE_SIZE = 5;
 
-    // ---------- DOM REFS ----------
     const wrapper = document.getElementById('reelWrapper');
     const loadingOverlay = document.getElementById('loadingOverlay');
     const loadingScreen = document.getElementById('loadingScreen');
 
-    // ---------- INITIAL LOAD ----------
     async function initialLoad() {
       try {
+        // Also load local reels first for instant display
+        loadLocalReels();
+        
         await fetchNextPage();
         loadingScreen.style.display = 'none';
         document.getElementById('mainPage').style.display = 'flex';
@@ -164,7 +164,23 @@
       }
     }
 
-    // ✅ Paginated Firestore fetch
+    function loadLocalReels() {
+      const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+      (profile.posts || []).filter(p => p.type === 'video').forEach(p => {
+        if (!allReels.find(r => r.src === p.src)) {
+          allReels.push({
+            id: 'local_' + Date.now() + Math.random(),
+            username: p.username || profile.username || '@user',
+            caption: p.caption || '',
+            src: p.src,
+            likes: p.likes || 0,
+            comments: p.comments || 0,
+            liked: false
+          });
+        }
+      });
+    }
+
     async function fetchNextPage() {
       if (isLoadingMore || allLoaded) return;
       isLoadingMore = true;
@@ -207,9 +223,7 @@
       }
     }
 
-    // ---------- VIRTUAL SCROLL LOGIC ----------
     function setupVirtualScroll() {
-      // IntersectionObserver for current slide detection
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           const idx = parseInt(entry.target.dataset.index);
@@ -221,7 +235,6 @@
         });
       }, { threshold: [0.7] });
 
-      // Observe slides added to DOM
       const mutationObserver = new MutationObserver(() => {
         document.querySelectorAll('.reel-slide').forEach(slide => {
           if (!slide.dataset.observed) {
@@ -232,16 +245,13 @@
       });
       mutationObserver.observe(wrapper, { childList: true });
 
-      // Scroll-based prefetch
       wrapper.addEventListener('scroll', () => {
         const scrollTop = wrapper.scrollTop;
         const slideHeight = wrapper.clientHeight;
         const approxIndex = Math.round(scrollTop / slideHeight);
 
-        // Prefetch more reels when nearing the end
         if (approxIndex >= allReels.length - 3 && !allLoaded) {
           fetchNextPage().then(() => {
-            // After fetching, ensure next slide exists if needed
             if (approxIndex >= allReels.length - 1) return;
             ensureSlideMounted(approxIndex + 1);
           });
@@ -250,12 +260,10 @@
     }
 
     function mountInitialSlides() {
-      // Mount first 3 slides (or fewer)
       const count = Math.min(3, allReels.length);
       for (let i = 0; i < count; i++) {
         createSlideElement(i);
       }
-      // Scroll to top
       wrapper.scrollTop = 0;
       currentIndex = 0;
       playVideo(0);
@@ -263,7 +271,6 @@
 
     function createSlideElement(index) {
       if (index < 0 || index >= allReels.length) return null;
-      // Remove duplicate if exists
       const existing = document.querySelector(`.reel-slide[data-index="${index}"]`);
       if (existing) return existing;
 
@@ -297,7 +304,6 @@
         ${reel.caption ? `<div class="caption-bar"><div class="caption-text">${reel.caption}</div></div>` : ''}
       `;
 
-      // Bind events directly
       const video = slide.querySelector('video');
       video.onclick = () => togglePlay(index);
       slide.querySelector('#likeBtn' + index).onclick = (e) => {
@@ -317,7 +323,6 @@
     function removeSlideElement(index) {
       const slide = document.getElementById('slide' + index);
       if (!slide) return;
-      // ✅ Clean video to free memory
       const video = slide.querySelector('video');
       if (video) {
         video.pause();
@@ -342,24 +347,17 @@
       const oldIndex = currentIndex;
       currentIndex = newIndex;
 
-      // Pause old video
       pauseVideo(oldIndex);
-
-      // Ensure current and neighbors exist
       ensureSlideMounted(newIndex);
       if (newIndex > 0) ensureSlideMounted(newIndex - 1);
       if (newIndex < allReels.length - 1) ensureSlideMounted(newIndex + 1);
 
-      // Play current
       playVideo(newIndex);
-
-      // Remove far slides (keep only previous, current, next in DOM)
       cleanupDistantSlides(newIndex);
     }
 
     function cleanupDistantSlides(activeIndex) {
       const allowed = new Set([activeIndex - 1, activeIndex, activeIndex + 1]);
-      // Remove slides not in allowed set
       document.querySelectorAll('.reel-slide').forEach(slide => {
         const idx = parseInt(slide.dataset.index);
         if (!allowed.has(idx)) {
@@ -368,13 +366,11 @@
       });
     }
 
-    // ---------- VIDEO PLAYBACK (memory safe) ----------
     function playVideo(index) {
       const video = document.getElementById('video' + index);
       const overlay = document.getElementById('overlay' + index);
       if (!video || index >= allReels.length) return;
 
-      // Set src only when becoming active (lazy)
       if (!video.src || video.src !== allReels[index].src) {
         video.src = allReels[index].src;
         video.load();
@@ -406,7 +402,6 @@
       }
     };
 
-    // ---------- LIKE & SHARE (unchanged logic) ----------
     window.toggleLike = async function(index) {
       const reel = allReels[index];
       reel.liked = !reel.liked;
@@ -442,7 +437,6 @@
       t._t = setTimeout(() => t.classList.remove('show'), 2000);
     }
 
-    // Start the app
     initialLoad();
   </script>
 </body>

@@ -45,7 +45,6 @@
     .feed-caption span { font-weight:600;color:#3897f0;cursor:pointer;margin-right:0.3rem; }
     .view-comments-btn { padding:0 0.8rem 0.5rem 0.8rem;font-size:0.65rem;color:#888;cursor:pointer;background:#000; }
 
-    /* Comments Overlay */
     .comments-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:700;display:none;flex-direction:column; }
     .comments-overlay.show { display:flex; }
     .comments-header { display:flex;align-items:center;justify-content:space-between;padding:1rem;border-bottom:1px solid rgba(255,255,255,0.1);flex-shrink:0; }
@@ -61,12 +60,12 @@
     .comment-body { flex:1;min-width:0; }
     .comment-username { font-size:0.7rem;font-weight:600;color:#fff; }
     .comment-text { font-size:0.75rem;color:#ddd;margin-top:0.1rem;word-break:break-word; }
-    .comment-meta { display:flex;align-items:center;gap:0.6rem;margin-top:0.2rem;flex-wrap:wrap; }
+    .comment-meta { display:flex;align-items:center;gap:0.5rem;margin-top:0.2rem;flex-wrap:wrap; }
     .comment-time { font-size:0.55rem;color:#666; }
     .comment-reply-btn { font-size:0.55rem;color:#888;cursor:pointer;background:none;border:none; }
     .comment-delete-btn { font-size:0.55rem;color:#ef4444;cursor:pointer;background:none;border:none;display:none; }
     .comment-delete-btn.show { display:inline; }
-    .comment-mic-btn { font-size:0.55rem;color:#FFFC00;cursor:pointer;background:none;border:none;padding:0;margin-left:0.3rem; }
+    .comment-mic-btn { font-size:0.55rem;color:#FFFC00;cursor:pointer;background:none;border:none;padding:0;margin-left:0.2rem; }
     .comment-mic-btn.recording { color:#ef4444;animation:recPulse 1s infinite; }
     
     .comment-replies { margin-left:1.5rem;padding-left:0.5rem;border-left:1px solid rgba(255,255,255,0.06);margin-top:0.2rem; }
@@ -76,7 +75,9 @@
     .reply-body { flex:1;min-width:0; }
     .reply-username { font-size:0.65rem;font-weight:600;color:#fff; }
     .reply-text { font-size:0.7rem;color:#ddd; }
-    .reply-meta { display:flex;align-items:center;gap:0.6rem;margin-top:0.1rem; }
+    .reply-meta { display:flex;align-items:center;gap:0.5rem;margin-top:0.1rem;flex-wrap:wrap; }
+    .reply-mic-btn { font-size:0.5rem;color:#FFFC00;cursor:pointer;background:none;border:none;padding:0; }
+    .reply-mic-btn.recording { color:#ef4444;animation:recPulse 1s infinite; }
     
     .voice-comment-item { padding:0.4rem 0;border-bottom:1px solid rgba(255,255,255,0.03); }
     .voice-comment-main { display:flex;gap:0.5rem;align-items:flex-start; }
@@ -94,14 +95,12 @@
     .reply-input-area.show { display:flex; }
     .reply-input { flex:1;padding:0.35rem 0.5rem;border-radius:0.8rem;border:1px solid rgba(255,255,255,0.12);background:#1a1a1a;color:#fff;font-size:0.65rem;outline:none; }
     .reply-post-btn { background:#FFFC00;border:none;color:#000;font-size:0.55rem;font-weight:600;padding:0.3rem 0.6rem;border-radius:0.8rem;cursor:pointer;flex-shrink:0; }
-    .reply-mic-btn { width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.08);border:none;color:#FFFC00;font-size:0.6rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
-    .reply-mic-btn.recording { background:#ef4444;color:#fff;animation:recPulse 1s infinite; }
-    @keyframes recPulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.5)} 50%{box-shadow:0 0 0 6px rgba(239,68,68,0)} }
 
     .global-recording-bar { display:none;align-items:center;gap:0.4rem;padding:0.35rem 1rem;background:#ef4444;position:sticky;bottom:0;z-index:10; }
     .global-recording-bar.show { display:flex; }
     .global-rec-dot { width:8px;height:8px;border-radius:50%;background:#fff;animation:blink 0.5s infinite; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    @keyframes recPulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.5)} 50%{box-shadow:0 0 0 6px rgba(239,68,68,0)} }
     .global-rec-timer { font-size:0.75rem;color:#fff;font-weight:600;font-family:monospace;flex:1; }
     .global-rec-cancel,.global-rec-send { width:30px;height:30px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.65rem; }
     .global-rec-cancel { background:rgba(255,255,255,0.2);color:#fff; }
@@ -173,7 +172,6 @@
     const currentUser = localStorage.getItem('currentUser') || '@anonymous';
     let activeCommentPostId = null, activeReplyTo = null;
     let voiceRecorder = null, voiceChunks = [], voiceTimer = null, voiceSeconds = 0;
-    let voiceTargetType = 'main'; // 'main' or reply commentId
     const MAX_VOICE_SEC = 10;
 
     onAuthStateChanged(auth, (user) => {
@@ -199,11 +197,11 @@
     function timeAgo(d) { if (!d) return ''; const now = new Date(); const diff = now - d; if (diff < 60000) return 'now'; if (diff < 3600000) return Math.floor(diff/60000)+'m'; if (diff < 86400000) return Math.floor(diff/3600000)+'h'; if (diff < 604800000) return Math.floor(diff/86400000)+'d'; return d.toLocaleDateString(); }
 
     async function renderStories() {
-      const cu = localStorage.getItem('currentUser') || '@user';
-      const ps = await loadProfileStories(cu);
-      if (ps.length === 0) { document.getElementById('storiesBar').style.display = 'none'; document.getElementById('noStories').style.display = 'block'; return; }
-      document.getElementById('storiesBar').style.display = 'flex'; document.getElementById('noStories').style.display = 'none';
-      document.getElementById('storiesBar').innerHTML = ps.map(s => `<div class="story-item" onclick="window.location.href='profile.html?user=${encodeURIComponent(s.name)}'"><div class="story-ring ${s.type}"><div class="story-avatar">${getAvatarHTML(s.name)}</div></div><span class="story-name">${cname(s.name)}</span></div>`).join('');
+      const cu = localStorage.getItem('currentUser') || '@user'; const ps = await loadProfileStories(cu);
+      const bar = document.getElementById('storiesBar'), ns = document.getElementById('noStories');
+      if (ps.length === 0) { bar.style.display = 'none'; ns.style.display = 'block'; return; }
+      bar.style.display = 'flex'; ns.style.display = 'none';
+      bar.innerHTML = ps.map(s => `<div class="story-item" onclick="window.location.href='profile.html?user=${encodeURIComponent(s.name)}'"><div class="story-ring ${s.type}"><div class="story-avatar">${getAvatarHTML(s.name)}</div></div><span class="story-name">${cname(s.name)}</span></div>`).join('');
     }
     async function loadProfileStories(username) {
       try { const ref = doc(db, 'profiles', username.replace('@', '')); const snap = await getDoc(ref); if (snap.exists()) { const d = snap.data(); return [...(d.friends||[]).map(f=>({name:f.name,type:'friend',icon:'fa-user',live:false})),...(d.besties||[]).map(b=>({name:b.name,type:'bestie',icon:'fa-user',live:false}))]; } } catch(e) {}
@@ -218,8 +216,7 @@
     }
 
     async function renderFeed() {
-      const posts = await loadPosts();
-      const container = document.getElementById('feedContainer');
+      const posts = await loadPosts(); const container = document.getElementById('feedContainer');
       if (posts.length === 0) { container.innerHTML = '<div style="text-align:center;color:#555;padding:3rem;">No posts yet</div>'; return; }
       container.innerHTML = posts.map(p => `
         <div class="feed-card" id="post-${p.id}">
@@ -244,7 +241,6 @@
       else { btn.classList.add('liked'); btn.querySelector('i').className = 'fas fa-heart'; likesEl.textContent = (parseInt(likesEl.textContent) + 1) + ' likes'; try { await updateDoc(doc(db, 'posts', postId), { likes: increment(1) }); } catch(e) {} }
     };
 
-    // ===== COMMENTS =====
     window.openComments = function(postId) { activeCommentPostId = postId; document.getElementById('commentsOverlay').classList.add('show'); document.getElementById('commentInput').value = ''; loadComments(postId); };
     window.closeComments = function() { document.getElementById('commentsOverlay').classList.remove('show'); cancelGlobalRecording(); activeCommentPostId = null; activeReplyTo = null; };
 
@@ -283,38 +279,44 @@
       } catch(e) { list.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;">Error loading</div>'; }
     }
 
-    async function loadReplies(postId, commentId) {
-      const container = document.getElementById('replies-' + commentId);
-      if (!container) return;
+    // ===== UNLIMITED NESTED REPLIES =====
+    async function loadReplies(postId, parentId, containerId, level = 0) {
+      const container = document.getElementById(containerId || ('replies-' + parentId));
+      if (!container || level > 10) return;
       try {
-        const snap = await getDocs(query(collection(db, 'posts', postId, 'comments', commentId, 'replies'), orderBy('createdAt', 'asc')));
+        const snap = await getDocs(query(collection(db, 'posts', postId, 'comments', parentId, 'replies'), orderBy('createdAt', 'asc')));
         if (snap.empty) return;
-        container.innerHTML = snap.docs.map(doc => {
-          const d = doc.data();
+        container.innerHTML = '';
+        for (const doc of snap.docs) {
+          const d = doc.data(); const rid = doc.id;
+          const nestedId = 'replies-' + rid;
+          const micBtn = `<button class="reply-mic-btn" id="micBtn-${rid}" onclick="toggleVoiceReply('${rid}')">🎤</button>`;
           if (d.type === 'voice') {
             const src = (d.audioData || '').replace(/'/g, "\\'");
-            return `<div class="reply-item"><div class="reply-avatar">${getAvatarHTML(d.username)}</div><div class="reply-body"><div class="reply-username">${cname(d.username)}</div><div class="vc-play-btn" onclick="playVC('${src}', this)" style="font-size:0.6rem;padding:0.15rem 0.4rem;"><i class="fas fa-play"></i><span>Voice</span><span class="vc-duration">${fmtDur(d.duration||0)}</span></div><div class="reply-meta"><span class="comment-time">${d.createdAt?timeAgo(d.createdAt.toDate()):''}</span></div></div></div>`;
+            container.innerHTML += `<div class="reply-item" id="r-${rid}"><div class="reply-avatar">${getAvatarHTML(d.username)}</div><div class="reply-body"><div class="reply-username">${cname(d.username)}</div><div class="vc-play-btn" onclick="playVC('${src}', this)" style="font-size:0.55rem;padding:0.15rem 0.4rem;margin-top:0.1rem;"><i class="fas fa-play"></i><span>Voice</span><span class="vc-duration">${fmtDur(d.duration||0)}</span></div><div class="reply-meta"><span class="comment-time">${d.createdAt?timeAgo(d.createdAt.toDate()):''}</span><button class="comment-reply-btn" onclick="showReplyInput('${rid}')">Reply</button>${micBtn}</div><div class="reply-input-area" id="replyArea-${rid}"><input type="text" class="reply-input" id="replyInput-${rid}" placeholder="Write a reply..."><button class="reply-mic-btn" onclick="toggleVoiceReply('${rid}')">🎤</button><button class="reply-post-btn" onclick="postReply('${postId}','${rid}')">Post</button></div><div class="comment-replies" id="${nestedId}" style="margin-left:1rem;padding-left:0.5rem;border-left:1px solid rgba(255,255,255,0.06);"></div></div></div>`;
+          } else {
+            container.innerHTML += `<div class="reply-item" id="r-${rid}"><div class="reply-avatar">${getAvatarHTML(d.username)}</div><div class="reply-body"><div class="reply-username">${cname(d.username)}</div><div class="reply-text">${d.text||''}</div><div class="reply-meta"><span class="comment-time">${d.createdAt?timeAgo(d.createdAt.toDate()):''}</span><button class="comment-reply-btn" onclick="showReplyInput('${rid}')">Reply</button>${micBtn}</div><div class="reply-input-area" id="replyArea-${rid}"><input type="text" class="reply-input" id="replyInput-${rid}" placeholder="Write a reply..."><button class="reply-mic-btn" onclick="toggleVoiceReply('${rid}')">🎤</button><button class="reply-post-btn" onclick="postReply('${postId}','${rid}')">Post</button></div><div class="comment-replies" id="${nestedId}" style="margin-left:1rem;padding-left:0.5rem;border-left:1px solid rgba(255,255,255,0.06);"></div></div></div>`;
           }
-          return `<div class="reply-item"><div class="reply-avatar">${getAvatarHTML(d.username)}</div><div class="reply-body"><div class="reply-username">${cname(d.username)}</div><div class="reply-text">${d.text||''}</div><div class="reply-meta"><span class="comment-time">${d.createdAt?timeAgo(d.createdAt.toDate()):''}</span></div></div></div>`;
-        }).join('');
-      } catch(e) {}
+          loadReplies(postId, rid, nestedId, level + 1);
+        }
+      } catch(e) { console.error('Load replies error:', e); }
     }
 
     window.showReplyInput = function(commentId) {
       document.querySelectorAll('.reply-input-area').forEach(el => el.classList.remove('show'));
       const area = document.getElementById('replyArea-' + commentId);
-      if (area) { area.classList.add('show'); document.getElementById('replyInput-' + commentId).focus(); }
+      if (area) { area.classList.add('show'); const inp = document.getElementById('replyInput-' + commentId); if (inp) inp.focus(); }
     };
 
-    window.postReply = async function(postId, commentId) {
-      const input = document.getElementById('replyInput-' + commentId);
+    window.postReply = async function(postId, parentId) {
+      const input = document.getElementById('replyInput-' + parentId);
       const text = input.value.trim();
-      if (!text || !postId || !commentId) return;
+      if (!text || !postId || !parentId) return;
       input.value = '';
       try {
-        await addDoc(collection(db, 'posts', postId, 'comments', commentId, 'replies'), { type:'text', text, username: currentUser, createdAt: serverTimestamp() });
-        loadReplies(postId, commentId);
-        document.getElementById('replyArea-' + commentId).classList.remove('show');
+        await addDoc(collection(db, 'posts', postId, 'comments', parentId, 'replies'), { type:'text', text, username:currentUser, createdAt:serverTimestamp() });
+        loadReplies(postId, parentId);
+        document.getElementById('replyArea-' + parentId).classList.remove('show');
       } catch(e) {}
     };
 
@@ -324,40 +326,31 @@
     };
 
     window.postTextComment = async function() {
-      const input = document.getElementById('commentInput');
-      const text = input.value.trim();
+      const input = document.getElementById('commentInput'); const text = input.value.trim();
       if (!text || !activeCommentPostId) return;
       input.value = '';
       try { await addDoc(collection(db, 'posts', activeCommentPostId, 'comments'), { type:'text', text, username:currentUser, createdAt:serverTimestamp() }); loadComments(activeCommentPostId); } catch(e) {}
     };
 
-    // ===== GLOBAL VOICE RECORDING (for comments & replies) =====
-    window.toggleVoiceReply = function(commentId) {
-      if (voiceRecorder) { sendGlobalRecording(); }
-      else { startGlobalRecording(commentId); }
-    };
+    // ===== GLOBAL VOICE RECORDING =====
+    window.toggleVoiceReply = function(commentId) { if (voiceRecorder) sendGlobalRecording(); else startGlobalRecording(commentId); };
 
-    async function startGlobalRecording(targetCommentId) {
+    async function startGlobalRecording(targetId) {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, sampleRate: 16000, channelCount: 1 } });
         voiceRecorder = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm', audioBitsPerSecond: 24000 });
         voiceChunks = []; voiceRecorder.ondataavailable = e => { if (e.data.size > 0) voiceChunks.push(e.data); };
         voiceRecorder.onstop = () => { stream.getTracks().forEach(t => t.stop()); };
-        voiceRecorder.start(200); voiceSeconds = 0; activeReplyTo = targetCommentId || 'main';
+        voiceRecorder.start(200); voiceSeconds = 0; activeReplyTo = targetId || 'main';
         document.getElementById('globalRecordingBar').classList.add('show');
         document.getElementById('globalRecTimer').textContent = '00:00';
-        // Highlight mic button
-        const micBtn = document.getElementById('micBtn-' + targetCommentId);
-        if (micBtn) micBtn.classList.add('recording');
-        if (!targetCommentId) document.getElementById('postCommentBtn').disabled = true;
+        const micBtn = document.getElementById('micBtn-' + targetId); if (micBtn) micBtn.classList.add('recording');
+        if (!targetId) document.getElementById('postCommentBtn').disabled = true;
         voiceTimer = setInterval(() => { voiceSeconds++; document.getElementById('globalRecTimer').textContent = fmtDur(voiceSeconds); if (voiceSeconds >= MAX_VOICE_SEC) sendGlobalRecording(); }, 1000);
       } catch(e) { showToast('Microphone needed!', true); }
     }
 
-    window.cancelGlobalRecording = function() {
-      if (voiceRecorder) { voiceChunks = []; voiceRecorder.stop(); }
-      resetGlobalVoiceUI();
-    };
+    window.cancelGlobalRecording = function() { if (voiceRecorder) { voiceChunks = []; voiceRecorder.stop(); } resetGlobalVoiceUI(); };
 
     window.sendGlobalRecording = async function() {
       if (!voiceRecorder || voiceSeconds < 1) { cancelGlobalRecording(); return; }
@@ -365,8 +358,7 @@
         voiceRecorder.stream.getTracks().forEach(t => t.stop());
         const blob = new Blob(voiceChunks, { type: voiceRecorder.mimeType || 'audio/webm' });
         await saveVoiceComment(blob, voiceSeconds);
-        resetGlobalVoiceUI();
-        loadComments(activeCommentPostId);
+        resetGlobalVoiceUI(); loadComments(activeCommentPostId);
       };
       voiceRecorder.stop(); clearInterval(voiceTimer);
     };
@@ -376,8 +368,7 @@
       document.getElementById('globalRecordingBar').classList.remove('show');
       document.getElementById('postCommentBtn').disabled = false;
       if (activeReplyTo && activeReplyTo !== 'main') {
-        const micBtn = document.getElementById('micBtn-' + activeReplyTo);
-        if (micBtn) micBtn.classList.remove('recording');
+        const micBtn = document.getElementById('micBtn-' + activeReplyTo); if (micBtn) micBtn.classList.remove('recording');
       }
       activeReplyTo = null;
     }
@@ -387,11 +378,9 @@
       reader.onload = async function(e) {
         try {
           if (activeReplyTo && activeReplyTo !== 'main') {
-            // Voice reply to a comment
             await addDoc(collection(db, 'posts', activeCommentPostId, 'comments', activeReplyTo, 'replies'), { type:'voice', username:currentUser, audioData:e.target.result, duration, createdAt:serverTimestamp() });
             loadReplies(activeCommentPostId, activeReplyTo);
           } else {
-            // Voice comment on post
             await setDoc(doc(db, 'posts', activeCommentPostId, 'comments', 'vc_' + Date.now()), { type:'voice', username:currentUser, audioData:e.target.result, duration, createdAt:serverTimestamp() });
           }
           showToast('✅ Voice added!');

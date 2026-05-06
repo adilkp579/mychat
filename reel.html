@@ -47,7 +47,7 @@
     .user-tag .avatar { width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;font-size:0.7rem; }
     .user-tag .name { font-size:0.8rem;font-weight:500;color:#fff; }
 
-    .actions-bar { position:absolute;right:0.8rem;bottom:50%;transform:translateY(50%);display:flex;flex-direction:column;align-items:center;gap:1.5rem;z-index:10; }
+    .actions-bar { position:absolute;right:0.8rem;bottom:35%;display:flex;flex-direction:column;align-items:center;gap:1.5rem;z-index:10; }
     .action-btn { display:flex;flex-direction:column;align-items:center;gap:0.2rem;background:none;border:none;color:#fff;cursor:pointer;font-size:1.5rem;transition:all 0.2s; }
     .action-btn span { font-size:0.65rem;font-weight:500; }
     .action-btn.liked { color:#ef4444; }
@@ -71,7 +71,7 @@
     .loading-overlay { position:absolute;top:0;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:50;flex-direction:column;gap:0.5rem; }
     .loading-overlay i { font-size:2rem;color:#3897f0;animation:spin 1s linear infinite; }
 
-    .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6);z-index:100; }
+    .floating-nav { position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(26,26,26,0.9);backdrop-filter:blur(30px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 4px 20px rgba(0,0,0,0.5);z-index:100; }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
     .nav-center a { color:rgba(255,255,255,0.6);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;position:relative; }
     .nav-center a::before { content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:4px;height:4px;border-radius:50%;background:#fff;transition:all 0.3s; }
@@ -81,15 +81,16 @@
 
     @media (min-width:1024px) {
       .nav-upload,.nav-search{display:flex!important}
-      .floating-nav{top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column}
+      .floating-nav{position:fixed;top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column}
       .nav-center{flex-direction:column;gap:1.2rem;max-width:none}.nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
       .nav-center a::before{bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0)}.nav-center a.active::before{transform:translateY(-50%) scale(1)}
       .reel-wrapper{margin-left:5rem}
       .reel-slide{max-width:500px;margin:0 auto}
-      .actions-bar{right:2rem}
+      .actions-bar{right:2rem;bottom:35%}
     }
     @media (max-width:380px) {
-      .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem}.nav-center a{font-size:1.1rem;width:2rem;height:2rem}
+      .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:max(0.8rem,env(safe-area-inset-bottom,0.8rem))}.nav-center a{font-size:1.1rem;width:2rem;height:2rem}
+      .actions-bar{right:0.5rem;gap:1.2rem;bottom:30%}
     }
   </style>
 </head>
@@ -129,13 +130,12 @@
     let isLoadingMore = false;
     let allLoaded = false;
     const PAGE_SIZE = 5;
-    let scrollTimeout = null;
     let isTransitioning = false;
 
     const wrapper = document.getElementById('reelWrapper');
     const toast = document.getElementById('toast');
 
-    // ---------- TEMPLATE FUNCTION (faster than innerHTML) ----------
+    // ---------- TEMPLATE FUNCTION ----------
     function createSlideHTML(reel, index) {
       return `
         <div class="reel-slide" data-index="${index}" id="slide${index}">
@@ -169,20 +169,18 @@
       return div.innerHTML;
     }
 
-    // ---------- EVENT DELEGATION (single listener for all) ----------
+    // ---------- EVENT DELEGATION ----------
     wrapper.addEventListener('click', (e) => {
       const slide = e.target.closest('.reel-slide');
       if (!slide) return;
       
       const index = parseInt(slide.dataset.index);
       
-      // Video toggle
       if (e.target.tagName === 'VIDEO' || e.target.closest('.play-overlay')) {
         togglePlay(index);
         return;
       }
       
-      // Action buttons
       const actionBtn = e.target.closest('[data-action]');
       if (actionBtn) {
         const action = actionBtn.dataset.action;
@@ -192,7 +190,7 @@
       }
     });
 
-    // ---------- LOAD INITIAL DATA ----------
+    // ---------- LOAD DATA ----------
     function loadLocalReels() {
       const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
       (profile.posts || []).filter(p => p.type === 'video').forEach(p => {
@@ -230,7 +228,7 @@
           const d = doc.data();
           const src = d.data || d.url || '';
           const username = d.username || d.userId || '@anonymous';
-          const isVideo = src && (src.startsWith('data:video/') || d.type === 'reel' || d.type === 'video');
+          const isVideo = src && (d.type === 'reel' || d.type === 'video' || src.startsWith('data:video/'));
           if (isVideo && !allReels.find(r => r.src === src)) {
             allReels.push({
               id: doc.id,
@@ -245,7 +243,6 @@
         });
 
         lastDoc = snap.docs[snap.docs.length - 1];
-        return true; // data was loaded
       } catch (e) {
         console.error('Fetch error:', e);
       } finally {
@@ -253,9 +250,8 @@
       }
     }
 
-    // ---------- VIRTUAL SCROLL WITH THROTTLE ----------
+    // ---------- VIRTUAL SCROLL ----------
     function setupScrollHandler() {
-      let lastScrollTop = 0;
       let ticking = false;
       
       wrapper.addEventListener('scroll', () => {
@@ -270,7 +266,7 @@
     }
 
     function handleScroll() {
-      if (isTransitioning) return;
+      if (isTransitioning || allReels.length === 0) return;
       
       const scrollTop = wrapper.scrollTop;
       const slideHeight = wrapper.clientHeight;
@@ -280,7 +276,6 @@
         transitionToSlide(newIndex);
       }
       
-      // Prefetch when near end
       if (newIndex >= allReels.length - 3 && !allLoaded && !isLoadingMore) {
         fetchNextPage();
       }
@@ -293,17 +288,13 @@
       const oldIndex = currentIndex;
       currentIndex = newIndex;
 
-      // Pause old video immediately
       if (oldIndex >= 0) pauseVideo(oldIndex);
 
-      // Use requestAnimationFrame for smooth DOM updates
       requestAnimationFrame(() => {
-        // Ensure current and neighbors exist
         ensureSlideMounted(newIndex);
         if (newIndex > 0) ensureSlideMounted(newIndex - 1);
         if (newIndex < allReels.length - 1) ensureSlideMounted(newIndex + 1);
 
-        // Play current after a tiny delay for DOM to settle
         requestAnimationFrame(() => {
           playVideo(newIndex);
           cleanupDistantSlides(newIndex);
@@ -331,7 +322,6 @@
       const slide = document.getElementById('slide' + index);
       if (!slide) return;
       
-      // Clean video aggressively
       const video = slide.querySelector('video');
       if (video) {
         video.pause();
@@ -353,13 +343,12 @@
       }
     }
 
-    // ---------- VIDEO PLAYBACK (optimized) ----------
+    // ---------- VIDEO PLAYBACK ----------
     function playVideo(index) {
       const video = document.getElementById('video' + index);
       const overlay = document.getElementById('overlay' + index);
       if (!video || index >= allReels.length) return;
 
-      // Set src only if needed
       const targetSrc = allReels[index].src;
       if (video.src !== targetSrc || !video.src) {
         video.src = targetSrc;
@@ -384,7 +373,7 @@
       }
     }
 
-    window.togglePlay = function(index) {
+    function togglePlay(index) {
       const video = document.getElementById('video' + index);
       if (!video) return;
       if (video.paused) {
@@ -393,10 +382,10 @@
       } else {
         pauseVideo(index);
       }
-    };
+    }
 
     // ---------- INTERACTIONS ----------
-    window.toggleLike = async function(index) {
+    async function toggleLike(index) {
       const reel = allReels[index];
       reel.liked = !reel.liked;
       reel.likes += reel.liked ? 1 : -1;
@@ -420,9 +409,9 @@
           }); 
         } catch(e) {}
       }
-    };
+    }
 
-    window.shareReel = async function(index) {
+    async function shareReel(index) {
       const reel = allReels[index];
       if (navigator.share) {
         try { 
@@ -437,7 +426,7 @@
           showToast('Link copied! 📋'); 
         } catch(e) {}
       }
-    };
+    }
 
     function showToast(msg) {
       toast.textContent = msg; 
@@ -446,7 +435,7 @@
       toast._t = setTimeout(() => toast.classList.remove('show'), 2000);
     }
 
-    // ---------- INITIALIZATION ----------
+    // ---------- INIT ----------
     async function init() {
       loadLocalReels();
       await fetchNextPage();
@@ -458,7 +447,6 @@
 
       setupScrollHandler();
       
-      // Mount first 3 slides
       const count = Math.min(3, allReels.length);
       const fragment = document.createDocumentFragment();
       
@@ -471,7 +459,6 @@
       wrapper.appendChild(fragment);
       wrapper.scrollTop = 0;
       
-      // Play first video after DOM is ready
       requestAnimationFrame(() => {
         currentIndex = 0;
         playVideo(0);

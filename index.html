@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>Home</title>
+  <title>Home · Optimized</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     * { margin:0;padding:0;box-sizing:border-box; }
@@ -66,6 +66,7 @@
     .cmt-btn.reply-btn { color:#aaa; }
     .cmt-btn.del-btn { color:#ef4444;display:none; }
     .cmt-btn.del-btn.show { display:inline; }
+    .view-replies-btn { color:#3897f0; font-size:0.6rem; cursor:pointer; margin-top:0.2rem; background:none; border:none; }
     
     .vc-play-btn { display:flex;align-items:center;gap:0.3rem;padding:0.2rem 0.5rem;background:rgba(255,252,0,0.08);border:1px solid rgba(255,252,0,0.15);border-radius:0.8rem;cursor:pointer;font-size:0.7rem;color:#FFFC00;margin-top:0.1rem;width:fit-content; }
     .vc-play-btn i { font-size:0.5rem; }
@@ -108,10 +109,6 @@
     .nav-center a.active::before { transform:translateX(-50%) scale(1); }
     .nav-center a.active { color:#fff;background:#333; }
     .nav-upload,.nav-search { display:none !important; }
-    .auth-boot-loader { position:fixed;top:0;left:0;right:0;bottom:0;background:#000;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem; }
-    .auth-boot-loader i { font-size:2.5rem;color:#3897f0;animation:spin 1s linear infinite; }
-    .auth-boot-loader span { color:#888;font-size:0.8rem; }
-    @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
     .toast { position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#4ade80;color:#000;padding:0.4rem 1rem;border-radius:2rem;font-size:0.7rem;z-index:800;opacity:0;transition:all 0.3s;font-weight:600;pointer-events:none; }
     .toast.show { opacity:1; }.toast.error { background:#ef4444;color:#fff; }
 
@@ -129,12 +126,12 @@
   </style>
 </head>
 <body>
-  <div class="auth-boot-loader" id="authBootLoader"><i class="fas fa-spinner"></i><span>Loading...</span></div>
-  <div class="page" id="mainPage" style="display:none;">
-    <div class="content">
+  <div class="page" id="mainPage">
+    <div class="content" id="mainContent">
       <div class="top-icons"><a href="upload.html" class="corner-btn"><i class="fas fa-plus"></i></a><span class="top-brand">Choicho</span><a href="search.html" class="corner-btn"><i class="fas fa-search"></i></a></div>
       <div class="stories-section"><div class="stories-bar" id="storiesBar"></div><div class="no-stories" id="noStories" style="display:none;">No recent stories</div></div>
       <div class="feed-section" id="feedContainer"></div>
+      <div id="scrollSentinel" style="height:1px;"></div>
     </div>
     <div class="comments-overlay" id="commentsOverlay">
       <div class="comments-header"><h3>Comments</h3><button class="comments-close" onclick="closeComments()">✕</button></div>
@@ -160,129 +157,375 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs, doc, getDoc, setDoc, addDoc, orderBy, serverTimestamp, increment, updateDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, collection, query, orderBy, limit, startAfter, getDocs, doc, getDoc, setDoc, addDoc, serverTimestamp, increment, updateDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
-    const db = getFirestore(app); const auth = getAuth(app);
-    let userProfiles = {};
-    const currentUser = localStorage.getItem('currentUser') || '@anonymous';
-    let activePostId = null, voiceTargetCid = '', voiceTargetPath = '';
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    const storage = getStorage(app);
+
+    // ---------- OPTIMIZED CACHES & STATE ----------
+    const userCache = new Map(); // username -> { avatar, name }
+    const PAGE_SIZE = 10;
+    let lastVisiblePost = null;
+    let allPostsLoaded = false;
+    let isLoadingPosts = false;
+    let activePostId = null;
+    let voiceTargetCid = '', voiceTargetPath = '';
     let voiceRecorder = null, voiceChunks = [], voiceTimer = null, voiceSeconds = 0;
     const MAX_VOICE_SEC = 10;
+    const currentUser = localStorage.getItem('currentUser') || '@anonymous';
 
-    onAuthStateChanged(auth, (user) => {
-      const bl = document.getElementById('authBootLoader');
-      if (user) localStorage.setItem("uid", user.uid);
-      if (user || localStorage.getItem("uid")) { if (bl) bl.style.display = 'none'; document.getElementById('mainPage').style.display = 'flex'; loadAllProfiles().then(() => { renderStories(); renderFeed(); }); }
-      else window.location.replace("login.html");
-    });
-
-    async function loadAllProfiles() {
-      userProfiles = {};
-      try { const s = await getDocs(collection(db, 'users')); s.forEach(d => { const dt = d.data(); userProfiles[dt.username] = { avatar: dt.avatar || null, name: dt.name || dt.username }; }); } catch(e) {}
-      const lp = JSON.parse(localStorage.getItem('userProfile') || '{}');
-      if (lp.username) userProfiles[lp.username] = { avatar: lp.avatar || null, name: lp.name || lp.username };
-      (lp.friends||[]).forEach(f => { if (!userProfiles[f.name]) userProfiles[f.name] = { avatar: f.avatar || null, name: f.name }; });
-    }
-
-    function getAvt(u) { const p = userProfiles[u]; return (p?.avatar && p.avatar !== 'null' && p.avatar !== 'undefined') ? `<img src="${p.avatar}" alt="" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\\'fas fa-user\\'></i>';">` : '<i class="fas fa-user"></i>'; }
+    // ---------- UTILS (unchanged) ----------
     function cname(u) { return (u || '').replace(/^@/, ''); }
     function fmtDur(s) { const m = Math.floor(s/60), sec = Math.floor(s%60); return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0'); }
     function timeAgo(d) { if (!d) return ''; const n = new Date(); const df = n - d; if (df < 60000) return 'now'; if (df < 3600000) return Math.floor(df/60000)+'m'; if (df < 86400000) return Math.floor(df/3600000)+'h'; if (df < 604800000) return Math.floor(df/86400000)+'d'; return d.toLocaleDateString(); }
 
+    // ✅ Fetch single user profile on demand + cache
+    async function getUserProfile(username) {
+      if (!username || username === '@anonymous') return { avatar: null, name: username };
+      if (userCache.has(username)) return userCache.get(username);
+      try {
+        const snap = await getDoc(doc(db, 'users', username.replace('@', '')));
+        if (snap.exists()) {
+          const d = snap.data();
+          const profile = { avatar: d.avatar || null, name: d.name || username };
+          userCache.set(username, profile);
+          return profile;
+        }
+      } catch(e) {}
+      const fallback = { avatar: null, name: username };
+      userCache.set(username, fallback);
+      return fallback;
+    }
+
+    function getAvtFromCache(username) {
+      const p = userCache.get(username);
+      if (p?.avatar && p.avatar !== 'null' && p.avatar !== 'undefined') {
+        return `<img src="${p.avatar}" alt="" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\\'fas fa-user\\'></i>';">`;
+      }
+      return '<i class="fas fa-user"></i>';
+    }
+
+    // ---------- AUTH BOOT (non-blocking) ----------
+    async function bootApp() {
+      // Use cached uid if available, but still listen for changes silently
+      const hasLocalUid = localStorage.getItem("uid");
+      if (!hasLocalUid && !auth.currentUser) {
+        // Wait briefly for auth if completely fresh
+        await new Promise(resolve => {
+          const unsub = onAuthStateChanged(auth, (user) => {
+            unsub();
+            if (user) localStorage.setItem("uid", user.uid);
+            resolve();
+          });
+        });
+      }
+      
+      if (!localStorage.getItem("uid") && !auth.currentUser) {
+        window.location.replace("login.html");
+        return;
+      }
+      
+      document.getElementById('mainPage').style.display = 'flex';
+      // Preload current user profile into cache
+      const lp = JSON.parse(localStorage.getItem('userProfile') || '{}');
+      if (lp.username) userCache.set(lp.username, { avatar: lp.avatar || null, name: lp.name || lp.username });
+      
+      renderStories();
+      setupInfiniteScroll();
+      loadMorePosts();
+    }
+
+    // ---------- STORIES (unchanged logic, uses cache) ----------
     async function renderStories() {
-      const ps = await loadProfileStories(localStorage.getItem('currentUser') || '@user');
+      const ps = await loadProfileStories(currentUser);
       const bar = document.getElementById('storiesBar'), ns = document.getElementById('noStories');
       if (ps.length === 0) { bar.style.display = 'none'; ns.style.display = 'block'; return; }
       bar.style.display = 'flex'; ns.style.display = 'none';
-      bar.innerHTML = ps.map(s => `<div class="story-item" onclick="window.location.href='profile.html?user=${encodeURIComponent(s.name)}'"><div class="story-ring ${s.type}"><div class="story-avatar">${getAvt(s.name)}</div></div><span class="story-name">${cname(s.name)}</span></div>`).join('');
+      bar.innerHTML = ps.map(s => {
+        const avt = getAvtFromCache(s.name);
+        return `<div class="story-item" onclick="window.location.href='profile.html?user=${encodeURIComponent(s.name)}'"><div class="story-ring ${s.type}"><div class="story-avatar">${avt}</div></div><span class="story-name">${cname(s.name)}</span></div>`;
+      }).join('');
     }
+    
     async function loadProfileStories(username) {
-      try { const ref = doc(db, 'profiles', username.replace('@', '')); const s = await getDoc(ref); if (s.exists()) { const d = s.data(); return [...(d.friends||[]).map(f=>({name:f.name,type:'friend',icon:'fa-user',live:false})),...(d.besties||[]).map(b=>({name:b.name,type:'bestie',icon:'fa-user',live:false}))]; } } catch(e) {}
-      const p = JSON.parse(localStorage.getItem('userProfile')||'{}'); return [...(p.friends||[]).map(f=>({name:f.name,type:'friend',icon:'fa-user',live:false})),...(p.besties||[]).map(b=>({name:b.name,type:'bestie',icon:'fa-user',live:false}))];
+      try { const ref = doc(db, 'profiles', username.replace('@', '')); const s = await getDoc(ref); if (s.exists()) { const d = s.data(); return [...(d.friends||[]).map(f=>({name:f.name,type:'friend'})),...(d.besties||[]).map(b=>({name:b.name,type:'bestie'}))]; } } catch(e) {}
+      const p = JSON.parse(localStorage.getItem('userProfile')||'{}'); return [...(p.friends||[]).map(f=>({name:f.name,type:'friend'})),...(p.besties||[]).map(b=>({name:b.name,type:'bestie'}))];
     }
 
-    async function loadPosts() {
-      let posts = [];
-      try { const s = await getDocs(query(collection(db, 'posts'), orderBy('createdAt', 'desc'))); s.forEach(d => { const dt = d.data(); const src = dt.data || dt.url || ''; if (src) posts.push({ id: d.id, userId: dt.username || dt.userId || '@anonymous', caption: dt.caption || '', src, likes: dt.likes || 0, time: dt.createdAt ? timeAgo(dt.createdAt.toDate()) : 'Recently' }); }); } catch(e) {}
-      if (posts.length === 0) { const p = JSON.parse(localStorage.getItem('userProfile')||'{}'); posts = (p.posts||[]).filter(x=>x.type==='image').map(x=>({id:x.id||'local',userId:p.username||'@user',caption:x.caption||'',src:x.src,likes:x.likes||0,time:'Recently'})); }
-      return posts;
-    }
-
-    async function renderFeed() {
-      const posts = await loadPosts(); const c = document.getElementById('feedContainer');
-      if (posts.length === 0) { c.innerHTML = '<div style="text-align:center;color:#555;padding:3rem;">No posts yet</div>'; return; }
-      c.innerHTML = posts.map(p => `<div class="feed-card"><div class="feed-header"><div class="feed-avatar" onclick="window.location.href='profile.html?user=${encodeURIComponent(p.userId)}'">${getAvt(p.userId)}</div><div><div class="feed-username" onclick="window.location.href='profile.html?user=${encodeURIComponent(p.userId)}'">${cname(p.userId)}</div></div><span class="feed-time">${p.time}</span></div><div class="feed-image" onclick="openImageViewer('${p.src}')"><img src="${p.src}" alt="post" onerror="this.style.display='none'"></div><div class="feed-actions"><button class="feed-action" id="likeBtn-${p.id}" onclick="toggleLike('${p.id}')"><i class="far fa-heart"></i></button><button class="feed-action" onclick="openComments('${p.id}')"><i class="far fa-comment"></i></button><button class="feed-action" onclick="sharePost('${p.src}')"><i class="far fa-share-square"></i></button></div><div class="feed-likes" id="likes-${p.id}">${p.likes||0} likes</div><div class="feed-caption"><span onclick="window.location.href='profile.html?user=${encodeURIComponent(p.userId)}'">${cname(p.userId)}</span>${p.caption}</div><div class="view-comments-btn" onclick="openComments('${p.id}')">View all comments</div></div>`).join('');
-    }
-
-    window.toggleLike = async function(pid) { const b = document.getElementById('likeBtn-'+pid), l = document.getElementById('likes-'+pid); if (!b||!l) return; const liked = b.classList.contains('liked'); if (liked) { b.classList.remove('liked'); b.querySelector('i').className='far fa-heart'; l.textContent=(Math.max(0,parseInt(l.textContent)-1))+' likes'; try { await updateDoc(doc(db,'posts',pid),{likes:increment(-1)}); } catch(e) {} } else { b.classList.add('liked'); b.querySelector('i').className='fas fa-heart'; l.textContent=(parseInt(l.textContent)+1)+' likes'; try { await updateDoc(doc(db,'posts',pid),{likes:increment(1)}); } catch(e) {} } };
-
-    window.openComments = function(pid) { activePostId = pid; document.getElementById('commentsOverlay').classList.add('show'); document.getElementById('cmtInput').value = ''; renderComments(pid); };
-    window.closeComments = function() { document.getElementById('commentsOverlay').classList.remove('show'); cancelRecording(); activePostId = null; };
-
-    // ===== RECURSIVE RENDER =====
-    async function renderComments(pid, parentPath = '', containerEl = null, level = 0) {
-      if (level > 25) return;
-      const isRoot = !parentPath;
-      const listEl = containerEl || document.getElementById('commentsList');
-      if (isRoot) listEl.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;font-size:0.7rem;">Loading...</div>';
-
-      const colPath = parentPath ? `posts/${pid}/comments/${parentPath}/replies` : `posts/${pid}/comments`;
+    // ---------- ✅ PAGINATED POSTS ----------
+    async function loadMorePosts() {
+      if (isLoadingPosts || allPostsLoaded) return;
+      isLoadingPosts = true;
       try {
-        const snap = await getDocs(query(collection(db, colPath), orderBy('createdAt', 'asc')));
-        if (isRoot && snap.empty) { listEl.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;font-size:0.7rem;">No comments yet</div>'; return; }
-        if (!isRoot && snap.empty) return;
-        if (isRoot) listEl.innerHTML = '';
-
-        const postSnap = isRoot ? await getDoc(doc(db, 'posts', pid)) : null;
-        const postOwner = postSnap?.exists() ? (postSnap.data().username || postSnap.data().userId || '') : '';
-
-        for (const doc of snap.docs) {
-          const d = doc.data(); const cid = doc.id; if (d._deleted) continue;
-          const canDel = (d.username === currentUser || postOwner === currentUser);
-          const delBtn = canDel ? `<button class="cmt-btn del-btn show" onclick="event.stopPropagation();deleteCmt('${pid}','${cid}','${parentPath}')">🗑️</button>` : '';
-          // THE FIX: Path includes this comment's ID for nested replies
-          const myPath = parentPath ? `${parentPath}/${cid}` : cid;
-
-          const wrapper = document.createElement('div'); wrapper.className = 'cmt-block'; wrapper.id = 'c-' + cid;
-
-          if (d.type === 'voice') {
-            const src = (d.audioData || '').replace(/'/g, "\\'");
-            wrapper.innerHTML = `<div class="cmt-row"><div class="cmt-avatar">${getAvt(d.username)}</div><div class="cmt-body"><div class="cmt-username">${cname(d.username)}</div><div class="vc-play-btn" onclick="playVC('${src}', this)"><i class="fas fa-play"></i><span>Voice</span><span class="vc-duration">${fmtDur(d.duration||0)}</span></div><div class="cmt-meta"><span class="cmt-time">${d.createdAt?timeAgo(d.createdAt.toDate()):''}</span><button class="cmt-btn reply-btn" onclick="toggleReplyBox('${cid}')">Reply</button>${delBtn}</div><div class="reply-box" id="rb-${cid}"><div class="reply-input-wrap"><button class="reply-mic-btn" id="rmic-${cid}" onclick="startVoiceFor('${cid}','${parentPath}')"><i class="fas fa-microphone"></i></button><input class="reply-input" id="ri-${cid}" placeholder="Reply..."></div><button class="reply-post-btn" onclick="postReply('${pid}','${cid}','${parentPath}')">Post</button></div><div class="cmt-thread" id="thread-${cid}"></div></div></div>`;
-          } else {
-            wrapper.innerHTML = `<div class="cmt-row"><div class="cmt-avatar">${getAvt(d.username)}</div><div class="cmt-body"><div class="cmt-username">${cname(d.username)}</div><div class="cmt-content">${d.text||''}</div><div class="cmt-meta"><span class="cmt-time">${d.createdAt?timeAgo(d.createdAt.toDate()):''}</span><button class="cmt-btn reply-btn" onclick="toggleReplyBox('${cid}')">Reply</button>${delBtn}</div><div class="reply-box" id="rb-${cid}"><div class="reply-input-wrap"><button class="reply-mic-btn" id="rmic-${cid}" onclick="startVoiceFor('${cid}','${parentPath}')"><i class="fas fa-microphone"></i></button><input class="reply-input" id="ri-${cid}" placeholder="Reply..."></div><button class="reply-post-btn" onclick="postReply('${pid}','${cid}','${parentPath}')">Post</button></div><div class="cmt-thread" id="thread-${cid}"></div></div></div>`;
-          }
-          listEl.appendChild(wrapper);
-          const threadEl = document.getElementById('thread-' + cid);
-          if (threadEl) await renderComments(pid, myPath, threadEl, level + 1);
+        let q;
+        if (lastVisiblePost) {
+          q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'), startAfter(lastVisiblePost), limit(PAGE_SIZE));
+        } else {
+          q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'), limit(PAGE_SIZE));
         }
-      } catch(e) { if (isRoot) listEl.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;">Error</div>'; }
+        const snap = await getDocs(q);
+        if (snap.empty) {
+          allPostsLoaded = true;
+          if (!lastVisiblePost) document.getElementById('feedContainer').innerHTML = '<div style="text-align:center;color:#555;padding:3rem;">No posts yet</div>';
+          return;
+        }
+        
+        const posts = [];
+        snap.forEach(doc => {
+          const dt = doc.data();
+          const src = dt.data || dt.url || '';
+          if (src) {
+            posts.push({
+              id: doc.id,
+              userId: dt.username || dt.userId || '@anonymous',
+              caption: dt.caption || '',
+              src,
+              likes: dt.likes || 0,
+              time: dt.createdAt ? timeAgo(dt.createdAt.toDate()) : 'Recently'
+            });
+          }
+        });
+        
+        lastVisiblePost = snap.docs[snap.docs.length - 1];
+        renderPostsToFeed(posts);
+      } catch(e) {
+        console.error(e);
+      } finally {
+        isLoadingPosts = false;
+      }
     }
 
-    window.toggleReplyBox = function(cid) { document.querySelectorAll('.reply-box').forEach(e => e.classList.remove('show')); const b = document.getElementById('rb-'+cid); if (b) { b.classList.add('show'); document.getElementById('ri-'+cid)?.focus(); } };
+    function renderPostsToFeed(posts) {
+      const container = document.getElementById('feedContainer');
+      if (!lastVisiblePost) container.innerHTML = ''; // clear on first load
+      
+      posts.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'feed-card';
+        card.innerHTML = `
+          <div class="feed-header">
+            <div class="feed-avatar" id="av-${p.id}" onclick="window.location.href='profile.html?user=${encodeURIComponent(p.userId)}'">${getAvtFromCache(p.userId)}</div>
+            <div><div class="feed-username" onclick="window.location.href='profile.html?user=${encodeURIComponent(p.userId)}'">${cname(p.userId)}</div></div>
+            <span class="feed-time">${p.time}</span>
+          </div>
+          <div class="feed-image" onclick="openImageViewer('${p.src}')"><img src="${p.src}" alt="post" onerror="this.style.display='none'"></div>
+          <div class="feed-actions">
+            <button class="feed-action" id="likeBtn-${p.id}" onclick="toggleLike('${p.id}')"><i class="far fa-heart"></i></button>
+            <button class="feed-action" onclick="openComments('${p.id}')"><i class="far fa-comment"></i></button>
+            <button class="feed-action" onclick="sharePost('${p.src}')"><i class="far fa-share-square"></i></button>
+          </div>
+          <div class="feed-likes" id="likes-${p.id}">${p.likes||0} likes</div>
+          <div class="feed-caption"><span onclick="window.location.href='profile.html?user=${encodeURIComponent(p.userId)}'">${cname(p.userId)}</span>${p.caption}</div>
+          <div class="view-comments-btn" onclick="openComments('${p.id}')">View all comments</div>
+        `;
+        container.appendChild(card);
+        
+        // Async load avatar for this post
+        getUserProfile(p.userId).then(() => {
+          const avEl = document.getElementById('av-'+p.id);
+          if (avEl) avEl.innerHTML = getAvtFromCache(p.userId);
+        });
+      });
+    }
 
-    // ===== POST REPLY (Text) =====
+    function setupInfiniteScroll() {
+      const content = document.getElementById('mainContent');
+      content.addEventListener('scroll', () => {
+        if (content.scrollHeight - content.scrollTop - content.clientHeight < 300) {
+          loadMorePosts();
+        }
+      });
+    }
+
+    // ---------- COMMENTS (lazy replies, no recursion) ----------
+    window.openComments = async function(pid) {
+      activePostId = pid;
+      document.getElementById('commentsOverlay').classList.add('show');
+      document.getElementById('cmtInput').value = '';
+      renderTopLevelComments(pid);
+    };
+    
+    window.closeComments = function() {
+      document.getElementById('commentsOverlay').classList.remove('show');
+      cancelRecording();
+      activePostId = null;
+    };
+
+    async function renderTopLevelComments(pid) {
+      const listEl = document.getElementById('commentsList');
+      listEl.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;">Loading...</div>';
+      try {
+        const snap = await getDocs(query(collection(db, 'posts', pid, 'comments'), orderBy('createdAt', 'asc')));
+        listEl.innerHTML = '';
+        if (snap.empty) {
+          listEl.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;">No comments yet</div>';
+          return;
+        }
+        const postSnap = await getDoc(doc(db, 'posts', pid));
+        const postOwner = postSnap.exists() ? (postSnap.data().username || postSnap.data().userId || '') : '';
+        
+        for (const docSnap of snap.docs) {
+          const d = docSnap.data();
+          if (d._deleted) continue;
+          const cid = docSnap.id;
+          const canDel = (d.username === currentUser || postOwner === currentUser);
+          appendCommentElement(listEl, d, cid, pid, '', canDel);
+        }
+      } catch(e) {
+        listEl.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;">Error loading comments</div>';
+      }
+    }
+
+    function appendCommentElement(parentEl, data, commentId, postId, parentPath, canDelete) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'cmt-block';
+      wrapper.id = 'c-' + commentId;
+      
+      const delBtn = canDelete ? `<button class="cmt-btn del-btn show" onclick="event.stopPropagation();deleteCmt('${postId}','${commentId}','${parentPath}')">🗑️</button>` : '';
+      const myPath = parentPath ? `${parentPath}/${commentId}` : commentId;
+      
+      if (data.type === 'voice') {
+        wrapper.innerHTML = `
+          <div class="cmt-row">
+            <div class="cmt-avatar" id="av-${commentId}">${getAvtFromCache(data.username)}</div>
+            <div class="cmt-body">
+              <div class="cmt-username">${cname(data.username)}</div>
+              <div class="vc-play-btn" onclick="playVC('${data.audioURL || ''}', this)"><i class="fas fa-play"></i><span>Voice</span><span class="vc-duration">${fmtDur(data.duration||0)}</span></div>
+              <div class="cmt-meta">
+                <span class="cmt-time">${data.createdAt?timeAgo(data.createdAt.toDate()):''}</span>
+                <button class="cmt-btn reply-btn" onclick="toggleReplyBox('${commentId}')">Reply</button>${delBtn}
+              </div>
+              <div class="reply-box" id="rb-${commentId}">
+                <div class="reply-input-wrap"><button class="reply-mic-btn" id="rmic-${commentId}" onclick="startVoiceFor('${commentId}','${parentPath}')"><i class="fas fa-microphone"></i></button><input class="reply-input" id="ri-${commentId}" placeholder="Reply..."></div>
+                <button class="reply-post-btn" onclick="postReply('${postId}','${commentId}','${parentPath}')">Post</button>
+              </div>
+              <div class="cmt-thread" id="thread-${commentId}"></div>
+              <button class="view-replies-btn" id="vr-${commentId}" style="display:none;" onclick="loadReplies('${postId}','${myPath}','thread-${commentId}')">View replies</button>
+            </div>
+          </div>`;
+      } else {
+        wrapper.innerHTML = `
+          <div class="cmt-row">
+            <div class="cmt-avatar" id="av-${commentId}">${getAvtFromCache(data.username)}</div>
+            <div class="cmt-body">
+              <div class="cmt-username">${cname(data.username)}</div>
+              <div class="cmt-content">${data.text||''}</div>
+              <div class="cmt-meta">
+                <span class="cmt-time">${data.createdAt?timeAgo(data.createdAt.toDate()):''}</span>
+                <button class="cmt-btn reply-btn" onclick="toggleReplyBox('${commentId}')">Reply</button>${delBtn}
+              </div>
+              <div class="reply-box" id="rb-${commentId}">
+                <div class="reply-input-wrap"><button class="reply-mic-btn" id="rmic-${commentId}" onclick="startVoiceFor('${commentId}','${parentPath}')"><i class="fas fa-microphone"></i></button><input class="reply-input" id="ri-${commentId}" placeholder="Reply..."></div>
+                <button class="reply-post-btn" onclick="postReply('${postId}','${commentId}','${parentPath}')">Post</button>
+              </div>
+              <div class="cmt-thread" id="thread-${commentId}"></div>
+              <button class="view-replies-btn" id="vr-${commentId}" style="display:none;" onclick="loadReplies('${postId}','${myPath}','thread-${commentId}')">View replies</button>
+            </div>
+          </div>`;
+      }
+      parentEl.appendChild(wrapper);
+      
+      // Async load avatar for this comment
+      getUserProfile(data.username).then(() => {
+        const av = document.getElementById('av-'+commentId);
+        if (av) av.innerHTML = getAvtFromCache(data.username);
+      });
+      
+      // Check if replies exist (lightweight)
+      checkHasReplies(postId, myPath, 'vr-'+commentId);
+    }
+
+    async function checkHasReplies(postId, path, btnId) {
+      try {
+        const snap = await getDocs(query(collection(db, 'posts', postId, 'comments', path, 'replies'), limit(1)));
+        if (!snap.empty) {
+          const btn = document.getElementById(btnId);
+          if (btn) btn.style.display = 'block';
+        }
+      } catch(e) {}
+    }
+
+    window.loadReplies = async function(postId, parentPath, threadId) {
+      const threadEl = document.getElementById(threadId);
+      if (!threadEl) return;
+      threadEl.innerHTML = '<div style="color:#555;font-size:0.6rem;">Loading...</div>';
+      try {
+        const snap = await getDocs(query(collection(db, 'posts', postId, 'comments', parentPath, 'replies'), orderBy('createdAt', 'asc')));
+        threadEl.innerHTML = '';
+        if (snap.empty) {
+          threadEl.innerHTML = '<div style="color:#555;font-size:0.6rem;">No replies</div>';
+          return;
+        }
+        const postSnap = await getDoc(doc(db, 'posts', postId));
+        const postOwner = postSnap.exists() ? (postSnap.data().username || postSnap.data().userId || '') : '';
+        
+        snap.forEach(docSnap => {
+          const d = docSnap.data();
+          if (d._deleted) return;
+          const cid = docSnap.id;
+          const canDel = (d.username === currentUser || postOwner === currentUser);
+          appendCommentElement(threadEl, d, cid, postId, parentPath, canDel);
+        });
+        // Hide the button after loading
+        const btn = document.getElementById('vr-' + parentPath.split('/').pop());
+        if (btn) btn.style.display = 'none';
+      } catch(e) {
+        threadEl.innerHTML = '<div style="color:#ef4444;font-size:0.6rem;">Error</div>';
+      }
+    };
+
+    window.toggleReplyBox = function(cid) {
+      document.querySelectorAll('.reply-box').forEach(e => e.classList.remove('show'));
+      const b = document.getElementById('rb-'+cid);
+      if (b) { b.classList.add('show'); document.getElementById('ri-'+cid)?.focus(); }
+    };
+
     window.postReply = async function(pid, commentId, parentPath) {
-      const input = document.getElementById('ri-' + commentId); const text = input?.value?.trim();
-      if (!text || !pid || !commentId) return; input.value = '';
+      const input = document.getElementById('ri-' + commentId);
+      const text = input?.value?.trim();
+      if (!text || !pid || !commentId) return;
+      input.value = '';
       const colPath = parentPath ? `posts/${pid}/comments/${parentPath}/replies` : `posts/${pid}/comments/${commentId}/replies`;
-      try { await addDoc(collection(db, colPath), { type:'text', text, username:currentUser, createdAt:serverTimestamp() }); renderComments(pid); } catch(e) {}
+      try {
+        await addDoc(collection(db, colPath), { type:'text', text, username:currentUser, createdAt:serverTimestamp() });
+        // Refresh the thread where reply was added
+        const threadId = 'thread-' + commentId;
+        const threadEl = document.getElementById(threadId);
+        if (threadEl && parentPath) {
+          loadReplies(pid, parentPath, threadId);
+        } else if (!parentPath) {
+          // top-level reply: reload top comments
+          renderTopLevelComments(pid);
+        }
+      } catch(e) {}
     };
 
     window.deleteCmt = async function(pid, cid, parentPath) {
       if (!confirm('Delete?')) return;
       const colPath = parentPath ? `posts/${pid}/comments/${parentPath}/replies` : `posts/${pid}/comments`;
-      try { await setDoc(doc(db, colPath, cid), { _deleted: true }, { merge: true }); document.getElementById('c-'+cid)?.remove(); showToast('Deleted'); } catch(e) { showToast('Failed',true); }
+      try {
+        await setDoc(doc(db, colPath, cid), { _deleted: true }, { merge: true });
+        document.getElementById('c-'+cid)?.remove();
+        showToast('Deleted');
+      } catch(e) { showToast('Failed',true); }
     };
 
     window.postMainComment = async function() {
-      const input = document.getElementById('cmtInput'); const text = input.value.trim();
-      if (!text || !activePostId) return; input.value = '';
-      try { await addDoc(collection(db, 'posts', activePostId, 'comments'), { type:'text', text, username:currentUser, createdAt:serverTimestamp() }); renderComments(activePostId); } catch(e) {}
+      const input = document.getElementById('cmtInput');
+      const text = input.value.trim();
+      if (!text || !activePostId) return;
+      input.value = '';
+      try {
+        await addDoc(collection(db, 'posts', activePostId, 'comments'), { type:'text', text, username:currentUser, createdAt:serverTimestamp() });
+        renderTopLevelComments(activePostId);
+      } catch(e) {}
     };
 
-    // ===== VOICE =====
+    // ---------- VOICE WITH STORAGE ----------
     window.toggleMainMic = function() { if (voiceRecorder) sendRecording(); else startVoiceFor('', ''); };
     window.startVoiceFor = function(cid, parentPath) { if (voiceRecorder) sendRecording(); else startVoiceRecording(cid, parentPath); };
 
@@ -290,68 +533,168 @@
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, sampleRate: 16000, channelCount: 1 } });
         voiceRecorder = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm', audioBitsPerSecond: 24000 });
-        voiceChunks = []; voiceRecorder.ondataavailable = e => { if (e.data.size > 0) voiceChunks.push(e.data); };
+        voiceChunks = [];
+        voiceRecorder.ondataavailable = e => { if (e.data.size > 0) voiceChunks.push(e.data); };
         voiceRecorder.onstop = () => { stream.getTracks().forEach(t => t.stop()); };
-        voiceRecorder.start(200); voiceSeconds = 0;
-        voiceTargetCid = cid || ''; voiceTargetPath = parentPath || '';
-        document.getElementById('globalRecBar').classList.add('show'); document.getElementById('grecTimer').textContent = '00:00';
-        if (cid) { const m = document.getElementById('rmic-'+cid); if (m) m.classList.add('recording'); }
-        else { const m = document.getElementById('mainMicBtn'); if (m) m.classList.add('recording'); document.getElementById('cmtPostBtn').disabled = true; }
-        voiceTimer = setInterval(() => { voiceSeconds++; document.getElementById('grecTimer').textContent = fmtDur(voiceSeconds); if (voiceSeconds >= MAX_VOICE_SEC) sendRecording(); }, 1000);
+        voiceRecorder.start(200);
+        voiceSeconds = 0;
+        voiceTargetCid = cid || '';
+        voiceTargetPath = parentPath || '';
+        document.getElementById('globalRecBar').classList.add('show');
+        document.getElementById('grecTimer').textContent = '00:00';
+        if (cid) {
+          document.getElementById('rmic-'+cid)?.classList.add('recording');
+        } else {
+          document.getElementById('mainMicBtn')?.classList.add('recording');
+          document.getElementById('cmtPostBtn').disabled = true;
+        }
+        voiceTimer = setInterval(() => {
+          voiceSeconds++;
+          document.getElementById('grecTimer').textContent = fmtDur(voiceSeconds);
+          if (voiceSeconds >= MAX_VOICE_SEC) sendRecording();
+        }, 1000);
       } catch(e) { showToast('Microphone needed!', true); }
     }
 
-    window.cancelRecording = function() { if (voiceRecorder) { voiceChunks = []; voiceRecorder.stop(); } resetVoiceUI(); };
+    window.cancelRecording = function() {
+      if (voiceRecorder) { voiceChunks = []; voiceRecorder.stop(); }
+      resetVoiceUI();
+    };
+
     window.sendRecording = async function() {
       if (!voiceRecorder || voiceSeconds < 1) { cancelRecording(); return; }
       voiceRecorder.onstop = async () => {
         voiceRecorder.stream.getTracks().forEach(t => t.stop());
         const blob = new Blob(voiceChunks, { type: voiceRecorder.mimeType || 'audio/webm' });
-        await saveVoice(blob, voiceSeconds); resetVoiceUI(); renderComments(activePostId);
+        await saveVoiceToStorage(blob, voiceSeconds);
+        resetVoiceUI();
+        if (activePostId) {
+          if (voiceTargetCid) {
+            const threadId = 'thread-' + voiceTargetCid;
+            const threadEl = document.getElementById(threadId);
+            if (threadEl && voiceTargetPath) {
+              loadReplies(activePostId, voiceTargetPath, threadId);
+            } else {
+              renderTopLevelComments(activePostId);
+            }
+          } else {
+            renderTopLevelComments(activePostId);
+          }
+        }
       };
-      voiceRecorder.stop(); clearInterval(voiceTimer);
+      voiceRecorder.stop();
+      clearInterval(voiceTimer);
     };
 
     function resetVoiceUI() {
-      clearInterval(voiceTimer); voiceRecorder = null; voiceChunks = [];
-      document.getElementById('globalRecBar').classList.remove('show'); document.getElementById('cmtPostBtn').disabled = false;
-      if (voiceTargetCid) { const m = document.getElementById('rmic-'+voiceTargetCid); if (m) m.classList.remove('recording'); }
-      else { const m = document.getElementById('mainMicBtn'); if (m) m.classList.remove('recording'); }
-      voiceTargetCid = ''; voiceTargetPath = '';
+      clearInterval(voiceTimer);
+      voiceRecorder = null;
+      voiceChunks = [];
+      document.getElementById('globalRecBar').classList.remove('show');
+      document.getElementById('cmtPostBtn').disabled = false;
+      if (voiceTargetCid) {
+        document.getElementById('rmic-'+voiceTargetCid)?.classList.remove('recording');
+      } else {
+        document.getElementById('mainMicBtn')?.classList.remove('recording');
+      }
+      voiceTargetCid = '';
+      voiceTargetPath = '';
     }
 
-    // ===== THE FIX: Voice reply saves to the CORRECT reply path =====
-    async function saveVoice(audioBlob, duration) {
-      showToast('Saving...'); const reader = new FileReader();
-      reader.onload = async function(e) {
-        try {
-          if (voiceTargetCid) {
-            // Voice REPLY to a comment → goes into that comment's replies
-            const colPath = voiceTargetPath ? `posts/${activePostId}/comments/${voiceTargetPath}/replies` : `posts/${activePostId}/comments/${voiceTargetCid}/replies`;
-            console.log('📁 Saving voice reply to:', colPath);
-            await addDoc(collection(db, colPath), { type:'voice', username:currentUser, audioData:e.target.result, duration, createdAt:serverTimestamp() });
-          } else {
-            // Main voice comment on post
-            await addDoc(collection(db, 'posts', activePostId, 'comments'), { type:'voice', username:currentUser, audioData:e.target.result, duration, createdAt:serverTimestamp() });
-          }
-          showToast('✅ Voice added!');
-        } catch(err) { console.error(err); showToast('❌ Failed', true); }
-      };
-      reader.readAsDataURL(audioBlob);
+    async function saveVoiceToStorage(audioBlob, duration) {
+      showToast('Uploading voice...');
+      const fileName = `voice_comments/${activePostId}/${Date.now()}.webm`;
+      const storageRef = ref(storage, fileName);
+      try {
+        const snapshot = await uploadBytes(storageRef, audioBlob);
+        const downloadURL = await getDownloadURL(snapshot.ref);
+        
+        if (voiceTargetCid) {
+          const colPath = voiceTargetPath
+            ? `posts/${activePostId}/comments/${voiceTargetPath}/replies`
+            : `posts/${activePostId}/comments/${voiceTargetCid}/replies`;
+          await addDoc(collection(db, colPath), {
+            type: 'voice',
+            username: currentUser,
+            audioURL: downloadURL,
+            duration,
+            createdAt: serverTimestamp()
+          });
+        } else {
+          await addDoc(collection(db, 'posts', activePostId, 'comments'), {
+            type: 'voice',
+            username: currentUser,
+            audioURL: downloadURL,
+            duration,
+            createdAt: serverTimestamp()
+          });
+        }
+        showToast('✅ Voice added!');
+      } catch(e) {
+        console.error(e);
+        showToast('❌ Upload failed', true);
+      }
     }
 
-    window.playVC = function(dataUrl, btn) {
+    window.playVC = function(url, btn) {
+      if (!url) return;
       document.querySelectorAll('.vc-play-btn i').forEach(i => i.className = 'fas fa-play');
       if (btn._audio && !btn._audio.paused) { btn._audio.pause(); btn.querySelector('i').className = 'fas fa-play'; return; }
-      if (!btn._audio) { btn._audio = new Audio(dataUrl); btn._audio.onended = () => { btn.querySelector('i').className = 'fas fa-play'; }; }
+      if (!btn._audio) {
+        btn._audio = new Audio(url);
+        btn._audio.onended = () => { btn.querySelector('i').className = 'fas fa-play'; };
+      }
       btn._audio.play().catch(() => { btn.querySelector('i').className = 'fas fa-exclamation-triangle'; });
       btn.querySelector('i').className = 'fas fa-pause';
     };
 
-    window.sharePost = function(s) { if (navigator.share) navigator.share({url:s}); else { navigator.clipboard.writeText(s); showToast('Link copied!'); } };
-    function showToast(m, e) { const t = document.getElementById('toast'); t.textContent = m; t.className = 'toast '+(e?'error':''); t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2500); }
-    window.openImageViewer = function(s) { const o = document.createElement('div'); o.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:800;display:flex;align-items:center;justify-content:center;'; o.innerHTML = `<img src="${s}" style="max-width:95%;max-height:90vh;object-fit:contain;"><button style="position:absolute;top:1rem;right:1rem;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.6);border:none;color:#fff;font-size:1rem;cursor:pointer;">✕</button>`; o.querySelector('button').onclick = () => o.remove(); o.onclick = e => { if (e.target === o) o.remove(); }; document.body.appendChild(o); };
-    document.getElementById('cmtInput').addEventListener('keydown', function(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); postMainComment(); } });
+    // ---------- LIKES & SHARE ----------
+    window.toggleLike = async function(pid) {
+      const b = document.getElementById('likeBtn-'+pid), l = document.getElementById('likes-'+pid);
+      if (!b||!l) return;
+      const liked = b.classList.contains('liked');
+      if (liked) {
+        b.classList.remove('liked');
+        b.querySelector('i').className='far fa-heart';
+        l.textContent=(Math.max(0,parseInt(l.textContent)-1))+' likes';
+        try { await updateDoc(doc(db,'posts',pid),{likes:increment(-1)}); } catch(e) {}
+      } else {
+        b.classList.add('liked');
+        b.querySelector('i').className='fas fa-heart';
+        l.textContent=(parseInt(l.textContent)+1)+' likes';
+        try { await updateDoc(doc(db,'posts',pid),{likes:increment(1)}); } catch(e) {}
+      }
+    };
+
+    window.sharePost = function(s) {
+      if (navigator.share) navigator.share({url:s});
+      else { navigator.clipboard.writeText(s); showToast('Link copied!'); }
+    };
+
+    function showToast(m, e) {
+      const t = document.getElementById('toast');
+      t.textContent = m;
+      t.className = 'toast '+(e?'error':'');
+      t.classList.add('show');
+      clearTimeout(t._t);
+      t._t = setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    window.openImageViewer = function(s) {
+      const o = document.createElement('div');
+      o.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:800;display:flex;align-items:center;justify-content:center;';
+      o.innerHTML = `<img src="${s}" style="max-width:95%;max-height:90vh;object-fit:contain;"><button style="position:absolute;top:1rem;right:1rem;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.6);border:none;color:#fff;font-size:1rem;cursor:pointer;">✕</button>`;
+      o.querySelector('button').onclick = () => o.remove();
+      o.onclick = e => { if (e.target === o) o.remove(); };
+      document.body.appendChild(o);
+    };
+
+    document.getElementById('cmtInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); postMainComment(); }
+    });
+
+    // Start everything instantly
+    bootApp();
   </script>
 </body>
 </html>

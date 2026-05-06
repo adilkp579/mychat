@@ -7,37 +7,51 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     * { margin:0;padding:0;box-sizing:border-box; }
-    body { background:#000;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;overscroll-behavior:none; }
+    body { background:#000;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;overscroll-behavior:none;overflow:hidden; }
     .page { width:100%;height:100vh;height:100dvh;background:#000;display:flex;flex-direction:column;position:relative;overflow:hidden; }
-    .content { 
-      flex:1;display:flex;flex-direction:column;align-items:center;justify-content:space-between;color:#fff;
-      padding:0.5rem 1rem 5.5rem 1rem;text-align:center;gap:0.3rem;
-      overflow:hidden;height:100%;
+    
+    .top-section { 
+      flex-shrink:0;padding:0.5rem 1rem 0.2rem 1rem;
+      display:flex;flex-direction:column;align-items:center;gap:0.2rem;
     }
+    
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
     @keyframes livePulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.7)} 50%{box-shadow:0 0 0 10px rgba(239,68,68,0)} }
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
     
-    .online-counter { display:flex;align-items:center;gap:0.3rem;color:#4ade80;font-size:0.65rem;padding:0.15rem 0;flex-shrink:0; }
+    .online-counter { display:flex;align-items:center;gap:0.3rem;color:#4ade80;font-size:0.65rem; }
     .online-dot { width:5px;height:5px;background:#4ade80;border-radius:50%;animation:blink 2s infinite; }
     
-    .camera-area { flex:1;display:flex;flex-direction:column;width:100%;max-width:500px;min-height:0;gap:0.3rem; }
-    .camera-labels { display:flex;justify-content:space-between;width:100%;padding:0 0.2rem;flex-shrink:0; }
+    .live-status {
+      display:none;align-items:center;gap:0.4rem;
+      background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);
+      padding:0.2rem 0.8rem;border-radius:1.5rem;
+      font-size:0.7rem;color:#ef4444;font-weight:600;
+      animation:livePulse 2s infinite;
+    }
+    .live-status.show { display:flex; }
+    .live-status i { font-size:0.5rem; }
+    
+    .camera-labels { display:flex;justify-content:space-between;width:100%;max-width:500px;padding:0 0.2rem; }
     .stranger-label-outside { color:#777;font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;margin-left:0.3rem; }
     .you-label-outside { color:#777;font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;margin-right:0.3rem; }
-    .camera-container { display:flex;gap:0.5rem;align-items:flex-start;justify-content:center;width:100%;flex:1;min-height:0; }
+    
+    .camera-container { 
+      flex:1;display:flex;gap:0.5rem;align-items:flex-start;justify-content:center;
+      width:100%;max-width:500px;margin:0 auto;min-height:0;padding:0 0.3rem;
+    }
     .stranger-camera { width:75%;height:100%;background:#111;border:2px solid rgba(255,255,255,0.2);border-radius:1.2rem;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center; }
     .stranger-camera.connected { border-color:#4ade80; }
     .stranger-camera.live-active { border-color:#ef4444; animation:livePulse 2s infinite; }
     #strangerFeed { width:100%;height:100%;object-fit:cover;display:none;background:#000;transform:rotateY(180deg);-webkit-transform:rotateY(180deg); }
     .stranger-placeholder { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.3rem;color:rgba(255,255,255,0.25); }
-    .stranger-placeholder i { font-size:3rem; }
-    .my-camera { width:22%;max-height:140px;aspect-ratio:3/4;background:#111;border:2px solid rgba(255,255,255,0.3);border-radius:0.8rem;position:relative;overflow:hidden;align-self:flex-start; }
+    .stranger-placeholder i { font-size:2.5rem; }
+    .my-camera { width:22%;max-height:130px;aspect-ratio:3/4;background:#111;border:2px solid rgba(255,255,255,0.3);border-radius:0.8rem;position:relative;overflow:hidden;align-self:flex-start; }
     .my-camera.active { border-color:#ef4444; }
     #myFeed { width:100%;height:100%;object-fit:cover;display:none;background:#000;transform:rotateY(180deg);-webkit-transform:rotateY(180deg); }
     .my-placeholder { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.15rem;color:rgba(255,255,255,0.35);font-size:0.6rem; }
-    .my-placeholder i { font-size:1.3rem; }
+    .my-placeholder i { font-size:1.2rem; }
     
     .audio-indicator {
       position:absolute;bottom:0.5rem;left:0.5rem;
@@ -50,31 +64,19 @@
     .audio-indicator.speaking .audio-bar { background:#fbbf24;animation:audioWave 0.3s ease infinite; }
     @keyframes audioWave { 0%,100%{transform:scaleY(1);} 50%{transform:scaleY(2);} }
     
-    .live-status {
-      display:none;align-items:center;gap:0.4rem;
-      background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);
-      padding:0.25rem 0.8rem;border-radius:1.5rem;
-      font-size:0.7rem;color:#ef4444;font-weight:600;
-      animation:livePulse 2s infinite;flex-shrink:0;
-    }
-    .live-status.show { display:flex; }
-    .live-status i { font-size:0.5rem; }
-    
-    .user-info { display:flex;align-items:center;gap:0.3rem;background:rgba(255,255,255,0.06);padding:0.2rem 0.6rem;border-radius:1rem;font-size:0.7rem;color:#ccc;opacity:0;transition:all 0.3s;border:1px solid rgba(255,255,255,0.08);flex-shrink:0; }
+    .user-info { display:flex;align-items:center;gap:0.3rem;background:rgba(255,255,255,0.06);padding:0.15rem 0.6rem;border-radius:1rem;font-size:0.65rem;color:#ccc;opacity:0;transition:all 0.3s;border:1px solid rgba(255,255,255,0.08);margin:0.2rem 0; }
     .user-info.active { opacity:1; }
     
     .buttons-area { 
-      width:100%;max-width:500px;flex-shrink:0;
-      padding:0.4rem 0;display:flex;gap:0.5rem;
-      flex-wrap:wrap;justify-content:center;align-items:center;
-      background:#000;
+      flex-shrink:0;padding:0.3rem 0.5rem 0.4rem 0.5rem;
+      display:flex;gap:0.4rem;flex-wrap:wrap;justify-content:center;align-items:center;
+      width:100%;max-width:500px;margin:0 auto;
     }
     .btn { 
-      height:38px;border-radius:2rem;
-      backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+      height:36px;border-radius:2rem;
       display:inline-flex;align-items:center;justify-content:center;gap:0.3rem;
       cursor:pointer;border:1px solid transparent;outline:none;
-      font-size:0.75rem;font-weight:600;padding:0 1.1rem;color:#fff;
+      font-size:0.75rem;font-weight:600;padding:0 1rem;color:#fff;
       transition:all 0.3s;
       -webkit-tap-highlight-color:transparent;
       touch-action:manipulation;
@@ -83,18 +85,18 @@
       white-space:nowrap;
     }
     .btn:active { transform:scale(0.95); }
-    .start-button { min-width:80px;background:rgba(74,222,128,0.2);border-color:rgba(74,222,128,0.5);color:#4ade80; }
+    .start-button { min-width:75px;background:rgba(74,222,128,0.2);border-color:rgba(74,222,128,0.5);color:#4ade80; }
     .start-button.searching { background:rgba(251,191,36,0.2);border-color:rgba(251,191,36,0.5);color:#fbbf24;animation:pulse 1s infinite; }
-    .stop-button { min-width:70px;background:rgba(239,68,68,0.2);border-color:rgba(239,68,68,0.5);color:#ef4444;display:none; }
+    .stop-button { min-width:65px;background:rgba(239,68,68,0.2);border-color:rgba(239,68,68,0.5);color:#ef4444;display:none; }
     .stop-button.visible { display:inline-flex; }
-    .next-button { min-width:70px;background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);color:#ccc;display:none; }
+    .next-button { min-width:65px;background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);color:#ccc;display:none; }
     .next-button.visible { display:inline-flex; }
-    .mic-button { width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);color:#4ade80;display:none;padding:0; }
+    .mic-button { width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);color:#4ade80;display:none;padding:0; }
     .mic-button.visible { display:inline-flex;align-items:center;justify-content:center; }
     .mic-button.muted { color:#ef4444;background:rgba(239,68,68,0.2);border-color:rgba(239,68,68,0.5); }
     
     .live-button { 
-      min-width:80px;
+      min-width:75px;
       background:rgba(74,222,128,0.2);
       border-color:rgba(74,222,128,0.5);
       color:#4ade80;
@@ -111,7 +113,7 @@
     .https-warning {
       display:none;background:#ef4444;color:#fff;
       text-align:center;padding:0.4rem;font-size:0.65rem;
-      font-weight:600;position:sticky;top:0;z-index:200;width:100%;
+      font-weight:600;z-index:200;width:100%;flex-shrink:0;
     }
     .https-warning.show { display:block; }
     .https-warning a { color:#fff;text-decoration:underline; }
@@ -120,7 +122,16 @@
     .loading-screen i { font-size:2rem;color:#3897f0;animation:spin 1s infinite; }
     .loading-screen span { font-size:0.75rem;color:#888; }
 
-    .floating-nav { position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(26,26,26,0.95);backdrop-filter:blur(30px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 4px 20px rgba(0,0,0,0.5);z-index:100; }
+    .floating-nav { 
+      position:fixed;bottom:max(0.8rem,env(safe-area-inset-bottom,0.8rem));
+      left:50%;transform:translateX(-50%);
+      width:92%;max-width:500px;
+      background:rgba(26,26,26,0.95);backdrop-filter:blur(30px);
+      border-radius:2.5rem;padding:0.6rem 1.5rem;
+      display:flex;align-items:center;justify-content:center;
+      border:1px solid rgba(255,255,255,0.12);
+      box-shadow:0 4px 20px rgba(0,0,0,0.5);z-index:100;
+    }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
     .nav-center a { color:rgba(255,255,255,0.6);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;position:relative; }
     .nav-center a::before { content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:4px;height:4px;border-radius:50%;background:#fff;transition:all 0.3s; }
@@ -133,16 +144,21 @@
       .floating-nav{position:fixed;top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column}
       .nav-center{flex-direction:column;gap:1.2rem;max-width:none}.nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
       .nav-center a::before{bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0)}.nav-center a.active::before{transform:translateY(-50%) scale(1)}
-      .content{padding:1rem 2rem 2rem 6rem}.my-camera{max-height:180px}
+      .page{padding-left:5rem}
+      .top-section{padding:1rem 2rem 0.3rem 2rem}
+      .buttons-area{padding:0.4rem 2rem 1rem 2rem}
+      .my-camera{max-height:160px}
     }
     @media (max-width:380px) { 
-      .content{padding:0.3rem 0.6rem 5rem 0.6rem}.my-camera{max-height:100px}
-      .btn{height:34px;font-size:0.7rem;padding:0 0.8rem}
-      .start-button,.live-button{min-width:65px}.stop-button,.next-button{min-width:60px}
-      .mic-button{width:34px;height:34px}
-      .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:max(0.8rem,env(safe-area-inset-bottom,0.8rem))}
+      .top-section{padding:0.3rem 0.6rem 0.15rem 0.6rem}
+      .btn{height:33px;font-size:0.7rem;padding:0 0.8rem}
+      .start-button,.live-button{min-width:65px}.stop-button,.next-button{min-width:58px}
+      .mic-button{width:33px;height:33px}
+      .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:max(0.6rem,env(safe-area-inset-bottom,0.6rem))}
       .nav-center a{font-size:1.1rem;width:2rem;height:2rem}
-      .buttons-area{gap:0.4rem;padding:0.3rem 0}
+      .buttons-area{padding:0.25rem 0.4rem 0.35rem 0.4rem;gap:0.3rem}
+      .my-camera{max-height:100px}
+      .stranger-placeholder i{font-size:2rem}
     }
   </style>
 </head>
@@ -157,42 +173,37 @@
   </div>
 
   <div class="page" id="mainPage" style="display:none;">
-    <div class="content">
+    <div class="top-section">
       <div class="online-counter"><div class="online-dot"></div><span id="onlineCount">0 online</span></div>
-      
-      <div class="live-status" id="liveStatus">
-        <i class="fas fa-circle"></i> LIVE • <span id="liveViewerCount">0</span> watching
-      </div>
-      
-      <div class="camera-area">
-        <div class="camera-labels"><span class="stranger-label-outside">STRANGER</span><span class="you-label-outside">YOU</span></div>
-        <div class="camera-container">
-          <div class="stranger-camera" id="strangerCamera">
-            <video id="strangerFeed" autoplay playsinline></video>
-            <div class="stranger-placeholder" id="strangerPlaceholder"><i class="fas fa-user-secret"></i><span>???</span></div>
-            <div class="audio-indicator" id="strangerAudioIndicator" style="display:none;">
-              <i class="fas fa-volume-up" style="font-size:0.5rem;"></i>
-              <div class="audio-bars">
-                <div class="audio-bar" style="height:4px;"></div><div class="audio-bar" style="height:8px;"></div><div class="audio-bar" style="height:6px;"></div><div class="audio-bar" style="height:10px;"></div><div class="audio-bar" style="height:5px;"></div>
-              </div>
-            </div>
-          </div>
-          <div class="my-camera" id="myCamera">
-            <video id="myFeed" autoplay playsinline muted></video>
-            <div class="my-placeholder" id="myPlaceholder"><i class="fas fa-video"></i><span>off</span></div>
+      <div class="live-status" id="liveStatus"><i class="fas fa-circle"></i> LIVE • <span id="liveViewerCount">0</span> watching</div>
+    </div>
+    
+    <div class="camera-labels"><span class="stranger-label-outside">STRANGER</span><span class="you-label-outside">YOU</span></div>
+    <div class="camera-container">
+      <div class="stranger-camera" id="strangerCamera">
+        <video id="strangerFeed" autoplay playsinline></video>
+        <div class="stranger-placeholder" id="strangerPlaceholder"><i class="fas fa-user-secret"></i><span>???</span></div>
+        <div class="audio-indicator" id="strangerAudioIndicator" style="display:none;">
+          <i class="fas fa-volume-up" style="font-size:0.5rem;"></i>
+          <div class="audio-bars">
+            <div class="audio-bar" style="height:4px;"></div><div class="audio-bar" style="height:8px;"></div><div class="audio-bar" style="height:6px;"></div><div class="audio-bar" style="height:10px;"></div><div class="audio-bar" style="height:5px;"></div>
           </div>
         </div>
       </div>
-      
-      <div class="user-info" id="userInfo"><span>🌍</span><span>Connected</span></div>
-      
-      <div class="buttons-area">
-        <button class="btn live-button" id="liveBtn" type="button"><i class="fas fa-circle"></i><span>LIVE</span></button>
-        <button class="btn start-button" id="startBtn" type="button"><i class="fas fa-play"></i><span>Start</span></button>
-        <button class="btn stop-button" id="stopBtn" type="button"><i class="fas fa-stop"></i><span>Stop</span></button>
-        <button class="btn next-button" id="nextBtn" type="button"><i class="fas fa-forward"></i><span>Next</span></button>
-        <button class="btn mic-button" id="micBtn" type="button" title="Mute"><i class="fas fa-microphone"></i></button>
+      <div class="my-camera" id="myCamera">
+        <video id="myFeed" autoplay playsinline muted></video>
+        <div class="my-placeholder" id="myPlaceholder"><i class="fas fa-video"></i><span>off</span></div>
       </div>
+    </div>
+    
+    <div class="user-info" id="userInfo"><span>🌍</span><span>Connected</span></div>
+    
+    <div class="buttons-area">
+      <button class="btn live-button" id="liveBtn" type="button"><i class="fas fa-circle"></i><span>LIVE</span></button>
+      <button class="btn start-button" id="startBtn" type="button"><i class="fas fa-play"></i><span>Start</span></button>
+      <button class="btn stop-button" id="stopBtn" type="button"><i class="fas fa-stop"></i><span>Stop</span></button>
+      <button class="btn next-button" id="nextBtn" type="button"><i class="fas fa-forward"></i><span>Next</span></button>
+      <button class="btn mic-button" id="micBtn" type="button" title="Mute"><i class="fas fa-microphone"></i></button>
     </div>
     
     <nav class="floating-nav"><div class="nav-center">
@@ -208,11 +219,9 @@
 
   <script>
     if (!localStorage.getItem("uid")) { window.location.replace("login.html"); }
-
     if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
       document.getElementById('httpsWarning').classList.add('show');
     }
-
     window.switchToHTTPS = function() {
       window.location.href = window.location.href.replace('http://', 'https://');
     };
@@ -249,7 +258,7 @@
       const currentUser = localStorage.getItem('currentUser') || '@anonymous';
       const liveUserId = currentUser.replace('@', '');
       
-      let localStream, pc, roomId, unsubs=[], connectionTimeout;
+      let localStream, pc, roomId, unsubs=[];
       let isMuted = false, isLive = false;
       let strangerStream = null;
       let liveViewers = {};
@@ -264,17 +273,12 @@
       micBtn.onclick = toggleMute;
 
       function updateLiveButton() {
-        if (isLive) {
-          liveBtn.innerHTML = '<i class="fas fa-stop-circle"></i><span>END</span>';
-          liveBtn.classList.add('live-active-btn');
-        } else {
-          liveBtn.innerHTML = '<i class="fas fa-circle"></i><span>LIVE</span>';
-          liveBtn.classList.remove('live-active-btn');
-        }
+        if (isLive) { liveBtn.innerHTML = '<i class="fas fa-stop-circle"></i><span>END</span>'; liveBtn.classList.add('live-active-btn'); }
+        else { liveBtn.innerHTML = '<i class="fas fa-circle"></i><span>LIVE</span>'; liveBtn.classList.remove('live-active-btn'); }
       }
 
       async function startLive() {
-        if (!localStream) { alert('Start camera first! Tap START button then LIVE.'); return; }
+        if (!localStream) { alert('Start camera first!'); return; }
         isLive = true; updateLiveButton();
         try {
           await setDoc(doc(db, 'live', liveUserId), { userId: currentUser, active: true, startedAt: serverTimestamp(), viewers: 0, hasStranger: !!strangerStream });
@@ -282,8 +286,8 @@
           liveUnsub = onSnapshot(collection(db, 'live_viewers'), (snap) => {
             snap.docChanges().forEach(async (change) => {
               const vd = change.doc.data();
-              if (change.type === 'added' && vd.liveUser === currentUser && vd.offer && vd.active) { await handleNewViewer(change.doc.id, vd); }
-              if (change.type === 'modified' && vd.streamEnded) { cleanupViewer(change.doc.id); }
+              if (change.type === 'added' && vd.liveUser === currentUser && vd.offer && vd.active) await handleNewViewer(change.doc.id, vd);
+              if (change.type === 'modified' && vd.streamEnded) cleanupViewer(change.doc.id);
             });
           });
           updateLiveViewerCount();
@@ -294,9 +298,9 @@
         try {
           const vpc = new RTCPeerConnection(servers);
           if (localStream) localStream.getTracks().forEach(track => vpc.addTrack(track, localStream));
-          if (strangerStream) { strangerStream.getTracks().forEach(track => { if (track.readyState === 'live') vpc.addTrack(track, strangerStream); }); }
+          if (strangerStream) strangerStream.getTracks().forEach(track => { if (track.readyState === 'live') vpc.addTrack(track, strangerStream); });
           vpc.onicecandidate = async (e) => { if (e.candidate) { const ref = doc(db, 'live_viewers', viewerId); const snap = await getDoc(ref); const existing = snap.data()?.hostCandidates || []; existing.push(e.candidate.toJSON()); await setDoc(ref, { hostCandidates: existing }, { merge: true }); } };
-          vpc.onconnectionstatechange = () => { if (vpc.connectionState === 'failed' || vpc.connectionState === 'disconnected') { cleanupViewer(viewerId); } };
+          vpc.onconnectionstatechange = () => { if (vpc.connectionState === 'failed' || vpc.connectionState === 'disconnected') cleanupViewer(viewerId); };
           await vpc.setRemoteDescription(new RTCSessionDescription(viewerData.offer));
           const answer = await vpc.createAnswer(); await vpc.setLocalDescription(answer);
           await setDoc(doc(db, 'live_viewers', viewerId), { answer: { type: answer.type, sdp: answer.sdp }, status: 'connected' }, { merge: true });
@@ -305,39 +309,28 @@
       }
 
       function cleanupViewer(viewerId) { if (liveViewers[viewerId]) { liveViewers[viewerId].close(); delete liveViewers[viewerId]; updateLiveViewerCount(); } }
-
       async function updateLiveViewerCount() { const count = Object.keys(liveViewers).length; liveViewerCount.textContent = count; try { await setDoc(doc(db, 'live', liveUserId), { viewers: count }, { merge: true }); } catch(e) {} }
 
       async function endLive() {
         isLive = false; updateLiveButton();
         Object.keys(liveViewers).forEach(id => { if (liveViewers[id]) liveViewers[id].close(); }); liveViewers = {};
-        try { const viewersSnap = await getDocs(collection(db, 'live_viewers')); viewersSnap.forEach(async (docSnap) => { if (docSnap.data().liveUser === currentUser) { await setDoc(doc(db, 'live_viewers', docSnap.id), { streamEnded: true, active: false }, { merge: true }).catch(() => {}); } }); } catch(e) {}
+        try { const viewersSnap = await getDocs(collection(db, 'live_viewers')); viewersSnap.forEach(async (docSnap) => { if (docSnap.data().liveUser === currentUser) await setDoc(doc(db, 'live_viewers', docSnap.id), { streamEnded: true, active: false }, { merge: true }).catch(() => {}); }); } catch(e) {}
         await deleteDoc(doc(db, 'live', liveUserId)).catch(() => {});
         if (liveUnsub) { liveUnsub(); liveUnsub = null; }
         strangerCamera.classList.remove('live-active'); liveStatus.classList.remove('show'); liveViewerCount.textContent = '0';
       }
 
-      async function toggleLive() { if (isLive) { await endLive(); } else { if (!localStream) { const started = await startCamera(); if (!started) return; } await startLive(); } }
+      async function toggleLive() { if (isLive) await endLive(); else { if (!localStream) { const started = await startCamera(); if (!started) return; } await startLive(); } }
 
       async function startCamera() {
-        if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-          alert('⚠️ Camera requires HTTPS!\n\nSwitching to secure connection...');
-          window.location.href = window.location.href.replace('http://', 'https://'); return false;
-        }
+        if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') { alert('Camera requires HTTPS!'); window.location.href = window.location.href.replace('http://', 'https://'); return false; }
         try {
           if(localStream){ localStream.getTracks().forEach(t=>t.stop()); }
           localStream = await navigator.mediaDevices.getUserMedia({ video: { width:480, height:640, facingMode:'user' }, audio: { echoCancellation:true, noiseSuppression:true, autoGainControl:true } });
           myFeed.srcObject = localStream; await myFeed.play();
           myFeed.style.display='block'; myPlaceholder.style.display='none'; myCameraEl.classList.add('active');
           return true;
-        } catch(e) {
-          if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
-            alert('📷 Camera blocked!\n\niPhone: Settings > Safari > Camera > Allow\n\nAndroid: Settings > Apps > Browser > Permissions > Camera');
-          } else if (e.name === 'NotFoundError') {
-            alert('📷 No camera found on this device.');
-          } else { alert('📷 Camera error. Ensure HTTPS and camera permission is allowed.'); }
-          return false;
-        }
+        } catch(e) { alert('Camera/microphone access needed!'); return false; }
       }
 
       function stopCamera() { if(localStream){ localStream.getTracks().forEach(t=>t.stop()); localStream=null; } myFeed.style.display='none'; myFeed.srcObject=null; myPlaceholder.style.display=''; myCameraEl.classList.remove('active'); }
@@ -350,10 +343,10 @@
         roomId=[myId,otherId].sort().join('_'); const roomRef=doc(db,'rooms',roomId); showConnected();
         if(pc){pc.close();pc=null;} unsubs.forEach(u=>u()); unsubs=[];
         pc=new RTCPeerConnection(servers); localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));
-        pc.ontrack=(e)=>{ if(e.streams[0]){ strangerStream = e.streams[0]; strangerFeed.srcObject=e.streams[0]; strangerFeed.style.display='block'; strangerPlaceholder.style.display='none'; strangerCamera.classList.add('connected'); if(isLive) { Object.values(liveViewers).forEach(vpc => { try { strangerStream.getTracks().forEach(track => { if(track.readyState==='live') vpc.addTrack(track,strangerStream); }); } catch(e) {} }); } } };
+        pc.ontrack=(e)=>{ if(e.streams[0]){ strangerStream = e.streams[0]; strangerFeed.srcObject=e.streams[0]; strangerFeed.style.display='block'; strangerPlaceholder.style.display='none'; strangerCamera.classList.add('connected'); if(isLive) Object.values(liveViewers).forEach(vpc => { try { strangerStream.getTracks().forEach(track => { if(track.readyState==='live') vpc.addTrack(track,strangerStream); }); } catch(e) {} }); } };
         pc.onicecandidate=async(e)=>{ if(e.candidate) await addDoc(collection(roomRef,'ice'),{sender:myId,candidate:e.candidate.toJSON()}); };
-        unsubs.push(onSnapshot(collection(roomRef,'ice'),(snap)=>{ snap.docChanges().forEach(async(c)=>{ if(c.type==='added'&&c.doc.data().sender!==myId&&pc){ try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate));}catch(e){} } }); }));
-        if(isCaller){ const offer=await pc.createOffer({offerToReceiveVideo:true,offerToReceiveAudio:true}); await pc.setLocalDescription(offer); await setDoc(doc(db,'invites',otherId),{from:myId,offer:{type:offer.type,sdp:offer.sdp}}); unsubs.push(onSnapshot(doc(db,'invites',otherId),async(snap)=>{ const d=snap.data(); if(d?.answer&&!pc.currentRemoteDescription&&pc.signalingState!=='closed'){ await pc.setRemoteDescription(new RTCSessionDescription(d.answer)); } })); }
+        unsubs.push(onSnapshot(collection(roomRef,'ice'),(snap)=>{ snap.docChanges().forEach(async(c)=>{ if(c.type==='added'&&c.doc.data().sender!==myId&&pc) try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate));}catch(e){} }); }));
+        if(isCaller){ const offer=await pc.createOffer({offerToReceiveVideo:true,offerToReceiveAudio:true}); await pc.setLocalDescription(offer); await setDoc(doc(db,'invites',otherId),{from:myId,offer:{type:offer.type,sdp:offer.sdp}}); unsubs.push(onSnapshot(doc(db,'invites',otherId),async(snap)=>{ const d=snap.data(); if(d?.answer&&!pc.currentRemoteDescription&&pc.signalingState!=='closed') await pc.setRemoteDescription(new RTCSessionDescription(d.answer)); })); }
       }
 
       function listenForInvites() {
@@ -362,10 +355,10 @@
           roomId=[myId,d.from].sort().join('_'); const roomRef=doc(db,'rooms',roomId); showConnected();
           if(pc){pc.close();pc=null;} unsubs.forEach(u=>u()); unsubs=[];
           pc=new RTCPeerConnection(servers); localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));
-          pc.ontrack=(e)=>{ if(e.streams[0]){ strangerStream = e.streams[0]; strangerFeed.srcObject=e.streams[0]; strangerFeed.style.display='block'; strangerPlaceholder.style.display='none'; strangerCamera.classList.add('connected'); if(isLive) { Object.values(liveViewers).forEach(vpc => { try { strangerStream.getTracks().forEach(track => { if(track.readyState==='live') vpc.addTrack(track,strangerStream); }); } catch(e) {} }); } } };
+          pc.ontrack=(e)=>{ if(e.streams[0]){ strangerStream = e.streams[0]; strangerFeed.srcObject=e.streams[0]; strangerFeed.style.display='block'; strangerPlaceholder.style.display='none'; strangerCamera.classList.add('connected'); if(isLive) Object.values(liveViewers).forEach(vpc => { try { strangerStream.getTracks().forEach(track => { if(track.readyState==='live') vpc.addTrack(track,strangerStream); }); } catch(e) {} }); } };
           pc.onicecandidate=async(e)=>{ if(e.candidate) await addDoc(collection(roomRef,'ice'),{sender:myId,candidate:e.candidate.toJSON()}); };
           if(d.offer&&pc.signalingState!=='closed'){ await pc.setRemoteDescription(new RTCSessionDescription(d.offer)); const answer=await pc.createAnswer(); await pc.setLocalDescription(answer); await setDoc(doc(db,'invites',myId),{from:d.from,offer:d.offer,answer:{type:answer.type,sdp:answer.sdp}},{merge:true}); }
-          unsubs.push(onSnapshot(collection(roomRef,'ice'),(snap)=>{ snap.docChanges().forEach(async(c)=>{ if(c.type==='added'&&c.doc.data().sender!==myId&&pc){ try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate));}catch(e){} } }); }));
+          unsubs.push(onSnapshot(collection(roomRef,'ice'),(snap)=>{ snap.docChanges().forEach(async(c)=>{ if(c.type==='added'&&c.doc.data().sender!==myId&&pc) try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate));}catch(e){} }); }));
         }));
       }
 
@@ -380,14 +373,14 @@
       }
 
       function stopChat() {
-        if(connectionTimeout) clearTimeout(connectionTimeout);
         if(pc){pc.close();pc=null;} unsubs.forEach(u=>u()); unsubs=[];
         if(roomId){deleteDoc(doc(db,'rooms',roomId)).catch(()=>{});roomId=null;}
         deleteDoc(doc(db,'waiting',myId)).catch(()=>{}); deleteDoc(doc(db,'invites',myId)).catch(()=>{});
-        if(isLive){endLive();} resetStranger(); stopCamera(); showDisconnected();
+        if(isLive) endLive();
+        resetStranger(); stopCamera(); showDisconnected();
       }
 
-      window.addEventListener('beforeunload', () => { if(isLive) { endLive().catch(()=>{}); } if(pc) pc.close(); if(localStream) localStream.getTracks().forEach(t=>t.stop()); });
+      window.addEventListener('beforeunload', () => { if(isLive) endLive().catch(()=>{}); if(pc) pc.close(); if(localStream) localStream.getTracks().forEach(t=>t.stop()); });
     }
   </script>
 </body>

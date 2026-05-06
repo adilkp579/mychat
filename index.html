@@ -227,131 +227,22 @@
       const isRoot = !parentPath;
       const listEl = containerEl || document.getElementById('commentsList');
       if (isRoot) listEl.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;font-size:0.7rem;">Loading...</div>';
-
       const colPath = parentPath ? `posts/${pid}/comments/${parentPath}/replies` : `posts/${pid}/comments`;
       try {
         const snap = await getDocs(query(collection(db, colPath), orderBy('createdAt', 'asc')));
         if (isRoot && snap.empty) { listEl.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;font-size:0.7rem;">No comments yet</div>'; return; }
         if (!isRoot && snap.empty) return;
         if (isRoot) listEl.innerHTML = '';
-
         const postSnap = isRoot ? await getDoc(doc(db, 'posts', pid)) : null;
         const postOwner = postSnap?.exists() ? (postSnap.data().username || postSnap.data().userId || '') : '';
-
         for (const doc of snap.docs) {
           const d = doc.data(); const cid = doc.id; if (d._deleted) continue;
           const canDel = (d.username === currentUser || postOwner === currentUser);
           const delBtn = canDel ? `<button class="cmt-btn del-btn show" onclick="event.stopPropagation();deleteCmt('${pid}','${cid}','${parentPath}')">🗑️</button>` : '';
-          // THE FIX: Path includes this comment's ID for nested replies
           const myPath = parentPath ? `${parentPath}/${cid}` : cid;
-
           const wrapper = document.createElement('div'); wrapper.className = 'cmt-block'; wrapper.id = 'c-' + cid;
-
           if (d.type === 'voice') {
             const src = (d.audioData || '').replace(/'/g, "\\'");
-            wrapper.innerHTML = `<div class="cmt-row"><div class="cmt-avatar">${getAvt(d.username)}</div><div class="cmt-body"><div class="cmt-username">${cname(d.username)}</div><div class="vc-play-btn" onclick="playVC('${src}', this)"><i class="fas fa-play"></i><span>Voice</span><span class="vc-duration">${fmtDur(d.duration||0)}</span></div><div class="cmt-meta"><span class="cmt-time">${d.createdAt?timeAgo(d.createdAt.toDate()):''}</span><button class="cmt-btn reply-btn" onclick="toggleReplyBox('${cid}')">Reply</button>${delBtn}</div><div class="reply-box" id="rb-${cid}"><div class="reply-input-wrap"><button class="reply-mic-btn" id="rmic-${cid}" onclick="startVoiceFor('${cid}','${parentPath}')"><i class="fas fa-microphone"></i></button><input class="reply-input" id="ri-${cid}" placeholder="Reply..."></div><button class="reply-post-btn" onclick="postReply('${pid}','${cid}','${parentPath}')">Post</button></div><div class="cmt-thread" id="thread-${cid}"></div></div></div>`;
+            wrapper.innerHTML = `<div class="cmt-row"><div class="cmt-avatar">${getAvt(d.username)}</div><div class="cmt-body"><div class="cmt-username">${cname(d.username)}</div><div class="vc-play-btn" onclick="playVC('${src}', this)"><i class="fas fa-play"></i><span>Voice</span><span class="vc-duration">${fmtDur(d.duration||0)}</span></div><div class="cmt-meta"><span class="cmt-time">${d.createdAt?timeAgo(d.createdAt.toDate()):''}</span><button class="cmt-btn reply-btn" onclick="toggleReplyBox('${cid}')">Reply</button>${delBtn}</div><div class="reply-box" id="rb-${cid}"><div class="reply-input-wrap"><button class="reply-mic-btn" id="rmic-${cid}" onclick="startVoiceFor('${cid}','${myPath}')"><i class="fas fa-microphone"></i></button><input class="reply-input" id="ri-${cid}" placeholder="Reply..."></div><button class="reply-post-btn" onclick="postReply('${pid}','${cid}','${myPath}')">Post</button></div><div class="cmt-thread" id="thread-${cid}"></div></div></div>`;
           } else {
-            wrapper.innerHTML = `<div class="cmt-row"><div class="cmt-avatar">${getAvt(d.username)}</div><div class="cmt-body"><div class="cmt-username">${cname(d.username)}</div><div class="cmt-content">${d.text||''}</div><div class="cmt-meta"><span class="cmt-time">${d.createdAt?timeAgo(d.createdAt.toDate()):''}</span><button class="cmt-btn reply-btn" onclick="toggleReplyBox('${cid}')">Reply</button>${delBtn}</div><div class="reply-box" id="rb-${cid}"><div class="reply-input-wrap"><button class="reply-mic-btn" id="rmic-${cid}" onclick="startVoiceFor('${cid}','${parentPath}')"><i class="fas fa-microphone"></i></button><input class="reply-input" id="ri-${cid}" placeholder="Reply..."></div><button class="reply-post-btn" onclick="postReply('${pid}','${cid}','${parentPath}')">Post</button></div><div class="cmt-thread" id="thread-${cid}"></div></div></div>`;
-          }
-          listEl.appendChild(wrapper);
-          const threadEl = document.getElementById('thread-' + cid);
-          if (threadEl) await renderComments(pid, myPath, threadEl, level + 1);
-        }
-      } catch(e) { if (isRoot) listEl.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;">Error</div>'; }
-    }
-
-    window.toggleReplyBox = function(cid) { document.querySelectorAll('.reply-box').forEach(e => e.classList.remove('show')); const b = document.getElementById('rb-'+cid); if (b) { b.classList.add('show'); document.getElementById('ri-'+cid)?.focus(); } };
-
-    // ===== POST REPLY (Text) =====
-    window.postReply = async function(pid, commentId, parentPath) {
-      const input = document.getElementById('ri-' + commentId); const text = input?.value?.trim();
-      if (!text || !pid || !commentId) return; input.value = '';
-      const colPath = parentPath ? `posts/${pid}/comments/${parentPath}/replies` : `posts/${pid}/comments/${commentId}/replies`;
-      try { await addDoc(collection(db, colPath), { type:'text', text, username:currentUser, createdAt:serverTimestamp() }); renderComments(pid); } catch(e) {}
-    };
-
-    window.deleteCmt = async function(pid, cid, parentPath) {
-      if (!confirm('Delete?')) return;
-      const colPath = parentPath ? `posts/${pid}/comments/${parentPath}/replies` : `posts/${pid}/comments`;
-      try { await setDoc(doc(db, colPath, cid), { _deleted: true }, { merge: true }); document.getElementById('c-'+cid)?.remove(); showToast('Deleted'); } catch(e) { showToast('Failed',true); }
-    };
-
-    window.postMainComment = async function() {
-      const input = document.getElementById('cmtInput'); const text = input.value.trim();
-      if (!text || !activePostId) return; input.value = '';
-      try { await addDoc(collection(db, 'posts', activePostId, 'comments'), { type:'text', text, username:currentUser, createdAt:serverTimestamp() }); renderComments(activePostId); } catch(e) {}
-    };
-
-    // ===== VOICE =====
-    window.toggleMainMic = function() { if (voiceRecorder) sendRecording(); else startVoiceFor('', ''); };
-    window.startVoiceFor = function(cid, parentPath) { if (voiceRecorder) sendRecording(); else startVoiceRecording(cid, parentPath); };
-
-    async function startVoiceRecording(cid, parentPath) {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, sampleRate: 16000, channelCount: 1 } });
-        voiceRecorder = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm', audioBitsPerSecond: 24000 });
-        voiceChunks = []; voiceRecorder.ondataavailable = e => { if (e.data.size > 0) voiceChunks.push(e.data); };
-        voiceRecorder.onstop = () => { stream.getTracks().forEach(t => t.stop()); };
-        voiceRecorder.start(200); voiceSeconds = 0;
-        voiceTargetCid = cid || ''; voiceTargetPath = parentPath || '';
-        document.getElementById('globalRecBar').classList.add('show'); document.getElementById('grecTimer').textContent = '00:00';
-        if (cid) { const m = document.getElementById('rmic-'+cid); if (m) m.classList.add('recording'); }
-        else { const m = document.getElementById('mainMicBtn'); if (m) m.classList.add('recording'); document.getElementById('cmtPostBtn').disabled = true; }
-        voiceTimer = setInterval(() => { voiceSeconds++; document.getElementById('grecTimer').textContent = fmtDur(voiceSeconds); if (voiceSeconds >= MAX_VOICE_SEC) sendRecording(); }, 1000);
-      } catch(e) { showToast('Microphone needed!', true); }
-    }
-
-    window.cancelRecording = function() { if (voiceRecorder) { voiceChunks = []; voiceRecorder.stop(); } resetVoiceUI(); };
-    window.sendRecording = async function() {
-      if (!voiceRecorder || voiceSeconds < 1) { cancelRecording(); return; }
-      voiceRecorder.onstop = async () => {
-        voiceRecorder.stream.getTracks().forEach(t => t.stop());
-        const blob = new Blob(voiceChunks, { type: voiceRecorder.mimeType || 'audio/webm' });
-        await saveVoice(blob, voiceSeconds); resetVoiceUI(); renderComments(activePostId);
-      };
-      voiceRecorder.stop(); clearInterval(voiceTimer);
-    };
-
-    function resetVoiceUI() {
-      clearInterval(voiceTimer); voiceRecorder = null; voiceChunks = [];
-      document.getElementById('globalRecBar').classList.remove('show'); document.getElementById('cmtPostBtn').disabled = false;
-      if (voiceTargetCid) { const m = document.getElementById('rmic-'+voiceTargetCid); if (m) m.classList.remove('recording'); }
-      else { const m = document.getElementById('mainMicBtn'); if (m) m.classList.remove('recording'); }
-      voiceTargetCid = ''; voiceTargetPath = '';
-    }
-
-    // ===== THE FIX: Voice reply saves to the CORRECT reply path =====
-    async function saveVoice(audioBlob, duration) {
-      showToast('Saving...'); const reader = new FileReader();
-      reader.onload = async function(e) {
-        try {
-          if (voiceTargetCid) {
-            // Voice REPLY to a comment → goes into that comment's replies
-            const colPath = voiceTargetPath ? `posts/${activePostId}/comments/${voiceTargetPath}/replies` : `posts/${activePostId}/comments/${voiceTargetCid}/replies`;
-            console.log('📁 Saving voice reply to:', colPath);
-            await addDoc(collection(db, colPath), { type:'voice', username:currentUser, audioData:e.target.result, duration, createdAt:serverTimestamp() });
-          } else {
-            // Main voice comment on post
-            await addDoc(collection(db, 'posts', activePostId, 'comments'), { type:'voice', username:currentUser, audioData:e.target.result, duration, createdAt:serverTimestamp() });
-          }
-          showToast('✅ Voice added!');
-        } catch(err) { console.error(err); showToast('❌ Failed', true); }
-      };
-      reader.readAsDataURL(audioBlob);
-    }
-
-    window.playVC = function(dataUrl, btn) {
-      document.querySelectorAll('.vc-play-btn i').forEach(i => i.className = 'fas fa-play');
-      if (btn._audio && !btn._audio.paused) { btn._audio.pause(); btn.querySelector('i').className = 'fas fa-play'; return; }
-      if (!btn._audio) { btn._audio = new Audio(dataUrl); btn._audio.onended = () => { btn.querySelector('i').className = 'fas fa-play'; }; }
-      btn._audio.play().catch(() => { btn.querySelector('i').className = 'fas fa-exclamation-triangle'; });
-      btn.querySelector('i').className = 'fas fa-pause';
-    };
-
-    window.sharePost = function(s) { if (navigator.share) navigator.share({url:s}); else { navigator.clipboard.writeText(s); showToast('Link copied!'); } };
-    function showToast(m, e) { const t = document.getElementById('toast'); t.textContent = m; t.className = 'toast '+(e?'error':''); t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2500); }
-    window.openImageViewer = function(s) { const o = document.createElement('div'); o.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:800;display:flex;align-items:center;justify-content:center;'; o.innerHTML = `<img src="${s}" style="max-width:95%;max-height:90vh;object-fit:contain;"><button style="position:absolute;top:1rem;right:1rem;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.6);border:none;color:#fff;font-size:1rem;cursor:pointer;">✕</button>`; o.querySelector('button').onclick = () => o.remove(); o.onclick = e => { if (e.target === o) o.remove(); }; document.body.appendChild(o); };
-    document.getElementById('cmtInput').addEventListener('keydown', function(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); postMainComment(); } });
-  </script>
-</body>
-</html>
+            wrapper.innerHTML = `<div class="cmt-row"><div class="cmt-avatar">${getAvt(d.username)}</div><div class="cmt-body"><div class="cmt-username">${cname(d.username)}</div><div class="cmt-content">${d.text||''}</div><div class="cmt-meta"><span class="cmt-time">${d.createdAt?timeAgo(d.createdAt.toDate()):''}</span><button class="cmt-btn reply-btn" onclick="toggleReplyBox('${cid}')">Reply</button>${delBtn}</div><div class="reply-box" id="rb-${cid}"><div class="reply-input-wrap"><button class="reply-mic-btn" id="rmic-${cid}" onclick="startVoiceFor('${cid}','${myPath}')"><i class="fas fa-microphone"></i></button><input class="reply-input" id="ri-${cid}" placeholder="Reply..."></div><button class="reply-post-btn" onclick="postReply('${pid}','${cid}','${myPath}')">Post</button></

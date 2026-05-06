@@ -24,6 +24,13 @@
     .btn-gray { background:#333;color:#fff; }
     .btn-gray:hover { background:#444; }
     .btn:disabled { opacity:0.5;cursor:not-allowed; }
+    .caption-input {
+      width:100%;max-width:280px;padding:0.6rem 0.8rem;
+      border-radius:0.5rem;border:1px solid #333;
+      background:#111;color:#fff;font-size:0.8rem;
+      outline:none;text-align:center;
+    }
+    .caption-input:focus { border-color:#3897f0; }
     .status { font-size:0.7rem;color:#4ade80;min-height:1rem; }
     .error { color:#ef4444; }
     .toast { position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#4ade80;color:#000;padding:0.5rem 1.2rem;border-radius:2rem;font-size:0.75rem;z-index:400;opacity:0;transition:all 0.3s;font-weight:600; }
@@ -61,6 +68,7 @@
       <h3 id="previewTitle" style="font-weight:500;">Preview</h3>
       <img id="previewImg" class="preview-img" style="display:none;">
       <video id="previewVideo" class="preview-video" controls style="display:none;"></video>
+      <input type="text" class="caption-input" id="captionInput" placeholder="Write a caption...">
       <p class="status" id="fileSizeText"></p>
       <button class="btn btn-green" id="saveBtn" onclick="saveToCloud()">Save to Cloud ☁️</button>
       <p class="status" id="saveStatus"></p>
@@ -79,7 +87,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp, setDoc, doc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, doc, setDoc, getDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     const app = initializeApp({
       apiKey: "AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",
@@ -92,43 +100,20 @@
 
     async function checkAuth() {
       const currentUser = localStorage.getItem('currentUser');
-      
-      if (!currentUser) {
-        window.location.href = 'login.html';
-        return false;
-      }
-
+      if (!currentUser) { window.location.href = 'login.html'; return false; }
       try {
         const q = query(collection(db, 'users'), where('username', '==', currentUser));
         const snap = await getDocs(q);
-        
-        if (snap.empty) {
-          localStorage.removeItem('currentUser');
-          localStorage.removeItem('userProfile');
-          window.location.href = 'login.html';
-          return false;
-        }
-        
-        // Store the username
+        if (snap.empty) { localStorage.removeItem('currentUser'); localStorage.removeItem('userProfile'); window.location.href = 'login.html'; return false; }
         currentUsername = currentUser;
-        console.log('✅ Authenticated as:', currentUsername);
         return true;
-        
-      } catch (e) {
-        console.error('Auth check error:', e);
-        currentUsername = currentUser;
-        return !!currentUser;
-      }
+      } catch(e) { currentUsername = currentUser; return !!currentUser; }
     }
 
     let selectedType = null, fileData = null;
 
     window.selectType = function(type) {
-      if (!currentUsername) {
-        showToast('Please login first! 🔐');
-        setTimeout(() => window.location.href = 'login.html', 1500);
-        return;
-      }
+      if (!currentUsername) { showToast('Please login first! 🔐'); setTimeout(() => window.location.href = 'login.html', 1500); return; }
       selectedType = type;
       document.getElementById('fileInput').accept = type==='post'?'image/*':'video/*';
       document.getElementById('fileInput').click();
@@ -137,7 +122,7 @@
     window.handleFile = function(event) {
       const file = event.target.files[0];
       if(!file) return;
-      if(file.size > 5*1024*1024){ showToast('File too large! Max 5MB'); return; }
+      if(selectedType==='reel' && file.size > 5*1024*1024){ showToast('File too large! Max 5MB'); return; }
       const reader = new FileReader();
       reader.onload = function(e) {
         fileData = e.target.result;
@@ -160,49 +145,63 @@
     };
 
     window.saveToCloud = async function() {
-      if(!fileData || !currentUsername) {
-        showToast('Session expired. Please login again.');
-        setTimeout(() => window.location.href = 'login.html', 1500);
-        return;
-      }
+      if(!fileData || !currentUsername) { showToast('Session expired. Please login again.'); setTimeout(() => window.location.href = 'login.html', 1500); return; }
       
       const btn = document.getElementById('saveBtn');
       const status = document.getElementById('saveStatus');
+      const caption = document.getElementById('captionInput').value.trim();
       btn.disabled = true; btn.textContent = 'Saving...'; status.textContent = '';
       
       try {
-        // Save to Firestore with username
+        // 1. Save to Firestore 'posts' collection (for index.html feed)
         const postData = {
-          userId: currentUsername, // Use actual username
+          userId: currentUsername,
           username: currentUsername,
           type: selectedType,
           data: fileData,
-          caption: '',
+          caption: caption || '',
           likes: 0,
           comments: 0,
           createdAt: serverTimestamp()
         };
-        
-        console.log('📤 Saving post for:', currentUsername);
         const docRef = await addDoc(collection(db, 'posts'), postData);
-        console.log('✅ Saved with ID:', docRef.id);
+        console.log('✅ Saved to Firestore posts with ID:', docRef.id);
         
-        // Save to localStorage profile
+        // 2. Save to Firestore user document (for profile page)
+        const userRef = doc(db, 'users', currentUsername);
+        const userSnap = await getDoc(userRef);
+        let userPosts = userSnap.exists() ? (userSnap.data().posts || []) : [];
+        userPosts.unshift({
+          type: selectedType==='post'?'image':'video',
+          src: fileData,
+          caption: caption || '',
+          likes: 0,
+          liked: false,
+          id: docRef.id,
+          createdAt: new Date().toISOString()
+        });
+        await setDoc(userRef, { posts: userPosts }, { merge: true });
+        console.log('✅ Saved to Firestore user profile:', currentUsername);
+        
+        // 3. Save to localStorage profile (for quick access)
         const profile = JSON.parse(localStorage.getItem('userProfile')||'{}');
         if(!profile.posts) profile.posts = [];
         if(!profile.username) profile.username = currentUsername;
         profile.posts.unshift({ 
           type: selectedType==='post'?'image':'video', 
           src: fileData,
+          caption: caption || '',
           id: docRef.id,
           username: currentUsername,
+          likes: 0,
           createdAt: new Date().toISOString()
         });
         localStorage.setItem('userProfile', JSON.stringify(profile));
+        console.log('✅ Saved to localStorage profile');
         
         status.textContent = 'Uploaded successfully! ✅';
         status.className = 'status';
-        showToast('Uploaded to cloud! 🎉');
+        showToast('Uploaded! View on your profile 🎉');
         setTimeout(goBack, 1500);
       } catch(e) {
         console.error('Save error:', e);
@@ -216,6 +215,7 @@
     window.goBack = function() {
       fileData=null; selectedType=null;
       document.getElementById('fileInput').value='';
+      document.getElementById('captionInput').value='';
       document.getElementById('mainContent').style.display='flex';
       document.getElementById('previewContent').style.display='none';
       document.getElementById('saveStatus').textContent='';
@@ -229,12 +229,8 @@
 
     async function init() {
       const isAuthenticated = await checkAuth();
-      
       if (!isAuthenticated) return;
-      
-      // Display current username
       document.getElementById('currentUserLabel').textContent = currentUsername;
-      
       document.getElementById('loadingScreen').style.display = 'none';
       document.getElementById('mainPage').style.display = 'flex';
     }

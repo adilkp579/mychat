@@ -9,7 +9,7 @@
     * { margin:0;padding:0;box-sizing:border-box; }
     body { background:#000;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center; }
     .page { width:100%;height:100vh;height:100dvh;background:#000;display:flex;flex-direction:column;position:relative;overflow:hidden; }
-    .content { flex:1;display:flex;flex-direction:column;align-items:center;color:#fff;padding:0 0 6rem 0;overflow-y:auto;background:#000; }
+    .content { flex:1;display:flex;flex-direction:column;align-items:center;color:#fff;padding:0 0 5.5rem 0;overflow-y:auto;background:#000; }
     .content::-webkit-scrollbar { width:0; }
 
     .top-icons { width:100%;max-width:500px;display:flex;align-items:center;justify-content:space-between;padding:0.8rem 0.8rem 0.3rem 0.8rem;flex-shrink:0;position:relative;background:#000; }
@@ -102,7 +102,7 @@
     .grec-cancel { background:rgba(255,255,255,0.2);color:#fff; }
     .grec-send { background:#fff;color:#ef4444; }
 
-    .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:#1a1a1a;border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid #333;z-index:100; }
+    .floating-nav { position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:#1a1a1a;border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid #333;z-index:100;box-shadow:0 4px 20px rgba(0,0,0,0.5); }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
     .nav-center a { color:#888;font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;position:relative; }
     .nav-center a::before { content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:4px;height:4px;border-radius:50%;background:#fff;transition:all 0.3s; }
@@ -114,13 +114,14 @@
 
     @media (min-width:1024px) {
       .top-icons{display:none}.nav-upload,.nav-search{display:flex!important}
-      .floating-nav{top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column}
+      .floating-nav{position:fixed;top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column}
       .nav-center{flex-direction:column;gap:1.2rem;max-width:none}.nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
       .nav-center a::before{bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0)}.nav-center a.active::before{transform:translateY(-50%) scale(1)}
       .content{padding:0.5rem 0 1rem 5.5rem}.stories-section{max-width:550px}.feed-section{max-width:550px}
     }
     @media (max-width:380px) { 
-      .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem}.nav-center a{font-size:1.1rem;width:2rem;height:2rem}
+      .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:max(0.8rem,env(safe-area-inset-bottom,0.8rem))}.nav-center a{font-size:1.1rem;width:2rem;height:2rem}
+      .content{padding:0 0 5rem 0}
       .corner-btn{width:2rem;height:2rem;font-size:0.9rem}.story-ring{width:54px;height:54px}.story-avatar{width:46px;height:46px;font-size:1.1rem}.top-brand{font-size:1.5rem;}
     }
   </style>
@@ -182,12 +183,10 @@
     function fmtDur(s) { const m = Math.floor(s/60), sec = Math.floor(s%60); return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0'); }
     function timeAgo(d) { if (!d) return ''; const n = new Date(); const df = n - d; if (df < 60000) return 'now'; if (df < 3600000) return Math.floor(df/60000)+'m'; if (df < 86400000) return Math.floor(df/3600000)+'h'; if (df < 604800000) return Math.floor(df/86400000)+'d'; return d.toLocaleDateString(); }
 
-    // ✅ BATCH LOAD multiple user profiles at once
     async function batchLoadProfiles(usernames) {
       const uniqueUsers = [...new Set(usernames)].filter(u => u && u !== '@anonymous' && !userCache.has(u));
       if (uniqueUsers.length === 0) return;
       
-      // Firestore can only do 10 items in "in" query, so batch if needed
       for (let i = 0; i < uniqueUsers.length; i += 10) {
         const batch = uniqueUsers.slice(i, i + 10);
         try {
@@ -198,14 +197,12 @@
             userCache.set(d.username, { avatar: d.avatar || null, name: d.name || d.username });
           });
         } catch(e) {
-          // Fallback: individual loads
           for (const u of batch) {
             await getUserProfile(u);
           }
         }
       }
       
-      // Update any already-rendered avatars
       updateAllAvatars();
     }
 
@@ -234,7 +231,6 @@
       return '<i class="fas fa-user"></i>';
     }
 
-    // ✅ Update all avatar placeholders in DOM
     function updateAllAvatars() {
       document.querySelectorAll('[data-avatar-user]').forEach(el => {
         const username = el.dataset.avatarUser;
@@ -274,7 +270,6 @@
       if (ps.length === 0) { bar.style.display = 'none'; ns.style.display = 'block'; return; }
       bar.style.display = 'flex'; ns.style.display = 'none';
       
-      // Batch load story user profiles
       await batchLoadProfiles(ps.map(s => s.name));
       
       bar.innerHTML = ps.map(s => {
@@ -322,8 +317,6 @@
         });
         
         lastVisiblePost = snap.docs[snap.docs.length - 1];
-        
-        // Batch load post user profiles before rendering
         await batchLoadProfiles(posts.map(p => p.userId));
         renderPostsToFeed(posts);
       } catch(e) {
@@ -375,7 +368,7 @@
       }, { passive: true });
     }
 
-    // ---------- OPTIMIZED COMMENTS ----------
+    // ---------- COMMENTS ----------
     window.openComments = async function(pid) {
       activePostId = pid;
       loadedThreads.clear();
@@ -403,17 +396,14 @@
           return;
         }
         
-        // Collect all unique usernames
         const usernames = [];
         snap.forEach(doc => {
           const d = doc.data();
           if (!d._deleted && d.username) usernames.push(d.username);
         });
         
-        // ✅ Batch load all comment user profiles
         await batchLoadProfiles(usernames);
         
-        // Now render with cached profiles
         listEl.innerHTML = '';
         const postSnap = await getDoc(doc(db, 'posts', pid));
         const postOwner = postSnap.exists() ? (postSnap.data().username || postSnap.data().userId || '') : '';
@@ -426,14 +416,12 @@
           appendCommentElement(listEl, d, cid, pid, '', canDel);
         });
         
-        // ✅ Check replies in background (non-blocking)
         checkAllRepliesInBackground(pid, snap);
       } catch(e) {
         listEl.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;">Error loading comments</div>';
       }
     }
 
-    // ✅ Background reply check - doesn't block rendering
     async function checkAllRepliesInBackground(pid, topLevelSnap) {
       for (const docSnap of topLevelSnap.docs) {
         const cid = docSnap.id;
@@ -521,7 +509,6 @@
           return;
         }
         
-        // ✅ Batch load reply user profiles
         const usernames = [];
         snap.forEach(d => { if (!d.data()._deleted) usernames.push(d.data().username); });
         await batchLoadProfiles(usernames);
@@ -564,7 +551,6 @@
           type:'text', text, username: currentUser, createdAt: serverTimestamp() 
         });
         
-        // ✅ Ensure current user is in cache
         if (!userCache.has(currentUser)) {
           userCache.set(currentUser, { avatar: null, name: currentUser });
         }
@@ -608,13 +594,15 @@
         }
         
         const listEl = document.getElementById('commentsList');
-        const newComment = { type: 'text', text, username: currentUser, createdAt: { toDate: () => new Date() } };
-        appendCommentElement(listEl, newComment, docRef.id, activePostId, '', true);
+        if (listEl.querySelector('.cmt-block')) {
+          const newComment = { type: 'text', text, username: currentUser, createdAt: { toDate: () => new Date() } };
+          appendCommentElement(listEl, newComment, docRef.id, activePostId, '', true);
+        }
         showToast('Comment posted!');
       } catch(e) { showToast('Failed', true); }
     };
 
-    // ---------- VOICE (same as before, optimized) ----------
+    // ---------- VOICE ----------
     window.toggleMainMic = function() { if (voiceRecorder) sendRecording(); else startVoiceFor('', ''); };
     window.startVoiceFor = function(cid, parentPath) { if (voiceRecorder) sendRecording(); else startVoiceRecording(cid, parentPath); };
 
@@ -679,7 +667,9 @@
         } else {
           const docRef = await addDoc(collection(db, 'posts', activePostId, 'comments'), { type:'voice', username:currentUser, audioURL:downloadURL, duration, createdAt:serverTimestamp() });
           const listEl = document.getElementById('commentsList');
-          appendCommentElement(listEl, { type:'voice', username:currentUser, audioURL:downloadURL, duration, createdAt:{toDate:()=>new Date()} }, docRef.id, activePostId, '', true);
+          if (listEl.querySelector('.cmt-block')) {
+            appendCommentElement(listEl, { type:'voice', username:currentUser, audioURL:downloadURL, duration, createdAt:{toDate:()=>new Date()} }, docRef.id, activePostId, '', true);
+          }
         }
         showToast('✅ Voice added!');
       } catch(e) { showToast('❌ Upload failed', true); }

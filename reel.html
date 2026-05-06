@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>Reels · Optimized</title>
+  <title>Reels · Ultra Optimized</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     * { margin:0;padding:0;box-sizing:border-box; }
@@ -20,6 +20,7 @@
       max-height:100vh;
       max-height:100dvh;
       overscroll-behavior:contain;
+      will-change:scroll-position;
     }
     .reel-wrapper::-webkit-scrollbar { width:0; }
 
@@ -32,6 +33,7 @@
       display:flex;align-items:center;justify-content:center;
       background:#000;
       flex-shrink:0;
+      will-change:transform;
     }
     .reel-slide video {
       width:100%;height:100%;
@@ -92,15 +94,8 @@
   </style>
 </head>
 <body>
-  <div class="loading-screen" id="loadingScreen">
-    <i class="fas fa-spinner"></i>
-    <span>Loading reels...</span>
-  </div>
-
-  <div class="page" id="mainPage" style="display:none;">
-    <div class="reel-wrapper" id="reelWrapper">
-      <div class="loading-overlay" id="loadingOverlay"><i class="fas fa-spinner"></i></div>
-    </div>
+  <div class="page" id="mainPage">
+    <div class="reel-wrapper" id="reelWrapper"></div>
     <div class="toast" id="toast"></div>
 
     <nav class="floating-nav"><div class="nav-center">
@@ -117,7 +112,6 @@
   <script>
     if (!localStorage.getItem("uid")) {
       window.location.replace("login.html");
-      throw new Error("Unauthorized");
     }
   </script>
 
@@ -130,40 +124,75 @@
 
     // ---------- STATE ----------
     const allReels = [];
-    const DOM_POOL = [];
-    let currentIndex = 0;
+    let currentIndex = -1;
     let lastDoc = null;
     let isLoadingMore = false;
     let allLoaded = false;
     const PAGE_SIZE = 5;
+    let scrollTimeout = null;
+    let isTransitioning = false;
 
     const wrapper = document.getElementById('reelWrapper');
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    const loadingScreen = document.getElementById('loadingScreen');
+    const toast = document.getElementById('toast');
 
-    async function initialLoad() {
-      try {
-        // Also load local reels first for instant display
-        loadLocalReels();
-        
-        await fetchNextPage();
-        loadingScreen.style.display = 'none';
-        document.getElementById('mainPage').style.display = 'flex';
-        loadingOverlay.style.display = 'none';
-
-        if (allReels.length === 0) {
-          wrapper.innerHTML = `<div class="empty-state"><i class="fas fa-film"></i><p>No reels yet</p><p style="font-size:0.7rem;margin-top:0.5rem;">Be the first to upload a reel!</p></div>`;
-          return;
-        }
-
-        setupVirtualScroll();
-        mountInitialSlides();
-      } catch (e) {
-        console.error(e);
-        loadingScreen.innerHTML = '<span style="color:#ef4444;">Failed to load reels</span>';
-      }
+    // ---------- TEMPLATE FUNCTION (faster than innerHTML) ----------
+    function createSlideHTML(reel, index) {
+      return `
+        <div class="reel-slide" data-index="${index}" id="slide${index}">
+          <video id="video${index}" muted loop playsinline webkit-playsinline preload="none"></video>
+          <div class="play-overlay" id="overlay${index}"><i class="fas fa-play-circle"></i></div>
+          <div class="user-tag">
+            <div class="avatar"><i class="fas fa-user"></i></div>
+            <span class="name">${escapeHTML(reel.username)}</span>
+          </div>
+          <div class="actions-bar">
+            <button class="action-btn ${reel.liked?'liked':''}" data-action="like" data-index="${index}">
+              <i class="${reel.liked?'fas':'far'} fa-heart"></i>
+              <span id="likes${index}">${reel.likes}</span>
+            </button>
+            <button class="action-btn" data-action="comment" data-index="${index}">
+              <i class="far fa-comment"></i>
+              <span>${reel.comments}</span>
+            </button>
+            <button class="action-btn" data-action="share" data-index="${index}">
+              <i class="far fa-share-square"></i>
+              <span>Share</span>
+            </button>
+          </div>
+          ${reel.caption ? `<div class="caption-bar"><div class="caption-text">${escapeHTML(reel.caption)}</div></div>` : ''}
+        </div>`;
     }
 
+    function escapeHTML(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    // ---------- EVENT DELEGATION (single listener for all) ----------
+    wrapper.addEventListener('click', (e) => {
+      const slide = e.target.closest('.reel-slide');
+      if (!slide) return;
+      
+      const index = parseInt(slide.dataset.index);
+      
+      // Video toggle
+      if (e.target.tagName === 'VIDEO' || e.target.closest('.play-overlay')) {
+        togglePlay(index);
+        return;
+      }
+      
+      // Action buttons
+      const actionBtn = e.target.closest('[data-action]');
+      if (actionBtn) {
+        const action = actionBtn.dataset.action;
+        if (action === 'like') toggleLike(index);
+        else if (action === 'share') shareReel(index);
+        return;
+      }
+    });
+
+    // ---------- LOAD INITIAL DATA ----------
     function loadLocalReels() {
       const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
       (profile.posts || []).filter(p => p.type === 'video').forEach(p => {
@@ -216,171 +245,134 @@
         });
 
         lastDoc = snap.docs[snap.docs.length - 1];
+        return true; // data was loaded
       } catch (e) {
-        console.error('Firestore fetch error:', e);
+        console.error('Fetch error:', e);
       } finally {
         isLoadingMore = false;
       }
     }
 
-    function setupVirtualScroll() {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          const idx = parseInt(entry.target.dataset.index);
-          if (entry.isIntersecting && entry.intersectionRatio > 0.7) {
-            if (currentIndex !== idx) {
-              transitionToSlide(idx);
-            }
-          }
-        });
-      }, { threshold: [0.7] });
-
-      const mutationObserver = new MutationObserver(() => {
-        document.querySelectorAll('.reel-slide').forEach(slide => {
-          if (!slide.dataset.observed) {
-            observer.observe(slide);
-            slide.dataset.observed = 'true';
-          }
-        });
-      });
-      mutationObserver.observe(wrapper, { childList: true });
-
+    // ---------- VIRTUAL SCROLL WITH THROTTLE ----------
+    function setupScrollHandler() {
+      let lastScrollTop = 0;
+      let ticking = false;
+      
       wrapper.addEventListener('scroll', () => {
-        const scrollTop = wrapper.scrollTop;
-        const slideHeight = wrapper.clientHeight;
-        const approxIndex = Math.round(scrollTop / slideHeight);
-
-        if (approxIndex >= allReels.length - 3 && !allLoaded) {
-          fetchNextPage().then(() => {
-            if (approxIndex >= allReels.length - 1) return;
-            ensureSlideMounted(approxIndex + 1);
+        if (!ticking) {
+          requestAnimationFrame(() => {
+            handleScroll();
+            ticking = false;
           });
+          ticking = true;
         }
       }, { passive: true });
     }
 
-    function mountInitialSlides() {
-      const count = Math.min(3, allReels.length);
-      for (let i = 0; i < count; i++) {
-        createSlideElement(i);
+    function handleScroll() {
+      if (isTransitioning) return;
+      
+      const scrollTop = wrapper.scrollTop;
+      const slideHeight = wrapper.clientHeight;
+      const newIndex = Math.round(scrollTop / slideHeight);
+      
+      if (newIndex !== currentIndex && newIndex >= 0 && newIndex < allReels.length) {
+        transitionToSlide(newIndex);
       }
-      wrapper.scrollTop = 0;
-      currentIndex = 0;
-      playVideo(0);
+      
+      // Prefetch when near end
+      if (newIndex >= allReels.length - 3 && !allLoaded && !isLoadingMore) {
+        fetchNextPage();
+      }
     }
 
-    function createSlideElement(index) {
-      if (index < 0 || index >= allReels.length) return null;
-      const existing = document.querySelector(`.reel-slide[data-index="${index}"]`);
-      if (existing) return existing;
+    function transitionToSlide(newIndex) {
+      if (newIndex === currentIndex || isTransitioning) return;
+      isTransitioning = true;
+      
+      const oldIndex = currentIndex;
+      currentIndex = newIndex;
 
-      const reel = allReels[index];
-      const slide = document.createElement('div');
-      slide.className = 'reel-slide';
-      slide.dataset.index = index;
-      slide.id = `slide${index}`;
+      // Pause old video immediately
+      if (oldIndex >= 0) pauseVideo(oldIndex);
 
-      slide.innerHTML = `
-        <video id="video${index}" muted loop playsinline webkit-playsinline preload="none"></video>
-        <div class="play-overlay" id="overlay${index}"><i class="fas fa-play-circle"></i></div>
-        <div class="user-tag">
-          <div class="avatar"><i class="fas fa-user"></i></div>
-          <span class="name">${reel.username}</span>
-        </div>
-        <div class="actions-bar">
-          <button class="action-btn ${reel.liked?'liked':''}" id="likeBtn${index}">
-            <i class="${reel.liked?'fas':'far'} fa-heart"></i>
-            <span id="likes${index}">${reel.likes}</span>
-          </button>
-          <button class="action-btn">
-            <i class="far fa-comment"></i>
-            <span>${reel.comments}</span>
-          </button>
-          <button class="action-btn" id="shareBtn${index}">
-            <i class="far fa-share-square"></i>
-            <span>Share</span>
-          </button>
-        </div>
-        ${reel.caption ? `<div class="caption-bar"><div class="caption-text">${reel.caption}</div></div>` : ''}
-      `;
+      // Use requestAnimationFrame for smooth DOM updates
+      requestAnimationFrame(() => {
+        // Ensure current and neighbors exist
+        ensureSlideMounted(newIndex);
+        if (newIndex > 0) ensureSlideMounted(newIndex - 1);
+        if (newIndex < allReels.length - 1) ensureSlideMounted(newIndex + 1);
 
-      const video = slide.querySelector('video');
-      video.onclick = () => togglePlay(index);
-      slide.querySelector('#likeBtn' + index).onclick = (e) => {
-        e.stopPropagation();
-        toggleLike(index);
-      };
-      slide.querySelector('#shareBtn' + index).onclick = (e) => {
-        e.stopPropagation();
-        shareReel(index);
-      };
-
-      wrapper.appendChild(slide);
-      DOM_POOL.push(slide);
-      return slide;
-    }
-
-    function removeSlideElement(index) {
-      const slide = document.getElementById('slide' + index);
-      if (!slide) return;
-      const video = slide.querySelector('video');
-      if (video) {
-        video.pause();
-        video.removeAttribute('src');
-        video.load();
-        video.remove();
-      }
-      slide.remove();
-      const idx = DOM_POOL.findIndex(s => s.dataset.index == index);
-      if (idx > -1) DOM_POOL.splice(idx, 1);
+        // Play current after a tiny delay for DOM to settle
+        requestAnimationFrame(() => {
+          playVideo(newIndex);
+          cleanupDistantSlides(newIndex);
+          isTransitioning = false;
+        });
+      });
     }
 
     function ensureSlideMounted(index) {
       if (index < 0 || index >= allReels.length) return;
       if (!document.getElementById('slide' + index)) {
-        createSlideElement(index);
+        mountSlide(index);
       }
     }
 
-    function transitionToSlide(newIndex) {
-      if (newIndex === currentIndex) return;
-      const oldIndex = currentIndex;
-      currentIndex = newIndex;
+    function mountSlide(index) {
+      const reel = allReels[index];
+      const temp = document.createElement('div');
+      temp.innerHTML = createSlideHTML(reel, index);
+      const slide = temp.firstElementChild;
+      wrapper.appendChild(slide);
+    }
 
-      pauseVideo(oldIndex);
-      ensureSlideMounted(newIndex);
-      if (newIndex > 0) ensureSlideMounted(newIndex - 1);
-      if (newIndex < allReels.length - 1) ensureSlideMounted(newIndex + 1);
-
-      playVideo(newIndex);
-      cleanupDistantSlides(newIndex);
+    function removeSlideElement(index) {
+      const slide = document.getElementById('slide' + index);
+      if (!slide) return;
+      
+      // Clean video aggressively
+      const video = slide.querySelector('video');
+      if (video) {
+        video.pause();
+        video.removeAttribute('src');
+        video.load();
+      }
+      slide.remove();
     }
 
     function cleanupDistantSlides(activeIndex) {
+      const slides = wrapper.querySelectorAll('.reel-slide');
       const allowed = new Set([activeIndex - 1, activeIndex, activeIndex + 1]);
-      document.querySelectorAll('.reel-slide').forEach(slide => {
+      
+      for (const slide of slides) {
         const idx = parseInt(slide.dataset.index);
         if (!allowed.has(idx)) {
           removeSlideElement(idx);
         }
-      });
+      }
     }
 
+    // ---------- VIDEO PLAYBACK (optimized) ----------
     function playVideo(index) {
       const video = document.getElementById('video' + index);
       const overlay = document.getElementById('overlay' + index);
       if (!video || index >= allReels.length) return;
 
-      if (!video.src || video.src !== allReels[index].src) {
-        video.src = allReels[index].src;
-        video.load();
+      // Set src only if needed
+      const targetSrc = allReels[index].src;
+      if (video.src !== targetSrc || !video.src) {
+        video.src = targetSrc;
       }
 
-      video.play().then(() => {
-        if (overlay) overlay.style.display = 'none';
-      }).catch(() => {
-        if (overlay) overlay.style.display = 'none';
-      });
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          if (overlay) overlay.style.display = 'none';
+        }).catch(() => {
+          if (overlay) overlay.style.display = 'none';
+        });
+      }
     }
 
     function pauseVideo(index) {
@@ -397,47 +389,96 @@
       if (!video) return;
       if (video.paused) {
         playVideo(index);
+        currentIndex = index;
       } else {
         pauseVideo(index);
       }
     };
 
+    // ---------- INTERACTIONS ----------
     window.toggleLike = async function(index) {
       const reel = allReels[index];
       reel.liked = !reel.liked;
       reel.likes += reel.liked ? 1 : -1;
 
       const likesSpan = document.getElementById('likes' + index);
-      const likeBtn = document.getElementById('likeBtn' + index);
       if (likesSpan) likesSpan.textContent = reel.likes;
+      
+      const slide = document.getElementById('slide' + index);
+      const likeBtn = slide?.querySelector('[data-action="like"]');
       if (likeBtn) {
         likeBtn.classList.toggle('liked', reel.liked);
         likeBtn.querySelector('i').className = reel.liked ? 'fas fa-heart' : 'far fa-heart';
       }
+      
       showToast(reel.liked ? 'Liked! ❤️' : 'Unliked');
 
       if (!reel.id.startsWith('local_')) {
-        try { await updateDoc(doc(db, 'posts', reel.id), { likes: increment(reel.liked ? 1 : -1) }); } catch(e) {}
+        try { 
+          await updateDoc(doc(db, 'posts', reel.id), { 
+            likes: increment(reel.liked ? 1 : -1) 
+          }); 
+        } catch(e) {}
       }
     };
 
     window.shareReel = async function(index) {
       const reel = allReels[index];
       if (navigator.share) {
-        try { await navigator.share({ title: `${reel.username}'s reel`, text: reel.caption || 'Check out this reel!' }); } catch(e) {}
+        try { 
+          await navigator.share({ 
+            title: `${reel.username}'s reel`, 
+            text: reel.caption || 'Check out this reel!' 
+          }); 
+        } catch(e) {}
       } else {
-        try { await navigator.clipboard.writeText(window.location.href); showToast('Link copied! 📋'); } catch(e) {}
+        try { 
+          await navigator.clipboard.writeText(window.location.href); 
+          showToast('Link copied! 📋'); 
+        } catch(e) {}
       }
     };
 
     function showToast(msg) {
-      const t = document.getElementById('toast');
-      t.textContent = msg; t.classList.add('show');
-      clearTimeout(t._t);
-      t._t = setTimeout(() => t.classList.remove('show'), 2000);
+      toast.textContent = msg; 
+      toast.classList.add('show');
+      clearTimeout(toast._t);
+      toast._t = setTimeout(() => toast.classList.remove('show'), 2000);
     }
 
-    initialLoad();
+    // ---------- INITIALIZATION ----------
+    async function init() {
+      loadLocalReels();
+      await fetchNextPage();
+      
+      if (allReels.length === 0) {
+        wrapper.innerHTML = `<div class="empty-state"><i class="fas fa-film"></i><p>No reels yet</p></div>`;
+        return;
+      }
+
+      setupScrollHandler();
+      
+      // Mount first 3 slides
+      const count = Math.min(3, allReels.length);
+      const fragment = document.createDocumentFragment();
+      
+      for (let i = 0; i < count; i++) {
+        const temp = document.createElement('div');
+        temp.innerHTML = createSlideHTML(allReels[i], i);
+        fragment.appendChild(temp.firstElementChild);
+      }
+      
+      wrapper.appendChild(fragment);
+      wrapper.scrollTop = 0;
+      
+      // Play first video after DOM is ready
+      requestAnimationFrame(() => {
+        currentIndex = 0;
+        playVideo(0);
+      });
+    }
+
+    init();
   </script>
 </body>
 </html>

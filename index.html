@@ -11,11 +11,9 @@
     .page { width:100%;height:100vh;height:100dvh;background:#000;display:flex;flex-direction:column;position:relative;overflow:hidden; }
     .content { flex:1;display:flex;flex-direction:column;align-items:center;color:#fff;padding:0 0 6rem 0;overflow-y:auto;background:#000; }
     .content::-webkit-scrollbar { width:0; }
-
     .top-icons { width:100%;max-width:500px;display:flex;align-items:center;justify-content:space-between;padding:0.8rem 0.8rem 0.3rem 0.8rem;flex-shrink:0;position:relative;background:#000; }
     .corner-btn { width:2.4rem;height:2.4rem;background:#1a1a1a;border-radius:50%;color:#fff;font-size:1rem;display:flex;align-items:center;justify-content:center;text-decoration:none;border:1px solid #333; }
     .top-brand { font-size:2rem;font-weight:700;color:#fff;letter-spacing:3px;font-family:'Segoe Script','Brush Script MT','Apple Chancery','Comic Sans MS',cursive;position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;line-height:1;font-style:italic; }
-    
     .stories-section { width:100%;max-width:500px;flex-shrink:0;background:#000; }
     .stories-bar { display:flex;gap:0.8rem;padding:0.3rem 0.8rem 0.5rem 0.8rem;overflow-x:auto;border-bottom:1px solid #1a1a1a;background:#000; }
     .stories-bar::-webkit-scrollbar { height:0; }
@@ -27,7 +25,6 @@
     .story-avatar img { width:100%;height:100%;object-fit:cover; }
     .story-name { font-size:0.6rem;color:#999;max-width:65px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
     .no-stories { padding:0.5rem 0.8rem;color:#555;font-size:0.7rem;text-align:center;width:100%;background:#000; }
-
     .feed-section { width:100%;max-width:500px;flex-shrink:0;background:#000; }
     .feed-card { width:100%;background:#000;border-bottom:1px solid #1a1a1a;margin-bottom:1rem; }
     .feed-header { display:flex;align-items:center;gap:0.6rem;padding:0.6rem 0.8rem;background:#000; }
@@ -52,40 +49,36 @@
     .comments-close { width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.1);border:none;color:#fff;font-size:0.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center; }
     .comments-list { flex:1;overflow-y:auto;padding:0.5rem 1rem;-webkit-overflow-scrolling:touch; }
     .comments-list::-webkit-scrollbar { width:0; }
-    
-    .comment-item { padding:0.4rem 0;border-bottom:1px solid rgba(255,255,255,0.03); }
-    .comment-main { display:flex;gap:0.5rem;align-items:flex-start; }
-    .comment-avatar { width:30px;height:30px;border-radius:50%;background:#333;display:flex;align-items:center;justify-content:center;font-size:0.65rem;color:#fff;overflow:hidden;flex-shrink:0; }
-    .comment-avatar img { width:100%;height:100%;object-fit:cover; }
-    .comment-body { flex:1;min-width:0; }
-    .comment-username { font-size:0.7rem;font-weight:600;color:#fff; }
-    .comment-text { font-size:0.75rem;color:#ddd;margin-top:0.1rem;word-break:break-word; }
-    .comment-meta { display:flex;align-items:center;gap:0.4rem;margin-top:0.2rem;flex-wrap:wrap; }
-    .comment-time { font-size:0.55rem;color:#666; }
-    .comment-reply-btn { font-size:0.55rem;color:#888;cursor:pointer;background:none;border:none;padding:0.2rem 0.3rem; }
-    .comment-delete-btn { font-size:0.55rem;color:#ef4444;cursor:pointer;background:none;border:none;display:none;padding:0.2rem 0.3rem; }
-    .comment-delete-btn.show { display:inline; }
-    .comment-mic-btn { font-size:0.6rem;color:#FFFC00;cursor:pointer;background:rgba(255,252,0,0.1);border:1px solid rgba(255,252,0,0.2);border-radius:50%;width:24px;height:24px;padding:0;display:inline-flex;align-items:center;justify-content:center;margin-left:0.2rem;transition:all 0.2s; }
-    .comment-mic-btn:active { transform:scale(0.9); }
-    .comment-mic-btn.recording { background:#ef4444;color:#fff;border-color:#ef4444;animation:recPulse 1s infinite; }
-    
-    .comment-replies { margin-left:1.5rem;padding-left:0.5rem;border-left:1px solid rgba(255,255,255,0.06);margin-top:0.2rem; }
-    .reply-item { display:flex;gap:0.4rem;padding:0.3rem 0;align-items:flex-start; }
-    .reply-avatar { width:22px;height:22px;border-radius:50%;background:#333;display:flex;align-items:center;justify-content:center;font-size:0.5rem;color:#fff;overflow:hidden;flex-shrink:0; }
-    .reply-avatar img { width:100%;height:100%;object-fit:cover; }
-    .reply-body { flex:1;min-width:0; }
-    .reply-username { font-size:0.65rem;font-weight:600;color:#fff; }
-    .reply-text { font-size:0.7rem;color:#ddd; }
-    .reply-meta { display:flex;align-items:center;gap:0.4rem;margin-top:0.1rem;flex-wrap:wrap; }
-    .reply-mic-btn-inline { width:30px;height:30px;min-width:30px;border-radius:50%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);color:#FFFC00;font-size:0.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s; }
-    .reply-mic-btn-inline:active { transform:scale(0.9); }
-    .reply-mic-btn-inline.recording { background:#ef4444;color:#fff;border-color:#ef4444;animation:recPulse 1s infinite; }
-    
-    .voice-comment-item { padding:0.4rem 0;border-bottom:1px solid rgba(255,255,255,0.03); }
-    .voice-comment-main { display:flex;gap:0.5rem;align-items:flex-start; }
+
+    .comment-thread { margin-left:1.2rem;padding-left:0.5rem;border-left:1px solid rgba(255,255,255,0.06); }
+    .comment-block { padding:0.35rem 0;border-bottom:1px solid rgba(255,255,255,0.02); }
+    .comment-row { display:flex;gap:0.5rem;align-items:flex-start; }
+    .c-avatar { width:30px;height:30px;border-radius:50%;background:#333;display:flex;align-items:center;justify-content:center;font-size:0.65rem;color:#fff;overflow:hidden;flex-shrink:0; }
+    .c-avatar img { width:100%;height:100%;object-fit:cover; }
+    .c-body { flex:1;min-width:0; }
+    .c-username { font-size:0.7rem;font-weight:600;color:#fff; }
+    .c-text { font-size:0.75rem;color:#ddd;margin-top:0.1rem;word-break:break-word; }
+    .c-meta { display:flex;align-items:center;gap:0.5rem;margin-top:0.2rem;flex-wrap:wrap; }
+    .c-time { font-size:0.55rem;color:#666; }
+    .c-reply-btn { font-size:0.55rem;color:#888;cursor:pointer;background:none;border:none;padding:0.15rem 0.3rem; }
+    .c-mic-btn { width:24px;height:24px;border-radius:50%;background:rgba(255,252,0,0.1);border:1px solid rgba(255,252,0,0.2);color:#FFFC00;font-size:0.55rem;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all 0.2s; }
+    .c-mic-btn:active { transform:scale(0.9); }
+    .c-mic-btn.recording { background:#ef4444;color:#fff;border-color:#ef4444;animation:recPulse 1s infinite; }
+    .c-delete-btn { font-size:0.55rem;color:#ef4444;cursor:pointer;background:none;border:none;padding:0.15rem 0.3rem;display:none; }
+    .c-delete-btn.show { display:inline; }
+
     .vc-play-btn { display:flex;align-items:center;gap:0.3rem;padding:0.2rem 0.5rem;background:rgba(255,252,0,0.08);border:1px solid rgba(255,252,0,0.15);border-radius:0.8rem;cursor:pointer;font-size:0.65rem;color:#FFFC00;margin-top:0.1rem;width:fit-content; }
     .vc-play-btn i { font-size:0.5rem; }
     .vc-duration { font-size:0.55rem;color:#777;margin-left:0.2rem; }
+
+    .reply-box { display:none;align-items:center;gap:0.3rem;margin-top:0.3rem;padding:0.2rem 0; }
+    .reply-box.show { display:flex; }
+    .reply-input { flex:1;padding:0.4rem 0.5rem;border-radius:0.8rem;border:1px solid rgba(255,255,255,0.12);background:#1a1a1a;color:#fff;font-size:0.65rem;outline:none; }
+    .reply-input:focus { border-color:#FFFC00; }
+    .reply-mic-btn { width:28px;height:28px;min-width:28px;border-radius:50%;background:rgba(255,252,0,0.1);border:1px solid rgba(255,252,0,0.2);color:#FFFC00;font-size:0.6rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s; }
+    .reply-mic-btn:active { transform:scale(0.9); }
+    .reply-mic-btn.recording { background:#ef4444;color:#fff;border-color:#ef4444;animation:recPulse 1s infinite; }
+    .reply-post-btn { background:#FFFC00;border:none;color:#000;font-size:0.6rem;font-weight:600;padding:0.35rem 0.6rem;border-radius:0.8rem;cursor:pointer;flex-shrink:0; }
 
     .comments-input-area { display:flex;align-items:center;gap:0.4rem;padding:0.5rem 1rem;padding-bottom:max(0.5rem,env(safe-area-inset-bottom,0.5rem));border-top:1px solid rgba(255,255,255,0.08);flex-shrink:0;background:#0a0a0a; }
     .comments-input { flex:1;padding:0.5rem 0.8rem;border-radius:1.2rem;border:1px solid rgba(255,255,255,0.12);background:#1a1a1a;color:#fff;font-size:0.8rem;outline:none; }
@@ -93,14 +86,8 @@
     .post-comment-btn { background:#FFFC00;border:none;color:#000;font-size:0.7rem;font-weight:600;padding:0.45rem 0.9rem;border-radius:1.2rem;cursor:pointer;flex-shrink:0; }
     .post-comment-btn:disabled { opacity:0.4; }
 
-    .reply-input-area { display:none;align-items:center;gap:0.3rem;margin-top:0.3rem;padding:0.2rem 0; }
-    .reply-input-area.show { display:flex; }
-    .reply-input { flex:1;padding:0.4rem 0.6rem;border-radius:0.8rem;border:1px solid rgba(255,255,255,0.12);background:#1a1a1a;color:#fff;font-size:0.65rem;outline:none; }
-    .reply-input:focus { border-color:#FFFC00; }
-    .reply-post-btn { background:#FFFC00;border:none;color:#000;font-size:0.6rem;font-weight:600;padding:0.4rem 0.7rem;border-radius:0.8rem;cursor:pointer;flex-shrink:0; }
-
-    .global-recording-bar { display:none;align-items:center;gap:0.4rem;padding:0.35rem 1rem;background:#ef4444;position:sticky;bottom:0;z-index:10; }
-    .global-recording-bar.show { display:flex; }
+    .global-rec-bar { display:none;align-items:center;gap:0.4rem;padding:0.35rem 1rem;background:#ef4444;position:sticky;bottom:0;z-index:10; }
+    .global-rec-bar.show { display:flex; }
     .global-rec-dot { width:8px;height:8px;border-radius:50%;background:#fff;animation:blink 0.5s infinite; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
     @keyframes recPulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.5)} 50%{box-shadow:0 0 0 6px rgba(239,68,68,0)} }
@@ -116,14 +103,12 @@
     .nav-center a.active::before { transform:translateX(-50%) scale(1); }
     .nav-center a.active { color:#fff;background:#333; }
     .nav-upload,.nav-search { display:none !important; }
-
     .auth-boot-loader { position:fixed;top:0;left:0;right:0;bottom:0;background:#000;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem; }
     .auth-boot-loader i { font-size:2.5rem;color:#3897f0;animation:spin 1s linear infinite; }
     .auth-boot-loader span { color:#888;font-size:0.8rem; }
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
     .toast { position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#4ade80;color:#000;padding:0.4rem 1rem;border-radius:2rem;font-size:0.7rem;z-index:800;opacity:0;transition:all 0.3s;font-weight:600;pointer-events:none; }
     .toast.show { opacity:1; }.toast.error { background:#ef4444;color:#fff; }
-
     @media (min-width:1024px) {
       .top-icons{display:none}.nav-upload,.nav-search{display:flex!important}
       .floating-nav{top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column}
@@ -148,7 +133,7 @@
     <div class="comments-overlay" id="commentsOverlay">
       <div class="comments-header"><h3>Comments</h3><button class="comments-close" onclick="closeComments()">✕</button></div>
       <div class="comments-list" id="commentsList"></div>
-      <div class="global-recording-bar" id="globalRecordingBar">
+      <div class="global-rec-bar" id="globalRecBar">
         <div class="global-rec-dot"></div><span class="global-rec-timer" id="globalRecTimer">00:00</span>
         <button class="global-rec-cancel" onclick="cancelGlobalRecording()">✕</button>
         <button class="global-rec-send" onclick="sendGlobalRecording()"><i class="fas fa-paper-plane"></i></button>
@@ -166,14 +151,14 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs, doc, getDoc, setDoc, addDoc, orderBy, serverTimestamp, increment, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, collection, query, where, getDocs, doc, getDoc, setDoc, addDoc, orderBy, serverTimestamp, increment, updateDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app); const auth = getAuth(app);
     let userProfiles = {};
     const currentUser = localStorage.getItem('currentUser') || '@anonymous';
-    let activeCommentPostId = null, activeReplyTo = null;
+    let activePostId = null, activeReplyId = null;
     let voiceRecorder = null, voiceChunks = [], voiceTimer = null, voiceSeconds = 0;
     const MAX_VOICE_SEC = 10;
 
@@ -194,7 +179,7 @@
       (lp.friends||[]).forEach(f => { if (!userProfiles[f.name]) userProfiles[f.name] = { avatar: f.avatar || null, name: f.name }; });
     }
 
-    function getAvatarHTML(u) { const p = userProfiles[u]; return (p && p.avatar && p.avatar !== 'null' && p.avatar !== 'undefined') ? `<img src="${p.avatar}" alt="" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\\'fas fa-user\\'></i>';">` : '<i class="fas fa-user"></i>'; }
+    function getAvt(u) { const p = userProfiles[u]; return (p && p.avatar && p.avatar !== 'null' && p.avatar !== 'undefined') ? `<img src="${p.avatar}" alt="" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\\'fas fa-user\\'></i>';">` : '<i class="fas fa-user"></i>'; }
     function cname(u) { return (u || '').replace(/^@/, ''); }
     function fmtDur(s) { const m = Math.floor(s/60); const sec = Math.floor(s%60); return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0'); }
     function timeAgo(d) { if (!d) return ''; const now = new Date(); const diff = now - d; if (diff < 60000) return 'now'; if (diff < 3600000) return Math.floor(diff/60000)+'m'; if (diff < 86400000) return Math.floor(diff/3600000)+'h'; if (diff < 604800000) return Math.floor(diff/86400000)+'d'; return d.toLocaleDateString(); }
@@ -204,7 +189,7 @@
       const bar = document.getElementById('storiesBar'), ns = document.getElementById('noStories');
       if (ps.length === 0) { bar.style.display = 'none'; ns.style.display = 'block'; return; }
       bar.style.display = 'flex'; ns.style.display = 'none';
-      bar.innerHTML = ps.map(s => `<div class="story-item" onclick="window.location.href='profile.html?user=${encodeURIComponent(s.name)}'"><div class="story-ring ${s.type}"><div class="story-avatar">${getAvatarHTML(s.name)}</div></div><span class="story-name">${cname(s.name)}</span></div>`).join('');
+      bar.innerHTML = ps.map(s => `<div class="story-item" onclick="window.location.href='profile.html?user=${encodeURIComponent(s.name)}'"><div class="story-ring ${s.type}"><div class="story-avatar">${getAvt(s.name)}</div></div><span class="story-name">${cname(s.name)}</span></div>`).join('');
     }
     async function loadProfileStories(username) {
       try { const ref = doc(db, 'profiles', username.replace('@', '')); const snap = await getDoc(ref); if (snap.exists()) { const d = snap.data(); return [...(d.friends||[]).map(f=>({name:f.name,type:'friend',icon:'fa-user',live:false})),...(d.besties||[]).map(b=>({name:b.name,type:'bestie',icon:'fa-user',live:false}))]; } } catch(e) {}
@@ -223,7 +208,7 @@
       if (posts.length === 0) { container.innerHTML = '<div style="text-align:center;color:#555;padding:3rem;">No posts yet</div>'; return; }
       container.innerHTML = posts.map(p => `
         <div class="feed-card" id="post-${p.id}">
-          <div class="feed-header"><div class="feed-avatar" onclick="window.location.href='profile.html?user=${encodeURIComponent(p.userId)}'">${getAvatarHTML(p.userId)}</div><div><div class="feed-username" onclick="window.location.href='profile.html?user=${encodeURIComponent(p.userId)}'">${cname(p.userId)}</div></div><span class="feed-time">${p.time}</span></div>
+          <div class="feed-header"><div class="feed-avatar" onclick="window.location.href='profile.html?user=${encodeURIComponent(p.userId)}'">${getAvt(p.userId)}</div><div><div class="feed-username" onclick="window.location.href='profile.html?user=${encodeURIComponent(p.userId)}'">${cname(p.userId)}</div></div><span class="feed-time">${p.time}</span></div>
           <div class="feed-image" onclick="openImageViewer('${p.src}')"><img src="${p.src}" alt="post" onerror="this.style.display='none'"></div>
           <div class="feed-actions">
             <button class="feed-action" id="likeBtn-${p.id}" onclick="toggleLike('${p.id}')"><i class="far fa-heart"></i></button>
@@ -244,139 +229,143 @@
       else { btn.classList.add('liked'); btn.querySelector('i').className = 'fas fa-heart'; likesEl.textContent = (parseInt(likesEl.textContent) + 1) + ' likes'; try { await updateDoc(doc(db, 'posts', postId), { likes: increment(1) }); } catch(e) {} }
     };
 
-    window.openComments = function(postId) { activeCommentPostId = postId; document.getElementById('commentsOverlay').classList.add('show'); document.getElementById('commentInput').value = ''; loadComments(postId); };
-    window.closeComments = function() { document.getElementById('commentsOverlay').classList.remove('show'); cancelGlobalRecording(); activeCommentPostId = null; activeReplyTo = null; };
+    window.openComments = function(postId) { activePostId = postId; document.getElementById('commentsOverlay').classList.add('show'); document.getElementById('commentInput').value = ''; renderComments(postId); };
+    window.closeComments = function() { document.getElementById('commentsOverlay').classList.remove('show'); cancelGlobalRecording(); activePostId = null; activeReplyId = null; };
 
-    async function loadComments(postId) {
-      const list = document.getElementById('commentsList');
-      list.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;font-size:0.7rem;">Loading...</div>';
-      try {
-        const postSnap = await getDoc(doc(db, 'posts', postId));
-        const postOwner = postSnap.exists() ? (postSnap.data().username || postSnap.data().userId || '') : '';
-        const snap = await getDocs(query(collection(db, 'posts', postId, 'comments'), orderBy('createdAt', 'asc')));
-        if (snap.empty) { list.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;font-size:0.7rem;">No comments yet</div>'; return; }
-        list.innerHTML = '';
-        snap.forEach(doc => {
-          const d = doc.data();
-          const canDelete = (d.username === currentUser || postOwner === currentUser);
-          const deleteBtn = canDelete ? `<button class="comment-delete-btn show" onclick="deleteComment('${postId}','${doc.id}')">🗑️</button>` : '';
-          const micBtn = `<button class="comment-mic-btn" id="micBtn-${doc.id}" onclick="toggleVoiceReply('${doc.id}')"><i class="fas fa-microphone"></i></button>`;
-          if (d.type === 'text') {
-            list.innerHTML += `<div class="comment-item" id="c-${doc.id}"><div class="comment-main"><div class="comment-avatar">${getAvatarHTML(d.username)}</div><div class="comment-body"><div class="comment-username">${cname(d.username)}</div><div class="comment-text">${d.text||''}</div><div class="comment-meta"><span class="comment-time">${d.createdAt?timeAgo(d.createdAt.toDate()):''}</span><button class="comment-reply-btn" onclick="showReplyInput('${doc.id}')">Reply</button>${micBtn}${deleteBtn}</div></div></div>
-            <div class="reply-input-area" id="replyArea-${doc.id}"><input type="text" class="reply-input" id="replyInput-${doc.id}" placeholder="Write a reply..."><button class="reply-mic-btn-inline" id="replyMicBtn-${doc.id}" onclick="toggleVoiceReply('${doc.id}')"><i class="fas fa-microphone"></i></button><button class="reply-post-btn" onclick="postReply('${postId}','${doc.id}')">Post</button></div>
-            <div class="comment-replies" id="replies-${doc.id}"></div></div>`;
-            loadReplies(postId, doc.id);
-          } else if (d.type === 'voice') {
-            const src = (d.audioData || '').replace(/'/g, "\\'");
-            list.innerHTML += `<div class="voice-comment-item" id="c-${doc.id}"><div class="voice-comment-main"><div class="comment-avatar">${getAvatarHTML(d.username)}</div><div class="comment-body"><div class="comment-username">${cname(d.username)}</div><div class="vc-play-btn" onclick="playVC('${src}', this)"><i class="fas fa-play"></i><span>Voice</span><span class="vc-duration">${fmtDur(d.duration||0)}</span></div><div class="comment-meta"><span class="comment-time">${d.createdAt?timeAgo(d.createdAt.toDate()):''}</span><button class="comment-reply-btn" onclick="showReplyInput('${doc.id}')">Reply</button>${micBtn}${deleteBtn}</div></div></div>
-            <div class="reply-input-area" id="replyArea-${doc.id}"><input type="text" class="reply-input" id="replyInput-${doc.id}" placeholder="Write a reply..."><button class="reply-mic-btn-inline" id="replyMicBtn-${doc.id}" onclick="toggleVoiceReply('${doc.id}')"><i class="fas fa-microphone"></i></button><button class="reply-post-btn" onclick="postReply('${postId}','${doc.id}')">Post</button></div>
-            <div class="comment-replies" id="replies-${doc.id}"></div></div>`;
-            loadReplies(postId, doc.id);
-          }
-        });
-      } catch(e) { list.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;">Error loading</div>'; }
-    }
+    // ===== RECURSIVE COMMENT RENDERING =====
+    async function renderComments(postId, parentId = null, containerEl = null, level = 0) {
+      if (level > 15) return;
+      const isRoot = !parentId;
+      const listEl = containerEl || document.getElementById('commentsList');
+      if (isRoot) listEl.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;font-size:0.7rem;">Loading...</div>';
 
-    async function loadReplies(postId, parentId, containerId, level = 0) {
-      const container = document.getElementById(containerId || ('replies-' + parentId));
-      if (!container || level > 10) return;
       try {
-        const snap = await getDocs(query(collection(db, 'posts', postId, 'comments', parentId, 'replies'), orderBy('createdAt', 'asc')));
-        if (snap.empty) return;
-        container.innerHTML = '';
+        const colPath = parentId ? `posts/${postId}/comments/${parentId}/replies` : `posts/${postId}/comments`;
+        const snap = await getDocs(query(collection(db, colPath), orderBy('createdAt', 'asc')));
+        if (isRoot && snap.empty) { listEl.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;font-size:0.7rem;">No comments yet</div>'; return; }
+        if (!isRoot && snap.empty) return;
+        if (isRoot) listEl.innerHTML = '';
+
+        const postSnap = isRoot ? await getDoc(doc(db, 'posts', postId)) : null;
+        const postOwner = postSnap?.exists() ? (postSnap.data().username || postSnap.data().userId || '') : '';
+
         for (const doc of snap.docs) {
-          const d = doc.data(); const rid = doc.id; const nestedId = 'replies-' + rid;
+          const d = doc.data(); const cid = doc.id;
+          const canDel = (d.username === currentUser || postOwner === currentUser);
+          const delBtn = canDel ? `<button class="c-delete-btn show" onclick="event.stopPropagation();deleteComment('${postId}','${cid}','${parentId||''}')">🗑️</button>` : '';
+          const micBtn = `<button class="c-mic-btn" id="mic-${cid}" onclick="event.stopPropagation();toggleVoiceReply('${cid}','${parentId||''}')"><i class="fas fa-microphone"></i></button>`;
+
+          const wrapper = document.createElement('div');
+          wrapper.className = 'comment-block';
+          wrapper.id = 'c-' + cid;
+
           if (d.type === 'voice') {
             const src = (d.audioData || '').replace(/'/g, "\\'");
-            container.innerHTML += `<div class="reply-item" id="r-${rid}"><div class="reply-avatar">${getAvatarHTML(d.username)}</div><div class="reply-body"><div class="reply-username">${cname(d.username)}</div><div class="vc-play-btn" onclick="playVC('${src}', this)" style="font-size:0.55rem;padding:0.15rem 0.4rem;margin-top:0.1rem;"><i class="fas fa-play"></i><span>Voice</span><span class="vc-duration">${fmtDur(d.duration||0)}</span></div><div class="reply-meta"><span class="comment-time">${d.createdAt?timeAgo(d.createdAt.toDate()):''}</span><button class="comment-reply-btn" onclick="showReplyInput('${rid}')">Reply</button><button class="comment-mic-btn" id="micBtn-${rid}" onclick="toggleVoiceReply('${rid}')"><i class="fas fa-microphone"></i></button></div><div class="reply-input-area" id="replyArea-${rid}"><input type="text" class="reply-input" id="replyInput-${rid}" placeholder="Write a reply..."><button class="reply-mic-btn-inline" id="replyMicBtn-${rid}" onclick="toggleVoiceReply('${rid}')"><i class="fas fa-microphone"></i></button><button class="reply-post-btn" onclick="postReply('${postId}','${rid}')">Post</button></div><div class="comment-replies" id="${nestedId}" style="margin-left:1rem;padding-left:0.5rem;border-left:1px solid rgba(255,255,255,0.06);"></div></div></div>`;
+            wrapper.innerHTML = `
+              <div class="comment-row"><div class="c-avatar">${getAvt(d.username)}</div><div class="c-body"><div class="c-username">${cname(d.username)}</div>
+              <div class="vc-play-btn" onclick="playVC('${src}', this)"><i class="fas fa-play"></i><span>Voice</span><span class="vc-duration">${fmtDur(d.duration||0)}</span></div>
+              <div class="c-meta"><span class="c-time">${d.createdAt?timeAgo(d.createdAt.toDate()):''}</span><button class="c-reply-btn" onclick="toggleReplyBox('${cid}')">Reply</button>${micBtn}${delBtn}</div>
+              <div class="reply-box" id="rb-${cid}"><input class="reply-input" id="ri-${cid}" placeholder="Write a reply..."><button class="reply-mic-btn" id="rmic-${cid}" onclick="toggleVoiceReply('${cid}','${parentId||''}')"><i class="fas fa-microphone"></i></button><button class="reply-post-btn" onclick="postReply('${postId}','${cid}','${parentId||''}')">Post</button></div>
+              <div class="comment-thread" id="thread-${cid}"></div></div></div>`;
           } else {
-            container.innerHTML += `<div class="reply-item" id="r-${rid}"><div class="reply-avatar">${getAvatarHTML(d.username)}</div><div class="reply-body"><div class="reply-username">${cname(d.username)}</div><div class="reply-text">${d.text||''}</div><div class="reply-meta"><span class="comment-time">${d.createdAt?timeAgo(d.createdAt.toDate()):''}</span><button class="comment-reply-btn" onclick="showReplyInput('${rid}')">Reply</button><button class="comment-mic-btn" id="micBtn-${rid}" onclick="toggleVoiceReply('${rid}')"><i class="fas fa-microphone"></i></button></div><div class="reply-input-area" id="replyArea-${rid}"><input type="text" class="reply-input" id="replyInput-${rid}" placeholder="Write a reply..."><button class="reply-mic-btn-inline" id="replyMicBtn-${rid}" onclick="toggleVoiceReply('${rid}')"><i class="fas fa-microphone"></i></button><button class="reply-post-btn" onclick="postReply('${postId}','${rid}')">Post</button></div><div class="comment-replies" id="${nestedId}" style="margin-left:1rem;padding-left:0.5rem;border-left:1px solid rgba(255,255,255,0.06);"></div></div></div>`;
+            wrapper.innerHTML = `
+              <div class="comment-row"><div class="c-avatar">${getAvt(d.username)}</div><div class="c-body"><div class="c-username">${cname(d.username)}</div>
+              <div class="c-text">${d.text||''}</div>
+              <div class="c-meta"><span class="c-time">${d.createdAt?timeAgo(d.createdAt.toDate()):''}</span><button class="c-reply-btn" onclick="toggleReplyBox('${cid}')">Reply</button>${micBtn}${delBtn}</div>
+              <div class="reply-box" id="rb-${cid}"><input class="reply-input" id="ri-${cid}" placeholder="Write a reply..."><button class="reply-mic-btn" id="rmic-${cid}" onclick="toggleVoiceReply('${cid}','${parentId||''}')"><i class="fas fa-microphone"></i></button><button class="reply-post-btn" onclick="postReply('${postId}','${cid}','${parentId||''}')">Post</button></div>
+              <div class="comment-thread" id="thread-${cid}"></div></div></div>`;
           }
-          loadReplies(postId, rid, nestedId, level + 1);
+          listEl.appendChild(wrapper);
+          // Recursive: load nested replies
+          const threadEl = document.getElementById('thread-' + cid);
+          if (threadEl) await renderComments(postId, cid, threadEl, level + 1);
         }
-      } catch(e) { console.error('Load replies error:', e); }
+      } catch(e) { if (isRoot) listEl.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;">Error loading</div>'; }
     }
 
-    window.showReplyInput = function(commentId) {
-      document.querySelectorAll('.reply-input-area').forEach(el => el.classList.remove('show'));
-      const area = document.getElementById('replyArea-' + commentId);
-      if (area) { area.classList.add('show'); const inp = document.getElementById('replyInput-' + commentId); if (inp) inp.focus(); }
+    // ===== REPLY BOX TOGGLE =====
+    window.toggleReplyBox = function(cid) {
+      document.querySelectorAll('.reply-box').forEach(el => el.classList.remove('show'));
+      const box = document.getElementById('rb-' + cid);
+      if (box) { box.classList.add('show'); const inp = document.getElementById('ri-' + cid); if (inp) inp.focus(); }
     };
 
-    window.postReply = async function(postId, parentId) {
-      const input = document.getElementById('replyInput-' + parentId);
-      const text = input.value.trim();
+    // ===== POST REPLY =====
+    window.postReply = async function(postId, parentId, grandParentId) {
+      const input = document.getElementById('ri-' + parentId);
+      const text = input?.value?.trim();
       if (!text || !postId || !parentId) return;
       input.value = '';
-      try { await addDoc(collection(db, 'posts', postId, 'comments', parentId, 'replies'), { type:'text', text, username:currentUser, createdAt:serverTimestamp() }); loadReplies(postId, parentId); document.getElementById('replyArea-' + parentId).classList.remove('show'); } catch(e) {}
+      const colPath = grandParentId ? `posts/${postId}/comments/${grandParentId}/replies/${parentId}/replies` : `posts/${postId}/comments/${parentId}/replies`;
+      try {
+        await addDoc(collection(db, colPath), { type:'text', text, username:currentUser, createdAt:serverTimestamp() });
+        renderComments(postId); // Refresh all
+      } catch(e) { console.error(e); }
     };
 
-    window.deleteComment = async function(postId, commentId) {
-      if (!confirm('Delete this comment?')) return;
-      try { await deleteDoc(doc(db, 'posts', postId, 'comments', commentId)); document.getElementById('c-' + commentId)?.remove(); showToast('Deleted'); } catch(e) { showToast('Failed', true); }
+    window.deleteComment = async function(postId, cid, parentId) {
+      if (!confirm('Delete?')) return;
+      const colPath = parentId ? `posts/${postId}/comments/${parentId}/replies` : `posts/${postId}/comments`;
+      try { const ref = doc(db, colPath, cid); await setDoc(ref, { _deleted: true, deletedBy: currentUser }, { merge: true }); document.getElementById('c-' + cid)?.remove(); showToast('Deleted'); } catch(e) { showToast('Failed', true); }
     };
 
     window.postTextComment = async function() {
       const input = document.getElementById('commentInput'); const text = input.value.trim();
-      if (!text || !activeCommentPostId) return; input.value = '';
-      try { await addDoc(collection(db, 'posts', activeCommentPostId, 'comments'), { type:'text', text, username:currentUser, createdAt:serverTimestamp() }); loadComments(activeCommentPostId); } catch(e) {}
+      if (!text || !activePostId) return; input.value = '';
+      try { await addDoc(collection(db, 'posts', activePostId, 'comments'), { type:'text', text, username:currentUser, createdAt:serverTimestamp() }); renderComments(activePostId); } catch(e) {}
     };
 
-    window.toggleVoiceReply = function(commentId) { if (voiceRecorder) sendGlobalRecording(); else startGlobalRecording(commentId); };
+    // ===== VOICE =====
+    window.toggleVoiceReply = function(cid, parentId) { if (voiceRecorder) sendGlobalRecording(); else startGlobalRecording(cid, parentId); };
 
-    async function startGlobalRecording(targetId) {
+    async function startGlobalRecording(cid, parentId) {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, sampleRate: 16000, channelCount: 1 } });
         voiceRecorder = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm', audioBitsPerSecond: 24000 });
         voiceChunks = []; voiceRecorder.ondataavailable = e => { if (e.data.size > 0) voiceChunks.push(e.data); };
         voiceRecorder.onstop = () => { stream.getTracks().forEach(t => t.stop()); };
-        voiceRecorder.start(200); voiceSeconds = 0; activeReplyTo = targetId || 'main';
-        document.getElementById('globalRecordingBar').classList.add('show');
+        voiceRecorder.start(200); voiceSeconds = 0; activeReplyId = cid || 'main'; activeReplyParentId = parentId || '';
+        document.getElementById('globalRecBar').classList.add('show');
         document.getElementById('globalRecTimer').textContent = '00:00';
-        const micBtn = document.getElementById('micBtn-' + targetId);
-        const replyMicBtn = document.getElementById('replyMicBtn-' + targetId);
-        if (micBtn) micBtn.classList.add('recording');
-        if (replyMicBtn) replyMicBtn.classList.add('recording');
-        if (!targetId) document.getElementById('postCommentBtn').disabled = true;
+        const micEl = document.getElementById('mic-' + cid); if (micEl) micEl.classList.add('recording');
+        const rmicEl = document.getElementById('rmic-' + cid); if (rmicEl) rmicEl.classList.add('recording');
+        if (!cid) document.getElementById('postCommentBtn').disabled = true;
         voiceTimer = setInterval(() => { voiceSeconds++; document.getElementById('globalRecTimer').textContent = fmtDur(voiceSeconds); if (voiceSeconds >= MAX_VOICE_SEC) sendGlobalRecording(); }, 1000);
       } catch(e) { showToast('Microphone needed!', true); }
     }
 
-    window.cancelGlobalRecording = function() { if (voiceRecorder) { voiceChunks = []; voiceRecorder.stop(); } resetGlobalVoiceUI(); };
-
+    window.cancelGlobalRecording = function() { if (voiceRecorder) { voiceChunks = []; voiceRecorder.stop(); } resetVoiceUI(); };
     window.sendGlobalRecording = async function() {
       if (!voiceRecorder || voiceSeconds < 1) { cancelGlobalRecording(); return; }
       voiceRecorder.onstop = async () => {
         voiceRecorder.stream.getTracks().forEach(t => t.stop());
         const blob = new Blob(voiceChunks, { type: voiceRecorder.mimeType || 'audio/webm' });
         await saveVoiceComment(blob, voiceSeconds);
-        resetGlobalVoiceUI(); loadComments(activeCommentPostId);
+        resetVoiceUI(); renderComments(activePostId);
       };
       voiceRecorder.stop(); clearInterval(voiceTimer);
     };
 
-    function resetGlobalVoiceUI() {
+    function resetVoiceUI() {
       clearInterval(voiceTimer); voiceRecorder = null; voiceChunks = [];
-      document.getElementById('globalRecordingBar').classList.remove('show');
+      document.getElementById('globalRecBar').classList.remove('show');
       document.getElementById('postCommentBtn').disabled = false;
-      if (activeReplyTo && activeReplyTo !== 'main') {
-        const micBtn = document.getElementById('micBtn-' + activeReplyTo);
-        const replyMicBtn = document.getElementById('replyMicBtn-' + activeReplyTo);
-        if (micBtn) micBtn.classList.remove('recording');
-        if (replyMicBtn) replyMicBtn.classList.remove('recording');
+      if (activeReplyId && activeReplyId !== 'main') {
+        const micEl = document.getElementById('mic-' + activeReplyId); if (micEl) micEl.classList.remove('recording');
+        const rmicEl = document.getElementById('rmic-' + activeReplyId); if (rmicEl) rmicEl.classList.remove('recording');
       }
-      activeReplyTo = null;
+      activeReplyId = null; activeReplyParentId = '';
     }
 
     async function saveVoiceComment(audioBlob, duration) {
       showToast('Saving...'); const reader = new FileReader();
       reader.onload = async function(e) {
         try {
-          if (activeReplyTo && activeReplyTo !== 'main') {
-            await addDoc(collection(db, 'posts', activeCommentPostId, 'comments', activeReplyTo, 'replies'), { type:'voice', username:currentUser, audioData:e.target.result, duration, createdAt:serverTimestamp() });
-            loadReplies(activeCommentPostId, activeReplyTo);
+          if (activeReplyId && activeReplyId !== 'main') {
+            const colPath = activeReplyParentId ? `posts/${activePostId}/comments/${activeReplyParentId}/replies/${activeReplyId}/replies` : `posts/${activePostId}/comments/${activeReplyId}/replies`;
+            await addDoc(collection(db, colPath), { type:'voice', username:currentUser, audioData:e.target.result, duration, createdAt:serverTimestamp() });
           } else {
-            await setDoc(doc(db, 'posts', activeCommentPostId, 'comments', 'vc_' + Date.now()), { type:'voice', username:currentUser, audioData:e.target.result, duration, createdAt:serverTimestamp() });
+            await addDoc(collection(db, 'posts', activePostId, 'comments'), { type:'voice', username:currentUser, audioData:e.target.result, duration, createdAt:serverTimestamp() });
           }
           showToast('✅ Voice added!');
         } catch(err) { showToast('❌ Failed', true); }

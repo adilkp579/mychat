@@ -78,6 +78,7 @@
     .post-item img { width:100%;height:100%;object-fit:cover; }
     .reel-item { aspect-ratio:9/16;background:#111;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;border-radius:0.2rem;cursor:pointer; }
     .reel-item video { width:100%;height:100%;object-fit:cover; }
+
     .empty-text { color:#444;font-size:0.75rem;text-align:center;padding:2rem 0;width:100%;max-width:400px; }
 
     .post-viewer-overlay {
@@ -260,6 +261,27 @@
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('mainPage').style.display = 'flex';
 
+    // ===== SAVE POST TO FIRESTORE (account-based) =====
+    window.savePostToUser = async function(postDataUrl, caption, type) {
+      const newPost = {
+        type: type, src: postDataUrl, caption: caption || '',
+        likes: 0, liked: false, createdAt: new Date().toISOString()
+      };
+      try {
+        const userRef = doc(db, 'users', currentUser);
+        const userSnap = await getDoc(userRef);
+        let posts = userSnap.exists() ? (userSnap.data().posts || []) : [];
+        posts.unshift(newPost);
+        await setDoc(userRef, { posts: posts }, { merge: true });
+      } catch(e) {}
+      const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+      if (!profile.posts) profile.posts = [];
+      profile.posts.unshift(newPost);
+      localStorage.setItem('userProfile', JSON.stringify(profile));
+      return newPost;
+    };
+
+    // ===== SAVE PROFILE TO FIRESTORE =====
     async function saveToFirestore() {
       if (!isOwnProfile) return;
       const p = window._profile;
@@ -274,6 +296,7 @@
       } catch(e) {}
     }
 
+    // ===== ADD/REMOVE FOLLOWER =====
     async function addFollower(targetUsername, followerUsername) {
       const myProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
       const myAvatar = myProfile.avatar || null;
@@ -293,11 +316,9 @@
           });
         }
         const sp = localStorage.getItem('profile_' + targetUsername);
-        if (sp) {
-          try { let pd = JSON.parse(sp); let f = pd.friends || []; if (!f.find(x => x.name === followerUsername)) { f.push({ name: followerUsername, avatar: myAvatar }); pd.friends = f; localStorage.setItem('profile_' + targetUsername, JSON.stringify(pd)); } } catch(e) {}
-        }
-        console.log('✅ Follower added:', followerUsername, '→', targetUsername);
-      } catch(e) { console.error('Add follower error:', e); }
+        if (sp) { try { let pd = JSON.parse(sp); let f = pd.friends || []; if (!f.find(x => x.name === followerUsername)) { f.push({ name: followerUsername, avatar: myAvatar }); pd.friends = f; localStorage.setItem('profile_' + targetUsername, JSON.stringify(pd)); } } catch(e) {} }
+        else { localStorage.setItem('profile_' + targetUsername, JSON.stringify({ username: targetUsername, name: targetUsername.replace('@',''), friends: [{ name: followerUsername, avatar: myAvatar }], besties: [], posts: [] })); }
+      } catch(e) {}
     }
 
     async function removeFollower(targetUsername, followerUsername) {
@@ -310,10 +331,10 @@
         }
         const sp = localStorage.getItem('profile_' + targetUsername);
         if (sp) { try { let pd = JSON.parse(sp); pd.friends = (pd.friends || []).filter(f => f.name !== followerUsername); localStorage.setItem('profile_' + targetUsername, JSON.stringify(pd)); } catch(e) {} }
-        console.log('✅ Follower removed:', followerUsername, '→', targetUsername);
-      } catch(e) { console.error('Remove follower error:', e); }
+      } catch(e) {}
     }
 
+    // ===== INIT =====
     if (!isOwnProfile) {
       document.getElementById('backBtn').classList.add('show');
       document.getElementById('topLeftBtn').style.display = 'none';
@@ -326,13 +347,18 @@
       loadOwnProfile();
     }
 
+    // ===== LOAD OTHER USER =====
     async function loadOtherUserProfile(username) {
       const cname = (username || '').replace(/^@/, '');
       document.getElementById('displayName').textContent = cname;
       let userData = null;
       try { const q = query(collection(db, 'users'), where('username', '==', username)); const snap = await getDocs(q); if (!snap.empty) userData = snap.docs[0].data(); } catch(e) {}
       if (!userData) { const sp = localStorage.getItem('profile_' + username); if (sp) { try { userData = JSON.parse(sp); } catch(e) {} } }
-      if (!userData) { const mp = JSON.parse(localStorage.getItem('userProfile') || '{}'); const f = [...(mp.friends || []), ...(mp.besties || [])].find(x => x.name === username); if (f) userData = { name: f.name, avatar: f.avatar, posts: [], friends: [], besties: [] }; }
+      if (!userData) {
+        const mp = JSON.parse(localStorage.getItem('userProfile') || '{}');
+        const f = [...(mp.friends || []), ...(mp.besties || [])].find(x => x.name === username);
+        if (f) userData = { name: f.name, avatar: f.avatar, posts: [], friends: [], besties: [] };
+      }
       if (userData) {
         document.getElementById('displayName').textContent = userData.name || cname;
         document.getElementById('displayBio').textContent = userData.bio || '';
@@ -342,15 +368,25 @@
         document.getElementById('bestiesCount').textContent = (userData.besties || []).length;
         document.getElementById('postCount').textContent = (userData.posts || []).filter(p => p.type === 'image').length;
         window._viewProfile = userData; renderContent();
-        console.log('📊 Loaded:', username, '| Friends:', (userData.friends || []).length, '| Besties:', (userData.besties || []).length);
       }
       document.getElementById('actionsRow').innerHTML = `<button class="action-btn primary" onclick="window.location.href='chat.html'">💬 Message</button><button class="action-btn" id="followBtn" onclick="toggleFollowUser('${username}')">Follow</button>`;
       const mp = JSON.parse(localStorage.getItem('userProfile') || '{}');
       if ((mp.besties || []).some(f => f.name === username)) { const fb = document.getElementById('followBtn'); fb.textContent = 'Following'; fb.classList.add('following'); }
     }
 
+    // ===== LOAD OWN PROFILE (from Firestore first) =====
     async function loadOwnProfile() {
-      try { const snap = await getDoc(doc(db, 'users', currentUser)); if (snap.exists()) { window._profile = snap.data(); if (!window._profile.friends) window._profile.friends = []; if (!window._profile.besties) window._profile.besties = []; if (!window._profile.posts) window._profile.posts = []; localStorage.setItem('userProfile', JSON.stringify(window._profile)); updateUI(); return; } } catch(e) {}
+      try {
+        const snap = await getDoc(doc(db, 'users', currentUser));
+        if (snap.exists()) {
+          window._profile = snap.data();
+          if (!window._profile.friends) window._profile.friends = [];
+          if (!window._profile.besties) window._profile.besties = [];
+          if (!window._profile.posts) window._profile.posts = [];
+          localStorage.setItem('userProfile', JSON.stringify(window._profile));
+          updateUI(); return;
+        }
+      } catch(e) {}
       const dp = { username: currentUser, name: '', bio: '', website: '', avatar: null, friends: [], besties: [], posts: [] };
       let profile = JSON.parse(localStorage.getItem('userProfile')) || dp;
       if (!profile.username || profile.username !== currentUser) { profile = dp; localStorage.setItem('userProfile', JSON.stringify(profile)); }
@@ -406,10 +442,9 @@
       try { await setDoc(doc(db, 'users', currentUser), { besties: myBesties, friends: mp.friends || [] }, { merge: true }); } catch(e) {}
       document.getElementById('bestiesCount').textContent = myBesties.length;
       if (!isOwnProfile) { setTimeout(async () => { await loadOtherUserProfile(username); }, 800); }
-      console.log('📊 My besties:', myBesties.length);
     };
 
-    // ===== OWN PROFILE =====
+    // ===== OWN PROFILE ACTIONS =====
     window.toggleAvatarOptions = function() { if (!isOwnProfile) return; document.getElementById('avatarOptions').classList.toggle('show'); setTimeout(() => { document.addEventListener('click', function c(e) { if (!e.target.closest('.avatar-container')) { document.getElementById('avatarOptions').classList.remove('show'); document.removeEventListener('click', c); } }); }, 100); };
     window.updateAvatar = function(e) { if (!isOwnProfile) return; const file = e.target.files[0]; if (file) { const r = new FileReader(); r.onload = function(ev) { window._profile.avatar = ev.target.result; saveToFirestore(); updateUI(); }; r.readAsDataURL(file); } document.getElementById('avatarOptions').classList.remove('show'); };
     window.removeAvatar = function() { if (!isOwnProfile) return; window._profile.avatar = null; saveToFirestore(); updateUI(); document.getElementById('avatarOptions').classList.remove('show'); };

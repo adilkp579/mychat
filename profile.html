@@ -9,10 +9,10 @@
     * { margin:0;padding:0;box-sizing:border-box; }
     body { background:#000;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center; }
     .page { width:100%;height:100vh;height:100dvh;background:#000;display:flex;flex-direction:column;position:relative;overflow:hidden; }
-    .top-left { position:absolute;top:max(1rem,env(safe-area-inset-top,1rem));left:max(1rem,env(safe-area-inset-left,1rem));z-index:200; }
-    .top-right { position:absolute;top:max(1rem,env(safe-area-inset-top,1rem));right:max(1rem,env(safe-area-inset-right,1rem));z-index:200; }
+    .top-left { position:fixed;top:max(1rem,env(safe-area-inset-top,1rem));left:max(1rem,env(safe-area-inset-left,1rem));z-index:200; }
+    .top-right { position:fixed;top:max(1rem,env(safe-area-inset-top,1rem));right:max(1rem,env(safe-area-inset-right,1rem));z-index:200; }
     .back-btn {
-      position:absolute;top:max(1rem,env(safe-area-inset-top,1rem));left:max(1rem,env(safe-area-inset-left,1rem));z-index:200;
+      position:fixed;top:max(1rem,env(safe-area-inset-top,1rem));left:max(1rem,env(safe-area-inset-left,1rem));z-index:200;
       width:2.4rem;height:2.4rem;background:rgba(255,255,255,0.1);backdrop-filter:blur(20px);
       border-radius:50%;color:#fff;font-size:1rem;display:none;align-items:center;justify-content:center;
       text-decoration:none;border:1px solid rgba(255,255,255,0.15);cursor:pointer;
@@ -137,7 +137,7 @@
     .loading-screen i { font-size:2rem;color:#3897f0;animation:spin 1s infinite; }
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 
-    .floating-nav { position:absolute;bottom:max(1.5rem,env(safe-area-inset-bottom,1.5rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 40px rgba(0,0,0,0.6);z-index:100; }
+    .floating-nav { position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(26,26,26,0.9);backdrop-filter:blur(30px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 4px 20px rgba(0,0,0,0.5);z-index:100; }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
     .nav-center a { color:rgba(255,255,255,0.6);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;position:relative; }
     .nav-center a::before { content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:4px;height:4px;border-radius:50%;background:#fff;transition:all 0.3s; }
@@ -146,13 +146,14 @@
     .nav-upload,.nav-search { display:none !important; }
 
     @media (max-width:380px) {
-      .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:0.8rem}.nav-center a{font-size:1.1rem;width:2rem;height:2rem}
+      .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:max(0.8rem,env(safe-area-inset-bottom,0.8rem))}.nav-center a{font-size:1.1rem;width:2rem;height:2rem}
       .corner-btn{width:2rem;height:2rem;font-size:0.9rem}
+      .content{padding:3.5rem 1rem 5.5rem 1rem}
     }
     @media (min-width:1024px) {
       .top-left,.top-right{display:none}
       .nav-upload,.nav-search{display:flex!important}
-      .floating-nav{top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column}
+      .floating-nav{position:fixed;top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column}
       .nav-center{flex-direction:column;gap:1.2rem;max-width:none}.nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
       .nav-center a::before{bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0)}.nav-center a.active::before{transform:translateY(-50%) scale(1)}
       .content{padding:5rem 3rem 3rem 7rem;max-width:700px;margin:0 auto;width:100%;align-items:center}
@@ -238,7 +239,7 @@
       <a href="reel.html"><i class="fas fa-film"></i></a>
       <a href="chat.html"><i class="fas fa-comment-dots"></i></a>
       <a href="profile.html" class="active"><i class="fas fa-user"></i></a>
-      <a href="notification.html" class="nav-upload"><i class="fas fa-bell"></i></a>
+      <a href="upload.html" class="nav-upload"><i class="fas fa-plus"></i></a>
       <a href="search.html" class="nav-search"><i class="fas fa-search"></i></a>
     </div></nav>
   </div>
@@ -261,12 +262,8 @@
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('mainPage').style.display = 'flex';
 
-    // ===== SAVE POST TO FIRESTORE (account-based) =====
     window.savePostToUser = async function(postDataUrl, caption, type) {
-      const newPost = {
-        type: type, src: postDataUrl, caption: caption || '',
-        likes: 0, liked: false, createdAt: new Date().toISOString()
-      };
+      const newPost = { type: type, src: postDataUrl, caption: caption || '', likes: 0, liked: false, createdAt: new Date().toISOString() };
       try {
         const userRef = doc(db, 'users', currentUser);
         const userSnap = await getDoc(userRef);
@@ -281,7 +278,6 @@
       return newPost;
     };
 
-    // ===== SAVE PROFILE TO FIRESTORE =====
     async function saveToFirestore() {
       if (!isOwnProfile) return;
       const p = window._profile;
@@ -296,7 +292,6 @@
       } catch(e) {}
     }
 
-    // ===== ADD/REMOVE FOLLOWER =====
     async function addFollower(targetUsername, followerUsername) {
       const myProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
       const myAvatar = myProfile.avatar || null;
@@ -315,9 +310,6 @@
             besties: [], posts: [], name: targetUsername.replace('@',''), bio: '', avatar: null, updatedAt: serverTimestamp()
           });
         }
-        const sp = localStorage.getItem('profile_' + targetUsername);
-        if (sp) { try { let pd = JSON.parse(sp); let f = pd.friends || []; if (!f.find(x => x.name === followerUsername)) { f.push({ name: followerUsername, avatar: myAvatar }); pd.friends = f; localStorage.setItem('profile_' + targetUsername, JSON.stringify(pd)); } } catch(e) {} }
-        else { localStorage.setItem('profile_' + targetUsername, JSON.stringify({ username: targetUsername, name: targetUsername.replace('@',''), friends: [{ name: followerUsername, avatar: myAvatar }], besties: [], posts: [] })); }
       } catch(e) {}
     }
 
@@ -329,12 +321,9 @@
           let friends = (snap.docs[0].data().friends || []).filter(f => f.name !== followerUsername);
           await setDoc(doc(db, 'users', targetUsername), { friends: friends }, { merge: true });
         }
-        const sp = localStorage.getItem('profile_' + targetUsername);
-        if (sp) { try { let pd = JSON.parse(sp); pd.friends = (pd.friends || []).filter(f => f.name !== followerUsername); localStorage.setItem('profile_' + targetUsername, JSON.stringify(pd)); } catch(e) {} }
       } catch(e) {}
     }
 
-    // ===== INIT =====
     if (!isOwnProfile) {
       document.getElementById('backBtn').classList.add('show');
       document.getElementById('topLeftBtn').style.display = 'none';
@@ -347,13 +336,11 @@
       loadOwnProfile();
     }
 
-    // ===== LOAD OTHER USER =====
     async function loadOtherUserProfile(username) {
       const cname = (username || '').replace(/^@/, '');
       document.getElementById('displayName').textContent = cname;
       let userData = null;
       try { const q = query(collection(db, 'users'), where('username', '==', username)); const snap = await getDocs(q); if (!snap.empty) userData = snap.docs[0].data(); } catch(e) {}
-      if (!userData) { const sp = localStorage.getItem('profile_' + username); if (sp) { try { userData = JSON.parse(sp); } catch(e) {} } }
       if (!userData) {
         const mp = JSON.parse(localStorage.getItem('userProfile') || '{}');
         const f = [...(mp.friends || []), ...(mp.besties || [])].find(x => x.name === username);
@@ -374,7 +361,6 @@
       if ((mp.besties || []).some(f => f.name === username)) { const fb = document.getElementById('followBtn'); fb.textContent = 'Following'; fb.classList.add('following'); }
     }
 
-    // ===== LOAD OWN PROFILE (from Firestore first) =====
     async function loadOwnProfile() {
       try {
         const snap = await getDoc(doc(db, 'users', currentUser));
@@ -417,7 +403,6 @@
       else { rg.style.display = 'none'; if (imagePosts.length === 0) { pg.style.display = 'none'; et.style.display = 'block'; et.textContent = 'No posts yet'; } else { pg.style.display = 'grid'; et.style.display = 'none'; pg.innerHTML = imagePosts.map((x, i) => `<div class="post-item" onclick="openPostViewer(${i})"><img src="${x.src}" alt="post"></div>`).join(''); } }
     }
 
-    // ===== POST VIEWER =====
     window.openPostViewer = function(index) { const p = window._viewProfile || window._profile; if (!p) return; const ip = (p.posts || []).filter(x => x.type === 'image'); if (ip.length === 0) return; currentPostList = ip; currentPostIndex = index; showPost(index); document.getElementById('postViewer').classList.add('show'); updateNavButtons(); };
     function showPost(index) { if (index < 0 || index >= currentPostList.length) return; const post = currentPostList[index]; const p = window._viewProfile || window._profile; document.getElementById('postViewerImage').src = post.src; document.getElementById('postViewerAvatar').innerHTML = p.avatar ? `<img src="${p.avatar}" alt="">` : '<i class="fas fa-user"></i>'; document.getElementById('postViewerUsername').textContent = (p.username || '').replace('@',''); document.getElementById('postViewerLikes').textContent = (post.likes || 0) + ' likes'; document.getElementById('postViewerCaptionUser').textContent = (p.username || '').replace('@',''); document.getElementById('postViewerCaptionText').textContent = post.caption || ''; const lb = document.getElementById('postViewerLike'); if (post.liked) { lb.classList.add('liked'); lb.innerHTML = '<i class="fas fa-heart"></i>'; } else { lb.classList.remove('liked'); lb.innerHTML = '<i class="far fa-heart"></i>'; } currentPostIndex = index; updateNavButtons(); }
     function updateNavButtons() { document.getElementById('postViewerPrev').style.display = currentPostIndex > 0 ? 'flex' : 'none'; document.getElementById('postViewerNext').style.display = currentPostIndex < currentPostList.length - 1 ? 'flex' : 'none'; }
@@ -429,22 +414,19 @@
     document.getElementById('postViewer').addEventListener('click', function(e) { if (e.target === this) closePostViewer(); });
     document.addEventListener('keydown', function(e) { if (document.getElementById('postViewer').classList.contains('show')) { if (e.key === 'ArrowLeft') navigatePost(-1); if (e.key === 'ArrowRight') navigatePost(1); if (e.key === 'Escape') closePostViewer(); } });
 
-    // ===== FOLLOW/UNFOLLOW =====
     window.toggleFollowUser = async function(username) {
       const mp = JSON.parse(localStorage.getItem('userProfile') || '{}');
       let myBesties = mp.besties || [];
       const ei = myBesties.findIndex(f => f.name === username);
       const btn = document.getElementById('followBtn');
-      const vd = window._viewProfile || {};
       if (ei >= 0) { myBesties.splice(ei, 1); if (btn) { btn.textContent = 'Follow'; btn.classList.remove('following'); } await removeFollower(username, currentUser); }
-      else { myBesties.push({ name: username, avatar: vd.avatar || null }); if (btn) { btn.textContent = 'Following'; btn.classList.add('following'); } if (vd && vd.username) localStorage.setItem('profile_' + username, JSON.stringify(vd)); await addFollower(username, currentUser); }
+      else { myBesties.push({ name: username, avatar: null }); if (btn) { btn.textContent = 'Following'; btn.classList.add('following'); } await addFollower(username, currentUser); }
       mp.besties = myBesties; localStorage.setItem('userProfile', JSON.stringify(mp));
       try { await setDoc(doc(db, 'users', currentUser), { besties: myBesties, friends: mp.friends || [] }, { merge: true }); } catch(e) {}
       document.getElementById('bestiesCount').textContent = myBesties.length;
       if (!isOwnProfile) { setTimeout(async () => { await loadOtherUserProfile(username); }, 800); }
     };
 
-    // ===== OWN PROFILE ACTIONS =====
     window.toggleAvatarOptions = function() { if (!isOwnProfile) return; document.getElementById('avatarOptions').classList.toggle('show'); setTimeout(() => { document.addEventListener('click', function c(e) { if (!e.target.closest('.avatar-container')) { document.getElementById('avatarOptions').classList.remove('show'); document.removeEventListener('click', c); } }); }, 100); };
     window.updateAvatar = function(e) { if (!isOwnProfile) return; const file = e.target.files[0]; if (file) { const r = new FileReader(); r.onload = function(ev) { window._profile.avatar = ev.target.result; saveToFirestore(); updateUI(); }; r.readAsDataURL(file); } document.getElementById('avatarOptions').classList.remove('show'); };
     window.removeAvatar = function() { if (!isOwnProfile) return; window._profile.avatar = null; saveToFirestore(); updateUI(); document.getElementById('avatarOptions').classList.remove('show'); };

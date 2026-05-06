@@ -10,6 +10,7 @@
     body { background:#000;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;overscroll-behavior:none;overflow:hidden; }
     .page { width:100%;height:100vh;height:100dvh;background:#000;display:flex;flex-direction:column;position:relative;overflow:hidden; }
     
+    /* Top section: online counter + live status */
     .top-section { 
       flex-shrink:0;padding:0.4rem 1rem 0.1rem 1rem;
       display:flex;flex-direction:column;align-items:center;gap:0.12rem;
@@ -31,12 +32,12 @@
       animation:livePulse 2s infinite;
     }
     .live-status.show { display:flex; }
-    .live-status i { font-size:0.4rem; }
     
     .camera-labels { display:flex;justify-content:space-between;width:100%;max-width:500px;padding:0 0.15rem;flex-shrink:0;margin:0 auto; }
     .stranger-label-outside { color:#777;font-size:0.5rem;letter-spacing:2px;text-transform:uppercase; }
     .you-label-outside { color:#777;font-size:0.5rem;letter-spacing:2px;text-transform:uppercase; }
     
+    /* Camera fills remaining space */
     .camera-container { 
       flex:1;display:flex;gap:0.35rem;align-items:flex-start;justify-content:center;
       width:100%;max-width:500px;margin:0 auto;min-height:0;padding:0 0.15rem;
@@ -47,29 +48,25 @@
     #strangerFeed { width:100%;height:100%;object-fit:cover;display:none;background:#000;transform:rotateY(180deg);-webkit-transform:rotateY(180deg); }
     .stranger-placeholder { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.15rem;color:rgba(255,255,255,0.25); }
     .stranger-placeholder i { font-size:2rem; }
-    .stranger-placeholder span { font-size:0.65rem; }
     .my-camera { width:22%;max-height:110px;aspect-ratio:3/4;background:#111;border:2px solid rgba(255,255,255,0.3);border-radius:0.8rem;position:relative;overflow:hidden;align-self:flex-start; }
     .my-camera.active { border-color:#ef4444; }
     #myFeed { width:100%;height:100%;object-fit:cover;display:none;background:#000;transform:rotateY(180deg);-webkit-transform:rotateY(180deg); }
     .my-placeholder { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.08rem;color:rgba(255,255,255,0.35);font-size:0.5rem; }
     .my-placeholder i { font-size:1rem; }
     
-    .audio-indicator {
-      position:absolute;bottom:0.35rem;left:0.35rem;
-      display:flex;align-items:center;gap:0.15rem;
-      background:rgba(0,0,0,0.6);padding:0.1rem 0.35rem;
-      border-radius:0.8rem;font-size:0.45rem;z-index:5;
-    }
-    .audio-bars { display:flex;align-items:flex-end;gap:1px;height:8px; }
-    .audio-bar { width:2px;background:#4ade80;border-radius:1px;transition:height 0.1s; }
-    
     .user-info { display:flex;align-items:center;gap:0.2rem;background:rgba(255,255,255,0.06);padding:0.08rem 0.45rem;border-radius:1rem;font-size:0.55rem;color:#ccc;opacity:0;transition:all 0.3s;border:1px solid rgba(255,255,255,0.08);margin:0.1rem 0; }
     .user-info.active { opacity:1; }
     
-    .buttons-area { 
-      flex-shrink:0;padding:0.15rem 0.5rem 0.15rem 0.5rem;
-      display:flex;gap:0.3rem;flex-wrap:wrap;justify-content:center;align-items:center;
+    /* ✅ BOTTOM AREA: buttons + spacer (all above navbar) */
+    .bottom-area {
+      flex-shrink:0;
       width:100%;max-width:500px;margin:0 auto;
+      display:flex;flex-direction:column;align-items:center;
+    }
+    
+    .buttons-area { 
+      padding:0.15rem 0.5rem 0.5rem 0.5rem;
+      display:flex;gap:0.3rem;flex-wrap:wrap;justify-content:center;align-items:center;
     }
     .btn { 
       height:32px;border-radius:2rem;
@@ -120,7 +117,7 @@
     .loading-screen { position:fixed;top:0;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:0.5rem; }
     .loading-screen i { font-size:2rem;color:#3897f0;animation:spin 1s infinite; }
 
-    /* ✅ SAME NAVBAR AS index.html */
+    /* ✅ NAVBAR - Same style as index.html */
     .floating-nav { 
       position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));
       left:50%;transform:translateX(-50%);
@@ -138,10 +135,10 @@
     .nav-center a.active::before { transform:translateX(-50%) scale(1); }
     .nav-upload, .nav-search { display:none !important; }
 
-    /* ✅ SPACER: pushes buttons 0.5mm above navbar */
+    /* ✅ Spacer at bottom of page to prevent content going under navbar */
     .nav-spacer {
       flex-shrink:0;
-      height: calc(max(1rem, env(safe-area-inset-bottom, 1rem)) + 3.2rem);
+      height: calc(max(1rem, env(safe-area-inset-bottom, 1rem)) + 3.6rem);
     }
 
     @media (min-width:1024px) {
@@ -160,8 +157,8 @@
       .mic-button{width:30px;height:30px}
       .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:max(0.8rem,env(safe-area-inset-bottom,0.8rem))}
       .nav-center a{font-size:1.1rem;width:2rem;height:2rem}
-      .buttons-area{padding:0.1rem 0.3rem;gap:0.25rem}
-      .nav-spacer{height: calc(max(0.8rem, env(safe-area-inset-bottom, 0.8rem)) + 2.8rem)}
+      .buttons-area{padding:0.1rem 0.3rem 0.4rem 0.3rem;gap:0.25rem}
+      .nav-spacer{height: calc(max(0.8rem, env(safe-area-inset-bottom, 0.8rem)) + 3rem)}
       .my-camera{max-height:85px}
       .stranger-placeholder i{font-size:1.6rem}
     }
@@ -178,22 +175,20 @@
   </div>
 
   <div class="page" id="mainPage" style="display:none;">
+    <!-- Top: online + live status -->
     <div class="top-section">
       <div class="online-counter"><div class="online-dot"></div><span id="onlineCount">0 online</span></div>
       <div class="live-status" id="liveStatus"><i class="fas fa-circle"></i> LIVE • <span id="liveViewerCount">0</span> watching</div>
     </div>
     
+    <!-- Camera labels -->
     <div class="camera-labels"><span class="stranger-label-outside">STRANGER</span><span class="you-label-outside">YOU</span></div>
+    
+    <!-- Camera fills all space -->
     <div class="camera-container">
       <div class="stranger-camera" id="strangerCamera">
         <video id="strangerFeed" autoplay playsinline></video>
         <div class="stranger-placeholder" id="strangerPlaceholder"><i class="fas fa-user-secret"></i><span>???</span></div>
-        <div class="audio-indicator" id="strangerAudioIndicator" style="display:none;">
-          <i class="fas fa-volume-up" style="font-size:0.45rem;"></i>
-          <div class="audio-bars">
-            <div class="audio-bar" style="height:3px;"></div><div class="audio-bar" style="height:7px;"></div><div class="audio-bar" style="height:5px;"></div><div class="audio-bar" style="height:9px;"></div><div class="audio-bar" style="height:4px;"></div>
-          </div>
-        </div>
       </div>
       <div class="my-camera" id="myCamera">
         <video id="myFeed" autoplay playsinline muted></video>
@@ -201,19 +196,23 @@
       </div>
     </div>
     
+    <!-- User info -->
     <div class="user-info" id="userInfo"><span>🌍</span><span>Connected</span></div>
     
-    <div class="buttons-area">
-      <button class="btn live-button" id="liveBtn" type="button"><i class="fas fa-circle"></i><span>LIVE</span></button>
-      <button class="btn start-button" id="startBtn" type="button"><i class="fas fa-play"></i><span>Start</span></button>
-      <button class="btn stop-button" id="stopBtn" type="button"><i class="fas fa-stop"></i><span>Stop</span></button>
-      <button class="btn next-button" id="nextBtn" type="button"><i class="fas fa-forward"></i><span>Next</span></button>
-      <button class="btn mic-button" id="micBtn" type="button" title="Mute"><i class="fas fa-microphone"></i></button>
+    <!-- ✅ Bottom area: buttons + spacer (both ABOVE navbar) -->
+    <div class="bottom-area">
+      <div class="buttons-area">
+        <button class="btn live-button" id="liveBtn" type="button"><i class="fas fa-circle"></i><span>LIVE</span></button>
+        <button class="btn start-button" id="startBtn" type="button"><i class="fas fa-play"></i><span>Start</span></button>
+        <button class="btn stop-button" id="stopBtn" type="button"><i class="fas fa-stop"></i><span>Stop</span></button>
+        <button class="btn next-button" id="nextBtn" type="button"><i class="fas fa-forward"></i><span>Next</span></button>
+        <button class="btn mic-button" id="micBtn" type="button" title="Mute"><i class="fas fa-microphone"></i></button>
+      </div>
+      <!-- Spacer pushes navbar down, keeping buttons above it -->
+      <div class="nav-spacer"></div>
     </div>
     
-    <!-- ✅ Spacer pushes buttons to sit exactly 0.5mm above navbar -->
-    <div class="nav-spacer"></div>
-    
+    <!-- Fixed navbar -->
     <nav class="floating-nav"><div class="nav-center">
       <a href="index.html"><i class="fas fa-home"></i></a>
       <a href="web.html" class="active"><i class="fas fa-globe"></i></a>

@@ -167,7 +167,7 @@
     const storage = getStorage(app);
 
     // ---------- OPTIMIZED CACHES & STATE ----------
-    const userCache = new Map(); // username -> { avatar, name }
+    const userCache = new Map();
     const PAGE_SIZE = 10;
     let lastVisiblePost = null;
     let allPostsLoaded = false;
@@ -178,12 +178,13 @@
     const MAX_VOICE_SEC = 10;
     const currentUser = localStorage.getItem('currentUser') || '@anonymous';
 
-    // ---------- UTILS (unchanged) ----------
+    // Track which threads have been loaded to prevent duplicates
+    const loadedThreads = new Set();
+
     function cname(u) { return (u || '').replace(/^@/, ''); }
     function fmtDur(s) { const m = Math.floor(s/60), sec = Math.floor(s%60); return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0'); }
     function timeAgo(d) { if (!d) return ''; const n = new Date(); const df = n - d; if (df < 60000) return 'now'; if (df < 3600000) return Math.floor(df/60000)+'m'; if (df < 86400000) return Math.floor(df/3600000)+'h'; if (df < 604800000) return Math.floor(df/86400000)+'d'; return d.toLocaleDateString(); }
 
-    // ✅ Fetch single user profile on demand + cache
     async function getUserProfile(username) {
       if (!username || username === '@anonymous') return { avatar: null, name: username };
       if (userCache.has(username)) return userCache.get(username);
@@ -209,12 +210,9 @@
       return '<i class="fas fa-user"></i>';
     }
 
-    // ---------- AUTH BOOT (non-blocking) ----------
     async function bootApp() {
-      // Use cached uid if available, but still listen for changes silently
       const hasLocalUid = localStorage.getItem("uid");
       if (!hasLocalUid && !auth.currentUser) {
-        // Wait briefly for auth if completely fresh
         await new Promise(resolve => {
           const unsub = onAuthStateChanged(auth, (user) => {
             unsub();
@@ -230,7 +228,6 @@
       }
       
       document.getElementById('mainPage').style.display = 'flex';
-      // Preload current user profile into cache
       const lp = JSON.parse(localStorage.getItem('userProfile') || '{}');
       if (lp.username) userCache.set(lp.username, { avatar: lp.avatar || null, name: lp.name || lp.username });
       
@@ -239,7 +236,6 @@
       loadMorePosts();
     }
 
-    // ---------- STORIES (unchanged logic, uses cache) ----------
     async function renderStories() {
       const ps = await loadProfileStories(currentUser);
       const bar = document.getElementById('storiesBar'), ns = document.getElementById('noStories');
@@ -256,7 +252,6 @@
       const p = JSON.parse(localStorage.getItem('userProfile')||'{}'); return [...(p.friends||[]).map(f=>({name:f.name,type:'friend'})),...(p.besties||[]).map(b=>({name:b.name,type:'bestie'}))];
     }
 
-    // ---------- ✅ PAGINATED POSTS ----------
     async function loadMorePosts() {
       if (isLoadingPosts || allPostsLoaded) return;
       isLoadingPosts = true;
@@ -301,7 +296,7 @@
 
     function renderPostsToFeed(posts) {
       const container = document.getElementById('feedContainer');
-      if (!lastVisiblePost) container.innerHTML = ''; // clear on first load
+      // Don't clear on subsequent loads - we're appending
       
       posts.forEach(p => {
         const card = document.createElement('div');
@@ -324,7 +319,6 @@
         `;
         container.appendChild(card);
         
-        // Async load avatar for this post
         getUserProfile(p.userId).then(() => {
           const avEl = document.getElementById('av-'+p.id);
           if (avEl) avEl.innerHTML = getAvtFromCache(p.userId);
@@ -341,9 +335,10 @@
       });
     }
 
-    // ---------- COMMENTS (lazy replies, no recursion) ----------
+    // ---------- COMMENTS (fixed reply system) ----------
     window.openComments = async function(pid) {
       activePostId = pid;
+      loadedThreads.clear();
       document.getElementById('commentsOverlay').classList.add('show');
       document.getElementById('cmtInput').value = '';
       renderTopLevelComments(pid);
@@ -353,6 +348,7 @@
       document.getElementById('commentsOverlay').classList.remove('show');
       cancelRecording();
       activePostId = null;
+      loadedThreads.clear();
     };
 
     async function renderTopLevelComments(pid) {
@@ -429,13 +425,11 @@
       }
       parentEl.appendChild(wrapper);
       
-      // Async load avatar for this comment
       getUserProfile(data.username).then(() => {
         const av = document.getElementById('av-'+commentId);
         if (av) av.innerHTML = getAvtFromCache(data.username);
       });
       
-      // Check if replies exist (lightweight)
       checkHasReplies(postId, myPath, 'vr-'+commentId);
     }
 
@@ -452,12 +446,20 @@
     window.loadReplies = async function(postId, parentPath, threadId) {
       const threadEl = document.getElementById(threadId);
       if (!threadEl) return;
+      
+      // ✅ Check if already loaded to prevent duplicates
+      if (loadedThreads.has(parentPath)) {
+        threadEl.style.display = threadEl.style.display === 'none' ? '' : 'none';
+        return;
+      }
+      
       threadEl.innerHTML = '<div style="color:#555;font-size:0.6rem;">Loading...</div>';
       try {
         const snap = await getDocs(query(collection(db, 'posts', postId, 'comments', parentPath, 'replies'), orderBy('createdAt', 'asc')));
         threadEl.innerHTML = '';
         if (snap.empty) {
           threadEl.innerHTML = '<div style="color:#555;font-size:0.6rem;">No replies</div>';
+          loadedThreads.add(parentPath);
           return;
         }
         const postSnap = await getDoc(doc(db, 'posts', postId));
@@ -470,7 +472,8 @@
           const canDel = (d.username === currentUser || postOwner === currentUser);
           appendCommentElement(threadEl, d, cid, postId, parentPath, canDel);
         });
-        // Hide the button after loading
+        
+        loadedThreads.add(parentPath);
         const btn = document.getElementById('vr-' + parentPath.split('/').pop());
         if (btn) btn.style.display = 'none';
       } catch(e) {
@@ -484,24 +487,59 @@
       if (b) { b.classList.add('show'); document.getElementById('ri-'+cid)?.focus(); }
     };
 
+    // ✅ FIXED: Post reply and append only the new reply
     window.postReply = async function(pid, commentId, parentPath) {
       const input = document.getElementById('ri-' + commentId);
       const text = input?.value?.trim();
       if (!text || !pid || !commentId) return;
       input.value = '';
+      
       const colPath = parentPath ? `posts/${pid}/comments/${parentPath}/replies` : `posts/${pid}/comments/${commentId}/replies`;
       try {
-        await addDoc(collection(db, colPath), { type:'text', text, username:currentUser, createdAt:serverTimestamp() });
-        // Refresh the thread where reply was added
-        const threadId = 'thread-' + commentId;
-        const threadEl = document.getElementById(threadId);
+        const docRef = await addDoc(collection(db, colPath), { 
+          type:'text', 
+          text, 
+          username: currentUser, 
+          createdAt: serverTimestamp() 
+        });
+        
+        const threadEl = document.getElementById('thread-' + commentId);
+        
         if (threadEl && parentPath) {
-          loadReplies(pid, parentPath, threadId);
+          // ✅ If thread is already loaded, just append the new reply
+          if (loadedThreads.has(parentPath)) {
+            const newReply = {
+              type: 'text',
+              text,
+              username: currentUser,
+              createdAt: { toDate: () => new Date() }
+            };
+            appendCommentElement(threadEl, newReply, docRef.id, pid, parentPath, true);
+          } else {
+            // If thread isn't loaded yet, load all replies
+            loadReplies(pid, parentPath, 'thread-' + commentId);
+          }
         } else if (!parentPath) {
-          // top-level reply: reload top comments
-          renderTopLevelComments(pid);
+          // Top-level reply to a comment: append to that comment's thread
+          const myPath = commentId; // path for replies to this comment
+          if (threadEl && loadedThreads.has(myPath)) {
+            const newReply = {
+              type: 'text',
+              text,
+              username: currentUser,
+              createdAt: { toDate: () => new Date() }
+            };
+            appendCommentElement(threadEl, newReply, docRef.id, pid, myPath, true);
+          } else if (threadEl) {
+            loadReplies(pid, myPath, 'thread-' + commentId);
+          }
         }
-      } catch(e) {}
+        
+        showToast('Reply posted!');
+      } catch(e) {
+        console.error(e);
+        showToast('Failed to post reply', true);
+      }
     };
 
     window.deleteCmt = async function(pid, cid, parentPath) {
@@ -520,9 +558,27 @@
       if (!text || !activePostId) return;
       input.value = '';
       try {
-        await addDoc(collection(db, 'posts', activePostId, 'comments'), { type:'text', text, username:currentUser, createdAt:serverTimestamp() });
-        renderTopLevelComments(activePostId);
-      } catch(e) {}
+        const docRef = await addDoc(collection(db, 'posts', activePostId, 'comments'), { 
+          type:'text', 
+          text, 
+          username: currentUser, 
+          createdAt: serverTimestamp() 
+        });
+        
+        // ✅ Append new comment without refreshing all comments
+        const listEl = document.getElementById('commentsList');
+        const newComment = {
+          type: 'text',
+          text,
+          username: currentUser,
+          createdAt: { toDate: () => new Date() }
+        };
+        appendCommentElement(listEl, newComment, docRef.id, activePostId, '', true);
+        showToast('Comment posted!');
+      } catch(e) {
+        console.error(e);
+        showToast('Failed to post comment', true);
+      }
     };
 
     // ---------- VOICE WITH STORAGE ----------
@@ -568,19 +624,6 @@
         const blob = new Blob(voiceChunks, { type: voiceRecorder.mimeType || 'audio/webm' });
         await saveVoiceToStorage(blob, voiceSeconds);
         resetVoiceUI();
-        if (activePostId) {
-          if (voiceTargetCid) {
-            const threadId = 'thread-' + voiceTargetCid;
-            const threadEl = document.getElementById(threadId);
-            if (threadEl && voiceTargetPath) {
-              loadReplies(activePostId, voiceTargetPath, threadId);
-            } else {
-              renderTopLevelComments(activePostId);
-            }
-          } else {
-            renderTopLevelComments(activePostId);
-          }
-        }
       };
       voiceRecorder.stop();
       clearInterval(voiceTimer);
@@ -613,21 +656,48 @@
           const colPath = voiceTargetPath
             ? `posts/${activePostId}/comments/${voiceTargetPath}/replies`
             : `posts/${activePostId}/comments/${voiceTargetCid}/replies`;
-          await addDoc(collection(db, colPath), {
+          const docRef = await addDoc(collection(db, colPath), {
             type: 'voice',
             username: currentUser,
             audioURL: downloadURL,
             duration,
             createdAt: serverTimestamp()
           });
+          
+          // Append voice reply without full refresh
+          const threadEl = document.getElementById('thread-' + voiceTargetCid);
+          const parentPath = voiceTargetPath || voiceTargetCid;
+          if (threadEl && loadedThreads.has(parentPath)) {
+            const newVoiceReply = {
+              type: 'voice',
+              username: currentUser,
+              audioURL: downloadURL,
+              duration,
+              createdAt: { toDate: () => new Date() }
+            };
+            appendCommentElement(threadEl, newVoiceReply, docRef.id, activePostId, parentPath, true);
+          } else if (threadEl) {
+            loadReplies(activePostId, parentPath, 'thread-' + voiceTargetCid);
+          }
         } else {
-          await addDoc(collection(db, 'posts', activePostId, 'comments'), {
+          const docRef = await addDoc(collection(db, 'posts', activePostId, 'comments'), {
             type: 'voice',
             username: currentUser,
             audioURL: downloadURL,
             duration,
             createdAt: serverTimestamp()
           });
+          
+          // Append voice comment without full refresh
+          const listEl = document.getElementById('commentsList');
+          const newVoiceComment = {
+            type: 'voice',
+            username: currentUser,
+            audioURL: downloadURL,
+            duration,
+            createdAt: { toDate: () => new Date() }
+          };
+          appendCommentElement(listEl, newVoiceComment, docRef.id, activePostId, '', true);
         }
         showToast('✅ Voice added!');
       } catch(e) {
@@ -693,7 +763,6 @@
       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); postMainComment(); }
     });
 
-    // Start everything instantly
     bootApp();
   </script>
 </body>

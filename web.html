@@ -7,75 +7,80 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     * { margin:0;padding:0;box-sizing:border-box; }
-    body { background:#000;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center; }
+    body { background:#000;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;overscroll-behavior:none; }
     .page { width:100%;height:100vh;height:100dvh;background:#000;display:flex;flex-direction:column;position:relative;overflow:hidden; }
-    .content { flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;padding:0.5rem 1rem 6rem 1rem;text-align:center;gap:0.5rem;overflow-y:auto; }
+    .content { 
+      flex:1;display:flex;flex-direction:column;align-items:center;justify-content:space-between;color:#fff;
+      padding:0.5rem 1rem 5.5rem 1rem;text-align:center;gap:0.3rem;
+      overflow:hidden;height:100%;
+    }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
     @keyframes livePulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.7)} 50%{box-shadow:0 0 0 10px rgba(239,68,68,0)} }
-    @keyframes greenPulse { 0%,100%{box-shadow:0 0 0 0 rgba(74,222,128,0.7)} 50%{box-shadow:0 0 0 10px rgba(74,222,128,0)} }
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-    .online-counter { display:flex;align-items:center;gap:0.3rem;color:#4ade80;font-size:0.65rem;padding:0.2rem 0; }
+    
+    .online-counter { display:flex;align-items:center;gap:0.3rem;color:#4ade80;font-size:0.65rem;padding:0.15rem 0;flex-shrink:0; }
     .online-dot { width:5px;height:5px;background:#4ade80;border-radius:50%;animation:blink 2s infinite; }
-    .camera-container { display:flex;gap:0.5rem;align-items:flex-start;justify-content:center;width:100%;max-width:500px;flex:1;min-height:0; }
-    .stranger-camera { width:75%;height:100%;max-height:62vh;background:#111;border:2px solid rgba(255,255,255,0.2);border-radius:1.2rem;box-shadow:0 15px 40px rgba(0,0,0,0.6);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center; }
+    
+    .camera-area { flex:1;display:flex;flex-direction:column;width:100%;max-width:500px;min-height:0;gap:0.3rem; }
+    .camera-labels { display:flex;justify-content:space-between;width:100%;padding:0 0.2rem;flex-shrink:0; }
+    .stranger-label-outside { color:#777;font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;margin-left:0.3rem; }
+    .you-label-outside { color:#777;font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;margin-right:0.3rem; }
+    .camera-container { display:flex;gap:0.5rem;align-items:flex-start;justify-content:center;width:100%;flex:1;min-height:0; }
+    .stranger-camera { width:75%;height:100%;background:#111;border:2px solid rgba(255,255,255,0.2);border-radius:1.2rem;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center; }
     .stranger-camera.connected { border-color:#4ade80; }
     .stranger-camera.live-active { border-color:#ef4444; animation:livePulse 2s infinite; }
     #strangerFeed { width:100%;height:100%;object-fit:cover;display:none;background:#000;transform:rotateY(180deg);-webkit-transform:rotateY(180deg); }
     .stranger-placeholder { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.3rem;color:rgba(255,255,255,0.25); }
     .stranger-placeholder i { font-size:3rem; }
-    .my-camera { width:22%;max-height:150px;aspect-ratio:3/4;background:#111;border:2px solid rgba(255,255,255,0.3);border-radius:0.8rem;box-shadow:0 8px 20px rgba(0,0,0,0.6);position:relative;overflow:hidden; }
+    .my-camera { width:22%;max-height:140px;aspect-ratio:3/4;background:#111;border:2px solid rgba(255,255,255,0.3);border-radius:0.8rem;position:relative;overflow:hidden;align-self:flex-start; }
     .my-camera.active { border-color:#ef4444; }
     #myFeed { width:100%;height:100%;object-fit:cover;display:none;background:#000;transform:rotateY(180deg);-webkit-transform:rotateY(180deg); }
     .my-placeholder { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.15rem;color:rgba(255,255,255,0.35);font-size:0.6rem; }
     .my-placeholder i { font-size:1.3rem; }
     
     .audio-indicator {
-      position: absolute; bottom: 0.5rem; left: 0.5rem;
-      display: flex; align-items: center; gap: 0.3rem;
-      background: rgba(0,0,0,0.6); padding: 0.2rem 0.5rem;
-      border-radius: 1rem; font-size: 0.55rem; z-index: 5;
+      position:absolute;bottom:0.5rem;left:0.5rem;
+      display:flex;align-items:center;gap:0.3rem;
+      background:rgba(0,0,0,0.6);padding:0.2rem 0.5rem;
+      border-radius:1rem;font-size:0.55rem;z-index:5;
     }
-    .audio-bars { display: flex; align-items: flex-end; gap: 2px; height: 12px; }
-    .audio-bar { width: 3px; background: #4ade80; border-radius: 1px; transition: height 0.1s; }
-    .audio-indicator.speaking .audio-bar { background: #fbbf24; animation: audioWave 0.3s ease infinite; }
-    @keyframes audioWave { 0%,100% { transform: scaleY(1); } 50% { transform: scaleY(2); } }
+    .audio-bars { display:flex;align-items:flex-end;gap:2px;height:12px; }
+    .audio-bar { width:3px;background:#4ade80;border-radius:1px;transition:height 0.1s; }
+    .audio-indicator.speaking .audio-bar { background:#fbbf24;animation:audioWave 0.3s ease infinite; }
+    @keyframes audioWave { 0%,100%{transform:scaleY(1);} 50%{transform:scaleY(2);} }
     
     .live-status {
-      display: none;
-      align-items: center;
-      gap: 0.4rem;
-      background: rgba(239,68,68,0.2);
-      border: 1px solid rgba(239,68,68,0.4);
-      padding: 0.3rem 0.8rem;
-      border-radius: 1.5rem;
-      font-size: 0.7rem;
-      color: #ef4444;
-      font-weight: 600;
-      animation: livePulse 2s infinite;
+      display:none;align-items:center;gap:0.4rem;
+      background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);
+      padding:0.25rem 0.8rem;border-radius:1.5rem;
+      font-size:0.7rem;color:#ef4444;font-weight:600;
+      animation:livePulse 2s infinite;flex-shrink:0;
     }
-    .live-status.show { display: flex; }
-    .live-status i { font-size: 0.5rem; }
+    .live-status.show { display:flex; }
+    .live-status i { font-size:0.5rem; }
     
-    .camera-labels { display:flex;justify-content:space-between;width:100%;max-width:500px;padding:0 0.2rem;flex-shrink:0; }
-    .stranger-label-outside { color:#777;font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;margin-left:0.3rem; }
-    .you-label-outside { color:#777;font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;margin-right:0.3rem; }
-    .user-info { display:flex;align-items:center;gap:0.3rem;background:rgba(255,255,255,0.06);padding:0.25rem 0.6rem;border-radius:1rem;font-size:0.7rem;color:#ccc;opacity:0;transition:all 0.3s;border:1px solid rgba(255,255,255,0.08);flex-shrink:0; }
+    .user-info { display:flex;align-items:center;gap:0.3rem;background:rgba(255,255,255,0.06);padding:0.2rem 0.6rem;border-radius:1rem;font-size:0.7rem;color:#ccc;opacity:0;transition:all 0.3s;border:1px solid rgba(255,255,255,0.08);flex-shrink:0; }
     .user-info.active { opacity:1; }
-    .buttons-container { display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;padding:0.2rem 0;align-items:center;flex-shrink:0; }
+    
+    .buttons-area { 
+      width:100%;max-width:500px;flex-shrink:0;
+      padding:0.4rem 0;display:flex;gap:0.5rem;
+      flex-wrap:wrap;justify-content:center;align-items:center;
+      background:#000;
+    }
     .btn { 
-      height:36px;border-radius:2rem;
+      height:38px;border-radius:2rem;
       backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
       display:inline-flex;align-items:center;justify-content:center;gap:0.3rem;
       cursor:pointer;border:1px solid transparent;outline:none;
-      font-size:0.75rem;font-weight:600;padding:0 1rem;color:#fff;
+      font-size:0.75rem;font-weight:600;padding:0 1.1rem;color:#fff;
       transition:all 0.3s;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
-      user-select: none;
-      -webkit-user-select: none;
-      -webkit-appearance: none;
-      appearance: none;
+      -webkit-tap-highlight-color:transparent;
+      touch-action:manipulation;
+      user-select:none;-webkit-user-select:none;
+      -webkit-appearance:none;appearance:none;
+      white-space:nowrap;
     }
     .btn:active { transform:scale(0.95); }
     .start-button { min-width:80px;background:rgba(74,222,128,0.2);border-color:rgba(74,222,128,0.5);color:#4ade80; }
@@ -84,7 +89,7 @@
     .stop-button.visible { display:inline-flex; }
     .next-button { min-width:70px;background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);color:#ccc;display:none; }
     .next-button.visible { display:inline-flex; }
-    .mic-button { width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);color:#4ade80;display:none;padding:0; }
+    .mic-button { width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);color:#4ade80;display:none;padding:0; }
     .mic-button.visible { display:inline-flex;align-items:center;justify-content:center; }
     .mic-button.muted { color:#ef4444;background:rgba(239,68,68,0.2);border-color:rgba(239,68,68,0.5); }
     
@@ -93,7 +98,7 @@
       background:rgba(74,222,128,0.2);
       border-color:rgba(74,222,128,0.5);
       color:#4ade80;
-      transition: all 0.3s;
+      transition:all 0.3s;
       display:inline-flex;
     }
     .live-button.live-active-btn { 
@@ -104,17 +109,9 @@
     }
 
     .https-warning {
-      display:none;
-      background:#ef4444;
-      color:#fff;
-      text-align:center;
-      padding:0.4rem;
-      font-size:0.65rem;
-      font-weight:600;
-      position:sticky;
-      top:0;
-      z-index:200;
-      width:100%;
+      display:none;background:#ef4444;color:#fff;
+      text-align:center;padding:0.4rem;font-size:0.65rem;
+      font-weight:600;position:sticky;top:0;z-index:200;width:100%;
     }
     .https-warning.show { display:block; }
     .https-warning a { color:#fff;text-decoration:underline; }
@@ -132,25 +129,20 @@
     .nav-upload, .nav-search { display:none !important; }
 
     @media (min-width:1024px) {
-      .nav-upload, .nav-search { display:flex !important; }
-      .floating-nav { position:fixed;top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column; }
-      .nav-center { flex-direction:column;gap:1.2rem;max-width:none; }
-      .nav-center a { font-size:1.4rem;width:2.6rem;height:2.6rem; }
-      .nav-center a::before { bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0); }
-      .nav-center a.active::before { transform:translateY(-50%) scale(1); }
-      .content { padding:0.5rem 2rem 3rem 6rem; }
-      .stranger-camera { max-height:70vh; }
-      .my-camera { max-height:180px; }
+      .nav-upload,.nav-search{display:flex!important}
+      .floating-nav{position:fixed;top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column}
+      .nav-center{flex-direction:column;gap:1.2rem;max-width:none}.nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
+      .nav-center a::before{bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0)}.nav-center a.active::before{transform:translateY(-50%) scale(1)}
+      .content{padding:1rem 2rem 2rem 6rem}.my-camera{max-height:180px}
     }
     @media (max-width:380px) { 
-      .content{padding:0.3rem 0.6rem 5.5rem 0.6rem}
-      .stranger-camera{max-height:56vh}.my-camera{max-height:100px}
-      .btn{height:34px;font-size:0.7rem;padding:0 0.7rem}
+      .content{padding:0.3rem 0.6rem 5rem 0.6rem}.my-camera{max-height:100px}
+      .btn{height:34px;font-size:0.7rem;padding:0 0.8rem}
       .start-button,.live-button{min-width:65px}.stop-button,.next-button{min-width:60px}
       .mic-button{width:34px;height:34px}
       .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:max(0.8rem,env(safe-area-inset-bottom,0.8rem))}
       .nav-center a{font-size:1.1rem;width:2rem;height:2rem}
-      .buttons-container { gap:0.4rem; }
+      .buttons-area{gap:0.4rem;padding:0.3rem 0}
     }
   </style>
 </head>
@@ -172,25 +164,29 @@
         <i class="fas fa-circle"></i> LIVE • <span id="liveViewerCount">0</span> watching
       </div>
       
-      <div class="camera-labels"><span class="stranger-label-outside">STRANGER</span><span class="you-label-outside">YOU</span></div>
-      <div class="camera-container">
-        <div class="stranger-camera" id="strangerCamera">
-          <video id="strangerFeed" autoplay playsinline></video>
-          <div class="stranger-placeholder" id="strangerPlaceholder"><i class="fas fa-user-secret"></i><span>???</span></div>
-          <div class="audio-indicator" id="strangerAudioIndicator" style="display:none;">
-            <i class="fas fa-volume-up" style="font-size:0.5rem;"></i>
-            <div class="audio-bars">
-              <div class="audio-bar" style="height:4px;"></div><div class="audio-bar" style="height:8px;"></div><div class="audio-bar" style="height:6px;"></div><div class="audio-bar" style="height:10px;"></div><div class="audio-bar" style="height:5px;"></div>
+      <div class="camera-area">
+        <div class="camera-labels"><span class="stranger-label-outside">STRANGER</span><span class="you-label-outside">YOU</span></div>
+        <div class="camera-container">
+          <div class="stranger-camera" id="strangerCamera">
+            <video id="strangerFeed" autoplay playsinline></video>
+            <div class="stranger-placeholder" id="strangerPlaceholder"><i class="fas fa-user-secret"></i><span>???</span></div>
+            <div class="audio-indicator" id="strangerAudioIndicator" style="display:none;">
+              <i class="fas fa-volume-up" style="font-size:0.5rem;"></i>
+              <div class="audio-bars">
+                <div class="audio-bar" style="height:4px;"></div><div class="audio-bar" style="height:8px;"></div><div class="audio-bar" style="height:6px;"></div><div class="audio-bar" style="height:10px;"></div><div class="audio-bar" style="height:5px;"></div>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="my-camera" id="myCamera">
-          <video id="myFeed" autoplay playsinline muted></video>
-          <div class="my-placeholder" id="myPlaceholder"><i class="fas fa-video"></i><span>off</span></div>
+          <div class="my-camera" id="myCamera">
+            <video id="myFeed" autoplay playsinline muted></video>
+            <div class="my-placeholder" id="myPlaceholder"><i class="fas fa-video"></i><span>off</span></div>
+          </div>
         </div>
       </div>
+      
       <div class="user-info" id="userInfo"><span>🌍</span><span>Connected</span></div>
-      <div class="buttons-container" id="buttonsContainer">
+      
+      <div class="buttons-area">
         <button class="btn live-button" id="liveBtn" type="button"><i class="fas fa-circle"></i><span>LIVE</span></button>
         <button class="btn start-button" id="startBtn" type="button"><i class="fas fa-play"></i><span>Start</span></button>
         <button class="btn stop-button" id="stopBtn" type="button"><i class="fas fa-stop"></i><span>Stop</span></button>
@@ -198,6 +194,7 @@
         <button class="btn mic-button" id="micBtn" type="button" title="Mute"><i class="fas fa-microphone"></i></button>
       </div>
     </div>
+    
     <nav class="floating-nav"><div class="nav-center">
       <a href="index.html"><i class="fas fa-home"></i></a>
       <a href="web.html" class="active"><i class="fas fa-globe"></i></a>
@@ -260,7 +257,6 @@
 
       const servers = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "stun:stun1.l.google.com:19302" }] };
 
-      // Bind button events
       liveBtn.onclick = toggleLive;
       startBtn.onclick = startChat;
       stopBtnEl.onclick = stopChat;

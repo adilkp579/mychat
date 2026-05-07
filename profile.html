@@ -63,7 +63,6 @@
     .post-item img { width:100%;height:100%;object-fit:cover; }
     .reel-item { aspect-ratio:9/16;background:#111;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;border-radius:0.2rem;cursor:pointer; }
     .reel-item video { width:100%;height:100%;object-fit:cover; }
-
     .empty-text { color:#444;font-size:0.75rem;text-align:center;padding:2rem 0;width:100%;max-width:400px; }
 
     .post-viewer-overlay {
@@ -216,7 +215,6 @@
       </div>
     </div>
 
-    <!-- ✅ EDIT PROFILE with adjustable avatar -->
     <div class="modal-overlay" id="editModal">
       <div class="modal">
         <h3>Edit Profile</h3>
@@ -266,6 +264,7 @@
     if (!localStorage.getItem("uid")) { window.location.replace("login.html"); }
 
     const currentUser = localStorage.getItem('currentUser') || '@user';
+    const currentUserId = currentUser.replace('@','');
     const urlParams = new URLSearchParams(window.location.search);
     const viewUser = urlParams.get('user');
     const isOwnProfile = !viewUser || viewUser === currentUser;
@@ -275,10 +274,11 @@
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('mainPage').style.display = 'flex';
 
+    // ✅ SAVE POST
     window.savePostToUser = async function(postDataUrl, caption, type) {
       const newPost = { type: type, src: postDataUrl, caption: caption || '', likes: 0, liked: false, createdAt: new Date().toISOString() };
       try {
-        const userRef = doc(db, 'users', currentUser);
+        const userRef = doc(db, 'users', currentUserId);
         const userSnap = await getDoc(userRef);
         let posts = userSnap.exists() ? (userSnap.data().posts || []) : [];
         posts.unshift(newPost);
@@ -288,23 +288,69 @@
       if (!profile.posts) profile.posts = [];
       profile.posts.unshift(newPost);
       localStorage.setItem('userProfile', JSON.stringify(profile));
+      updateProfileCache(currentUserId, profile);
       return newPost;
     };
 
+    // ✅ CENTRALIZED PROFILE CACHE UPDATE
+    function updateProfileCache(userId, profileData) {
+      const key = 'profile_' + userId.replace('@','');
+      const existing = JSON.parse(localStorage.getItem(key) || '{}');
+      const updated = { ...existing, ...profileData, username: profileData.username || existing.username || currentUser };
+      localStorage.setItem(key, JSON.stringify(updated));
+      
+      // Also update in friends' cached profiles
+      const friends = profileData.friends || [];
+      friends.forEach(f => {
+        const friendKey = 'profile_' + f.name.replace('@','');
+        const friendCache = JSON.parse(localStorage.getItem(friendKey) || '{}');
+        if (friendCache.friends) {
+          const me = friendCache.friends.find(x => x.name === currentUser);
+          if (me) me.avatar = profileData.avatar || null;
+          localStorage.setItem(friendKey, JSON.stringify(friendCache));
+        }
+      });
+    }
+
+    // ✅ SAVE PROFILE - syncs everywhere
     async function saveToFirestore() {
       if (!isOwnProfile) return;
       const p = window._profile;
+      if (!p) return;
+      
       try {
-        await setDoc(doc(db, 'users', currentUser), {
-          username: p.username || currentUser, name: p.name || '', bio: p.bio || '',
-          website: p.website || '', avatar: p.avatar || null,
-          friends: p.friends || [], besties: p.besties || [], posts: p.posts || [],
+        // 1. Save to Firestore
+        await setDoc(doc(db, 'users', currentUserId), {
+          username: p.username || currentUser, 
+          name: p.name || '', 
+          bio: p.bio || '',
+          website: p.website || '', 
+          avatar: p.avatar || null,
+          friends: p.friends || [], 
+          besties: p.besties || [], 
+          posts: p.posts || [],
           updatedAt: serverTimestamp()
         }, { merge: true });
+        
+        // 2. Save to localStorage
         localStorage.setItem('userProfile', JSON.stringify(p));
-      } catch(e) {}
+        
+        // 3. Update centralized profile cache
+        updateProfileCache(currentUserId, p);
+        
+        // 4. Trigger storage event for other open tabs/pages
+        window.dispatchEvent(new StorageEvent('storage', {
+          key: 'profile_' + currentUserId,
+          newValue: JSON.stringify(p)
+        }));
+        
+        console.log('✅ Profile saved & synced everywhere');
+      } catch(e) {
+        console.error('Save error:', e);
+      }
     }
 
+    // ✅ ADD FOLLOWER
     async function addFollower(targetUsername, followerUsername) {
       const myProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
       const myAvatar = myProfile.avatar || null;
@@ -315,28 +361,48 @@
           let friends = snap.docs[0].data().friends || [];
           if (!friends.find(f => f.name === followerUsername)) {
             friends.push({ name: followerUsername, avatar: myAvatar });
-            await setDoc(doc(db, 'users', targetUsername), { friends: friends }, { merge: true });
+            await setDoc(doc(db, 'users', targetUsername.replace('@','')), { friends: friends }, { merge: true });
           }
         } else {
-          await setDoc(doc(db, 'users', targetUsername), {
-            username: targetUsername, friends: [{ name: followerUsername, avatar: myAvatar }],
-            besties: [], posts: [], name: targetUsername.replace('@',''), bio: '', avatar: null, updatedAt: serverTimestamp()
+          await setDoc(doc(db, 'users', targetUsername.replace('@','')), {
+            username: targetUsername, 
+            friends: [{ name: followerUsername, avatar: myAvatar }],
+            besties: [], posts: [], 
+            name: targetUsername.replace('@',''), 
+            bio: '', avatar: null, 
+            updatedAt: serverTimestamp()
           });
         }
+        // Update local cache
+        const cacheKey = 'profile_' + targetUsername.replace('@','');
+        const cached = JSON.parse(localStorage.getItem(cacheKey) || '{}');
+        let f = cached.friends || [];
+        if (!f.find(x => x.name === followerUsername)) {
+          f.push({ name: followerUsername, avatar: myAvatar });
+        }
+        cached.friends = f;
+        cached.username = targetUsername;
+        localStorage.setItem(cacheKey, JSON.stringify(cached));
       } catch(e) {}
     }
 
+    // ✅ REMOVE FOLLOWER
     async function removeFollower(targetUsername, followerUsername) {
       try {
         const q = query(collection(db, 'users'), where('username', '==', targetUsername));
         const snap = await getDocs(q);
         if (!snap.empty) {
           let friends = (snap.docs[0].data().friends || []).filter(f => f.name !== followerUsername);
-          await setDoc(doc(db, 'users', targetUsername), { friends: friends }, { merge: true });
+          await setDoc(doc(db, 'users', targetUsername.replace('@','')), { friends: friends }, { merge: true });
         }
+        const cacheKey = 'profile_' + targetUsername.replace('@','');
+        const cached = JSON.parse(localStorage.getItem(cacheKey) || '{}');
+        cached.friends = (cached.friends || []).filter(f => f.name !== followerUsername);
+        localStorage.setItem(cacheKey, JSON.stringify(cached));
       } catch(e) {}
     }
 
+    // ✅ INIT
     if (!isOwnProfile) {
       document.getElementById('backBtn').classList.add('show');
       document.getElementById('topLeftBtn').style.display = 'none';
@@ -348,109 +414,253 @@
       loadOwnProfile();
     }
 
+    // ✅ LOAD OTHER USER
     async function loadOtherUserProfile(username) {
       const cname = (username || '').replace(/^@/, '');
       document.getElementById('displayName').textContent = cname;
       let userData = null;
-      try { const q = query(collection(db, 'users'), where('username', '==', username)); const snap = await getDocs(q); if (!snap.empty) userData = snap.docs[0].data(); } catch(e) {}
-      if (!userData) { const sp = localStorage.getItem('profile_' + username); if (sp) try { userData = JSON.parse(sp); } catch(e) {} }
+      
+      // Try Firestore
+      try { 
+        const q = query(collection(db, 'users'), where('username', '==', username)); 
+        const snap = await getDocs(q); 
+        if (!snap.empty) userData = snap.docs[0].data(); 
+      } catch(e) {}
+      
+      // Try localStorage cache
+      if (!userData) { 
+        const sp = localStorage.getItem('profile_' + username.replace('@','')); 
+        if (sp) try { userData = JSON.parse(sp); } catch(e) {} 
+      }
+      
+      // Try own friends/besties list
       if (!userData) {
         const mp = JSON.parse(localStorage.getItem('userProfile') || '{}');
         const f = [...(mp.friends || []), ...(mp.besties || [])].find(x => x.name === username);
         if (f) userData = { name: f.name, avatar: f.avatar, posts: [], friends: [], besties: [] };
       }
+      
       if (userData) {
         document.getElementById('displayName').textContent = userData.name || cname;
         document.getElementById('displayBio').textContent = userData.bio || '';
         document.getElementById('displayWebsite').textContent = userData.website ? '🔗 ' + userData.website : '';
-        document.getElementById('profileAvatar').innerHTML = userData.avatar ? `<img src="${userData.avatar}" alt="avatar">` : '<i class="fas fa-user"></i>';
+        document.getElementById('profileAvatar').innerHTML = userData.avatar && userData.avatar !== 'null' && userData.avatar !== 'undefined' ? `<img src="${userData.avatar}" alt="avatar">` : '<i class="fas fa-user"></i>';
         document.getElementById('friendsCount').textContent = (userData.friends || []).length;
         document.getElementById('bestiesCount').textContent = (userData.besties || []).length;
         document.getElementById('postCount').textContent = (userData.posts || []).filter(p => p.type === 'image').length;
-        window._viewProfile = userData; renderContent();
+        window._viewProfile = userData; 
+        renderContent();
+        
+        // Cache for other pages
+        localStorage.setItem('profile_' + username.replace('@',''), JSON.stringify(userData));
       }
+      
       document.getElementById('actionsRow').innerHTML = `<button class="action-btn primary" onclick="window.location.href='chat.html'">💬 Message</button><button class="action-btn" id="followBtn" onclick="toggleFollowUser('${username}')">Follow</button>`;
       const mp = JSON.parse(localStorage.getItem('userProfile') || '{}');
-      if ((mp.besties || []).some(f => f.name === username)) { const fb = document.getElementById('followBtn'); fb.textContent = 'Following'; fb.classList.add('following'); }
+      if ((mp.friends || []).some(f => f.name === username)) { 
+        const fb = document.getElementById('followBtn'); 
+        if (fb) { fb.textContent = 'Following'; fb.classList.add('following'); } 
+      }
     }
 
+    // ✅ LOAD OWN PROFILE
     async function loadOwnProfile() {
       try {
-        const snap = await getDoc(doc(db, 'users', currentUser));
+        const snap = await getDoc(doc(db, 'users', currentUserId));
         if (snap.exists()) {
           window._profile = snap.data();
           if (!window._profile.friends) window._profile.friends = [];
           if (!window._profile.besties) window._profile.besties = [];
           if (!window._profile.posts) window._profile.posts = [];
           localStorage.setItem('userProfile', JSON.stringify(window._profile));
-          updateUI(); return;
+          updateProfileCache(currentUserId, window._profile);
+          updateUI(); 
+          return;
         }
       } catch(e) {}
+      
       const dp = { username: currentUser, name: '', bio: '', website: '', avatar: null, friends: [], besties: [], posts: [] };
       let profile = JSON.parse(localStorage.getItem('userProfile')) || dp;
-      if (!profile.username || profile.username !== currentUser) { profile = dp; localStorage.setItem('userProfile', JSON.stringify(profile)); }
-      if (!profile.friends) profile.friends = []; if (!profile.besties) profile.besties = []; if (!profile.posts) profile.posts = [];
-      window._profile = profile; window._viewProfile = profile; updateUI(); saveToFirestore();
+      if (!profile.username || profile.username !== currentUser) { 
+        profile = dp; 
+        localStorage.setItem('userProfile', JSON.stringify(profile)); 
+      }
+      if (!profile.friends) profile.friends = []; 
+      if (!profile.besties) profile.besties = []; 
+      if (!profile.posts) profile.posts = [];
+      window._profile = profile; 
+      window._viewProfile = profile; 
+      updateUI(); 
+      saveToFirestore();
     }
 
     function updateUI() {
-      const p = window._profile; if (!p) return;
+      const p = window._profile; 
+      if (!p) return;
       document.getElementById('displayName').textContent = (p.username || currentUser).replace('@','');
       document.getElementById('displayBio').textContent = p.bio || '';
       document.getElementById('displayWebsite').textContent = p.website ? '🔗 ' + p.website : '';
-      document.getElementById('profileAvatar').innerHTML = p.avatar ? `<img src="${p.avatar}" alt="avatar">` : '<i class="fas fa-user"></i>';
-      document.getElementById('friendsCount').textContent = p.friends.length;
-      document.getElementById('bestiesCount').textContent = p.besties.length;
-      document.getElementById('postCount').textContent = p.posts.filter(x => x.type === 'image').length;
+      document.getElementById('profileAvatar').innerHTML = p.avatar && p.avatar !== 'null' && p.avatar !== 'undefined' ? `<img src="${p.avatar}" alt="avatar">` : '<i class="fas fa-user"></i>';
+      document.getElementById('friendsCount').textContent = (p.friends || []).length;
+      document.getElementById('bestiesCount').textContent = (p.besties || []).length;
+      document.getElementById('postCount').textContent = (p.posts || []).filter(x => x.type === 'image').length;
       renderContent();
     }
 
     function renderContent() {
-      const p = window._viewProfile || window._profile; if (!p) return;
+      const p = window._viewProfile || window._profile; 
+      if (!p) return;
       const pg = document.getElementById('postsGrid'), rg = document.getElementById('reelsGrid'), et = document.getElementById('emptyText');
       const activeTab = document.querySelector('.tab.active');
       const isReels = activeTab && activeTab.textContent.includes('Reels');
       const imagePosts = (p.posts || []).filter(x => x.type === 'image');
       const videoPosts = (p.posts || []).filter(x => x.type === 'video');
-      if (isReels) { pg.style.display = 'none'; if (videoPosts.length === 0) { rg.style.display = 'none'; et.style.display = 'block'; et.textContent = 'No reels yet'; } else { rg.style.display = 'grid'; et.style.display = 'none'; rg.innerHTML = videoPosts.map(x => `<div class="reel-item"><video src="${x.src}" muted loop playsinline></video></div>`).join(''); } }
-      else { rg.style.display = 'none'; if (imagePosts.length === 0) { pg.style.display = 'none'; et.style.display = 'block'; et.textContent = 'No posts yet'; } else { pg.style.display = 'grid'; et.style.display = 'none'; pg.innerHTML = imagePosts.map((x, i) => `<div class="post-item" onclick="openPostViewer(${i})"><img src="${x.src}" alt="post"></div>`).join(''); } }
+      
+      if (isReels) { 
+        pg.style.display = 'none'; 
+        if (videoPosts.length === 0) { 
+          rg.style.display = 'none'; 
+          et.style.display = 'block'; 
+          et.textContent = 'No reels yet'; 
+        } else { 
+          rg.style.display = 'grid'; 
+          et.style.display = 'none'; 
+          rg.innerHTML = videoPosts.map(x => `<div class="reel-item"><video src="${x.src}" muted loop playsinline></video></div>`).join(''); 
+        } 
+      } else { 
+        rg.style.display = 'none'; 
+        if (imagePosts.length === 0) { 
+          pg.style.display = 'none'; 
+          et.style.display = 'block'; 
+          et.textContent = 'No posts yet'; 
+        } else { 
+          pg.style.display = 'grid'; 
+          et.style.display = 'none'; 
+          pg.innerHTML = imagePosts.map((x, i) => `<div class="post-item" onclick="openPostViewer(${i})"><img src="${x.src}" alt="post"></div>`).join(''); 
+        } 
+      }
     }
 
-    window.openPostViewer = function(index) { const p = window._viewProfile || window._profile; if (!p) return; const ip = (p.posts || []).filter(x => x.type === 'image'); if (ip.length === 0) return; currentPostList = ip; currentPostIndex = index; showPost(index); document.getElementById('postViewer').classList.add('show'); updateNavButtons(); };
-    function showPost(index) { if (index < 0 || index >= currentPostList.length) return; const post = currentPostList[index]; const p = window._viewProfile || window._profile; document.getElementById('postViewerImage').src = post.src; document.getElementById('postViewerAvatar').innerHTML = p.avatar ? `<img src="${p.avatar}" alt="">` : '<i class="fas fa-user"></i>'; document.getElementById('postViewerUsername').textContent = (p.username || '').replace('@',''); document.getElementById('postViewerLikes').textContent = (post.likes || 0) + ' likes'; document.getElementById('postViewerCaptionUser').textContent = (p.username || '').replace('@',''); document.getElementById('postViewerCaptionText').textContent = post.caption || ''; const lb = document.getElementById('postViewerLike'); if (post.liked) { lb.classList.add('liked'); lb.innerHTML = '<i class="fas fa-heart"></i>'; } else { lb.classList.remove('liked'); lb.innerHTML = '<i class="far fa-heart"></i>'; } currentPostIndex = index; updateNavButtons(); }
-    function updateNavButtons() { document.getElementById('postViewerPrev').style.display = currentPostIndex > 0 ? 'flex' : 'none'; document.getElementById('postViewerNext').style.display = currentPostIndex < currentPostList.length - 1 ? 'flex' : 'none'; }
+    // ✅ POST VIEWER
+    window.openPostViewer = function(index) { 
+      const p = window._viewProfile || window._profile; 
+      if (!p) return; 
+      const ip = (p.posts || []).filter(x => x.type === 'image'); 
+      if (ip.length === 0) return; 
+      currentPostList = ip; 
+      currentPostIndex = index; 
+      showPost(index); 
+      document.getElementById('postViewer').classList.add('show'); 
+      updateNavButtons(); 
+    };
+    
+    function showPost(index) { 
+      if (index < 0 || index >= currentPostList.length) return; 
+      const post = currentPostList[index]; 
+      const p = window._viewProfile || window._profile; 
+      document.getElementById('postViewerImage').src = post.src; 
+      document.getElementById('postViewerAvatar').innerHTML = (p.avatar && p.avatar !== 'null' && p.avatar !== 'undefined') ? `<img src="${p.avatar}" alt="">` : '<i class="fas fa-user"></i>'; 
+      document.getElementById('postViewerUsername').textContent = (p.username || '').replace('@',''); 
+      document.getElementById('postViewerLikes').textContent = (post.likes || 0) + ' likes'; 
+      document.getElementById('postViewerCaptionUser').textContent = (p.username || '').replace('@',''); 
+      document.getElementById('postViewerCaptionText').textContent = post.caption || ''; 
+      const lb = document.getElementById('postViewerLike'); 
+      if (post.liked) { lb.classList.add('liked'); lb.innerHTML = '<i class="fas fa-heart"></i>'; } 
+      else { lb.classList.remove('liked'); lb.innerHTML = '<i class="far fa-heart"></i>'; } 
+      currentPostIndex = index; 
+      updateNavButtons(); 
+    }
+    
+    function updateNavButtons() { 
+      document.getElementById('postViewerPrev').style.display = currentPostIndex > 0 ? 'flex' : 'none'; 
+      document.getElementById('postViewerNext').style.display = currentPostIndex < currentPostList.length - 1 ? 'flex' : 'none'; 
+    }
+    
     window.navigatePost = function(dir) { const ni = currentPostIndex + dir; if (ni >= 0 && ni < currentPostList.length) showPost(ni); };
     window.closePostViewer = function() { document.getElementById('postViewer').classList.remove('show'); };
-    window.likeViewedPost = function() { const post = currentPostList[currentPostIndex]; if (!post) return; post.liked = !post.liked; post.likes = (post.likes || 0) + (post.liked ? 1 : -1); showPost(currentPostIndex); if (isOwnProfile) saveToFirestore(); };
-    window.shareViewedPost = function() { const post = currentPostList[currentPostIndex]; if (!post) return; if (navigator.share) navigator.share({ title: 'Check out this post', url: post.src }); else { navigator.clipboard.writeText(post.src); showToast('Link copied! 📋'); } };
-    function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2000); }
+    
+    window.likeViewedPost = function() { 
+      const post = currentPostList[currentPostIndex]; 
+      if (!post) return; 
+      post.liked = !post.liked; 
+      post.likes = (post.likes || 0) + (post.liked ? 1 : -1); 
+      showPost(currentPostIndex); 
+      if (isOwnProfile) saveToFirestore(); 
+    };
+    
+    window.shareViewedPost = function() { 
+      const post = currentPostList[currentPostIndex]; 
+      if (!post) return; 
+      if (navigator.share) navigator.share({ title: 'Check out this post', url: post.src }); 
+      else { navigator.clipboard.writeText(post.src); showToast('Link copied! 📋'); } 
+    };
+    
+    function showToast(msg) { 
+      const t = document.getElementById('toast'); 
+      t.textContent = msg; 
+      t.classList.add('show'); 
+      clearTimeout(t._t); 
+      t._t = setTimeout(() => t.classList.remove('show'), 2000); 
+    }
+    
     document.getElementById('postViewer').addEventListener('click', function(e) { if (e.target === this) closePostViewer(); });
-    document.addEventListener('keydown', function(e) { if (document.getElementById('postViewer').classList.contains('show')) { if (e.key === 'ArrowLeft') navigatePost(-1); if (e.key === 'ArrowRight') navigatePost(1); if (e.key === 'Escape') closePostViewer(); } });
+    document.addEventListener('keydown', function(e) { 
+      if (document.getElementById('postViewer').classList.contains('show')) { 
+        if (e.key === 'ArrowLeft') navigatePost(-1); 
+        if (e.key === 'ArrowRight') navigatePost(1); 
+        if (e.key === 'Escape') closePostViewer(); 
+      } 
+    });
 
+    // ✅ FOLLOW/UNFOLLOW - FIXED friends count
     window.toggleFollowUser = async function(username) {
       const mp = JSON.parse(localStorage.getItem('userProfile') || '{}');
-      let myBesties = mp.besties || [];
-      const ei = myBesties.findIndex(f => f.name === username);
+      let myFriends = mp.friends || [];
+      const ei = myFriends.findIndex(f => f.name === username);
       const btn = document.getElementById('followBtn');
-      if (ei >= 0) { myBesties.splice(ei, 1); if (btn) { btn.textContent = 'Follow'; btn.classList.remove('following'); } await removeFollower(username, currentUser); }
-      else { myBesties.push({ name: username, avatar: null }); if (btn) { btn.textContent = 'Following'; btn.classList.add('following'); } await addFollower(username, currentUser); }
-      mp.besties = myBesties; localStorage.setItem('userProfile', JSON.stringify(mp));
-      try { await setDoc(doc(db, 'users', currentUser), { besties: myBesties, friends: mp.friends || [] }, { merge: true }); } catch(e) {}
-      document.getElementById('bestiesCount').textContent = myBesties.length;
-      if (!isOwnProfile) setTimeout(async () => { await loadOtherUserProfile(username); }, 800);
+      const vd = window._viewProfile || {};
+      
+      if (ei >= 0) {
+        // Unfollow
+        myFriends.splice(ei, 1);
+        if (btn) { btn.textContent = 'Follow'; btn.classList.remove('following'); }
+        await removeFollower(username, currentUser);
+      } else {
+        // Follow
+        myFriends.push({ name: username, avatar: vd.avatar || null });
+        if (btn) { btn.textContent = 'Following'; btn.classList.add('following'); }
+        if (vd && vd.username) {
+          localStorage.setItem('profile_' + username.replace('@',''), JSON.stringify(vd));
+        }
+        await addFollower(username, currentUser);
+      }
+      
+      mp.friends = myFriends;
+      localStorage.setItem('userProfile', JSON.stringify(mp));
+      
+      try { 
+        await setDoc(doc(db, 'users', currentUserId), { 
+          friends: myFriends,
+          besties: mp.besties || [] 
+        }, { merge: true }); 
+      } catch(e) {}
+      
+      // Update counts
+      document.getElementById('friendsCount').textContent = myFriends.length;
+      document.getElementById('bestiesCount').textContent = (mp.besties || []).length;
+      
+      if (!isOwnProfile) { setTimeout(async () => { await loadOtherUserProfile(username); }, 800); }
     };
 
-    // ✅ EDIT PROFILE - all avatar management here
+    // ✅ EDIT PROFILE
     window.openEditProfile = function() { 
       if (!isOwnProfile) return; 
       const p = window._profile;
       document.getElementById('editUsername').value = (p.username || '').replace('@',''); 
       document.getElementById('editBio').value = p.bio || ''; 
       document.getElementById('editWebsite').value = p.website || '';
-      
       tempEditAvatar = p.avatar;
       updateEditPreview();
-      
       document.getElementById('editModal').classList.add('show'); 
     };
     
@@ -495,16 +705,37 @@
       p.avatar = tempEditAvatar;
       
       if (p.username !== currentUser) localStorage.setItem('currentUser', p.username); 
+      
+      // ✅ Save and sync everywhere
       saveToFirestore(); 
       updateUI(); 
       closeEditProfile();
       showToast('Profile saved! ✅');
     };
     
-    window.switchTab = function(el) { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); renderContent(); };
-    window.showList = function(type) { const p = window._viewProfile || window._profile; document.getElementById('listTitle').textContent = type === 'friends' ? '👥 Friends (Followers)' : '⭐ Besties (Following)'; const list = type === 'friends' ? (p.friends || []) : (p.besties || []); document.getElementById('listContent').innerHTML = list.length === 0 ? '<div style="text-align:center;color:#555;padding:1rem;">No one yet</div>' : list.map(u => `<div class="list-item" onclick="window.location.href='profile.html?user=${encodeURIComponent(u.name)}'"><div class="mini-avatar">${u.avatar ? `<img src="${u.avatar}" alt="">` : '<i class="fas fa-user"></i>'}</div><div><div class="name">${(u.name||'').replace('@','')}</div><div class="sub">Tap to view profile</div></div></div>`).join(''); document.getElementById('listModal').classList.add('show'); };
+    window.switchTab = function(el) { 
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); 
+      el.classList.add('active'); 
+      renderContent(); 
+    };
+    
+    window.showList = function(type) { 
+      const p = window._viewProfile || window._profile; 
+      document.getElementById('listTitle').textContent = type === 'friends' ? '👥 Friends (Following)' : '⭐ Besties'; 
+      const list = type === 'friends' ? (p.friends || []) : (p.besties || []); 
+      document.getElementById('listContent').innerHTML = list.length === 0 
+        ? '<div style="text-align:center;color:#555;padding:1rem;">No one yet</div>' 
+        : list.map(u => `<div class="list-item" onclick="window.location.href='profile.html?user=${encodeURIComponent(u.name)}'"><div class="mini-avatar">${u.avatar && u.avatar !== 'null' && u.avatar !== 'undefined' ? `<img src="${u.avatar}" alt="">` : '<i class="fas fa-user"></i>'}</div><div><div class="name">${(u.name||'').replace('@','')}</div><div class="sub">Tap to view profile</div></div></div>`).join(''); 
+      document.getElementById('listModal').classList.add('show'); 
+    };
+    
     window.closeList = function() { document.getElementById('listModal').classList.remove('show'); };
-    window.shareProfile = function() { const url = window.location.href.split('?')[0]; if (navigator.share) navigator.share({ title: (window._viewProfile || window._profile)?.username || currentUser, url: url }); else { navigator.clipboard.writeText(url); showToast('Link copied! 📋'); } };
+    
+    window.shareProfile = function() { 
+      const url = window.location.href.split('?')[0]; 
+      if (navigator.share) navigator.share({ title: window._profile?.username || currentUser, url: url }); 
+      else { navigator.clipboard.writeText(url); showToast('Link copied! 📋'); } 
+    };
 
     document.getElementById('editModal').addEventListener('click', function(e) { if (e.target === this) closeEditProfile(); });
     document.getElementById('listModal').addEventListener('click', function(e) { if (e.target === this) closeList(); });

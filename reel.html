@@ -117,13 +117,14 @@
 
     const reelData = [];
     const mountedSlides = new Set();
-    let currentIndex = -1;
+    let currentIndex = 0;
     let lastDoc = null;
     let isLoadingMore = false;
     let allLoaded = false;
     const PAGE_SIZE = 5;
     let isTransitioning = false;
-    let scrollDebounce = null;
+    let lastScrollTop = 0;
+    let scrollTick = false;
 
     const wrapper = document.getElementById('reelWrapper');
     const toast = document.getElementById('toast');
@@ -158,7 +159,7 @@
 
     function escapeHTML(str) {
       const div = document.createElement('div');
-      div.textContent = str;
+      div.textContent = str || '';
       return div.innerHTML;
     }
 
@@ -178,19 +179,16 @@
       }
     });
 
-    // ✅ Check if data is a video (from Firebase or local)
     function isVideoData(src, type) {
       if (!src) return false;
       if (type === 'reel' || type === 'video') return true;
       if (src.startsWith('data:video/')) return true;
-      // Check for video URLs
       if (src.match(/\.(mp4|webm|mov|avi|mkv)($|\?)/i)) return true;
-      // Check for Firebase Storage video URLs
-      if (src.includes('firebasestorage.googleapis.com') && src.match(/\.(mp4|webm|mov)($|\?)/i)) return true;
+      if (src.includes('firebasestorage.googleapis.com')) return true;
       return false;
     }
 
-    // ✅ Fetch Firebase videos batch by batch
+    // ✅ Firebase fetch: get next batch of videos
     async function fetchNextBatch() {
       if (isLoadingMore || allLoaded) return;
       isLoadingMore = true;
@@ -206,12 +204,12 @@
         
         if (snap.empty) {
           allLoaded = true;
+          isLoadingMore = false;
           return;
         }
 
         let newReelsAdded = 0;
         
-        // ✅ Push Firebase videos into reelData
         snap.forEach(doc => {
           const d = doc.data();
           const src = d.data || d.url || '';
@@ -232,34 +230,38 @@
         });
 
         lastDoc = snap.docs[snap.docs.length - 1];
-        console.log(`✅ Loaded ${newReelsAdded} reels from Firebase (Total: ${reelData.length})`);
+        console.log(`✅ ${newReelsAdded} reels loaded (Total: ${reelData.length})`);
         
-        // If no videos found in this batch but more documents exist, try next batch
+        // If no videos in this batch, auto-fetch next
         if (newReelsAdded === 0 && !allLoaded) {
-          // Skip to next batch
-          setTimeout(() => fetchNextBatch(), 100);
+          isLoadingMore = false;
+          setTimeout(() => fetchNextBatch(), 50);
           return;
         }
 
-        // Mount next slide if near the end
-        if (currentIndex >= 0 && currentIndex >= reelData.length - 2) {
-          ensureSlideMounted(reelData.length - 1);
+        isLoadingMore = false;
+        
+        // ✅ Mount next slide if we're near the end
+        if (currentIndex >= reelData.length - 3) {
+          for (let i = currentIndex; i < Math.min(currentIndex + 3, reelData.length); i++) {
+            ensureSlideMounted(i);
+          }
         }
       } catch (e) {
         console.error('Fetch error:', e);
-      } finally {
         isLoadingMore = false;
       }
     }
 
-    function setupScrollHandler() {
-      wrapper.addEventListener('scroll', () => {
-        if (scrollDebounce) return;
-        scrollDebounce = setTimeout(() => {
-          scrollDebounce = null;
+    // ✅ Scroll handler: detect swipe up/down
+    function onScroll() {
+      if (!scrollTick) {
+        requestAnimationFrame(() => {
           handleScroll();
-        }, 50);
-      }, { passive: true });
+          scrollTick = false;
+        });
+        scrollTick = true;
+      }
     }
 
     function handleScroll() {
@@ -269,14 +271,24 @@
       const slideHeight = wrapper.clientHeight;
       const newIndex = Math.round(scrollTop / slideHeight);
       
+      // Detect direction change
       if (newIndex !== currentIndex && newIndex >= 0 && newIndex < reelData.length) {
         transitionToSlide(newIndex);
       }
       
-      // Fetch more when 2 slides from end
-      if (newIndex >= reelData.length - 2 && !allLoaded && !isLoadingMore) {
+      // ✅ TikTok: preload next batch when 3 slides from end
+      if (newIndex >= reelData.length - 3 && !allLoaded && !isLoadingMore) {
         fetchNextBatch();
       }
+      
+      // ✅ Also mount upcoming slides
+      for (let i = newIndex - 1; i <= newIndex + 2; i++) {
+        if (i >= 0 && i < reelData.length) {
+          ensureSlideMounted(i);
+        }
+      }
+      
+      lastScrollTop = scrollTop;
     }
 
     function transitionToSlide(newIndex) {
@@ -287,15 +299,17 @@
 
       if (oldIndex >= 0) pauseVideo(oldIndex);
 
-      ensureSlideMounted(newIndex);
-      if (newIndex > 0) ensureSlideMounted(newIndex - 1);
-      if (newIndex < reelData.length - 1) ensureSlideMounted(newIndex + 1);
+      // Ensure neighbors are mounted
+      for (let i = newIndex - 1; i <= newIndex + 1; i++) {
+        ensureSlideMounted(i);
+      }
 
+      // Play current after short delay
       setTimeout(() => {
         playVideo(newIndex);
         cleanupDistantSlides(newIndex);
         isTransitioning = false;
-      }, 100);
+      }, 150);
     }
 
     function ensureSlideMounted(index) {
@@ -323,7 +337,7 @@
     }
 
     function cleanupDistantSlides(activeIndex) {
-      const keep = new Set([activeIndex - 1, activeIndex, activeIndex + 1]);
+      const keep = new Set([activeIndex - 2, activeIndex - 1, activeIndex, activeIndex + 1, activeIndex + 2]);
       const toRemove = [];
       mountedSlides.forEach(idx => {
         if (!keep.has(idx)) toRemove.push(idx);
@@ -410,7 +424,7 @@
 
     // ✅ INIT
     async function init() {
-      // 1. Load local reels instantly
+      // 1. Load local reels
       const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
       (profile.posts || []).filter(p => p.type === 'video').forEach(p => {
         if (!reelData.find(r => r.src === p.src)) {
@@ -426,23 +440,21 @@
         }
       });
 
-      console.log(`📱 Local reels: ${reelData.length}`);
-
       // 2. Fetch Firebase videos
       await fetchNextBatch();
 
       if (reelData.length === 0) {
         emptyState.style.display = 'flex';
-        // Try fetching more if first batch had no videos
-        if (!allLoaded) await fetchNextBatch();
-        if (reelData.length === 0) return;
+        return;
       }
 
       emptyState.style.display = 'none';
-      setupScrollHandler();
+      
+      // 3. Setup scroll listening
+      wrapper.addEventListener('scroll', onScroll, { passive: true });
 
-      // Mount first 3 slides
-      const count = Math.min(3, reelData.length);
+      // 4. Mount first 5 slides
+      const count = Math.min(5, reelData.length);
       for (let i = 0; i < count; i++) {
         ensureSlideMounted(i);
       }
@@ -450,7 +462,7 @@
       wrapper.scrollTop = 0;
       currentIndex = 0;
       
-      setTimeout(() => playVideo(0), 200);
+      setTimeout(() => playVideo(0), 300);
     }
 
     init();

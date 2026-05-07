@@ -54,14 +54,6 @@
 
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 
-    /* Loading spinner at bottom */
-    .load-more-spinner {
-      position:absolute;bottom:5rem;left:50%;transform:translateX(-50%);
-      color:#fff;font-size:1.5rem;z-index:50;display:none;
-    }
-    .load-more-spinner.show { display:block;animation:spin 1s infinite; }
-
-    /* ✅ Navbar same as index.html */
     .floating-nav { 
       position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));
       left:50%;transform:translateX(-50%);
@@ -99,7 +91,6 @@
     <div class="reel-wrapper" id="reelWrapper">
       <div class="empty-state" id="emptyState" style="display:none;"><i class="fas fa-film"></i><p>No reels yet</p></div>
     </div>
-    <div class="load-more-spinner" id="loadSpinner"><i class="fas fa-spinner"></i></div>
     <div class="toast" id="toast"></div>
 
     <nav class="floating-nav"><div class="nav-center">
@@ -124,9 +115,8 @@
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
 
-    // ✅ TikTok-style: only keep track of data, render on demand
-    const reelData = [];         // All loaded reel metadata (lightweight)
-    let mountedSlides = new Set(); // Track which slide indices are in DOM
+    const reelData = [];
+    const mountedSlides = new Set();
     let currentIndex = -1;
     let lastDoc = null;
     let isLoadingMore = false;
@@ -137,7 +127,6 @@
 
     const wrapper = document.getElementById('reelWrapper');
     const toast = document.getElementById('toast');
-    const loadSpinner = document.getElementById('loadSpinner');
     const emptyState = document.getElementById('emptyState');
 
     function createSlideHTML(reel, index) {
@@ -173,7 +162,6 @@
       return div.innerHTML;
     }
 
-    // Event delegation
     wrapper.addEventListener('click', (e) => {
       const slide = e.target.closest('.reel-slide');
       if (!slide) return;
@@ -190,11 +178,22 @@
       }
     });
 
-    // ✅ Fetch reels one batch at a time from Firebase
+    // ✅ Check if data is a video (from Firebase or local)
+    function isVideoData(src, type) {
+      if (!src) return false;
+      if (type === 'reel' || type === 'video') return true;
+      if (src.startsWith('data:video/')) return true;
+      // Check for video URLs
+      if (src.match(/\.(mp4|webm|mov|avi|mkv)($|\?)/i)) return true;
+      // Check for Firebase Storage video URLs
+      if (src.includes('firebasestorage.googleapis.com') && src.match(/\.(mp4|webm|mov)($|\?)/i)) return true;
+      return false;
+    }
+
+    // ✅ Fetch Firebase videos batch by batch
     async function fetchNextBatch() {
       if (isLoadingMore || allLoaded) return;
       isLoadingMore = true;
-      loadSpinner.classList.add('show');
       
       try {
         let q;
@@ -207,16 +206,18 @@
         
         if (snap.empty) {
           allLoaded = true;
-          loadSpinner.classList.remove('show');
           return;
         }
 
-        // ✅ Push reels one by one from this batch
+        let newReelsAdded = 0;
+        
+        // ✅ Push Firebase videos into reelData
         snap.forEach(doc => {
           const d = doc.data();
           const src = d.data || d.url || '';
-          const isVideo = src && (d.type === 'reel' || d.type === 'video' || src.startsWith('data:video/'));
-          if (isVideo && !reelData.find(r => r.src === src)) {
+          const type = d.type || '';
+          
+          if (isVideoData(src, type) && !reelData.find(r => r.id === doc.id)) {
             reelData.push({
               id: doc.id,
               username: d.username || d.userId || '@anonymous',
@@ -226,28 +227,33 @@
               comments: d.comments || 0,
               liked: false
             });
+            newReelsAdded++;
           }
         });
 
         lastDoc = snap.docs[snap.docs.length - 1];
-        loadSpinner.classList.remove('show');
+        console.log(`✅ Loaded ${newReelsAdded} reels from Firebase (Total: ${reelData.length})`);
         
-        // Mount next slide if needed
-        if (currentIndex >= reelData.length - 2) {
+        // If no videos found in this batch but more documents exist, try next batch
+        if (newReelsAdded === 0 && !allLoaded) {
+          // Skip to next batch
+          setTimeout(() => fetchNextBatch(), 100);
+          return;
+        }
+
+        // Mount next slide if near the end
+        if (currentIndex >= 0 && currentIndex >= reelData.length - 2) {
           ensureSlideMounted(reelData.length - 1);
         }
       } catch (e) {
         console.error('Fetch error:', e);
-        loadSpinner.classList.remove('show');
       } finally {
         isLoadingMore = false;
       }
     }
 
-    // ✅ TikTok-style scroll: debounced, loads next batch when near end
     function setupScrollHandler() {
       wrapper.addEventListener('scroll', () => {
-        // Debounce scroll
         if (scrollDebounce) return;
         scrollDebounce = setTimeout(() => {
           scrollDebounce = null;
@@ -267,7 +273,7 @@
         transitionToSlide(newIndex);
       }
       
-      // ✅ TikTok: fetch more when 2 slides away from end
+      // Fetch more when 2 slides from end
       if (newIndex >= reelData.length - 2 && !allLoaded && !isLoadingMore) {
         fetchNextBatch();
       }
@@ -281,12 +287,10 @@
 
       if (oldIndex >= 0) pauseVideo(oldIndex);
 
-      // Ensure current + neighbors exist
       ensureSlideMounted(newIndex);
       if (newIndex > 0) ensureSlideMounted(newIndex - 1);
       if (newIndex < reelData.length - 1) ensureSlideMounted(newIndex + 1);
 
-      // Play current video
       setTimeout(() => {
         playVideo(newIndex);
         cleanupDistantSlides(newIndex);
@@ -294,7 +298,6 @@
       }, 100);
     }
 
-    // ✅ Mount single slide (TikTok: only when needed)
     function ensureSlideMounted(index) {
       if (index < 0 || index >= reelData.length) return;
       if (mountedSlides.has(index)) return;
@@ -320,7 +323,6 @@
     }
 
     function cleanupDistantSlides(activeIndex) {
-      // Keep only: active, active-1, active+1
       const keep = new Set([activeIndex - 1, activeIndex, activeIndex + 1]);
       const toRemove = [];
       mountedSlides.forEach(idx => {
@@ -406,9 +408,9 @@
       toast._t = setTimeout(() => toast.classList.remove('show'), 2000);
     }
 
-    // ✅ TikTok-style init: load first batch, mount only 3 slides
+    // ✅ INIT
     async function init() {
-      // Load local reels instantly
+      // 1. Load local reels instantly
       const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
       (profile.posts || []).filter(p => p.type === 'video').forEach(p => {
         if (!reelData.find(r => r.src === p.src)) {
@@ -424,17 +426,22 @@
         }
       });
 
-      // Fetch first batch from Firebase
+      console.log(`📱 Local reels: ${reelData.length}`);
+
+      // 2. Fetch Firebase videos
       await fetchNextBatch();
 
       if (reelData.length === 0) {
         emptyState.style.display = 'flex';
-        return;
+        // Try fetching more if first batch had no videos
+        if (!allLoaded) await fetchNextBatch();
+        if (reelData.length === 0) return;
       }
 
+      emptyState.style.display = 'none';
       setupScrollHandler();
 
-      // ✅ Mount only first 3 slides (TikTok: not all at once)
+      // Mount first 3 slides
       const count = Math.min(3, reelData.length);
       for (let i = 0; i < count; i++) {
         ensureSlideMounted(i);

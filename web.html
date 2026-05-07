@@ -15,9 +15,8 @@
     @keyframes livePulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.7)} 50%{box-shadow:0 0 0 10px rgba(239,68,68,0)} }
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
     
-    /* ✅ Fixed layout - no scroll */
     .content { 
-      flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+      flex:1;display:flex;flex-direction:column;align-items:center;
       color:#fff;padding:0.4rem 1rem 0 1rem;text-align:center;
       height:100%;overflow:hidden;
     }
@@ -38,10 +37,16 @@
     .stranger-label-outside { color:#777;font-size:0.5rem;letter-spacing:2px;text-transform:uppercase; }
     .you-label-outside { color:#777;font-size:0.5rem;letter-spacing:2px;text-transform:uppercase; }
     
-    /* Camera takes all available space */
+    /* ✅ Camera area takes 80% of remaining space */
+    .camera-area {
+      width:100%;max-width:500px;
+      flex:0 0 auto;
+      height:80%;
+      display:flex;flex-direction:column;
+    }
     .camera-container { 
       flex:1;display:flex;gap:0.4rem;align-items:flex-start;justify-content:center;
-      width:100%;max-width:500px;min-height:0;padding:0 0.1rem;
+      width:100%;min-height:0;padding:0 0.1rem;
     }
     .stranger-camera { width:75%;height:100%;background:#111;border:2px solid rgba(255,255,255,0.2);border-radius:1.2rem;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center; }
     .stranger-camera.connected { border-color:#4ade80; }
@@ -55,13 +60,20 @@
     .my-placeholder { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.1rem;color:rgba(255,255,255,0.35);font-size:0.5rem; }
     .my-placeholder i { font-size:1.1rem; }
     
-    .user-info { display:flex;align-items:center;gap:0.2rem;background:rgba(255,255,255,0.06);padding:0.15rem 0.5rem;border-radius:1rem;font-size:0.6rem;color:#ccc;opacity:0;transition:all 0.3s;border:1px solid rgba(255,255,255,0.08);flex-shrink:0; }
+    /* ✅ Spacer fills remaining 20% */
+    .bottom-spacer {
+      flex:1;display:flex;flex-direction:column;justify-content:flex-end;
+      width:100%;max-width:500px;min-height:0;
+    }
+    
+    .user-info { display:flex;align-items:center;gap:0.2rem;background:rgba(255,255,255,0.06);padding:0.15rem 0.5rem;border-radius:1rem;font-size:0.6rem;color:#ccc;opacity:0;transition:all 0.3s;border:1px solid rgba(255,255,255,0.08);margin:0 auto; }
     .user-info.active { opacity:1; }
     
-    /* ✅ 3mm gap above buttons */
+    /* ✅ 3mm gap */
     .buttons-container { 
       display:flex;gap:0.4rem;flex-wrap:wrap;justify-content:center;align-items:center;
-      flex-shrink:0;padding:0.3rem 0 0.3rem 0;
+      flex-shrink:0;padding:0.3rem 0;
+      margin-top:auto;
     }
     .btn { 
       height:34px;border-radius:2rem;
@@ -108,7 +120,7 @@
     .loading-screen i { font-size:2rem;color:#3897f0;animation:spin 1s infinite; }
     .loading-screen span { font-size:0.75rem;color:#888; }
 
-    /* ✅ Same navbar as index.html - unchanged */
+    /* ✅ Same navbar */
     .floating-nav { 
       position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));
       left:50%;transform:translateX(-50%);
@@ -168,26 +180,31 @@
       
       <div class="camera-labels"><span class="stranger-label-outside">STRANGER</span><span class="you-label-outside">YOU</span></div>
       
-      <div class="camera-container">
-        <div class="stranger-camera" id="strangerCamera">
-          <video id="strangerFeed" autoplay playsinline></video>
-          <div class="stranger-placeholder" id="strangerPlaceholder"><i class="fas fa-user-secret"></i><span>???</span></div>
-        </div>
-        <div class="my-camera" id="myCamera">
-          <video id="myFeed" autoplay playsinline muted></video>
-          <div class="my-placeholder" id="myPlaceholder"><i class="fas fa-video"></i><span>off</span></div>
+      <!-- ✅ Camera takes exactly 80% height -->
+      <div class="camera-area">
+        <div class="camera-container">
+          <div class="stranger-camera" id="strangerCamera">
+            <video id="strangerFeed" autoplay playsinline></video>
+            <div class="stranger-placeholder" id="strangerPlaceholder"><i class="fas fa-user-secret"></i><span>???</span></div>
+          </div>
+          <div class="my-camera" id="myCamera">
+            <video id="myFeed" autoplay playsinline muted></video>
+            <div class="my-placeholder" id="myPlaceholder"><i class="fas fa-video"></i><span>off</span></div>
+          </div>
         </div>
       </div>
       
-      <div class="user-info" id="userInfo"><span>🌍</span><span>Connected</span></div>
-      
-      <!-- ✅ 3mm gap above from camera, 3mm gap below to navbar -->
-      <div class="buttons-container">
-        <button class="btn live-button" id="liveBtn" type="button"><i class="fas fa-circle"></i><span>LIVE</span></button>
-        <button class="btn start-button" id="startBtn" type="button"><i class="fas fa-play"></i><span>Start</span></button>
-        <button class="btn stop-button" id="stopBtn" type="button"><i class="fas fa-stop"></i><span>Stop</span></button>
-        <button class="btn next-button" id="nextBtn" type="button"><i class="fas fa-forward"></i><span>Next</span></button>
-        <button class="btn mic-button" id="micBtn" type="button" title="Mute"><i class="fas fa-microphone"></i></button>
+      <!-- ✅ Remaining 20% space: user info + buttons + gap to navbar -->
+      <div class="bottom-spacer">
+        <div class="user-info" id="userInfo"><span>🌍</span><span>Connected</span></div>
+        
+        <div class="buttons-container">
+          <button class="btn live-button" id="liveBtn" type="button"><i class="fas fa-circle"></i><span>LIVE</span></button>
+          <button class="btn start-button" id="startBtn" type="button"><i class="fas fa-play"></i><span>Start</span></button>
+          <button class="btn stop-button" id="stopBtn" type="button"><i class="fas fa-stop"></i><span>Stop</span></button>
+          <button class="btn next-button" id="nextBtn" type="button"><i class="fas fa-forward"></i><span>Next</span></button>
+          <button class="btn mic-button" id="micBtn" type="button" title="Mute"><i class="fas fa-microphone"></i></button>
+        </div>
       </div>
     </div>
     
@@ -251,7 +268,7 @@
       }
 
       async function startLive() {
-        if (!localStream) { alert('Start camera first! Tap START button then LIVE.'); return; }
+        if (!localStream) { alert('Start camera first!'); return; }
         isLive = true; updateLiveButton();
         try {
           await setDoc(doc(db, 'live', liveUserId), { userId: currentUser, active: true, startedAt: serverTimestamp(), viewers: 0, hasStranger: !!strangerStream });
@@ -297,8 +314,7 @@
 
       async function startCamera() {
         if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-          alert('⚠️ Camera requires HTTPS!\n\nSwitching to secure connection...');
-          window.location.href = window.location.href.replace('http://', 'https://'); return false;
+          alert('Camera requires HTTPS!'); window.location.href = window.location.href.replace('http://', 'https://'); return false;
         }
         try {
           if(localStream){ localStream.getTracks().forEach(t=>t.stop()); }
@@ -306,13 +322,7 @@
           myFeed.srcObject = localStream; await myFeed.play();
           myFeed.style.display='block'; myPlaceholder.style.display='none'; myCameraEl.classList.add('active');
           return true;
-        } catch(e) {
-          if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
-            alert('📷 Camera blocked!\n\niPhone: Settings > Safari > Camera > Allow\n\nAndroid: Settings > Apps > Browser > Permissions > Camera');
-          } else if (e.name === 'NotFoundError') alert('📷 No camera found on this device.');
-          else alert('📷 Camera error. Ensure HTTPS and camera permission is allowed.');
-          return false;
-        }
+        } catch(e) { alert('Camera/microphone access needed!'); return false; }
       }
 
       function stopCamera() { if(localStream){ localStream.getTracks().forEach(t=>t.stop()); localStream=null; } myFeed.style.display='none'; myFeed.srcObject=null; myPlaceholder.style.display=''; myCameraEl.classList.remove('active'); }

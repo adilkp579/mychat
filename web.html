@@ -15,7 +15,7 @@
     @keyframes livePulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.7)} 50%{box-shadow:0 0 0 10px rgba(239,68,68,0)} }
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
     
-    /* ✅ 70% - Stranger camera area */
+    /* ✅ 70% - Camera section */
     .camera-section {
       height:70%;
       display:flex;flex-direction:column;align-items:center;
@@ -54,14 +54,14 @@
     .my-placeholder { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.1rem;color:rgba(255,255,255,0.35);font-size:0.5rem; }
     .my-placeholder i { font-size:1rem; }
     
-    /* ✅ 10% - Buttons area */
+    /* ✅ 10% - Buttons section */
     .buttons-section {
       height:10%;
       display:flex;flex-direction:column;align-items:center;justify-content:center;
       padding:0 1rem;
     }
     
-    .user-info { display:flex;align-items:center;gap:0.2rem;background:rgba(255,255,255,0.06);padding:0.1rem 0.5rem;border-radius:1rem;font-size:0.55rem;color:#ccc;opacity:0;transition:all 0.3s;border:1px solid rgba(255,255,255,0.08);margin-bottom:0.2rem; }
+    .user-info { display:flex;align-items:center;gap:0.2rem;background:rgba(255,255,255,0.06);padding:0.1rem 0.5rem;border-radius:1rem;font-size:0.55rem;color:#ccc;opacity:0;transition:all 0.3s;border:1px solid rgba(255,255,255,0.08);margin-bottom:0.15rem; }
     .user-info.active { opacity:1; }
     
     .buttons-container { 
@@ -112,20 +112,21 @@
     .loading-screen i { font-size:2rem;color:#3897f0;animation:spin 1s infinite; }
     .loading-screen span { font-size:0.75rem;color:#888; }
 
-    /* ✅ 20% - Navbar area (fixed at bottom) */
-    .nav-section {
+    /* ✅ 20% - Navbar spacer */
+    .nav-spacer {
       height:20%;
-      position:relative;
     }
+
+    /* ✅ Navbar - original position:fixed style from index.html */
     .floating-nav { 
-      position:absolute;bottom:max(0.5rem,env(safe-area-inset-bottom,0.5rem));
+      position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));
       left:50%;transform:translateX(-50%);
       width:92%;max-width:500px;
       background:#1a1a1a;
       border-radius:2.5rem;padding:0.7rem 1.5rem;
       display:flex;align-items:center;justify-content:center;
       border:1px solid #333;
-      z-index:100;
+      box-shadow:0 4px 20px rgba(0,0,0,0.5);z-index:100;
     }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
     .nav-center a { color:#888;font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;position:relative; }
@@ -136,13 +137,13 @@
 
     @media (min-width:1024px) {
       .nav-upload,.nav-search{display:flex!important}
-      .nav-section{height:auto;position:fixed;top:50%;left:0;transform:translateY(-50%);width:5rem;z-index:100}
-      .floating-nav{position:static;width:3.8rem;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column;box-shadow:none;background:#1a1a1a}
+      .floating-nav{position:fixed;top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column;box-shadow:0 4px 20px rgba(0,0,0,0.5)}
       .nav-center{flex-direction:column;gap:1.2rem;max-width:none}.nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
       .nav-center a::before{bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0)}.nav-center a.active::before{transform:translateY(-50%) scale(1)}
       .page{padding-left:5rem}
-      .camera-section{padding:1rem 2rem 0 2rem;height:80%}
-      .buttons-section{height:20%}
+      .camera-section{padding:1rem 2rem 0 2rem;height:75%}
+      .buttons-section{height:10%}
+      .nav-spacer{height:15%}
       .my-camera{max-height:150px}
     }
     @media (max-width:380px) { 
@@ -150,7 +151,7 @@
       .btn{height:29px;font-size:0.63rem;padding:0 0.55rem}
       .start-button,.live-button{min-width:58px}.stop-button,.next-button{min-width:50px}
       .mic-button{width:29px;height:29px}
-      .floating-nav{width:94%;padding:0.5rem 0.8rem}
+      .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:max(0.8rem,env(safe-area-inset-bottom,0.8rem))}
       .nav-center a{font-size:1.1rem;width:2rem;height:2rem}
       .buttons-container{gap:0.25rem}
       .my-camera{max-height:85px}
@@ -197,18 +198,19 @@
       </div>
     </div>
     
-    <!-- ✅ 20% - Navbar -->
-    <div class="nav-section">
-      <nav class="floating-nav"><div class="nav-center">
-        <a href="index.html"><i class="fas fa-home"></i></a>
-        <a href="web.html" class="active"><i class="fas fa-globe"></i></a>
-        <a href="reel.html"><i class="fas fa-film"></i></a>
-        <a href="chat.html"><i class="fas fa-comment-dots"></i></a>
-        <a href="profile.html"><i class="fas fa-user"></i></a>
-        <a href="upload.html" class="nav-upload"><i class="fas fa-plus"></i></a>
-        <a href="search.html" class="nav-search"><i class="fas fa-search"></i></a>
-      </div></nav>
-    </div>
+    <!-- ✅ 20% - Spacer for navbar -->
+    <div class="nav-spacer"></div>
+    
+    <!-- ✅ Navbar - original position:fixed at bottom -->
+    <nav class="floating-nav"><div class="nav-center">
+      <a href="index.html"><i class="fas fa-home"></i></a>
+      <a href="web.html" class="active"><i class="fas fa-globe"></i></a>
+      <a href="reel.html"><i class="fas fa-film"></i></a>
+      <a href="chat.html"><i class="fas fa-comment-dots"></i></a>
+      <a href="profile.html"><i class="fas fa-user"></i></a>
+      <a href="upload.html" class="nav-upload"><i class="fas fa-plus"></i></a>
+      <a href="search.html" class="nav-search"><i class="fas fa-search"></i></a>
+    </div></nav>
   </div>
 
   <script>

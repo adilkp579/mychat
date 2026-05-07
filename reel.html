@@ -63,20 +63,24 @@
     .toast { position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:0.5rem 1rem;border-radius:2rem;font-size:0.7rem;z-index:400;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap; }
     .toast.show { opacity:1; }
 
-    .loading-screen { position:fixed;top:0;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:1rem; }
-    .loading-screen i { font-size:2.5rem;color:#3897f0;animation:spin 1s infinite; }
-    .loading-screen span { color:#888;font-size:0.85rem; }
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 
-    .loading-overlay { position:absolute;top:0;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:50;flex-direction:column;gap:0.5rem; }
-    .loading-overlay i { font-size:2rem;color:#3897f0;animation:spin 1s linear infinite; }
-
-    .floating-nav { position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(26,26,26,0.9);backdrop-filter:blur(30px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);box-shadow:0 4px 20px rgba(0,0,0,0.5);z-index:100; }
+    /* ✅ Navbar - same as index.html */
+    .floating-nav { 
+      position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));
+      left:50%;transform:translateX(-50%);
+      width:92%;max-width:500px;
+      background:#1a1a1a;
+      border-radius:2.5rem;padding:0.7rem 1.5rem;
+      display:flex;align-items:center;justify-content:center;
+      border:1px solid #333;
+      box-shadow:0 4px 20px rgba(0,0,0,0.5);z-index:100;
+    }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
-    .nav-center a { color:rgba(255,255,255,0.6);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;position:relative; }
+    .nav-center a { color:#888;font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;position:relative; }
     .nav-center a::before { content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:4px;height:4px;border-radius:50%;background:#fff;transition:all 0.3s; }
+    .nav-center a.active { color:#fff;background:#333; }
     .nav-center a.active::before { transform:translateX(-50%) scale(1); }
-    .nav-center a.active { color:#fff;background:rgba(255,255,255,0.15);backdrop-filter:blur(10px); }
     .nav-upload, .nav-search { display:none !important; }
 
     @media (min-width:1024px) {
@@ -96,7 +100,12 @@
 </head>
 <body>
   <div class="page" id="mainPage">
-    <div class="reel-wrapper" id="reelWrapper"></div>
+    <div class="reel-wrapper" id="reelWrapper">
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;color:#555;" id="loadingIndicator">
+        <i class="fas fa-spinner" style="font-size:2rem;color:#3897f0;animation:spin 1s infinite;display:block;margin-bottom:0.5rem;"></i>
+        <span style="font-size:0.7rem;">Loading reels...</span>
+      </div>
+    </div>
     <div class="toast" id="toast"></div>
 
     <nav class="floating-nav"><div class="nav-center">
@@ -111,9 +120,7 @@
   </div>
 
   <script>
-    if (!localStorage.getItem("uid")) {
-      window.location.replace("login.html");
-    }
+    if (!localStorage.getItem("uid")) { window.location.replace("login.html"); }
   </script>
 
   <script type="module">
@@ -123,7 +130,6 @@
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
 
-    // ---------- STATE ----------
     const allReels = [];
     let currentIndex = -1;
     let lastDoc = null;
@@ -134,8 +140,8 @@
 
     const wrapper = document.getElementById('reelWrapper');
     const toast = document.getElementById('toast');
+    const loadingIndicator = document.getElementById('loadingIndicator');
 
-    // ---------- TEMPLATE FUNCTION ----------
     function createSlideHTML(reel, index) {
       return `
         <div class="reel-slide" data-index="${index}" id="slide${index}">
@@ -169,18 +175,15 @@
       return div.innerHTML;
     }
 
-    // ---------- EVENT DELEGATION ----------
+    // Event delegation
     wrapper.addEventListener('click', (e) => {
       const slide = e.target.closest('.reel-slide');
       if (!slide) return;
-      
       const index = parseInt(slide.dataset.index);
-      
       if (e.target.tagName === 'VIDEO' || e.target.closest('.play-overlay')) {
         togglePlay(index);
         return;
       }
-      
       const actionBtn = e.target.closest('[data-action]');
       if (actionBtn) {
         const action = actionBtn.dataset.action;
@@ -190,7 +193,6 @@
       }
     });
 
-    // ---------- LOAD DATA ----------
     function loadLocalReels() {
       const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
       (profile.posts || []).filter(p => p.type === 'video').forEach(p => {
@@ -243,6 +245,7 @@
         });
 
         lastDoc = snap.docs[snap.docs.length - 1];
+        return true;
       } catch (e) {
         console.error('Fetch error:', e);
       } finally {
@@ -250,10 +253,8 @@
       }
     }
 
-    // ---------- VIRTUAL SCROLL ----------
     function setupScrollHandler() {
       let ticking = false;
-      
       wrapper.addEventListener('scroll', () => {
         if (!ticking) {
           requestAnimationFrame(() => {
@@ -267,7 +268,6 @@
 
     function handleScroll() {
       if (isTransitioning || allReels.length === 0) return;
-      
       const scrollTop = wrapper.scrollTop;
       const slideHeight = wrapper.clientHeight;
       const newIndex = Math.round(scrollTop / slideHeight);
@@ -277,24 +277,23 @@
       }
       
       if (newIndex >= allReels.length - 3 && !allLoaded && !isLoadingMore) {
-        fetchNextPage();
+        fetchNextPage().then(() => {
+          if (newIndex < allReels.length - 1) ensureSlideMounted(newIndex + 1);
+        });
       }
     }
 
     function transitionToSlide(newIndex) {
       if (newIndex === currentIndex || isTransitioning) return;
       isTransitioning = true;
-      
       const oldIndex = currentIndex;
       currentIndex = newIndex;
-
       if (oldIndex >= 0) pauseVideo(oldIndex);
 
       requestAnimationFrame(() => {
         ensureSlideMounted(newIndex);
         if (newIndex > 0) ensureSlideMounted(newIndex - 1);
         if (newIndex < allReels.length - 1) ensureSlideMounted(newIndex + 1);
-
         requestAnimationFrame(() => {
           playVideo(newIndex);
           cleanupDistantSlides(newIndex);
@@ -311,9 +310,8 @@
     }
 
     function mountSlide(index) {
-      const reel = allReels[index];
       const temp = document.createElement('div');
-      temp.innerHTML = createSlideHTML(reel, index);
+      temp.innerHTML = createSlideHTML(allReels[index], index);
       const slide = temp.firstElementChild;
       wrapper.appendChild(slide);
     }
@@ -321,7 +319,6 @@
     function removeSlideElement(index) {
       const slide = document.getElementById('slide' + index);
       if (!slide) return;
-      
       const video = slide.querySelector('video');
       if (video) {
         video.pause();
@@ -334,26 +331,20 @@
     function cleanupDistantSlides(activeIndex) {
       const slides = wrapper.querySelectorAll('.reel-slide');
       const allowed = new Set([activeIndex - 1, activeIndex, activeIndex + 1]);
-      
       for (const slide of slides) {
         const idx = parseInt(slide.dataset.index);
-        if (!allowed.has(idx)) {
-          removeSlideElement(idx);
-        }
+        if (!allowed.has(idx)) removeSlideElement(idx);
       }
     }
 
-    // ---------- VIDEO PLAYBACK ----------
     function playVideo(index) {
       const video = document.getElementById('video' + index);
       const overlay = document.getElementById('overlay' + index);
       if (!video || index >= allReels.length) return;
-
       const targetSrc = allReels[index].src;
       if (video.src !== targetSrc || !video.src) {
         video.src = targetSrc;
       }
-
       const playPromise = video.play();
       if (playPromise !== undefined) {
         playPromise.then(() => {
@@ -384,61 +375,50 @@
       }
     }
 
-    // ---------- INTERACTIONS ----------
     async function toggleLike(index) {
       const reel = allReels[index];
       reel.liked = !reel.liked;
       reel.likes += reel.liked ? 1 : -1;
-
       const likesSpan = document.getElementById('likes' + index);
       if (likesSpan) likesSpan.textContent = reel.likes;
-      
       const slide = document.getElementById('slide' + index);
       const likeBtn = slide?.querySelector('[data-action="like"]');
       if (likeBtn) {
         likeBtn.classList.toggle('liked', reel.liked);
         likeBtn.querySelector('i').className = reel.liked ? 'fas fa-heart' : 'far fa-heart';
       }
-      
       showToast(reel.liked ? 'Liked! ❤️' : 'Unliked');
-
       if (!reel.id.startsWith('local_')) {
-        try { 
-          await updateDoc(doc(db, 'posts', reel.id), { 
-            likes: increment(reel.liked ? 1 : -1) 
-          }); 
-        } catch(e) {}
+        try { await updateDoc(doc(db, 'posts', reel.id), { likes: increment(reel.liked ? 1 : -1) }); } catch(e) {}
       }
     }
 
     async function shareReel(index) {
       const reel = allReels[index];
       if (navigator.share) {
-        try { 
-          await navigator.share({ 
-            title: `${reel.username}'s reel`, 
-            text: reel.caption || 'Check out this reel!' 
-          }); 
-        } catch(e) {}
+        try { await navigator.share({ title: `${reel.username}'s reel`, text: reel.caption || 'Check out this reel!' }); } catch(e) {}
       } else {
-        try { 
-          await navigator.clipboard.writeText(window.location.href); 
-          showToast('Link copied! 📋'); 
-        } catch(e) {}
+        try { await navigator.clipboard.writeText(window.location.href); showToast('Link copied! 📋'); } catch(e) {}
       }
     }
 
     function showToast(msg) {
-      toast.textContent = msg; 
+      toast.textContent = msg;
       toast.classList.add('show');
       clearTimeout(toast._t);
       toast._t = setTimeout(() => toast.classList.remove('show'), 2000);
     }
 
-    // ---------- INIT ----------
+    // ✅ INIT - fixed loading
     async function init() {
+      // Load local reels first for instant display
       loadLocalReels();
+      
+      // Fetch from Firestore
       await fetchNextPage();
+      
+      // Remove loading indicator
+      if (loadingIndicator) loadingIndicator.remove();
       
       if (allReels.length === 0) {
         wrapper.innerHTML = `<div class="empty-state"><i class="fas fa-film"></i><p>No reels yet</p></div>`;
@@ -447,22 +427,22 @@
 
       setupScrollHandler();
       
+      // Mount first 3 slides
       const count = Math.min(3, allReels.length);
       const fragment = document.createDocumentFragment();
-      
       for (let i = 0; i < count; i++) {
         const temp = document.createElement('div');
         temp.innerHTML = createSlideHTML(allReels[i], i);
         fragment.appendChild(temp.firstElementChild);
       }
-      
       wrapper.appendChild(fragment);
       wrapper.scrollTop = 0;
       
-      requestAnimationFrame(() => {
+      // Play first video after DOM ready
+      setTimeout(() => {
         currentIndex = 0;
         playVideo(0);
-      });
+      }, 300);
     }
 
     init();

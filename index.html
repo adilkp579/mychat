@@ -183,18 +183,49 @@
     function fmtDur(s) { const m = Math.floor(s/60), sec = Math.floor(s%60); return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0'); }
     function timeAgo(d) { if (!d) return ''; const n = new Date(); const df = n - d; if (df < 60000) return 'now'; if (df < 3600000) return Math.floor(df/60000)+'m'; if (df < 86400000) return Math.floor(df/3600000)+'h'; if (df < 604800000) return Math.floor(df/86400000)+'d'; return d.toLocaleDateString(); }
 
+    // ✅ Load user from localStorage cache FIRST (instant), then Firestore
+    function loadUserFromLocalCache(username) {
+      if (!username || username === '@anonymous') return null;
+      const key = 'profile_' + username.replace('@','');
+      const cached = localStorage.getItem(key);
+      if (cached) {
+        try {
+          const data = JSON.parse(cached);
+          return { avatar: data.avatar || null, name: data.name || username };
+        } catch(e) {}
+      }
+      // Also check userProfile
+      const up = JSON.parse(localStorage.getItem('userProfile') || '{}');
+      if (up.username === username) {
+        return { avatar: up.avatar || null, name: up.name || username };
+      }
+      return null;
+    }
+
     async function batchLoadProfiles(usernames) {
       const uniqueUsers = [...new Set(usernames)].filter(u => u && u !== '@anonymous' && !userCache.has(u));
       if (uniqueUsers.length === 0) return;
       
-      for (let i = 0; i < uniqueUsers.length; i += 10) {
-        const batch = uniqueUsers.slice(i, i + 10);
+      // ✅ First load from localStorage for instant display
+      for (const u of uniqueUsers) {
+        const local = loadUserFromLocalCache(u);
+        if (local) {
+          userCache.set(u, local);
+        }
+      }
+      
+      // Then fetch from Firestore for latest data
+      const firestoreUsers = uniqueUsers.filter(u => !userCache.has(u));
+      for (let i = 0; i < firestoreUsers.length; i += 10) {
+        const batch = firestoreUsers.slice(i, i + 10);
         try {
           const q = query(collection(db, 'users'), where('username', 'in', batch));
           const snap = await getDocs(q);
           snap.forEach(doc => {
             const d = doc.data();
             userCache.set(d.username, { avatar: d.avatar || null, name: d.name || d.username });
+            // ✅ Update local cache
+            localStorage.setItem('profile_' + d.username.replace('@',''), JSON.stringify(d));
           });
         } catch(e) {
           for (const u of batch) {
@@ -209,15 +240,26 @@
     async function getUserProfile(username) {
       if (!username || username === '@anonymous') return { avatar: null, name: username };
       if (userCache.has(username)) return userCache.get(username);
+      
+      // Try local cache first
+      const local = loadUserFromLocalCache(username);
+      if (local) {
+        userCache.set(username, local);
+        return local;
+      }
+      
+      // Try Firestore
       try {
         const snap = await getDoc(doc(db, 'users', username.replace('@', '')));
         if (snap.exists()) {
           const d = snap.data();
           const profile = { avatar: d.avatar || null, name: d.name || username };
           userCache.set(username, profile);
+          localStorage.setItem('profile_' + username.replace('@',''), JSON.stringify(d));
           return profile;
         }
       } catch(e) {}
+      
       const fallback = { avatar: null, name: username };
       userCache.set(username, fallback);
       return fallback;
@@ -237,6 +279,37 @@
         el.innerHTML = getAvtFromCache(username);
       });
     }
+
+    // ✅ Listen for profile updates from other tabs/pages
+    window.addEventListener('storage', function(e) {
+      if (e.key && e.key.startsWith('profile_')) {
+        try {
+          const data = JSON.parse(e.newValue);
+          if (data.username) {
+            userCache.set(data.username, { avatar: data.avatar || null, name: data.name || data.username });
+            updateAllAvatars();
+          }
+        } catch(ex) {}
+      }
+      if (e.key === 'userProfile') {
+        try {
+          const data = JSON.parse(e.newValue);
+          if (data.username) {
+            userCache.set(data.username, { avatar: data.avatar || null, name: data.name || data.username });
+            updateAllAvatars();
+          }
+        } catch(ex) {}
+      }
+    });
+
+    // ✅ Refresh avatars when page gets focus (user may have updated profile)
+    window.addEventListener('focus', function() {
+      const lp = JSON.parse(localStorage.getItem('userProfile') || '{}');
+      if (lp.username) {
+        userCache.set(lp.username, { avatar: lp.avatar || null, name: lp.name || lp.username });
+      }
+      updateAllAvatars();
+    });
 
     async function bootApp() {
       const hasLocalUid = localStorage.getItem("uid");
@@ -368,7 +441,7 @@
       }, { passive: true });
     }
 
-    // ---------- COMMENTS ----------
+    // ---------- COMMENTS (same as before) ----------
     window.openComments = async function(pid) {
       activePostId = pid;
       loadedThreads.clear();
@@ -484,53 +557,31 @@
       try {
         const snap = await getDocs(query(collection(db, 'posts', postId, 'comments', path, 'replies'), limit(1)));
         const btn = document.getElementById(btnId);
-        if (btn && !snap.empty) {
-          btn.style.display = 'block';
-        }
+        if (btn && !snap.empty) btn.style.display = 'block';
       } catch(e) {}
     }
 
     window.loadReplies = async function(postId, parentPath, threadId) {
       const threadEl = document.getElementById(threadId);
       if (!threadEl) return;
-      
-      if (loadedThreads.has(parentPath)) {
-        threadEl.style.display = threadEl.style.display === 'none' ? '' : 'none';
-        return;
-      }
-      
+      if (loadedThreads.has(parentPath)) { threadEl.style.display = threadEl.style.display === 'none' ? '' : 'none'; return; }
       threadEl.innerHTML = '<div style="color:#555;font-size:0.6rem;">Loading...</div>';
       try {
         const snap = await getDocs(query(collection(db, 'posts', postId, 'comments', parentPath, 'replies'), orderBy('createdAt', 'asc')));
-        
-        if (snap.empty) {
-          threadEl.innerHTML = '<div style="color:#555;font-size:0.6rem;">No replies</div>';
-          loadedThreads.add(parentPath);
-          return;
-        }
-        
-        const usernames = [];
-        snap.forEach(d => { if (!d.data()._deleted) usernames.push(d.data().username); });
+        if (snap.empty) { threadEl.innerHTML = '<div style="color:#555;font-size:0.6rem;">No replies</div>'; loadedThreads.add(parentPath); return; }
+        const usernames = []; snap.forEach(d => { if (!d.data()._deleted) usernames.push(d.data().username); });
         await batchLoadProfiles(usernames);
-        
         threadEl.innerHTML = '';
         const postSnap = await getDoc(doc(db, 'posts', postId));
         const postOwner = postSnap.exists() ? (postSnap.data().username || postSnap.data().userId || '') : '';
-        
         snap.forEach(docSnap => {
-          const d = docSnap.data();
-          if (d._deleted) return;
-          const cid = docSnap.id;
-          const canDel = (d.username === currentUser || postOwner === currentUser);
-          appendCommentElement(threadEl, d, cid, postId, parentPath, canDel);
+          const d = docSnap.data(); if (d._deleted) return;
+          appendCommentElement(threadEl, d, docSnap.id, postId, parentPath, (d.username === currentUser || postOwner === currentUser));
         });
-        
         loadedThreads.add(parentPath);
         const btn = document.getElementById('vr-' + parentPath.split('/').pop());
         if (btn) btn.style.display = 'none';
-      } catch(e) {
-        threadEl.innerHTML = '<div style="color:#ef4444;font-size:0.6rem;">Error</div>';
-      }
+      } catch(e) { threadEl.innerHTML = '<div style="color:#ef4444;font-size:0.6rem;">Error</div>'; }
     };
 
     window.toggleReplyBox = function(cid) {
@@ -544,26 +595,16 @@
       const text = input?.value?.trim();
       if (!text || !pid || !commentId) return;
       input.value = '';
-      
       const colPath = parentPath ? `posts/${pid}/comments/${parentPath}/replies` : `posts/${pid}/comments/${commentId}/replies`;
       try {
-        const docRef = await addDoc(collection(db, colPath), { 
-          type:'text', text, username: currentUser, createdAt: serverTimestamp() 
-        });
-        
-        if (!userCache.has(currentUser)) {
-          userCache.set(currentUser, { avatar: null, name: currentUser });
-        }
-        
+        const docRef = await addDoc(collection(db, colPath), { type:'text', text, username: currentUser, createdAt: serverTimestamp() });
+        if (!userCache.has(currentUser)) userCache.set(currentUser, { avatar: null, name: currentUser });
         const threadEl = document.getElementById('thread-' + commentId);
         if (threadEl) {
           const targetPath = parentPath || commentId;
           if (loadedThreads.has(targetPath)) {
-            const newReply = { type: 'text', text, username: currentUser, createdAt: { toDate: () => new Date() } };
-            appendCommentElement(threadEl, newReply, docRef.id, pid, targetPath, true);
-          } else {
-            loadReplies(pid, targetPath, 'thread-' + commentId);
-          }
+            appendCommentElement(threadEl, { type: 'text', text, username: currentUser, createdAt: { toDate: () => new Date() } }, docRef.id, pid, targetPath, true);
+          } else loadReplies(pid, targetPath, 'thread-' + commentId);
         }
         showToast('Reply posted!');
       } catch(e) { showToast('Failed', true); }
@@ -572,11 +613,7 @@
     window.deleteCmt = async function(pid, cid, parentPath) {
       if (!confirm('Delete?')) return;
       const colPath = parentPath ? `posts/${pid}/comments/${parentPath}/replies` : `posts/${pid}/comments`;
-      try {
-        await setDoc(doc(db, colPath, cid), { _deleted: true }, { merge: true });
-        document.getElementById('c-'+cid)?.remove();
-        showToast('Deleted');
-      } catch(e) { showToast('Failed',true); }
+      try { await setDoc(doc(db, colPath, cid), { _deleted: true }, { merge: true }); document.getElementById('c-'+cid)?.remove(); showToast('Deleted'); } catch(e) { showToast('Failed',true); }
     };
 
     window.postMainComment = async function() {
@@ -585,18 +622,11 @@
       if (!text || !activePostId) return;
       input.value = '';
       try {
-        const docRef = await addDoc(collection(db, 'posts', activePostId, 'comments'), { 
-          type:'text', text, username: currentUser, createdAt: serverTimestamp() 
-        });
-        
-        if (!userCache.has(currentUser)) {
-          userCache.set(currentUser, { avatar: null, name: currentUser });
-        }
-        
+        const docRef = await addDoc(collection(db, 'posts', activePostId, 'comments'), { type:'text', text, username: currentUser, createdAt: serverTimestamp() });
+        if (!userCache.has(currentUser)) userCache.set(currentUser, { avatar: null, name: currentUser });
         const listEl = document.getElementById('commentsList');
         if (listEl.querySelector('.cmt-block')) {
-          const newComment = { type: 'text', text, username: currentUser, createdAt: { toDate: () => new Date() } };
-          appendCommentElement(listEl, newComment, docRef.id, activePostId, '', true);
+          appendCommentElement(listEl, { type: 'text', text, username: currentUser, createdAt: { toDate: () => new Date() } }, docRef.id, activePostId, '', true);
         }
         showToast('Comment posted!');
       } catch(e) { showToast('Failed', true); }
@@ -610,15 +640,11 @@
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, sampleRate: 16000, channelCount: 1 } });
         voiceRecorder = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm', audioBitsPerSecond: 24000 });
-        voiceChunks = [];
-        voiceRecorder.ondataavailable = e => { if (e.data.size > 0) voiceChunks.push(e.data); };
+        voiceChunks = []; voiceRecorder.ondataavailable = e => { if (e.data.size > 0) voiceChunks.push(e.data); };
         voiceRecorder.onstop = () => { stream.getTracks().forEach(t => t.stop()); };
-        voiceRecorder.start(200);
-        voiceSeconds = 0;
-        voiceTargetCid = cid || '';
-        voiceTargetPath = parentPath || '';
-        document.getElementById('globalRecBar').classList.add('show');
-        document.getElementById('grecTimer').textContent = '00:00';
+        voiceRecorder.start(200); voiceSeconds = 0;
+        voiceTargetCid = cid || ''; voiceTargetPath = parentPath || '';
+        document.getElementById('globalRecBar').classList.add('show'); document.getElementById('grecTimer').textContent = '00:00';
         if (cid) document.getElementById('rmic-'+cid)?.classList.add('recording');
         else { document.getElementById('mainMicBtn')?.classList.add('recording'); document.getElementById('cmtPostBtn').disabled = true; }
         voiceTimer = setInterval(() => { voiceSeconds++; document.getElementById('grecTimer').textContent = fmtDur(voiceSeconds); if (voiceSeconds >= MAX_VOICE_SEC) sendRecording(); }, 1000);
@@ -632,8 +658,7 @@
       voiceRecorder.onstop = async () => {
         voiceRecorder.stream.getTracks().forEach(t => t.stop());
         const blob = new Blob(voiceChunks, { type: voiceRecorder.mimeType || 'audio/webm' });
-        await saveVoiceToStorage(blob, voiceSeconds);
-        resetVoiceUI();
+        await saveVoiceToStorage(blob, voiceSeconds); resetVoiceUI();
       };
       voiceRecorder.stop(); clearInterval(voiceTimer);
     };
@@ -653,9 +678,7 @@
       try {
         const snapshot = await uploadBytes(storageRef, audioBlob);
         const downloadURL = await getDownloadURL(snapshot.ref);
-        
         if (!userCache.has(currentUser)) userCache.set(currentUser, { avatar: null, name: currentUser });
-        
         if (voiceTargetCid) {
           const colPath = voiceTargetPath ? `posts/${activePostId}/comments/${voiceTargetPath}/replies` : `posts/${activePostId}/comments/${voiceTargetCid}/replies`;
           const docRef = await addDoc(collection(db, colPath), { type:'voice', username:currentUser, audioURL:downloadURL, duration, createdAt:serverTimestamp() });

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>Reels · Ultra Optimized</title>
+  <title>Reels · TikTok Style</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     * { margin:0;padding:0;box-sizing:border-box; }
@@ -14,33 +14,22 @@
       flex:1;position:relative;
       overflow-y:scroll;
       scroll-snap-type:y mandatory;
-      scroll-snap-stop:always;
       -webkit-overflow-scrolling:touch;
-      height:100%;
-      max-height:100vh;
-      max-height:100dvh;
-      overscroll-behavior:contain;
-      will-change:scroll-position;
+      height:100%;overscroll-behavior:contain;
     }
     .reel-wrapper::-webkit-scrollbar { width:0; }
 
     .reel-slide {
-      width:100%;height:100vh;
-      height:100dvh;
+      width:100%;height:100vh;height:100dvh;
       scroll-snap-align:start;
-      scroll-snap-stop:always;
       position:relative;
       display:flex;align-items:center;justify-content:center;
-      background:#000;
-      flex-shrink:0;
-      will-change:transform;
+      background:#000;flex-shrink:0;
     }
     .reel-slide video {
       width:100%;height:100%;
-      object-fit:contain;
-      background:#000;
-      position:absolute;
-      top:0;left:0;
+      object-fit:contain;background:#000;
+      position:absolute;top:0;left:0;
     }
 
     .user-tag { position:absolute;top:1rem;left:1rem;display:flex;align-items:center;gap:0.5rem;background:rgba(0,0,0,0.5);backdrop-filter:blur(10px);padding:0.4rem 0.8rem;border-radius:1.5rem;z-index:10;border:1px solid rgba(255,255,255,0.1); }
@@ -65,7 +54,14 @@
 
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 
-    /* ✅ Navbar - same as index.html */
+    /* Loading spinner at bottom */
+    .load-more-spinner {
+      position:absolute;bottom:5rem;left:50%;transform:translateX(-50%);
+      color:#fff;font-size:1.5rem;z-index:50;display:none;
+    }
+    .load-more-spinner.show { display:block;animation:spin 1s infinite; }
+
+    /* ✅ Navbar same as index.html */
     .floating-nav { 
       position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));
       left:50%;transform:translateX(-50%);
@@ -101,11 +97,9 @@
 <body>
   <div class="page" id="mainPage">
     <div class="reel-wrapper" id="reelWrapper">
-      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;color:#555;" id="loadingIndicator">
-        <i class="fas fa-spinner" style="font-size:2rem;color:#3897f0;animation:spin 1s infinite;display:block;margin-bottom:0.5rem;"></i>
-        <span style="font-size:0.7rem;">Loading reels...</span>
-      </div>
+      <div class="empty-state" id="emptyState" style="display:none;"><i class="fas fa-film"></i><p>No reels yet</p></div>
     </div>
+    <div class="load-more-spinner" id="loadSpinner"><i class="fas fa-spinner"></i></div>
     <div class="toast" id="toast"></div>
 
     <nav class="floating-nav"><div class="nav-center">
@@ -130,17 +124,21 @@
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
 
-    const allReels = [];
+    // ✅ TikTok-style: only keep track of data, render on demand
+    const reelData = [];         // All loaded reel metadata (lightweight)
+    let mountedSlides = new Set(); // Track which slide indices are in DOM
     let currentIndex = -1;
     let lastDoc = null;
     let isLoadingMore = false;
     let allLoaded = false;
     const PAGE_SIZE = 5;
     let isTransitioning = false;
+    let scrollDebounce = null;
 
     const wrapper = document.getElementById('reelWrapper');
     const toast = document.getElementById('toast');
-    const loadingIndicator = document.getElementById('loadingIndicator');
+    const loadSpinner = document.getElementById('loadSpinner');
+    const emptyState = document.getElementById('emptyState');
 
     function createSlideHTML(reel, index) {
       return `
@@ -154,11 +152,11 @@
           <div class="actions-bar">
             <button class="action-btn ${reel.liked?'liked':''}" data-action="like" data-index="${index}">
               <i class="${reel.liked?'fas':'far'} fa-heart"></i>
-              <span id="likes${index}">${reel.likes}</span>
+              <span id="likes${index}">${reel.likes||0}</span>
             </button>
             <button class="action-btn" data-action="comment" data-index="${index}">
               <i class="far fa-comment"></i>
-              <span>${reel.comments}</span>
+              <span>${reel.comments||0}</span>
             </button>
             <button class="action-btn" data-action="share" data-index="${index}">
               <i class="far fa-share-square"></i>
@@ -189,30 +187,15 @@
         const action = actionBtn.dataset.action;
         if (action === 'like') toggleLike(index);
         else if (action === 'share') shareReel(index);
-        return;
       }
     });
 
-    function loadLocalReels() {
-      const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
-      (profile.posts || []).filter(p => p.type === 'video').forEach(p => {
-        if (!allReels.find(r => r.src === p.src)) {
-          allReels.push({
-            id: 'local_' + Date.now() + Math.random(),
-            username: p.username || profile.username || '@user',
-            caption: p.caption || '',
-            src: p.src,
-            likes: p.likes || 0,
-            comments: p.comments || 0,
-            liked: false
-          });
-        }
-      });
-    }
-
-    async function fetchNextPage() {
+    // ✅ Fetch reels one batch at a time from Firebase
+    async function fetchNextBatch() {
       if (isLoadingMore || allLoaded) return;
       isLoadingMore = true;
+      loadSpinner.classList.add('show');
+      
       try {
         let q;
         if (lastDoc) {
@@ -221,20 +204,22 @@
           q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'), limit(PAGE_SIZE));
         }
         const snap = await getDocs(q);
+        
         if (snap.empty) {
           allLoaded = true;
+          loadSpinner.classList.remove('show');
           return;
         }
 
+        // ✅ Push reels one by one from this batch
         snap.forEach(doc => {
           const d = doc.data();
           const src = d.data || d.url || '';
-          const username = d.username || d.userId || '@anonymous';
           const isVideo = src && (d.type === 'reel' || d.type === 'video' || src.startsWith('data:video/'));
-          if (isVideo && !allReels.find(r => r.src === src)) {
-            allReels.push({
+          if (isVideo && !reelData.find(r => r.src === src)) {
+            reelData.push({
               id: doc.id,
-              username,
+              username: d.username || d.userId || '@anonymous',
               caption: d.caption || d.fileName || '',
               src,
               likes: d.likes || 0,
@@ -245,41 +230,46 @@
         });
 
         lastDoc = snap.docs[snap.docs.length - 1];
-        return true;
+        loadSpinner.classList.remove('show');
+        
+        // Mount next slide if needed
+        if (currentIndex >= reelData.length - 2) {
+          ensureSlideMounted(reelData.length - 1);
+        }
       } catch (e) {
         console.error('Fetch error:', e);
+        loadSpinner.classList.remove('show');
       } finally {
         isLoadingMore = false;
       }
     }
 
+    // ✅ TikTok-style scroll: debounced, loads next batch when near end
     function setupScrollHandler() {
-      let ticking = false;
       wrapper.addEventListener('scroll', () => {
-        if (!ticking) {
-          requestAnimationFrame(() => {
-            handleScroll();
-            ticking = false;
-          });
-          ticking = true;
-        }
+        // Debounce scroll
+        if (scrollDebounce) return;
+        scrollDebounce = setTimeout(() => {
+          scrollDebounce = null;
+          handleScroll();
+        }, 50);
       }, { passive: true });
     }
 
     function handleScroll() {
-      if (isTransitioning || allReels.length === 0) return;
+      if (isTransitioning || reelData.length === 0) return;
+      
       const scrollTop = wrapper.scrollTop;
       const slideHeight = wrapper.clientHeight;
       const newIndex = Math.round(scrollTop / slideHeight);
       
-      if (newIndex !== currentIndex && newIndex >= 0 && newIndex < allReels.length) {
+      if (newIndex !== currentIndex && newIndex >= 0 && newIndex < reelData.length) {
         transitionToSlide(newIndex);
       }
       
-      if (newIndex >= allReels.length - 3 && !allLoaded && !isLoadingMore) {
-        fetchNextPage().then(() => {
-          if (newIndex < allReels.length - 1) ensureSlideMounted(newIndex + 1);
-        });
+      // ✅ TikTok: fetch more when 2 slides away from end
+      if (newIndex >= reelData.length - 2 && !allLoaded && !isLoadingMore) {
+        fetchNextBatch();
       }
     }
 
@@ -288,32 +278,32 @@
       isTransitioning = true;
       const oldIndex = currentIndex;
       currentIndex = newIndex;
+
       if (oldIndex >= 0) pauseVideo(oldIndex);
 
-      requestAnimationFrame(() => {
-        ensureSlideMounted(newIndex);
-        if (newIndex > 0) ensureSlideMounted(newIndex - 1);
-        if (newIndex < allReels.length - 1) ensureSlideMounted(newIndex + 1);
-        requestAnimationFrame(() => {
-          playVideo(newIndex);
-          cleanupDistantSlides(newIndex);
-          isTransitioning = false;
-        });
-      });
+      // Ensure current + neighbors exist
+      ensureSlideMounted(newIndex);
+      if (newIndex > 0) ensureSlideMounted(newIndex - 1);
+      if (newIndex < reelData.length - 1) ensureSlideMounted(newIndex + 1);
+
+      // Play current video
+      setTimeout(() => {
+        playVideo(newIndex);
+        cleanupDistantSlides(newIndex);
+        isTransitioning = false;
+      }, 100);
     }
 
+    // ✅ Mount single slide (TikTok: only when needed)
     function ensureSlideMounted(index) {
-      if (index < 0 || index >= allReels.length) return;
-      if (!document.getElementById('slide' + index)) {
-        mountSlide(index);
-      }
-    }
-
-    function mountSlide(index) {
+      if (index < 0 || index >= reelData.length) return;
+      if (mountedSlides.has(index)) return;
+      
       const temp = document.createElement('div');
-      temp.innerHTML = createSlideHTML(allReels[index], index);
+      temp.innerHTML = createSlideHTML(reelData[index], index);
       const slide = temp.firstElementChild;
       wrapper.appendChild(slide);
+      mountedSlides.add(index);
     }
 
     function removeSlideElement(index) {
@@ -326,33 +316,34 @@
         video.load();
       }
       slide.remove();
+      mountedSlides.delete(index);
     }
 
     function cleanupDistantSlides(activeIndex) {
-      const slides = wrapper.querySelectorAll('.reel-slide');
-      const allowed = new Set([activeIndex - 1, activeIndex, activeIndex + 1]);
-      for (const slide of slides) {
-        const idx = parseInt(slide.dataset.index);
-        if (!allowed.has(idx)) removeSlideElement(idx);
-      }
+      // Keep only: active, active-1, active+1
+      const keep = new Set([activeIndex - 1, activeIndex, activeIndex + 1]);
+      const toRemove = [];
+      mountedSlides.forEach(idx => {
+        if (!keep.has(idx)) toRemove.push(idx);
+      });
+      toRemove.forEach(idx => removeSlideElement(idx));
     }
 
     function playVideo(index) {
       const video = document.getElementById('video' + index);
       const overlay = document.getElementById('overlay' + index);
-      if (!video || index >= allReels.length) return;
-      const targetSrc = allReels[index].src;
-      if (video.src !== targetSrc || !video.src) {
+      if (!video || index >= reelData.length) return;
+      
+      const targetSrc = reelData[index].src;
+      if (video.getAttribute('src') !== targetSrc || !video.src) {
         video.src = targetSrc;
       }
-      const playPromise = video.play();
-      if (playPromise !== undefined) {
-        playPromise.then(() => {
-          if (overlay) overlay.style.display = 'none';
-        }).catch(() => {
-          if (overlay) overlay.style.display = 'none';
-        });
-      }
+      
+      video.play().then(() => {
+        if (overlay) overlay.style.display = 'none';
+      }).catch(() => {
+        if (overlay) overlay.style.display = 'none';
+      });
     }
 
     function pauseVideo(index) {
@@ -376,25 +367,31 @@
     }
 
     async function toggleLike(index) {
-      const reel = allReels[index];
+      const reel = reelData[index];
+      if (!reel) return;
       reel.liked = !reel.liked;
       reel.likes += reel.liked ? 1 : -1;
+      
       const likesSpan = document.getElementById('likes' + index);
       if (likesSpan) likesSpan.textContent = reel.likes;
+      
       const slide = document.getElementById('slide' + index);
       const likeBtn = slide?.querySelector('[data-action="like"]');
       if (likeBtn) {
         likeBtn.classList.toggle('liked', reel.liked);
         likeBtn.querySelector('i').className = reel.liked ? 'fas fa-heart' : 'far fa-heart';
       }
+      
       showToast(reel.liked ? 'Liked! ❤️' : 'Unliked');
+      
       if (!reel.id.startsWith('local_')) {
         try { await updateDoc(doc(db, 'posts', reel.id), { likes: increment(reel.liked ? 1 : -1) }); } catch(e) {}
       }
     }
 
     async function shareReel(index) {
-      const reel = allReels[index];
+      const reel = reelData[index];
+      if (!reel) return;
       if (navigator.share) {
         try { await navigator.share({ title: `${reel.username}'s reel`, text: reel.caption || 'Check out this reel!' }); } catch(e) {}
       } else {
@@ -409,40 +406,44 @@
       toast._t = setTimeout(() => toast.classList.remove('show'), 2000);
     }
 
-    // ✅ INIT - fixed loading
+    // ✅ TikTok-style init: load first batch, mount only 3 slides
     async function init() {
-      // Load local reels first for instant display
-      loadLocalReels();
-      
-      // Fetch from Firestore
-      await fetchNextPage();
-      
-      // Remove loading indicator
-      if (loadingIndicator) loadingIndicator.remove();
-      
-      if (allReels.length === 0) {
-        wrapper.innerHTML = `<div class="empty-state"><i class="fas fa-film"></i><p>No reels yet</p></div>`;
+      // Load local reels instantly
+      const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+      (profile.posts || []).filter(p => p.type === 'video').forEach(p => {
+        if (!reelData.find(r => r.src === p.src)) {
+          reelData.push({
+            id: 'local_' + Date.now() + Math.random(),
+            username: p.username || profile.username || '@user',
+            caption: p.caption || '',
+            src: p.src,
+            likes: p.likes || 0,
+            comments: p.comments || 0,
+            liked: false
+          });
+        }
+      });
+
+      // Fetch first batch from Firebase
+      await fetchNextBatch();
+
+      if (reelData.length === 0) {
+        emptyState.style.display = 'flex';
         return;
       }
 
       setupScrollHandler();
-      
-      // Mount first 3 slides
-      const count = Math.min(3, allReels.length);
-      const fragment = document.createDocumentFragment();
+
+      // ✅ Mount only first 3 slides (TikTok: not all at once)
+      const count = Math.min(3, reelData.length);
       for (let i = 0; i < count; i++) {
-        const temp = document.createElement('div');
-        temp.innerHTML = createSlideHTML(allReels[i], i);
-        fragment.appendChild(temp.firstElementChild);
+        ensureSlideMounted(i);
       }
-      wrapper.appendChild(fragment);
-      wrapper.scrollTop = 0;
       
-      // Play first video after DOM ready
-      setTimeout(() => {
-        currentIndex = 0;
-        playVideo(0);
-      }, 300);
+      wrapper.scrollTop = 0;
+      currentIndex = 0;
+      
+      setTimeout(() => playVideo(0), 200);
     }
 
     init();

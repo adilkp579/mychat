@@ -18,10 +18,10 @@
     }
     .chat-back {width:2.2rem;height:2.2rem;border-radius:50%;background:rgba(255,255,255,0.08);display:none;align-items:center;justify-content:center;color:#fff;font-size:0.9rem;cursor:pointer;border:none;}
     .chat-back.show {display:flex;}
-    .chat-avatar {width:36px;height:36px;border-radius:50%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;font-size:0.85rem;color:#fff;flex-shrink:0;overflow:hidden;}
+    .chat-avatar {width:36px;height:36px;border-radius:50%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;font-size:0.85rem;color:#fff;flex-shrink:0;overflow:hidden;cursor:pointer;}
     .chat-avatar img {width:100%;height:100%;object-fit:cover;}
-    .chat-partner-info {flex:1;min-width:0;}
-    .chat-partner-name {font-size:0.9rem;font-weight:600;color:#fff;}
+    .chat-partner-info {flex:1;min-width:0;cursor:pointer;}
+    .chat-partner-name {font-size:0.9rem;font-weight:600;color:#fff;cursor:pointer;}
     .chat-partner-status {font-size:0.65rem;color:#4ade80;display:flex;align-items:center;gap:0.2rem;}
     .chat-partner-status .dot {width:5px;height:5px;border-radius:50%;background:#4ade80;display:inline-block;}
 
@@ -57,7 +57,8 @@
     .user-avatar img {width:100%;height:100%;object-fit:cover;}
     .user-info {flex:1;min-width:0;}
     .user-name-row {display:flex;align-items:center;justify-content:space-between;}
-    .user-name {font-size:0.85rem;color:#fff;font-weight:500;}
+    .user-name {font-size:0.85rem;color:#fff;font-weight:500;cursor:pointer;}
+    .user-name:hover {color:#3897f0;}
     .user-time {font-size:0.6rem;color:#555;flex-shrink:0;}
     .user-msg-row {display:flex;align-items:center;justify-content:space-between;margin-top:2px;}
     .user-last-msg {font-size:0.7rem;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;}
@@ -153,7 +154,7 @@
       transform:translateX(-50%);
       width:92%;
       max-width:500px;
-      background:rgba(10, 10, 10, 0.1); /* 90% transparent */
+      background:rgba(10, 10, 10, 0.1);
       backdrop-filter:blur(20px);
       -webkit-backdrop-filter:blur(20px);
       border-radius:2.5rem;
@@ -273,8 +274,11 @@
   <div class="page" id="mainPage" style="display:none;">
     <div class="chat-header">
       <button class="chat-back" id="backBtn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
-      <div class="chat-avatar" id="partnerAvatar"><i class="fas fa-comment-dots"></i></div>
-      <div class="chat-partner-info"><div class="chat-partner-name" id="partnerName">Chats</div><div class="chat-partner-status" id="partnerStatus"></div></div>
+      <div class="chat-avatar" id="partnerAvatar" onclick="goToPartnerProfile()"><i class="fas fa-comment-dots"></i></div>
+      <div class="chat-partner-info" id="partnerInfo" onclick="goToPartnerProfile()">
+        <div class="chat-partner-name" id="partnerName">Chats</div>
+        <div class="chat-partner-status" id="partnerStatus"></div>
+      </div>
       <div class="call-btns" id="callBtns">
         <button class="call-btn audio-call" onclick="startCall('audio')"><i class="fas fa-phone"></i></button>
         <button class="call-btn video-call" onclick="startCall('video')"><i class="fas fa-video"></i></button>
@@ -348,6 +352,13 @@
     
     function cleanName(u){return(u||'').replace(/^@/,'');}
     function formatDuration(s){const m=Math.floor(s/60);const sec=Math.floor(s%60);return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');}
+    
+    // ✅ Go to partner profile
+    window.goToPartnerProfile = function() {
+      if (chatPartner) {
+        window.location.href = 'profile.html?user=' + encodeURIComponent(chatPartner);
+      }
+    };
     
     async function loadAllUsers(){
       allUsersList=[];userProfiles={};
@@ -824,10 +835,10 @@
         const dn=dispName(c.username);
         return`
           <div class="user-list-item ${chatPartner===c.username?'active':''}" onclick="openChat('${c.username}')">
-            <div class="user-avatar">${avatarHTML(c.username)}</div>
+            <div class="user-avatar" onclick="event.stopPropagation();window.location.href='profile.html?user=${encodeURIComponent(c.username)}'">${avatarHTML(c.username)}</div>
             <div class="user-info">
               <div class="user-name-row">
-                <span class="user-name">${dn}</span>
+                <span class="user-name" onclick="event.stopPropagation();window.location.href='profile.html?user=${encodeURIComponent(c.username)}'">${dn}</span>
                 <span class="user-time">${ts}</span>
               </div>
               <div class="user-msg-row">

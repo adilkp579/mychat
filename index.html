@@ -102,7 +102,7 @@
     .grec-cancel { background:rgba(255,255,255,0.2);color:#fff; }
     .grec-send { background:#fff;color:#ef4444; }
 
-    /* Glass effect floating navbar */
+    /* Glass effect floating navbar with 90% transparency */
     .floating-nav { 
       position:fixed;
       bottom:max(1rem,env(safe-area-inset-bottom,1rem));
@@ -110,7 +110,7 @@
       transform:translateX(-50%);
       width:92%;
       max-width:500px;
-      background:rgba(26, 26, 26, 0.7);
+      background:rgba(10, 10, 10, 0.1); /* 90% transparent */
       backdrop-filter:blur(20px);
       -webkit-backdrop-filter:blur(20px);
       border-radius:2.5rem;
@@ -118,15 +118,15 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      border:1px solid rgba(255, 255, 255, 0.1);
+      border:1px solid rgba(255, 255, 255, 0.05);
       z-index:100;
-      box-shadow:0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      box-shadow:0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.03);
       transition: all 0.3s ease;
     }
     
     .floating-nav:hover {
-      background:rgba(26, 26, 26, 0.8);
-      box-shadow:0 12px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      background:rgba(10, 10, 10, 0.15);
+      box-shadow:0 12px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
     }
     
     .nav-center { 
@@ -139,7 +139,7 @@
     }
     
     .nav-center a { 
-      color:rgba(255, 255, 255, 0.7);
+      color:rgba(255, 255, 255, 0.8);
       font-size:1.3rem;
       display:flex;
       align-items:center;
@@ -155,7 +155,7 @@
     
     .nav-center a:hover {
       color:#fff;
-      background:rgba(255, 255, 255, 0.1);
+      background:rgba(255, 255, 255, 0.15);
       transform: translateY(-2px);
     }
     
@@ -178,8 +178,8 @@
     
     .nav-center a.active { 
       color:#fff;
-      background:rgba(255, 255, 255, 0.15);
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+      background:rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
     }
     
     .nav-upload,.nav-search { display:none !important; }
@@ -189,7 +189,6 @@
 
     @media (min-width:1024px) {
       .top-icons{display:none}.nav-upload,.nav-search{display:flex!important}
-      /* Glass effect for desktop sidebar */
       .floating-nav{
         position:fixed;
         top:50%;
@@ -202,11 +201,11 @@
         border-radius:2.5rem;
         padding:1rem 0.6rem;
         flex-direction:column;
-        background:rgba(26, 26, 26, 0.7);
+        background:rgba(10, 10, 10, 0.1);
         backdrop-filter:blur(20px);
         -webkit-backdrop-filter:blur(20px);
-        border:1px solid rgba(255, 255, 255, 0.1);
-        box-shadow:0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        border:1px solid rgba(255, 255, 255, 0.05);
+        box-shadow:0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.03);
       }
       .nav-center{flex-direction:column;gap:1.2rem;max-width:none}
       .nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
@@ -222,7 +221,7 @@
         width:94%;
         padding:0.5rem 0.8rem;
         bottom:max(0.8rem,env(safe-area-inset-bottom,0.8rem));
-        background:rgba(26, 26, 26, 0.7);
+        background:rgba(10, 10, 10, 0.1);
         backdrop-filter:blur(20px);
         -webkit-backdrop-filter:blur(20px);
       }
@@ -376,7 +375,6 @@
       const p = JSON.parse(localStorage.getItem('userProfile')||'{}'); return [...(p.friends||[]).map(f=>({name:f.name,type:'friend'})),...(p.besties||[]).map(b=>({name:b.name,type:'bestie'}))];
     }
 
-    // ✅ ONLY IMAGE POSTS - skip videos
     function isImagePost(src, type) {
       if (!src) return false;
       if (type === 'reel' || type === 'video') return false;
@@ -407,7 +405,6 @@
           const dt = doc.data();
           const src = dt.data || dt.url || '';
           const type = dt.type || '';
-          // ✅ Only push image posts
           if (src && isImagePost(src, type)) {
             posts.push({
               id: doc.id,
@@ -467,16 +464,12 @@
       }, { passive: true });
     }
 
-    // ... (rest of comments, voice, likes, share functions remain the same)
-
     window.openComments = async function(pid) {
       activePostId = pid; loadedThreads.clear();
       document.getElementById('commentsOverlay').classList.add('show'); document.getElementById('cmtInput').value = '';
       await renderTopLevelComments(pid);
     };
     window.closeComments = function() { document.getElementById('commentsOverlay').classList.remove('show'); cancelRecording(); activePostId = null; loadedThreads.clear(); };
-
-    // (All comment functions remain unchanged from your code)
 
     window.toggleLike = async function(pid) {
       const b = document.getElementById('likeBtn-'+pid), l = document.getElementById('likes-'+pid);

@@ -145,7 +145,7 @@
     .loading-screen i {font-size:2rem;color:#3897f0;animation:spin 1s infinite;}
     @keyframes spin {from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 
-    /* Glass effect floating navbar */
+    /* Glass effect floating navbar with 90% transparency */
     .floating-nav { 
       position:fixed;
       bottom:max(1rem,env(safe-area-inset-bottom,1rem));
@@ -153,7 +153,7 @@
       transform:translateX(-50%);
       width:92%;
       max-width:500px;
-      background:rgba(10, 10, 10, 0.7);
+      background:rgba(10, 10, 10, 0.1); /* 90% transparent */
       backdrop-filter:blur(20px);
       -webkit-backdrop-filter:blur(20px);
       border-radius:2.5rem;
@@ -161,15 +161,15 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      border:1px solid rgba(255, 255, 255, 0.08);
+      border:1px solid rgba(255, 255, 255, 0.05);
       z-index:100;
-      box-shadow:0 8px 32px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      box-shadow:0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.03);
       transition: all 0.3s ease;
     }
     
     .floating-nav:hover {
-      background:rgba(10, 10, 10, 0.85);
-      box-shadow:0 12px 40px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      background:rgba(10, 10, 10, 0.15);
+      box-shadow:0 12px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
     }
     
     .floating-nav.hidden {display:none;}
@@ -177,7 +177,7 @@
     .nav-center {display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem;}
     
     .nav-center a {
-      color:rgba(255, 255, 255, 0.6);
+      color:rgba(255, 255, 255, 0.8);
       font-size:1.3rem;
       display:flex;
       align-items:center;
@@ -193,7 +193,7 @@
     
     .nav-center a:hover {
       color:#fff;
-      background:rgba(255, 255, 255, 0.1);
+      background:rgba(255, 255, 255, 0.15);
       transform: translateY(-2px);
     }
     
@@ -212,8 +212,8 @@
     
     .nav-center a.active {
       color:#fff;
-      background:rgba(255, 255, 255, 0.15);
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+      background:rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
     }
     
     .nav-center a.active::before {
@@ -236,11 +236,11 @@
         border-radius:2.5rem;
         padding:1rem 0.6rem;
         flex-direction:column;
-        background:rgba(10, 10, 10, 0.7);
+        background:rgba(10, 10, 10, 0.1);
         backdrop-filter:blur(20px);
         -webkit-backdrop-filter:blur(20px);
-        border:1px solid rgba(255, 255, 255, 0.08);
-        box-shadow:0 8px 32px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        border:1px solid rgba(255, 255, 255, 0.05);
+        box-shadow:0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.03);
       }
       .floating-nav.hidden{display:flex!important}
       .nav-center{flex-direction:column;gap:1.2rem;max-width:none}
@@ -259,7 +259,7 @@
         width:94%;
         padding:0.5rem 0.8rem;
         bottom:max(0.8rem,env(safe-area-inset-bottom,0.8rem));
-        background:rgba(10, 10, 10, 0.7);
+        background:rgba(10, 10, 10, 0.1);
         backdrop-filter:blur(20px);
         -webkit-backdrop-filter:blur(20px);
       }
@@ -324,7 +324,6 @@
     
     async function fetchTurnServers(){try{const r=await fetch("https://adilchat.metered.live/api/v1/turn/credentials?apiKey=b62386e600aa4fd1a57f91dd569043e6d713");const ice=await r.json();if(ice&&ice.length>0)servers={iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:"stun:stun1.l.google.com:19302"},...ice],iceCandidatePoolSize:10};}catch(e){}}
     
-    // Initialize app
     document.getElementById('loadingScreen').style.display='none';
     document.getElementById('mainPage').style.display='flex';
     
@@ -398,7 +397,6 @@
       return p?p.name:cleanName(u);
     }
     
-    // Voice recording functions
     window.toggleVoice=function(){
       if(isRecording){window.sendVoice();}else{startVoice();}
     };
@@ -482,7 +480,6 @@
       document.getElementById('chatInput').style.display='block';
     };
     
-    // Voice playback
     window.playVoice=function(el){
       const audioUrl=el.getAttribute('data-audio');
       const btn=el.querySelector('.voice-play-btn i');
@@ -522,7 +519,6 @@
       }
     };
     
-    // WebRTC functions (keep existing)
     async function createPeerConnection(){
       if(peerConnection){peerConnection.close();peerConnection=null;}
       pendingIceCandidates=[];
@@ -721,7 +717,6 @@
       document.getElementById('localVideo').style.display=isVideoOff?'none':'block';
     };
     
-    // Contact list modal
     window.showNewChatModal=function(){
       document.getElementById('newChatModal').classList.add('show');
       document.getElementById('contactSearch').value='';
@@ -762,7 +757,6 @@
       if(e.target===this)closeNewChatModal();
     });
     
-    // 🔥 FIXED: Chat list setup - now uses more reliable snapshot listener
     function setupRealtimeChatList(){
       if(unsubChatList)unsubChatList();
       unsubChatList=onSnapshot(collection(db,'chats'),(snap)=>{
@@ -856,7 +850,6 @@
       return d.toLocaleDateString([],{month:'short',day:'numeric'});
     }
     
-    // 🔥 FIXED: Open chat with better message loading
     window.openChat=function(u){
       chatPartner=u;
       chatId=[currentUserId,u.replace('@','')].sort().join('_');
@@ -872,7 +865,6 @@
       document.getElementById('chatInputArea').classList.add('show');
       document.getElementById('floatingNav').classList.add('hidden');
       
-      // Clear existing messages
       const c=document.getElementById('messagesContainer');
       c.querySelectorAll('.message-wrapper').forEach(el=>el.remove());
       document.getElementById('emptyChat').style.display='flex';
@@ -904,14 +896,12 @@
       setupRealtimeChatList();
     };
     
-    // 🔥 FIXED: Message listener with better error handling and initial load
     function listenToMessages(){
       if(unsubMessages){unsubMessages();unsubMessages=null;}
       
       const messagesRef=collection(db,'chats',chatId,'messages');
       const q=query(messagesRef,orderBy('createdAt','asc'));
       
-      // First, load existing messages
       getDocs(q).then(snap=>{
         const c=document.getElementById('messagesContainer');
         const ec=document.getElementById('emptyChat');
@@ -920,9 +910,7 @@
           ec.style.display='flex';
         } else {
           ec.style.display='none';
-          // Clear existing messages first
           c.querySelectorAll('.message-wrapper').forEach(el=>el.remove());
-          // Render all messages
           snap.forEach(doc=>{
             renderMsg(doc.id, doc.data());
           });
@@ -932,7 +920,6 @@
         console.error('Error loading messages:',err);
       });
       
-      // Then set up real-time listener for new messages
       unsubMessages=onSnapshot(q,(snap)=>{
         const c=document.getElementById('messagesContainer');
         const ec=document.getElementById('emptyChat');
@@ -959,7 +946,6 @@
       const tb=document.getElementById('typingBubble');
       const isSent=msg.sender===currentUserId;
       
-      // Skip if message already exists
       if(document.getElementById('msg-'+id))return;
       
       const w=document.createElement('div');
@@ -1002,10 +988,8 @@
         `;
       }
       
-      // Insert before typing bubble
       c.insertBefore(w, tb);
       
-      // Mark as seen if it's a received message
       if(!isSent && !msg.seen){
         setDoc(doc(db,'chats',chatId,'messages',id),{seen:true},{merge:true}).catch(()=>{});
       }
@@ -1019,7 +1003,6 @@
       return h;
     }
     
-    // Send image
     window.sendImage=async function(e){
       const file=e.target.files[0];
       if(!file||!chatId)return;
@@ -1043,7 +1026,6 @@
       e.target.value='';
     };
     
-    // Send text message
     window.sendMessage=async function(){
       const input=document.getElementById('chatInput');
       const text=input.value.trim();
@@ -1067,7 +1049,6 @@
       }
     };
     
-    // Typing indicator
     function listenToTyping(){
       const pid=chatPartner.replace('@','');
       onSnapshot(doc(db,'chats',chatId,'typing',pid),snap=>{

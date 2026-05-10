@@ -55,34 +55,126 @@
 
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 
+    /* Glass effect floating navbar with 90% transparency */
     .floating-nav { 
-      position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));
-      left:50%;transform:translateX(-50%);
-      width:92%;max-width:500px;
-      background:#1a1a1a;
-      border-radius:2.5rem;padding:0.7rem 1.5rem;
-      display:flex;align-items:center;justify-content:center;
-      border:1px solid #333;
-      box-shadow:0 4px 20px rgba(0,0,0,0.5);z-index:100;
+      position:fixed;
+      bottom:max(1rem,env(safe-area-inset-bottom,1rem));
+      left:50%;
+      transform:translateX(-50%);
+      width:92%;
+      max-width:500px;
+      background:rgba(10, 10, 10, 0.1);
+      backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px);
+      border-radius:2.5rem;
+      padding:0.7rem 1.5rem;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:1px solid rgba(255, 255, 255, 0.05);
+      z-index:100;
+      box-shadow:0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+      transition: all 0.3s ease;
     }
-    .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
-    .nav-center a { color:#888;font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;position:relative; }
-    .nav-center a::before { content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:4px;height:4px;border-radius:50%;background:#fff;transition:all 0.3s; }
-    .nav-center a.active { color:#fff;background:#333; }
-    .nav-center a.active::before { transform:translateX(-50%) scale(1); }
+    
+    .floating-nav:hover {
+      background:rgba(10, 10, 10, 0.15);
+      box-shadow:0 12px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+    
+    .nav-center { 
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      width:100%;
+      max-width:380px;
+      gap:0.3rem;
+    }
+    
+    .nav-center a { 
+      color:rgba(255, 255, 255, 0.8);
+      font-size:1.3rem;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:2.5rem;
+      height:2.5rem;
+      border-radius:50%;
+      transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      text-decoration:none;
+      position:relative;
+      background:transparent;
+    }
+    
+    .nav-center a:hover {
+      color:#fff;
+      background:rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+    
+    .nav-center a::before { 
+      content:'';
+      position:absolute;
+      bottom:-2px;
+      left:50%;
+      transform:translateX(-50%) scale(0);
+      width:4px;
+      height:4px;
+      border-radius:50%;
+      background:#fff;
+      transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .nav-center a.active { 
+      color:#fff;
+      background:rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+    }
+    
+    .nav-center a.active::before { 
+      transform:translateX(-50%) scale(1);
+    }
+    
     .nav-upload, .nav-search { display:none !important; }
 
     @media (min-width:1024px) {
       .nav-upload,.nav-search{display:flex!important}
-      .floating-nav{position:fixed;top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column}
-      .nav-center{flex-direction:column;gap:1.2rem;max-width:none}.nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
-      .nav-center a::before{bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0)}.nav-center a.active::before{transform:translateY(-50%) scale(1)}
+      .floating-nav{
+        position:fixed;
+        top:50%;
+        left:1.5rem;
+        bottom:auto;
+        transform:translateY(-50%);
+        width:3.8rem;
+        height:auto;
+        max-width:none;
+        border-radius:2.5rem;
+        padding:1rem 0.6rem;
+        flex-direction:column;
+        background:rgba(10, 10, 10, 0.1);
+        backdrop-filter:blur(20px);
+        -webkit-backdrop-filter:blur(20px);
+        border:1px solid rgba(255, 255, 255, 0.05);
+        box-shadow:0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+      }
+      .nav-center{flex-direction:column;gap:1.2rem;max-width:none}
+      .nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
+      .nav-center a::before{bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0)}
+      .nav-center a.active::before{transform:translateY(-50%) scale(1)}
       .reel-wrapper{margin-left:5rem}
       .reel-slide{max-width:500px;margin:0 auto}
       .actions-bar{right:2rem;bottom:35%}
     }
     @media (max-width:380px) {
-      .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:max(0.8rem,env(safe-area-inset-bottom,0.8rem))}.nav-center a{font-size:1.1rem;width:2rem;height:2rem}
+      .floating-nav{
+        width:94%;
+        padding:0.5rem 0.8rem;
+        bottom:max(0.8rem,env(safe-area-inset-bottom,0.8rem));
+        background:rgba(10, 10, 10, 0.1);
+        backdrop-filter:blur(20px);
+        -webkit-backdrop-filter:blur(20px);
+      }
+      .nav-center a{font-size:1.1rem;width:2rem;height:2rem}
       .actions-bar{right:0.5rem;gap:1.2rem;bottom:30%}
     }
   </style>
@@ -94,15 +186,17 @@
     </div>
     <div class="toast" id="toast"></div>
 
-    <nav class="floating-nav"><div class="nav-center">
-      <a href="index.html"><i class="fas fa-home"></i></a>
-      <a href="web.html"><i class="fas fa-globe"></i></a>
-      <a href="reel.html" class="active"><i class="fas fa-film"></i></a>
-      <a href="chat.html"><i class="fas fa-comment-dots"></i></a>
-      <a href="profile.html"><i class="fas fa-user"></i></a>
-      <a href="upload.html" class="nav-upload"><i class="fas fa-plus"></i></a>
-      <a href="search.html" class="nav-search"><i class="fas fa-search"></i></a>
-    </div></nav>
+    <nav class="floating-nav">
+      <div class="nav-center">
+        <a href="index.html"><i class="fas fa-home"></i></a>
+        <a href="web.html"><i class="fas fa-globe"></i></a>
+        <a href="reel.html" class="active"><i class="fas fa-film"></i></a>
+        <a href="chat.html"><i class="fas fa-comment-dots"></i></a>
+        <a href="profile.html"><i class="fas fa-user"></i></a>
+        <a href="upload.html" class="nav-upload"><i class="fas fa-plus"></i></a>
+        <a href="search.html" class="nav-search"><i class="fas fa-search"></i></a>
+      </div>
+    </nav>
   </div>
 
   <script>

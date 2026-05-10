@@ -15,11 +15,66 @@
     @keyframes livePulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.7)} 50%{box-shadow:0 0 0 10px rgba(239,68,68,0)} }
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
     
+    /* ✅ Top left heart icon - MOBILE ONLY */
+    .top-left-heart {
+      position:fixed;
+      top:max(1rem,env(safe-area-inset-top,1rem));
+      left:max(1rem,env(safe-area-inset-left,1rem));
+      z-index:200;
+      width:2.4rem;
+      height:2.4rem;
+      background:rgba(239,68,68,0.2);
+      backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px);
+      border-radius:50%;
+      color:#ef4444;
+      font-size:1rem;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-decoration:none;
+      border:1px solid rgba(239,68,68,0.3);
+      transition:all 0.3s;
+      cursor:pointer;
+      animation:pulse 2s infinite;
+    }
+    .top-left-heart:hover {
+      background:rgba(239,68,68,0.3);
+      transform:scale(1.1);
+    }
+    
+    /* ✅ Top right account icon - MOBILE ONLY */
+    .top-right-account {
+      position:fixed;
+      top:max(1rem,env(safe-area-inset-top,1rem));
+      right:max(1rem,env(safe-area-inset-right,1rem));
+      z-index:200;
+      width:2.4rem;
+      height:2.4rem;
+      background:rgba(255,255,255,0.1);
+      backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px);
+      border-radius:50%;
+      color:#fff;
+      font-size:1rem;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-decoration:none;
+      border:1px solid rgba(255,255,255,0.15);
+      transition:all 0.3s;
+      cursor:pointer;
+    }
+    .top-right-account:hover {
+      background:rgba(255,255,255,0.2);
+      transform:scale(1.05);
+    }
+    
     /* ✅ 70% - Camera section */
     .camera-section {
       height:70%;
       display:flex;flex-direction:column;align-items:center;
-      padding:0.3rem 1rem 0 1rem;color:#fff;
+      padding:3rem 1rem 0 1rem;color:#fff;
     }
     
     .online-counter { display:flex;align-items:center;gap:0.3rem;color:#4ade80;font-size:0.6rem;flex-shrink:0; }
@@ -147,7 +202,7 @@
       align-items:center;
       justify-content:space-between;
       width:100%;
-      max-width:450px;
+      max-width:380px;
       gap:0.3rem;
     }
     
@@ -195,27 +250,19 @@
       transform:translateX(-50%) scale(1);
     }
     
-    /* Heart icon in navbar */
-    .nav-center a.nav-heart {
-      color:rgba(239, 68, 68, 0.8);
-    }
-    .nav-center a.nav-heart:hover {
-      color:#ef4444;
-      background:rgba(239, 68, 68, 0.15);
-    }
-    .nav-center a.nav-heart::before {
-      background:#ef4444;
-    }
+    /* Heart icon in navbar - DESKTOP ONLY */
+    .nav-heart, .nav-account { display:none !important; }
     
-    /* Account icon in navbar */
-    .nav-center a.nav-account {
-      color:rgba(255, 255, 255, 0.8);
-    }
-
-    /* Hide upload & search */
+    /* Hide upload & search completely */
     .nav-upload, .nav-search { display:none !important; }
 
     @media (min-width:1024px) {
+      /* Show heart & account in desktop navbar */
+      .nav-heart, .nav-account { display:flex !important; }
+      
+      /* Hide mobile corner icons on desktop */
+      .top-left-heart, .top-right-account { display:none !important; }
+      
       .floating-nav{
         position:fixed;
         top:50%;
@@ -234,10 +281,27 @@
         border:1px solid rgba(255, 255, 255, 0.05);
         box-shadow:0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.03);
       }
-      .nav-center{flex-direction:column;gap:1.2rem;max-width:none}
+      .nav-center{
+        flex-direction:column;
+        gap:1.2rem;
+        max-width:none;
+      }
       .nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
       .nav-center a::before{bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0)}
       .nav-center a.active::before{transform:translateY(-50%) scale(1)}
+      
+      /* Heart icon styling for desktop navbar */
+      .nav-center a.nav-heart {
+        color:rgba(239, 68, 68, 0.8);
+      }
+      .nav-center a.nav-heart:hover {
+        color:#ef4444;
+        background:rgba(239, 68, 68, 0.15);
+      }
+      .nav-center a.nav-heart::before {
+        background:#ef4444;
+      }
+      
       .page{padding-left:5rem}
       .camera-section{padding:1rem 2rem 0 2rem;height:75%}
       .buttons-section{height:10%}
@@ -245,7 +309,7 @@
       .my-camera{max-height:150px}
     }
     @media (max-width:380px) { 
-      .camera-section{padding:0.2rem 0.5rem 0 0.5rem}
+      .camera-section{padding:3rem 0.5rem 0 0.5rem}
       .btn{height:29px;font-size:0.63rem;padding:0 0.55rem}
       .start-button,.live-button{min-width:58px}.stop-button,.next-button{min-width:50px}
       .mic-button{width:29px;height:29px}
@@ -260,6 +324,7 @@
       .nav-center a{font-size:1.1rem;width:2rem;height:2rem}
       .buttons-container{gap:0.25rem}
       .my-camera{max-height:85px}
+      .top-left-heart,.top-right-account{width:2rem;height:2rem;font-size:0.85rem}
     }
   </style>
 </head>
@@ -274,6 +339,16 @@
   </div>
 
   <div class="page" id="mainPage" style="display:none;">
+    <!-- ✅ Top Left Heart Icon - MOBILE ONLY -->
+    <a href="hart.html" class="top-left-heart" title="Likes">
+      <i class="fas fa-heart"></i>
+    </a>
+
+    <!-- ✅ Top Right Account Icon - MOBILE ONLY -->
+    <a href="account.html" class="top-right-account" title="Account">
+      <i class="fas fa-user-circle"></i>
+    </a>
+
     <!-- ✅ 70% - Camera -->
     <div class="camera-section">
       <div class="online-counter"><div class="online-dot"></div><span id="onlineCount">0 online</span></div>
@@ -306,7 +381,7 @@
     <!-- ✅ 20% - Spacer for navbar -->
     <div class="nav-spacer"></div>
     
-    <!-- ✅ Navbar with heart & account, NO search/upload -->
+    <!-- ✅ Navbar - Heart & Account only on Desktop -->
     <nav class="floating-nav">
       <div class="nav-center">
         <a href="index.html"><i class="fas fa-home"></i></a>

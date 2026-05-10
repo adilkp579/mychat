@@ -303,10 +303,56 @@
       }
       
       .page{padding-left:5rem}
-      .camera-section{padding:1rem 2rem 0 2rem;height:75%}
-      .buttons-section{height:10%}
+      
+      /* ✅ DESKTOP: Camera section adjustments */
+      .camera-section{
+        padding:1rem 2rem 0 2rem;
+        height:75%;
+        max-width:900px;
+        margin:0 auto;
+        width:100%;
+      }
+      
+      /* ✅ DESKTOP: Equal size cameras side by side */
+      .camera-container {
+        max-width:900px;
+        gap:1rem;
+        align-items:stretch;
+      }
+      
+      .stranger-camera {
+        width:50%;
+        height:100%;
+        border-radius:1.5rem;
+      }
+      
+      .my-camera {
+        width:50%;
+        max-height:none;
+        height:100%;
+        aspect-ratio:auto;
+        border-radius:1.5rem;
+      }
+      
+      .stranger-placeholder i { font-size:3rem; }
+      .stranger-placeholder span { font-size:0.8rem; }
+      .my-placeholder { font-size:0.7rem; }
+      .my-placeholder i { font-size:1.5rem; }
+      
+      .camera-labels {
+        max-width:900px;
+      }
+      .stranger-label-outside, .you-label-outside {
+        font-size:0.6rem;
+      }
+      
+      .buttons-section{
+        height:10%;
+        max-width:900px;
+        margin:0 auto;
+        width:100%;
+      }
       .nav-spacer{height:15%}
-      .my-camera{max-height:150px}
     }
     @media (max-width:380px) { 
       .camera-section{padding:3rem 0.5rem 0 0.5rem}

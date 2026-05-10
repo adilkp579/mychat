@@ -15,6 +15,33 @@
     @keyframes livePulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.7)} 50%{box-shadow:0 0 0 10px rgba(239,68,68,0)} }
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
     
+    /* ✅ Top right account icon */
+    .top-right-account {
+      position:fixed;
+      top:max(1rem,env(safe-area-inset-top,1rem));
+      right:max(1rem,env(safe-area-inset-right,1rem));
+      z-index:200;
+      width:2.4rem;
+      height:2.4rem;
+      background:rgba(255,255,255,0.1);
+      backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px);
+      border-radius:50%;
+      color:#fff;
+      font-size:1rem;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-decoration:none;
+      border:1px solid rgba(255,255,255,0.15);
+      transition:all 0.3s;
+      cursor:pointer;
+    }
+    .top-right-account:hover {
+      background:rgba(255,255,255,0.2);
+      transform:scale(1.05);
+    }
+    
     /* ✅ 70% - Camera section */
     .camera-section {
       height:70%;
@@ -226,6 +253,7 @@
       .buttons-section{height:10%}
       .nav-spacer{height:15%}
       .my-camera{max-height:150px}
+      .top-right-account{top:2rem;right:2rem}
     }
     @media (max-width:380px) { 
       .camera-section{padding:0.2rem 0.5rem 0 0.5rem}
@@ -243,6 +271,7 @@
       .nav-center a{font-size:1.1rem;width:2rem;height:2rem}
       .buttons-container{gap:0.25rem}
       .my-camera{max-height:85px}
+      .top-right-account{width:2rem;height:2rem;font-size:0.85rem}
     }
   </style>
 </head>
@@ -257,6 +286,11 @@
   </div>
 
   <div class="page" id="mainPage" style="display:none;">
+    <!-- ✅ Top Right Account Icon -->
+    <a href="account.html" class="top-right-account" title="Account">
+      <i class="fas fa-user-circle"></i>
+    </a>
+
     <!-- ✅ 70% - Camera -->
     <div class="camera-section">
       <div class="online-counter"><div class="online-dot"></div><span id="onlineCount">0 online</span></div>

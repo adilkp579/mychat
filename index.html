@@ -86,7 +86,7 @@
     .toast { position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#4ade80;color:#000;padding:0.4rem 1rem;border-radius:2rem;font-size:0.7rem;z-index:800;opacity:0;transition:all 0.3s;font-weight:600;pointer-events:none; }
     .toast.show { opacity:1; }.toast.error { background:#ef4444;color:#fff; }
 
-    /* Glass effect floating navbar */
+    /* Glass effect floating navbar with 90% transparency */
     .floating-nav { 
       position:fixed;
       bottom:max(1rem,env(safe-area-inset-bottom,1rem));
@@ -114,17 +114,44 @@
     .nav-center a::before { content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:4px;height:4px;border-radius:50%;background:#fff;transition:all 0.3s; }
     .nav-center a.active::before { transform:translateX(-50%) scale(1); }
     .nav-center a.active { color:#fff;background:rgba(255, 255, 255, 0.2);box-shadow: 0 0 20px rgba(255, 255, 255, 0.15); }
-    .nav-upload,.nav-search { display:none !important; }
+    
+    /* Mobile: hide upload & search */
+    .nav-upload, .nav-search { display:none !important; }
 
     @media (min-width:1024px) {
-      .top-icons{display:none}.nav-upload,.nav-search{display:flex!important}
-      .floating-nav{position:fixed;top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column;background:rgba(10,10,10,0.1);backdrop-filter:blur(20px);}
-      .nav-center{flex-direction:column;gap:1.2rem;max-width:none}.nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
-      .nav-center a::before{bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0)}.nav-center a.active::before{transform:translateY(-50%) scale(1)}
-      .content{padding:0.5rem 0 1rem 5.5rem}.stories-section{max-width:550px}.feed-section{max-width:550px}
+      .top-icons{display:none}
+      /* Desktop: show upload & search in navbar */
+      .nav-upload, .nav-search { display:flex !important; }
+      
+      .floating-nav{
+        position:fixed;
+        top:50%;
+        left:1.5rem;
+        bottom:auto;
+        transform:translateY(-50%);
+        width:3.8rem;
+        height:auto;
+        max-width:none;
+        border-radius:2.5rem;
+        padding:1rem 0.6rem;
+        flex-direction:column;
+        background:rgba(10,10,10,0.1);
+        backdrop-filter:blur(20px);
+        -webkit-backdrop-filter:blur(20px);
+        border:1px solid rgba(255,255,255,0.05);
+        box-shadow:0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.03);
+      }
+      .nav-center{flex-direction:column;gap:1.2rem;max-width:none}
+      .nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
+      .nav-center a::before{bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0)}
+      .nav-center a.active::before{transform:translateY(-50%) scale(1)}
+      .content{padding:0.5rem 0 1rem 5.5rem}
+      .stories-section{max-width:550px}
+      .feed-section{max-width:550px}
     }
+    
     @media (max-width:380px) { 
-      .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:max(0.8rem,env(safe-area-inset-bottom,0.8rem));background:rgba(10,10,10,0.1);}
+      .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:max(0.8rem,env(safe-area-inset-bottom,0.8rem));background:rgba(10,10,10,0.1);backdrop-filter:blur(20px);}
       .nav-center a{font-size:1.1rem;width:2rem;height:2rem}
       .content{padding:0 0 5rem 0}
     }
@@ -155,13 +182,15 @@
         <a href="reel.html"><i class="fas fa-film"></i></a>
         <a href="chat.html"><i class="fas fa-comment-dots"></i></a>
         <a href="profile.html"><i class="fas fa-user"></i></a>
+        <a href="upload.html" class="nav-upload"><i class="fas fa-plus"></i></a>
+        <a href="search.html" class="nav-search"><i class="fas fa-search"></i></a>
       </div>
     </nav>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, collection, query, orderBy, limit, startAfter, getDocs, doc, getDoc, setDoc, addDoc, serverTimestamp, increment, updateDoc, where, deleteDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, collection, query, orderBy, limit, startAfter, getDocs, doc, getDoc, addDoc, serverTimestamp, increment, updateDoc, where, deleteDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
@@ -215,46 +244,24 @@
 
     function showToast(m, e) { const t = document.getElementById('toast'); t.textContent = m; t.className = 'toast '+(e?'error':''); t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2500); }
 
-    // ✅ RECURSIVE THREADED COMMENTS - UNLIMITED NESTING
+    // ✅ RECURSIVE THREADED COMMENTS
     async function renderAllComments(postId) {
       const list = document.getElementById('commentsList');
       list.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;">Loading comments...</div>';
-      
       try {
         const commentsRef = collection(db, 'posts', postId, 'comments');
         const q = query(commentsRef, orderBy('createdAt', 'asc'));
         const snap = await getDocs(q);
-        
-        if (snap.empty) {
-          list.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;">No comments yet. Be the first!</div>';
-          return;
-        }
-        
-        // Build comment map
+        if (snap.empty) { list.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;">No comments yet. Be the first!</div>'; return; }
         const allComments = [];
-        snap.forEach(doc => {
-          allComments.push({ id: doc.id, ...doc.data() });
-        });
-        
+        snap.forEach(doc => { allComments.push({ id: doc.id, ...doc.data() }); });
         await batchLoadProfiles(allComments.map(c => c.username));
-        
-        // Separate top-level and replies
         const topLevel = allComments.filter(c => !c.parentId);
-        
         list.innerHTML = '';
-        
-        // Render top-level comments with their nested replies
-        topLevel.forEach(cmt => {
-          renderCommentWithReplies(cmt, allComments, list, 0);
-        });
-        
-      } catch(e) {
-        console.error('Load comments error:', e);
-        list.innerHTML = '<div style="text-align:center;color:#ef4444;padding:2rem;">Failed to load comments</div>';
-      }
+        topLevel.forEach(cmt => { renderCommentWithReplies(cmt, allComments, list, 0); });
+      } catch(e) { console.error(e); list.innerHTML = '<div style="text-align:center;color:#ef4444;padding:2rem;">Failed to load comments</div>'; }
     }
 
-    // ✅ Recursive function for unlimited nested replies
     function renderCommentWithReplies(cmt, allComments, parentEl, depth) {
       const block = document.createElement('div');
       block.className = 'cmt-block';
@@ -262,256 +269,54 @@
       block.style.marginLeft = depth > 0 ? '1.5rem' : '0';
       if (depth > 0) block.style.borderLeft = '1px solid rgba(255,255,255,0.06)';
       if (depth > 0) block.style.paddingLeft = '0.5rem';
-      
       const timeStr = cmt.createdAt ? timeAgo(cmt.createdAt.toDate()) : '';
       const isOwner = cmt.username === currentUser;
-      
-      block.innerHTML = `
-        <div class="cmt-row">
-          <div class="cmt-avatar" data-avatar-user="${cmt.username}">${getAvtFromCache(cmt.username)}</div>
-          <div class="cmt-body">
-            <div class="cmt-username">${cname(cmt.username)}</div>
-            <div class="cmt-content">${cmt.text || ''}</div>
-            <div class="cmt-meta">
-              <span class="cmt-time">${timeStr}</span>
-              <button class="cmt-btn reply-btn" onclick="toggleReplyBox('${cmt.id}')">Reply</button>
-              <button class="cmt-btn del-btn ${isOwner?'show':''}" onclick="deleteComment('${activePostId}','${cmt.id}')">Delete</button>
-            </div>
-            <div class="reply-box" id="replyBox-${cmt.id}">
-              <div class="reply-input-wrap">
-                <input type="text" class="reply-input" id="replyInput-${cmt.id}" placeholder="Reply to ${cname(cmt.username)}...">
-              </div>
-              <button class="reply-post-btn" onclick="postReply('${activePostId}','${cmt.id}')">Reply</button>
-            </div>
-            <div class="replies-container" id="replies-${cmt.id}"></div>
-          </div>
-        </div>
-      `;
-      
+      block.innerHTML = `<div class="cmt-row"><div class="cmt-avatar" data-avatar-user="${cmt.username}">${getAvtFromCache(cmt.username)}</div><div class="cmt-body"><div class="cmt-username">${cname(cmt.username)}</div><div class="cmt-content">${cmt.text || ''}</div><div class="cmt-meta"><span class="cmt-time">${timeStr}</span><button class="cmt-btn reply-btn" onclick="toggleReplyBox('${cmt.id}')">Reply</button><button class="cmt-btn del-btn ${isOwner?'show':''}" onclick="deleteComment('${activePostId}','${cmt.id}')">Delete</button></div><div class="reply-box" id="replyBox-${cmt.id}"><div class="reply-input-wrap"><input type="text" class="reply-input" id="replyInput-${cmt.id}" placeholder="Reply to ${cname(cmt.username)}..."></div><button class="reply-post-btn" onclick="postReply('${activePostId}','${cmt.id}')">Reply</button></div><div class="replies-container" id="replies-${cmt.id}"></div></div></div>`;
       parentEl.appendChild(block);
-      
-      // Find and render child replies
       const childReplies = allComments.filter(c => c.parentId === cmt.id);
       if (childReplies.length > 0) {
         const repliesContainer = block.querySelector('.replies-container');
-        childReplies.forEach(child => {
-          renderCommentWithReplies(child, allComments, repliesContainer, depth + 1);
-        });
+        childReplies.forEach(child => { renderCommentWithReplies(child, allComments, repliesContainer, depth + 1); });
       }
     }
 
-    window.toggleReplyBox = function(cmtId) {
-      const box = document.getElementById('replyBox-' + cmtId);
-      if (box) {
-        box.classList.toggle('show');
-        if (box.classList.contains('show')) {
-          setTimeout(() => {
-            const input = document.getElementById('replyInput-' + cmtId);
-            if (input) input.focus();
-          }, 100);
-        }
-      }
-    };
+    window.toggleReplyBox = function(cmtId) { const box = document.getElementById('replyBox-' + cmtId); if (box) { box.classList.toggle('show'); if (box.classList.contains('show')) setTimeout(() => { const input = document.getElementById('replyInput-' + cmtId); if (input) input.focus(); }, 100); } };
+    window.postMainComment = async function() { const input = document.getElementById('cmtInput'); const text = input.value.trim(); if (!text || !activePostId) return; try { await addDoc(collection(db, 'posts', activePostId, 'comments'), { text, username: currentUser, createdAt: serverTimestamp(), parentId: null }); await updateDoc(doc(db, 'posts', activePostId), { comments: increment(1) }); input.value = ''; await renderAllComments(activePostId); showToast('Comment posted! 💬'); } catch(e) { showToast('Failed to post comment', true); } };
+    window.postReply = async function(postId, parentId) { const input = document.getElementById('replyInput-' + parentId); const text = input?.value.trim(); if (!text || !postId) return; try { await addDoc(collection(db, 'posts', postId, 'comments'), { text, username: currentUser, parentId, createdAt: serverTimestamp() }); await updateDoc(doc(db, 'posts', postId), { comments: increment(1) }); input.value = ''; document.getElementById('replyBox-' + parentId)?.classList.remove('show'); await renderAllComments(postId); showToast('Reply posted! 💬'); } catch(e) { showToast('Failed to post reply', true); } };
+    window.deleteComment = async function(postId, cmtId) { if (!confirm('Delete this comment?')) return; try { const allSnap = await getDocs(collection(db, 'posts', postId, 'comments')); const toDelete = [cmtId]; const findReplies = (parentIds) => { allSnap.forEach(doc => { if (parentIds.includes(doc.data().parentId)) { toDelete.push(doc.id); findReplies([doc.id]); } }); }; findReplies([cmtId]); for (const id of toDelete) { await deleteDoc(doc(db, 'posts', postId, 'comments', id)); } await updateDoc(doc(db, 'posts', postId), { comments: increment(-toDelete.length) }); await renderAllComments(postId); showToast('Comment deleted'); } catch(e) { showToast('Failed to delete', true); } };
+    window.openComments = async function(pid) { activePostId = pid; document.getElementById('commentsOverlay').classList.add('show'); document.getElementById('cmtInput').value = ''; await renderAllComments(pid); };
+    window.closeComments = function() { document.getElementById('commentsOverlay').classList.remove('show'); activePostId = null; };
 
-    window.postMainComment = async function() {
-      const input = document.getElementById('cmtInput');
-      const text = input.value.trim();
-      if (!text || !activePostId) return;
-      
-      try {
-        await addDoc(collection(db, 'posts', activePostId, 'comments'), {
-          text,
-          username: currentUser,
-          createdAt: serverTimestamp(),
-          parentId: null
-        });
-        await updateDoc(doc(db, 'posts', activePostId), { comments: increment(1) });
-        input.value = '';
-        await renderAllComments(activePostId);
-        showToast('Comment posted! 💬');
-      } catch(e) {
-        console.error('Post comment error:', e);
-        showToast('Failed to post comment', true);
-      }
-    };
-
-    window.postReply = async function(postId, parentId) {
-      const input = document.getElementById('replyInput-' + parentId);
-      const text = input?.value.trim();
-      if (!text || !postId) return;
-      
-      try {
-        await addDoc(collection(db, 'posts', postId, 'comments'), {
-          text,
-          username: currentUser,
-          parentId,
-          createdAt: serverTimestamp()
-        });
-        await updateDoc(doc(db, 'posts', postId), { comments: increment(1) });
-        input.value = '';
-        document.getElementById('replyBox-' + parentId)?.classList.remove('show');
-        await renderAllComments(postId);
-        showToast('Reply posted! 💬');
-      } catch(e) {
-        console.error('Post reply error:', e);
-        showToast('Failed to post reply', true);
-      }
-    };
-
-    window.deleteComment = async function(postId, cmtId) {
-      if (!confirm('Delete this comment?')) return;
-      try {
-        // Delete comment and all its replies from Firestore
-        const commentsRef = collection(db, 'posts', postId, 'comments');
-        const allSnap = await getDocs(commentsRef);
-        const toDelete = [cmtId];
-        
-        // Find all nested replies
-        const findReplies = (parentIds) => {
-          allSnap.forEach(doc => {
-            if (parentIds.includes(doc.data().parentId)) {
-              toDelete.push(doc.id);
-              findReplies([doc.id]);
-            }
-          });
-        };
-        findReplies([cmtId]);
-        
-        // Delete all
-        for (const id of toDelete) {
-          await deleteDoc(doc(db, 'posts', postId, 'comments', id));
-        }
-        
-        await updateDoc(doc(db, 'posts', postId), { comments: increment(-toDelete.length) });
-        await renderAllComments(postId);
-        showToast('Comment deleted');
-      } catch(e) {
-        console.error('Delete error:', e);
-        showToast('Failed to delete', true);
-      }
-    };
-
-    window.openComments = async function(pid) {
-      activePostId = pid;
-      document.getElementById('commentsOverlay').classList.add('show');
-      document.getElementById('cmtInput').value = '';
-      await renderAllComments(pid);
-    };
-
-    window.closeComments = function() {
-      document.getElementById('commentsOverlay').classList.remove('show');
-      activePostId = null;
-    };
-
-    // Feed functions
-    function isImagePost(src, type) {
-      if (!src) return false;
-      if (type === 'reel' || type === 'video') return false;
-      if (src.startsWith('data:video/')) return false;
-      if (src.match(/\.(mp4|webm|mov|avi|mkv)($|\?)/i)) return false;
-      return true;
-    }
+    function isImagePost(src, type) { if (!src) return false; if (type === 'reel' || type === 'video') return false; if (src.startsWith('data:video/')) return false; if (src.match(/\.(mp4|webm|mov|avi|mkv)($|\?)/i)) return false; return true; }
 
     async function loadMorePosts() {
-      if (isLoadingPosts || allPostsLoaded) return;
-      isLoadingPosts = true;
+      if (isLoadingPosts || allPostsLoaded) return; isLoadingPosts = true;
       try {
-        let q;
-        if (lastVisiblePost) {
-          q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'), startAfter(lastVisiblePost), limit(PAGE_SIZE));
-        } else {
-          q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'), limit(PAGE_SIZE));
-        }
+        let q; if (lastVisiblePost) { q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'), startAfter(lastVisiblePost), limit(PAGE_SIZE)); } else { q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'), limit(PAGE_SIZE)); }
         const snap = await getDocs(q);
-        if (snap.empty) {
-          allPostsLoaded = true;
-          if (!lastVisiblePost) document.getElementById('feedContainer').innerHTML = '<div style="text-align:center;color:#555;padding:3rem;">No posts yet</div>';
-          return;
-        }
-        
+        if (snap.empty) { allPostsLoaded = true; if (!lastVisiblePost) document.getElementById('feedContainer').innerHTML = '<div style="text-align:center;color:#555;padding:3rem;">No posts yet</div>'; return; }
         const posts = [];
-        snap.forEach(doc => {
-          const dt = doc.data();
-          const src = dt.data || dt.url || '';
-          const type = dt.type || '';
-          if (src && isImagePost(src, type)) {
-            posts.push({
-              id: doc.id,
-              userId: dt.username || dt.userId || '@anonymous',
-              caption: dt.caption || '',
-              src,
-              likes: dt.likes || 0,
-              comments: dt.comments || 0,
-              time: dt.createdAt ? timeAgo(dt.createdAt.toDate()) : 'Recently'
-            });
-          }
-        });
-        
+        snap.forEach(doc => { const dt = doc.data(); const src = dt.data || dt.url || ''; const type = dt.type || ''; if (src && isImagePost(src, type)) { posts.push({ id: doc.id, userId: dt.username || dt.userId || '@anonymous', caption: dt.caption || '', src, likes: dt.likes || 0, comments: dt.comments || 0, time: dt.createdAt ? timeAgo(dt.createdAt.toDate()) : 'Recently' }); } });
         lastVisiblePost = snap.docs[snap.docs.length - 1];
-        if (posts.length > 0) {
-          await batchLoadProfiles(posts.map(p => p.userId));
-          renderPostsToFeed(posts);
-        }
+        if (posts.length > 0) { await batchLoadProfiles(posts.map(p => p.userId)); renderPostsToFeed(posts); }
       } catch(e) { console.error(e); } finally { isLoadingPosts = false; }
     }
 
     function renderPostsToFeed(posts) {
       const container = document.getElementById('feedContainer');
       posts.forEach(p => {
-        const card = document.createElement('div');
-        card.className = 'feed-card';
-        card.innerHTML = `
-          <div class="feed-header">
-            <div class="feed-avatar" data-avatar-user="${p.userId}" onclick="window.location.href='profile.html?user=${encodeURIComponent(p.userId)}'">${getAvtFromCache(p.userId)}</div>
-            <div><div class="feed-username" onclick="window.location.href='profile.html?user=${encodeURIComponent(p.userId)}'">${cname(p.userId)}</div></div>
-            <span class="feed-time">${p.time}</span>
-          </div>
-          <div class="feed-image" onclick="openImageViewer('${p.src}')"><img src="${p.src}" alt="post" loading="lazy"></div>
-          <div class="feed-actions">
-            <button class="feed-action" id="likeBtn-${p.id}" onclick="toggleLike('${p.id}')"><i class="far fa-heart"></i></button>
-            <button class="feed-action" onclick="openComments('${p.id}')"><i class="far fa-comment"></i></button>
-            <button class="feed-action" onclick="sharePost('${p.src}')"><i class="far fa-share-square"></i></button>
-          </div>
-          <div class="feed-likes" id="likes-${p.id}">${p.likes||0} likes</div>
-          <div class="feed-caption"><span onclick="window.location.href='profile.html?user=${encodeURIComponent(p.userId)}'">${cname(p.userId)}</span>${p.caption}</div>
-          <div class="view-comments-btn" onclick="openComments('${p.id}')">View all ${p.comments||0} comments</div>
-        `;
+        const card = document.createElement('div'); card.className = 'feed-card';
+        card.innerHTML = `<div class="feed-header"><div class="feed-avatar" data-avatar-user="${p.userId}" onclick="window.location.href='profile.html?user=${encodeURIComponent(p.userId)}'">${getAvtFromCache(p.userId)}</div><div><div class="feed-username" onclick="window.location.href='profile.html?user=${encodeURIComponent(p.userId)}'">${cname(p.userId)}</div></div><span class="feed-time">${p.time}</span></div><div class="feed-image" onclick="openImageViewer('${p.src}')"><img src="${p.src}" alt="post" loading="lazy"></div><div class="feed-actions"><button class="feed-action" id="likeBtn-${p.id}" onclick="toggleLike('${p.id}')"><i class="far fa-heart"></i></button><button class="feed-action" onclick="openComments('${p.id}')"><i class="far fa-comment"></i></button><button class="feed-action" onclick="sharePost('${p.src}')"><i class="far fa-share-square"></i></button></div><div class="feed-likes" id="likes-${p.id}">${p.likes||0} likes</div><div class="feed-caption"><span onclick="window.location.href='profile.html?user=${encodeURIComponent(p.userId)}'">${cname(p.userId)}</span>${p.caption}</div><div class="view-comments-btn" onclick="openComments('${p.id}')">View all ${p.comments||0} comments</div>`;
         container.appendChild(card);
       });
     }
 
-    function setupInfiniteScroll() {
-      const content = document.getElementById('mainContent');
-      let ticking = false;
-      content.addEventListener('scroll', () => {
-        if (!ticking) {
-          requestAnimationFrame(() => {
-            if (content.scrollHeight - content.scrollTop - content.clientHeight < 500) loadMorePosts();
-            ticking = false;
-          });
-          ticking = true;
-        }
-      }, { passive: true });
-    }
-
-    window.toggleLike = async function(pid) {
-      const b = document.getElementById('likeBtn-'+pid), l = document.getElementById('likes-'+pid);
-      if (!b||!l) return;
-      const liked = b.classList.contains('liked');
-      if (liked) { b.classList.remove('liked'); b.querySelector('i').className='far fa-heart'; l.textContent=(Math.max(0,parseInt(l.textContent)-1))+' likes'; try { await updateDoc(doc(db,'posts',pid),{likes:increment(-1)}); } catch(e) {} }
-      else { b.classList.add('liked'); b.querySelector('i').className='fas fa-heart'; l.textContent=(parseInt(l.textContent)+1)+' likes'; try { await updateDoc(doc(db,'posts',pid),{likes:increment(1)}); } catch(e) {} }
-    };
-
+    function setupInfiniteScroll() { const content = document.getElementById('mainContent'); let ticking = false; content.addEventListener('scroll', () => { if (!ticking) { requestAnimationFrame(() => { if (content.scrollHeight - content.scrollTop - content.clientHeight < 500) loadMorePosts(); ticking = false; }); ticking = true; } }, { passive: true }); }
+    window.toggleLike = async function(pid) { const b = document.getElementById('likeBtn-'+pid), l = document.getElementById('likes-'+pid); if (!b||!l) return; const liked = b.classList.contains('liked'); if (liked) { b.classList.remove('liked'); b.querySelector('i').className='far fa-heart'; l.textContent=(Math.max(0,parseInt(l.textContent)-1))+' likes'; try { await updateDoc(doc(db,'posts',pid),{likes:increment(-1)}); } catch(e) {} } else { b.classList.add('liked'); b.querySelector('i').className='fas fa-heart'; l.textContent=(parseInt(l.textContent)+1)+' likes'; try { await updateDoc(doc(db,'posts',pid),{likes:increment(1)}); } catch(e) {} } };
     window.sharePost = function(s) { if (navigator.share) navigator.share({url:s}); else { navigator.clipboard.writeText(s); showToast('Link copied!'); } };
-
-    window.openImageViewer = function(s) {
-      const o = document.createElement('div'); o.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:800;display:flex;align-items:center;justify-content:center;';
-      o.innerHTML = `<img src="${s}" style="max-width:95%;max-height:90vh;object-fit:contain;"><button style="position:absolute;top:1rem;right:1rem;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.6);border:none;color:#fff;font-size:1rem;cursor:pointer;">✕</button>`;
-      o.querySelector('button').onclick = () => o.remove(); o.onclick = e => { if (e.target === o) o.remove(); }; document.body.appendChild(o);
-    };
+    window.openImageViewer = function(s) { const o = document.createElement('div'); o.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:800;display:flex;align-items:center;justify-content:center;'; o.innerHTML = `<img src="${s}" style="max-width:95%;max-height:90vh;object-fit:contain;"><button style="position:absolute;top:1rem;right:1rem;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.6);border:none;color:#fff;font-size:1rem;cursor:pointer;">✕</button>`; o.querySelector('button').onclick = () => o.remove(); o.onclick = e => { if (e.target === o) o.remove(); }; document.body.appendChild(o); };
 
     async function renderStories() {
-      const currentUser2 = localStorage.getItem('currentUser') || '@anonymous';
       const p = JSON.parse(localStorage.getItem('userProfile')||'{}');
       const ps = [...(p.friends||[]).map(f=>({name:f.name,type:'friend'})),...(p.besties||[]).map(b=>({name:b.name,type:'bestie'}))];
       const bar = document.getElementById('storiesBar'), ns = document.getElementById('noStories');
@@ -526,9 +331,7 @@
 
     async function bootApp() {
       const hasLocalUid = localStorage.getItem("uid");
-      if (!hasLocalUid && !auth.currentUser) {
-        await new Promise(resolve => { const unsub = onAuthStateChanged(auth, (user) => { unsub(); if (user) localStorage.setItem("uid", user.uid); resolve(); }); });
-      }
+      if (!hasLocalUid && !auth.currentUser) { await new Promise(resolve => { const unsub = onAuthStateChanged(auth, (user) => { unsub(); if (user) localStorage.setItem("uid", user.uid); resolve(); }); }); }
       if (!localStorage.getItem("uid") && !auth.currentUser) { window.location.replace("login.html"); return; }
       document.getElementById('mainPage').style.display = 'flex';
       const lp = JSON.parse(localStorage.getItem('userProfile') || '{}');

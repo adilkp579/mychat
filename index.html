@@ -63,23 +63,18 @@
     .cmt-btn.del-btn.show { display:inline; }
     .vc-play-btn { display:inline-flex;align-items:center;gap:0.3rem;padding:0.25rem 0.6rem;background:rgba(255,252,0,0.1);border:1px solid rgba(255,252,0,0.2);border-radius:1rem;cursor:pointer;font-size:0.7rem;color:#FFFC00;margin-top:0.2rem; }
     .vc-play-btn i { font-size:0.5rem; }
-    .vc-duration { font-size:0.55rem;color:#999;margin-left:0.2rem; }
+    .vc-duration { font-size:0.55rem;color:#999; }
     .reply-box { display:none;align-items:center;gap:0.3rem;margin-top:0.3rem;padding:0.2rem 0; }
     .reply-box.show { display:flex; }
     .reply-input-wrap { flex:1;display:flex;align-items:center;background:#1a1a1a;border-radius:0.8rem;border:1px solid rgba(255,255,255,0.12);overflow:hidden; }
-    .reply-input-wrap:focus-within { border-color:#FFFC00; }
-    .reply-mic-btn { width:32px;height:32px;min-width:32px;border:none;background:transparent;color:#FFFC00;font-size:0.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center; }
-    .reply-mic-btn.recording { background:#ef4444;color:#fff;border-radius:50%;animation:recPulse 1s infinite; }
     .reply-input { flex:1;padding:0.35rem;border:none;background:transparent;color:#fff;font-size:0.65rem;outline:none; }
     .reply-post-btn { background:#FFFC00;border:none;color:#000;font-size:0.6rem;font-weight:600;padding:0.35rem 0.6rem;border-radius:0.8rem;cursor:pointer;flex-shrink:0; }
     .cmt-input-area { display:flex;align-items:center;gap:0.3rem;padding:0.5rem 1rem;padding-bottom:max(0.5rem,env(safe-area-inset-bottom,0.5rem));border-top:1px solid rgba(255,255,255,0.08);flex-shrink:0;background:#0a0a0a; }
     .cmt-input-wrap { flex:1;display:flex;align-items:center;background:#1a1a1a;border-radius:1.2rem;border:1px solid rgba(255,255,255,0.12);overflow:hidden; }
-    .cmt-input-wrap:focus-within { border-color:#FFFC00; }
     .cmt-mic-btn { width:38px;height:38px;min-width:38px;border:none;background:transparent;color:#FFFC00;font-size:0.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center; }
     .cmt-mic-btn.recording { background:#ef4444;color:#fff;border-radius:50%;animation:recPulse 1s infinite; }
     .cmt-input { flex:1;padding:0.5rem;border:none;background:transparent;color:#fff;font-size:0.8rem;outline:none; }
     .cmt-post-btn { background:#FFFC00;border:none;color:#000;font-size:0.7rem;font-weight:600;padding:0.45rem 0.9rem;border-radius:1.2rem;cursor:pointer;flex-shrink:0; }
-    .cmt-post-btn:disabled { opacity:0.4; }
     .global-rec-bar { display:none;align-items:center;gap:0.4rem;padding:0.35rem 1rem;background:#ef4444;position:sticky;bottom:0;z-index:10; }
     .global-rec-bar.show { display:flex; }
     .grec-dot { width:8px;height:8px;border-radius:50%;background:#fff;animation:blink 0.5s infinite; }
@@ -90,8 +85,8 @@
     .grec-cancel { background:rgba(255,255,255,0.2);color:#fff; }
     .grec-send { background:#fff;color:#ef4444; }
     .toast { position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#4ade80;color:#000;padding:0.4rem 1rem;border-radius:2rem;font-size:0.7rem;z-index:800;opacity:0;transition:all 0.3s;font-weight:600;pointer-events:none; }
-    .toast.show { opacity:1; }.toast.error { background:#ef4444;color:#fff; }
-    .floating-nav { position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(10,10,10,0.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.05);z-index:100;box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.03);transition:all 0.3s ease; }
+    .toast.show { opacity:1; }
+    .floating-nav { position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(10,10,10,0.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.05);z-index:100;box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.03); }
     .floating-nav:hover { background:rgba(10,10,10,0.15); }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
     .nav-center a { color:rgba(255,255,255,0.8);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;position:relative;background:transparent; }
@@ -106,10 +101,6 @@
       .nav-center{flex-direction:column;gap:1.2rem;max-width:none}.nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
       .nav-center a::before{bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0)}.nav-center a.active::before{transform:translateY(-50%) scale(1)}
       .content{padding:0.5rem 0 1rem 5.5rem}.stories-section{max-width:550px}.feed-section{max-width:550px}
-    }
-    @media (max-width:380px) {
-      .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:max(0.8rem,env(safe-area-inset-bottom,0.8rem));background:rgba(10,10,10,0.1);}
-      .nav-center a{font-size:1.1rem;width:2rem;height:2rem}.content{padding:0 0 5rem 0}
     }
   </style>
 </head>
@@ -163,9 +154,8 @@
     const PAGE_SIZE = 10;
     let lastVisiblePost = null, allPostsLoaded = false, isLoadingPosts = false, activePostId = null;
     const currentUser = localStorage.getItem('currentUser') || '@anonymous';
-    const MAX_VOICE_SEC = 30;
+    const MAX_VOICE_SEC = 10; // Reduced to 10 seconds for smaller file size
     let voiceRecorder = null, voiceChunks = [], voiceTimer = null, voiceSeconds = 0;
-    let replyRecordingFor = null;
 
     function cname(u) { return (u || '').replace(/^@/, ''); }
     function fmtDur(s) { const m = Math.floor(s/60), sec = Math.floor(s%60); return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0'); }
@@ -185,9 +175,9 @@
       const uniqueUsers = [...new Set(usernames)].filter(u => u && u !== '@anonymous' && !userCache.has(u));
       if (uniqueUsers.length === 0) return;
       for (const u of uniqueUsers) { const local = loadUserFromLocalCache(u); if (local) userCache.set(u, local); }
-      const firestoreUsers = uniqueUsers.filter(u => !userCache.has(u));
-      for (let i = 0; i < firestoreUsers.length; i += 10) {
-        try { const q = query(collection(db, 'users'), where('username', 'in', firestoreUsers.slice(i, i+10))); const snap = await getDocs(q); snap.forEach(doc => { const d = doc.data(); userCache.set(d.username, { avatar: d.avatar || null, name: d.name || d.username }); localStorage.setItem('profile_' + d.username.replace('@',''), JSON.stringify(d)); }); } catch(e) {}
+      for (let i = 0; i < uniqueUsers.filter(u => !userCache.has(u)).length; i += 10) {
+        const batch = uniqueUsers.filter(u => !userCache.has(u)).slice(i, i+10);
+        try { const q = query(collection(db, 'users'), where('username', 'in', batch)); const snap = await getDocs(q); snap.forEach(doc => { const d = doc.data(); userCache.set(d.username, { avatar: d.avatar || null, name: d.name || d.username }); localStorage.setItem('profile_' + d.username.replace('@',''), JSON.stringify(d)); }); } catch(e) {}
       }
       updateAllAvatars();
     }
@@ -196,35 +186,25 @@
     function updateAllAvatars() { document.querySelectorAll('[data-avatar-user]').forEach(el => { el.innerHTML = getAvtFromCache(el.dataset.avatarUser); }); }
     function showToast(m, e) { const t = document.getElementById('toast'); t.textContent = m; t.className = 'toast '+(e?'error':''); t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2500); }
 
-    // ✅ VOICE - Start recording
+    // ✅ VOICE FUNCTIONS
     window.toggleMainMic = function() {
       if (voiceRecorder && voiceRecorder.state === 'recording') { sendRecording(); }
-      else { replyRecordingFor = null; startVoiceRecording(); }
-    };
-
-    window.toggleReplyMic = function(cmtId) {
-      if (voiceRecorder && voiceRecorder.state === 'recording') { sendRecording(); }
-      else { replyRecordingFor = cmtId; startVoiceRecording(); }
+      else { startVoiceRecording(); }
     };
 
     async function startVoiceRecording() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
-        const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm';
-        voiceRecorder = new MediaRecorder(stream, { mimeType });
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        // Use low bitrate for smaller file size
+        voiceRecorder = new MediaRecorder(stream, { audioBitsPerSecond: 16000 });
         voiceChunks = []; voiceSeconds = 0;
         voiceRecorder.ondataavailable = e => { if (e.data.size > 0) voiceChunks.push(e.data); };
         voiceRecorder.onstop = () => stream.getTracks().forEach(t => t.stop());
-        voiceRecorder.start(100);
+        voiceRecorder.start(500);
         
         document.getElementById('globalRecBar').classList.add('show');
         document.getElementById('grecTimer').textContent = '00:00';
         document.getElementById('mainMicBtn').classList.add('recording');
-        
-        if (replyRecordingFor) {
-          const rm = document.getElementById('replyMic-' + replyRecordingFor);
-          if (rm) rm.classList.add('recording');
-        }
         
         voiceTimer = setInterval(() => {
           voiceSeconds++;
@@ -239,11 +219,6 @@
       clearInterval(voiceTimer);
       document.getElementById('globalRecBar').classList.remove('show');
       document.getElementById('mainMicBtn').classList.remove('recording');
-      if (replyRecordingFor) {
-        const rm = document.getElementById('replyMic-' + replyRecordingFor);
-        if (rm) rm.classList.remove('recording');
-        replyRecordingFor = null;
-      }
       voiceRecorder = null;
     };
 
@@ -251,33 +226,35 @@
       if (!voiceRecorder || voiceRecorder.state !== 'recording' || !activePostId) return;
       if (voiceSeconds < 1) { cancelRecording(); return; }
       
-      const parentId = replyRecordingFor;
-      
       voiceRecorder.onstop = async () => {
-        const blob = new Blob(voiceChunks, { type: voiceRecorder.mimeType || 'audio/webm' });
+        const blob = new Blob(voiceChunks, { type: 'audio/webm' });
+        console.log('Voice blob size:', (blob.size/1024).toFixed(1) + 'KB');
+        
         const reader = new FileReader();
         reader.onload = async (e) => {
           try {
-            const commentData = {
-              audioUrl: e.target.result,
+            const audioData = e.target.result;
+            console.log('Audio data length:', audioData.length);
+            
+            await addDoc(collection(db, 'posts', activePostId, 'comments'), {
+              audioUrl: audioData,
               audioDuration: voiceSeconds,
               username: currentUser,
-              parentId: parentId || null,
+              parentId: null,
               createdAt: serverTimestamp(),
               type: 'voice'
-            };
+            });
             
-            await addDoc(collection(db, 'posts', activePostId, 'comments'), commentData);
             await updateDoc(doc(db, 'posts', activePostId), { comments: increment(1) });
-            
-            if (parentId) {
-              document.getElementById('replyBox-' + parentId)?.classList.remove('show');
-            }
-            
             await renderAllComments(activePostId);
-            showToast('Voice sent! 🎤');
-          } catch(err) { console.error(err); showToast('Failed', true); }
+            showToast('Voice comment posted! 🎤');
+            console.log('✅ Voice saved successfully');
+          } catch(err) {
+            console.error('❌ Save error:', err);
+            showToast('Failed to save voice: ' + err.message, true);
+          }
         };
+        reader.onerror = () => { showToast('Failed to read audio', true); };
         reader.readAsDataURL(blob);
       };
       
@@ -285,35 +262,32 @@
       clearInterval(voiceTimer);
       document.getElementById('globalRecBar').classList.remove('show');
       document.getElementById('mainMicBtn').classList.remove('recording');
-      if (replyRecordingFor) {
-        const rm = document.getElementById('replyMic-' + replyRecordingFor);
-        if (rm) rm.classList.remove('recording');
-        replyRecordingFor = null;
-      }
       voiceRecorder = null;
     };
 
     // ✅ Play voice
     window.playVoiceComment = function(cmtId, audioUrl) {
       const el = document.getElementById('cmt-' + cmtId);
-      if (!el) return;
+      if (!el || !audioUrl) return;
       const btn = el.querySelector('.vc-play-btn');
       const icon = btn?.querySelector('i');
       
       if (el._audio) {
-        if (el._audio.paused) { el._audio.play(); if (icon) icon.className = 'fas fa-pause'; }
+        if (el._audio.paused) { el._audio.play().catch(()=>{}); if (icon) icon.className = 'fas fa-pause'; }
         else { el._audio.pause(); if (icon) icon.className = 'fas fa-play'; }
         return;
       }
       
-      el._audio = new Audio(audioUrl);
-      el._audio.onended = () => { if (icon) icon.className = 'fas fa-play'; };
-      el._audio.onerror = () => { if (icon) icon.className = 'fas fa-exclamation-triangle'; };
-      el._audio.play();
-      if (icon) icon.className = 'fas fa-pause';
+      try {
+        el._audio = new Audio(audioUrl);
+        el._audio.onended = () => { if (icon) icon.className = 'fas fa-play'; };
+        el._audio.onerror = () => { if (icon) icon.className = 'fas fa-exclamation-triangle'; showToast('Cannot play audio', true); };
+        el._audio.play().catch(()=>{ if (icon) icon.className = 'fas fa-exclamation-triangle'; });
+        if (icon) icon.className = 'fas fa-pause';
+      } catch(e) { showToast('Audio error', true); }
     };
 
-    // ✅ Comments rendering
+    // ✅ Comments
     async function renderAllComments(postId) {
       const list = document.getElementById('commentsList');
       list.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;">Loading...</div>';
@@ -325,7 +299,7 @@
         await batchLoadProfiles(allComments.map(c => c.username));
         list.innerHTML = '';
         allComments.filter(c => !c.parentId).forEach(cmt => renderComment(cmt, allComments, list, 0));
-      } catch(e) { list.innerHTML = '<div style="text-align:center;color:#ef4444;padding:2rem;">Error</div>'; }
+      } catch(e) { list.innerHTML = '<div style="text-align:center;color:#ef4444;padding:2rem;">Error loading</div>'; }
     }
 
     function renderComment(cmt, all, parent, depth) {
@@ -336,14 +310,12 @@
       const isOwner = cmt.username === currentUser;
       
       let contentHTML = '';
-      if (cmt.text) {
-        contentHTML = `<div class="cmt-content">${cmt.text}</div>`;
-      }
+      if (cmt.text) contentHTML = `<div class="cmt-content">${cmt.text}</div>`;
       if (cmt.audioUrl) {
         contentHTML += `<div class="vc-play-btn" onclick="event.stopPropagation();playVoiceComment('${cmt.id}','${cmt.audioUrl}')"><i class="fas fa-play"></i> Voice <span class="vc-duration">${fmtDur(cmt.audioDuration||0)}</span></div>`;
       }
       
-      block.innerHTML = `<div class="cmt-row"><div class="cmt-avatar" data-avatar-user="${cmt.username}">${getAvtFromCache(cmt.username)}</div><div class="cmt-body"><div class="cmt-username">${cname(cmt.username)}</div>${contentHTML}<div class="cmt-meta"><span class="cmt-time">${time}</span><button class="cmt-btn reply-btn" onclick="toggleReplyBox('${cmt.id}')">Reply</button><button class="cmt-btn del-btn ${isOwner?'show':''}" onclick="deleteComment('${activePostId}','${cmt.id}')">Del</button></div><div class="reply-box" id="replyBox-${cmt.id}"><div class="reply-input-wrap"><button class="reply-mic-btn" id="replyMic-${cmt.id}" onclick="event.stopPropagation();toggleReplyMic('${cmt.id}')"><i class="fas fa-microphone"></i></button><input type="text" class="reply-input" id="replyInput-${cmt.id}" placeholder="Reply..."></div><button class="reply-post-btn" onclick="postReply('${activePostId}','${cmt.id}')">Reply</button></div><div class="replies-container" id="replies-${cmt.id}"></div></div></div>`;
+      block.innerHTML = `<div class="cmt-row"><div class="cmt-avatar" data-avatar-user="${cmt.username}">${getAvtFromCache(cmt.username)}</div><div class="cmt-body"><div class="cmt-username">${cname(cmt.username)}</div>${contentHTML}<div class="cmt-meta"><span class="cmt-time">${time}</span><button class="cmt-btn reply-btn" onclick="toggleReplyBox('${cmt.id}')">Reply</button><button class="cmt-btn del-btn ${isOwner?'show':''}" onclick="deleteComment('${activePostId}','${cmt.id}')">Del</button></div><div class="reply-box" id="replyBox-${cmt.id}"><div class="reply-input-wrap"><input type="text" class="reply-input" id="replyInput-${cmt.id}" placeholder="Reply..."></div><button class="reply-post-btn" onclick="postReply('${activePostId}','${cmt.id}')">Reply</button></div><div class="replies-container" id="replies-${cmt.id}"></div></div></div>`;
       parent.appendChild(block);
       
       const children = all.filter(c => c.parentId === cmt.id);
@@ -354,8 +326,8 @@
     }
 
     window.toggleReplyBox = function(id) { const b = document.getElementById('replyBox-'+id); if(b){b.classList.toggle('show');if(b.classList.contains('show'))setTimeout(()=>document.getElementById('replyInput-'+id)?.focus(),100);} };
-    window.postMainComment = async function() { const t = document.getElementById('cmtInput').value.trim(); if(!t||!activePostId)return; try{await addDoc(collection(db,'posts',activePostId,'comments'),{text:t,username:currentUser,createdAt:serverTimestamp(),parentId:null});await updateDoc(doc(db,'posts',activePostId),{comments:increment(1)});document.getElementById('cmtInput').value='';await renderAllComments(activePostId);showToast('Posted!💬');}catch(e){showToast('Failed',true);} };
-    window.postReply = async function(pid,parentId) { const t = document.getElementById('replyInput-'+parentId)?.value.trim(); if(!t||!pid)return; try{await addDoc(collection(db,'posts',pid,'comments'),{text:t,username:currentUser,parentId,createdAt:serverTimestamp()});await updateDoc(doc(db,'posts',pid),{comments:increment(1)});document.getElementById('replyInput-'+parentId).value='';document.getElementById('replyBox-'+parentId)?.classList.remove('show');await renderAllComments(pid);showToast('Replied!💬');}catch(e){showToast('Failed',true);} };
+    window.postMainComment = async function() { const t = document.getElementById('cmtInput').value.trim(); if(!t||!activePostId)return; try{await addDoc(collection(db,'posts',activePostId,'comments'),{text:t,username:currentUser,createdAt:serverTimestamp(),parentId:null});await updateDoc(doc(db,'posts',activePostId),{comments:increment(1)});document.getElementById('cmtInput').value='';await renderAllComments(activePostId);showToast('Posted!');}catch(e){showToast('Failed',true);} };
+    window.postReply = async function(pid,parentId) { const t = document.getElementById('replyInput-'+parentId)?.value.trim(); if(!t||!pid)return; try{await addDoc(collection(db,'posts',pid,'comments'),{text:t,username:currentUser,parentId,createdAt:serverTimestamp()});await updateDoc(doc(db,'posts',pid),{comments:increment(1)});document.getElementById('replyInput-'+parentId).value='';document.getElementById('replyBox-'+parentId)?.classList.remove('show');await renderAllComments(pid);showToast('Replied!');}catch(e){showToast('Failed',true);} };
     window.deleteComment = async function(pid,cid) { if(!confirm('Delete?'))return; try{const all=await getDocs(collection(db,'posts',pid,'comments'));const del=[cid];const find=pids=>{all.forEach(d=>{if(pids.includes(d.data().parentId)){del.push(d.id);find([d.id]);}});};find([cid]);for(const id of del)await deleteDoc(doc(db,'posts',pid,'comments',id));await updateDoc(doc(db,'posts',pid),{comments:increment(-del.length)});await renderAllComments(pid);showToast('Deleted');}catch(e){showToast('Failed',true);} };
     window.openComments = async function(pid) { activePostId=pid;document.getElementById('commentsOverlay').classList.add('show');document.getElementById('cmtInput').value='';await renderAllComments(pid); };
     window.closeComments = function() { cancelRecording();document.getElementById('commentsOverlay').classList.remove('show');activePostId=null; };

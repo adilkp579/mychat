@@ -16,7 +16,6 @@
     .top-brand { font-size:2rem;font-weight:700;color:#fff;letter-spacing:3px;font-family:'Segoe Script','Brush Script MT','Apple Chancery','Comic Sans MS',cursive;position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;line-height:1;font-style:italic; }
     .stories-section { width:100%;max-width:500px;flex-shrink:0;background:#000; }
     .stories-bar { display:flex;gap:0.8rem;padding:0.3rem 0.8rem 0.5rem 0.8rem;overflow-x:auto;border-bottom:1px solid #1a1a1a;background:#000; }
-    .stories-bar::-webkit-scrollbar { height:0; }
     .story-item { display:flex;flex-direction:column;align-items:center;gap:0.25rem;cursor:pointer;flex-shrink:0; }
     .story-ring { width:62px;height:62px;border-radius:50%;padding:2px;display:flex;align-items:center;justify-content:center; }
     .story-ring.friend { background:linear-gradient(45deg,#f59e0b,#ef4444,#e91e63); }
@@ -24,7 +23,6 @@
     .story-avatar { width:54px;height:54px;border-radius:50%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;font-size:1.3rem;border:2px solid #000;color:#fff;overflow:hidden; }
     .story-avatar img { width:100%;height:100%;object-fit:cover; }
     .story-name { font-size:0.6rem;color:#999;max-width:65px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
-    .no-stories { padding:0.5rem 0.8rem;color:#555;font-size:0.7rem;text-align:center;width:100%;background:#000; }
     .feed-section { width:100%;max-width:500px;flex-shrink:0;background:#000; }
     .feed-card { width:100%;background:#000;border-bottom:1px solid #1a1a1a;margin-bottom:1rem; }
     .feed-header { display:flex;align-items:center;gap:0.6rem;padding:0.6rem 0.8rem;background:#000; }
@@ -43,22 +41,35 @@
     .feed-caption span { font-weight:600;color:#3897f0;cursor:pointer;margin-right:0.3rem; }
     .view-comments-btn { padding:0 0.8rem 0.5rem 0.8rem;font-size:0.65rem;color:#888;cursor:pointer;background:#000; }
     
-    /* Share overlay - users only */
+    /* Share overlay */
     .share-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:900;display:none;align-items:flex-end;justify-content:center; }
     .share-overlay.show { display:flex; }
-    .share-sheet { background:#1a1a1a;border-radius:1.5rem 1.5rem 0 0;padding:1.5rem 1rem 2rem 1rem;width:100%;max-width:500px;max-height:70vh;overflow-y:auto;animation:slideUp 0.3s ease; }
+    .share-sheet { background:#1a1a1a;border-radius:1.5rem 1.5rem 0 0;padding:1.5rem 1rem 2rem 1rem;width:100%;max-width:500px;max-height:80vh;overflow-y:auto;animation:slideUp 0.3s ease; }
     @keyframes slideUp { from{transform:translateY(100%);} to{transform:translateY(0);} }
-    .share-sheet h4 { font-size:0.85rem;color:#fff;text-align:center;margin-bottom:0.8rem; }
+    .share-sheet h4 { font-size:0.85rem;color:#fff;text-align:center;margin-bottom:1rem; }
+    
+    /* Copy link option */
+    .share-link-section { display:flex;align-items:center;gap:0.5rem;background:#111;border-radius:0.8rem;padding:0.5rem;margin-bottom:1rem;border:1px solid #333; }
+    .share-link-input { flex:1;background:transparent;border:none;color:#fff;font-size:0.7rem;outline:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+    .share-copy-btn { padding:0.5rem 0.8rem;border-radius:0.5rem;background:#FFFC00;color:#000;border:none;font-size:0.65rem;font-weight:600;cursor:pointer;white-space:nowrap; }
+    .share-copy-btn:active { transform:scale(0.95); }
+    
+    /* Divider */
+    .share-divider { display:flex;align-items:center;gap:0.5rem;margin-bottom:0.8rem; }
+    .share-divider span { font-size:0.6rem;color:#666;flex-shrink:0; }
+    .share-divider::before,.share-divider::after { content:'';flex:1;height:1px;background:rgba(255,255,255,0.1); }
+    
+    /* User list */
     .share-search { width:100%;padding:0.6rem 0.8rem;border-radius:0.8rem;border:1px solid #333;background:#111;color:#fff;font-size:0.75rem;outline:none;margin-bottom:0.8rem; }
     .share-search:focus { border-color:#FFFC00; }
-    .share-user-list { max-height:40vh;overflow-y:auto; }
+    .share-user-list { max-height:35vh;overflow-y:auto; }
     .share-user-item { display:flex;align-items:center;gap:0.6rem;padding:0.6rem;border-radius:0.8rem;cursor:pointer;transition:all 0.2s; }
     .share-user-item:hover { background:rgba(255,255,255,0.05); }
     .share-user-item:active { background:rgba(255,252,0,0.1); }
     .share-user-avatar { width:40px;height:40px;border-radius:50%;background:#333;display:flex;align-items:center;justify-content:center;font-size:0.9rem;color:#fff;overflow:hidden;flex-shrink:0; }
     .share-user-avatar img { width:100%;height:100%;object-fit:cover; }
     .share-user-name { font-size:0.8rem;color:#fff;flex:1; }
-    .share-user-send { color:#FFFC00;font-size:0.7rem;padding:0.3rem 0.6rem;border-radius:0.5rem;background:rgba(255,252,0,0.1);border:1px solid rgba(255,252,0,0.3); }
+    .share-user-send { color:#FFFC00;font-size:0.65rem;padding:0.3rem 0.6rem;border-radius:0.5rem;background:rgba(255,252,0,0.1);border:1px solid rgba(255,252,0,0.2); }
     .share-cancel { width:100%;padding:0.7rem;border-radius:1rem;background:rgba(255,255,255,0.08);border:none;color:#fff;font-size:0.8rem;cursor:pointer;margin-top:0.8rem; }
 
     .comments-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:700;display:none;flex-direction:column; }
@@ -132,10 +143,21 @@
       <div class="feed-section" id="feedContainer"></div>
     </div>
     
-    <!-- Share to Users Overlay -->
+    <!-- Share Overlay -->
     <div class="share-overlay" id="shareOverlay">
       <div class="share-sheet">
-        <h4>📤 Share with Friends</h4>
+        <h4>📤 Share Post</h4>
+        
+        <!-- Copy Link Section -->
+        <div class="share-link-section">
+          <input type="text" class="share-link-input" id="shareLinkInput" readonly>
+          <button class="share-copy-btn" onclick="copyShareLink()"><i class="fas fa-copy"></i> Copy</button>
+        </div>
+        
+        <!-- Divider -->
+        <div class="share-divider"><span>OR SHARE WITH</span></div>
+        
+        <!-- Search Users -->
         <input type="text" class="share-search" id="shareSearch" placeholder="🔍 Search users..." oninput="filterShareUsers()">
         <div class="share-user-list" id="shareUserList"></div>
         <button class="share-cancel" onclick="closeShare()">Cancel</button>
@@ -207,14 +229,18 @@
     function updateAllAvatars() { document.querySelectorAll('[data-avatar-user]').forEach(el => { el.innerHTML = getAvtFromCache(el.dataset.avatarUser); }); }
     function showToast(m, e) { const t = document.getElementById('toast'); t.textContent = m; t.className = 'toast '+(e?'error':''); t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2500); }
 
-    // ============ SHARE TO USERS ============
+    // ============ SHARE ============
     window.openShare = async function(postId, src, caption, postUser) {
       window._sharePostId = postId;
       window._sharePostSrc = src;
       window._sharePostCaption = caption;
       window._sharePostUser = postUser;
       
-      // Load users for share
+      // Set link
+      const shareUrl = window.location.origin + '/index.html?post=' + postId;
+      document.getElementById('shareLinkInput').value = shareUrl;
+      
+      // Load users
       await loadShareUsers();
       document.getElementById('shareOverlay').classList.add('show');
       document.getElementById('shareSearch').value = '';
@@ -225,38 +251,47 @@
       document.getElementById('shareOverlay').classList.remove('show');
     };
 
+    window.copyShareLink = async function() {
+      const link = document.getElementById('shareLinkInput').value;
+      try {
+        await navigator.clipboard.writeText(link);
+        showToast('Link copied! 📋');
+      } catch(e) {
+        // Fallback
+        const ta = document.createElement('textarea');
+        ta.value = link;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast('Link copied! 📋');
+      }
+    };
+
     async function loadShareUsers() {
       shareUserList = [];
       const profile = JSON.parse(localStorage.getItem('userProfile')||'{}');
       const friends = profile.friends || [];
       
-      // Add friends
+      // Add friends first
       friends.forEach(f => {
         if (f.name !== currentUser) {
-          shareUserList.push({
-            username: f.name,
-            name: cname(f.name),
-            avatar: f.avatar || null
-          });
+          shareUserList.push({ username: f.name, name: cname(f.name), avatar: f.avatar || null });
         }
       });
       
-      // Try to load more users from Firestore
+      // Try Firestore for more users
       try {
         const snap = await getDocs(collection(db, 'users'));
         snap.forEach(doc => {
           const d = doc.data();
           if (d.username && d.username !== currentUser && !shareUserList.find(u => u.username === d.username)) {
-            shareUserList.push({
-              username: d.username,
-              name: d.name || cname(d.username),
-              avatar: d.avatar || null
-            });
+            shareUserList.push({ username: d.username, name: d.name || cname(d.username), avatar: d.avatar || null });
           }
         });
       } catch(e) {}
       
-      // Load avatars
+      // Load cached avatars
       for (const u of shareUserList) {
         const cached = loadUserFromLocalCache(u.username);
         if (cached?.avatar) u.avatar = cached.avatar;
@@ -292,13 +327,10 @@
       const src = window._sharePostSrc;
       const caption = window._sharePostCaption || '';
       const postId = window._sharePostId;
-      const postUser = window._sharePostUser || currentUser;
       
       try {
-        // Create chat between current user and target user
         const chatId = [currentUserId, targetUser.replace('@','')].sort().join('_');
         
-        // Send the post as a message in chat
         await addDoc(collection(db, 'chats', chatId, 'messages'), {
           imageUrl: src,
           text: '📷 Shared post' + (caption ? ': ' + caption : ''),
@@ -306,11 +338,9 @@
           createdAt: serverTimestamp(),
           seen: false,
           type: 'shared_post',
-          originalPostId: postId,
-          originalUser: postUser
+          originalPostId: postId
         });
         
-        // Update chat metadata
         await setDoc(doc(db, 'chats', chatId), {
           lastMessageTime: serverTimestamp(),
           lastMessage: '📷 Shared a post',
@@ -318,9 +348,8 @@
         }, { merge: true });
         
         closeShare();
-        showToast('Post shared to ' + cname(targetUser) + '! ✅');
+        showToast('Shared to ' + cname(targetUser) + '! ✅');
       } catch(e) {
-        console.error('Share error:', e);
         showToast('Failed to share', true);
       }
     };
@@ -329,15 +358,13 @@
       if (e.target === this) closeShare();
     });
 
-    // ============ VOICE ============
+    // Voice, Comments, Feed (same as before)
     window.toggleMainMic = function() { if (voiceRecorder && voiceRecorder.state === 'recording') { sendRecording(); } else { startVoiceRecording(); } };
-    async function startVoiceRecording() { try { const stream = await navigator.mediaDevices.getUserMedia({ audio: true }); voiceRecorder = new MediaRecorder(stream, { audioBitsPerSecond: 32000 }); voiceChunks = []; voiceSeconds = 0; voiceRecorder.ondataavailable = e => { if (e.data.size > 0) voiceChunks.push(e.data); }; voiceRecorder.onstop = () => { stream.getTracks().forEach(t => t.stop()); }; voiceRecorder.start(100); document.getElementById('globalRecBar').classList.add('show'); document.getElementById('grecTimer').textContent = '00:00'; document.getElementById('mainMicBtn').classList.add('recording'); voiceTimer = setInterval(() => { voiceSeconds++; document.getElementById('grecTimer').textContent = fmtDur(voiceSeconds); if (voiceSeconds >= MAX_VOICE_SEC) sendRecording(); }, 1000); } catch(e) { showToast('Microphone access needed!', true); } }
+    async function startVoiceRecording() { try { const stream = await navigator.mediaDevices.getUserMedia({ audio: true }); voiceRecorder = new MediaRecorder(stream, { audioBitsPerSecond: 32000 }); voiceChunks = []; voiceSeconds = 0; voiceRecorder.ondataavailable = e => { if (e.data.size > 0) voiceChunks.push(e.data); }; voiceRecorder.onstop = () => { stream.getTracks().forEach(t => t.stop()); }; voiceRecorder.start(100); document.getElementById('globalRecBar').classList.add('show'); document.getElementById('grecTimer').textContent = '00:00'; document.getElementById('mainMicBtn').classList.add('recording'); voiceTimer = setInterval(() => { voiceSeconds++; document.getElementById('grecTimer').textContent = fmtDur(voiceSeconds); if (voiceSeconds >= MAX_VOICE_SEC) sendRecording(); }, 1000); } catch(e) { showToast('Microphone needed!', true); } }
     window.cancelRecording = function() { if (voiceRecorder && voiceRecorder.state === 'recording') { voiceRecorder.onstop = () => {}; voiceRecorder.stop(); voiceChunks = []; } clearInterval(voiceTimer); document.getElementById('globalRecBar').classList.remove('show'); document.getElementById('mainMicBtn').classList.remove('recording'); voiceRecorder = null; };
-    window.sendRecording = async function() { if (!voiceRecorder || voiceRecorder.state !== 'recording' || !activePostId) return; if (voiceSeconds < 1) { cancelRecording(); return; } const duration = voiceSeconds; voiceRecorder.onstop = async () => { const blob = new Blob(voiceChunks, { type: 'audio/webm' }); const reader = new FileReader(); reader.onload = async (e) => { try { await addDoc(collection(db, 'posts', activePostId, 'comments'), { audioUrl: e.target.result, audioDuration: duration, username: currentUser, parentId: null, createdAt: serverTimestamp(), type: 'voice' }); await updateDoc(doc(db, 'posts', activePostId), { comments: increment(1) }); await renderAllComments(activePostId); showToast('Voice comment posted! 🎤'); } catch(err) { showToast('Failed to save', true); } }; reader.readAsDataURL(blob); }; voiceRecorder.stop(); clearInterval(voiceTimer); document.getElementById('globalRecBar').classList.remove('show'); document.getElementById('mainMicBtn').classList.remove('recording'); voiceRecorder = null; };
-
+    window.sendRecording = async function() { if (!voiceRecorder || voiceRecorder.state !== 'recording' || !activePostId) return; if (voiceSeconds < 1) { cancelRecording(); return; } const duration = voiceSeconds; voiceRecorder.onstop = async () => { const blob = new Blob(voiceChunks, { type: 'audio/webm' }); const reader = new FileReader(); reader.onload = async (e) => { try { await addDoc(collection(db, 'posts', activePostId, 'comments'), { audioUrl: e.target.result, audioDuration: duration, username: currentUser, parentId: null, createdAt: serverTimestamp(), type: 'voice' }); await updateDoc(doc(db, 'posts', activePostId), { comments: increment(1) }); await renderAllComments(activePostId); showToast('Voice posted! 🎤'); } catch(err) { showToast('Failed', true); } }; reader.readAsDataURL(blob); }; voiceRecorder.stop(); clearInterval(voiceTimer); document.getElementById('globalRecBar').classList.remove('show'); document.getElementById('mainMicBtn').classList.remove('recording'); voiceRecorder = null; };
     window.playVoiceComment = function(cmtId, audioUrl) { if (!audioUrl) return; const el = document.getElementById('cmt-' + cmtId); if (!el) return; const btn = el.querySelector('.vc-play-btn'); const icon = btn?.querySelector('i'); Object.values(window._voicePlayers).forEach(a => { if (a && !a.paused) { a.pause(); } }); document.querySelectorAll('.vc-play-btn i').forEach(i => { i.className = 'fas fa-play'; }); if (window._voicePlayers[cmtId] && !window._voicePlayers[cmtId].paused) { window._voicePlayers[cmtId].pause(); if (icon) icon.className = 'fas fa-play'; return; } let audio = window._voicePlayers[cmtId]; if (!audio) { audio = new Audio(); window._voicePlayers[cmtId] = audio; } if (audio.src !== audioUrl) { audio.src = audioUrl; } audio.onplay = () => { if (icon) icon.className = 'fas fa-pause'; }; audio.onpause = () => { if (icon) icon.className = 'fas fa-play'; }; audio.onended = () => { if (icon) icon.className = 'fas fa-play'; }; audio.play().catch(err => { if (icon) icon.className = 'fas fa-exclamation-triangle'; }); };
 
-    // Comments
     async function renderAllComments(postId) { const list = document.getElementById('commentsList'); list.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;">Loading...</div>'; try { const q = query(collection(db, 'posts', postId, 'comments'), orderBy('createdAt', 'asc')); const snap = await getDocs(q); if (snap.empty) { list.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;">No comments yet</div>'; return; } const allComments = []; snap.forEach(doc => { allComments.push({ id: doc.id, ...doc.data() }); }); await batchLoadProfiles([...new Set(allComments.map(c => c.username).filter(Boolean))]); list.innerHTML = ''; allComments.filter(c => !c.parentId).forEach(cmt => renderComment(cmt, allComments, list, 0)); } catch(e) { list.innerHTML = '<div style="text-align:center;color:#ef4444;padding:2rem;">Error</div>'; } }
     function renderComment(cmt, all, parent, depth) { const block = document.createElement('div'); block.className = 'cmt-block'; block.id = 'cmt-' + cmt.id; if (depth > 0) { block.style.marginLeft = '1.5rem'; block.style.borderLeft = '1px solid rgba(255,255,255,0.06)'; block.style.paddingLeft = '0.5rem'; } const time = cmt.createdAt ? timeAgo(cmt.createdAt.toDate()) : ''; const isOwner = cmt.username === currentUser; let contentHTML = ''; if (cmt.text) contentHTML = `<div class="cmt-content">${cmt.text}</div>`; if (cmt.audioUrl) { contentHTML += `<div class="vc-play-btn" onclick="event.stopPropagation();playVoiceComment('${cmt.id}','${cmt.audioUrl}')"><i class="fas fa-play"></i> Voice <span class="vc-duration">${fmtDur(cmt.audioDuration||0)}</span></div>`; } block.innerHTML = `<div class="cmt-row"><div class="cmt-avatar" data-avatar-user="${cmt.username}">${getAvtFromCache(cmt.username)}</div><div class="cmt-body"><div class="cmt-username">${cname(cmt.username)}</div>${contentHTML}<div class="cmt-meta"><span class="cmt-time">${time}</span><button class="cmt-btn reply-btn" onclick="toggleReplyBox('${cmt.id}')">Reply</button><button class="cmt-btn del-btn ${isOwner?'show':''}" onclick="deleteComment('${activePostId}','${cmt.id}')">Del</button></div><div class="reply-box" id="replyBox-${cmt.id}"><div class="reply-input-wrap"><input type="text" class="reply-input" id="replyInput-${cmt.id}" placeholder="Reply..."></div><button class="reply-post-btn" onclick="postReply('${activePostId}','${cmt.id}')">Reply</button></div><div class="replies-container" id="replies-${cmt.id}"></div></div></div>`; parent.appendChild(block); const children = all.filter(c => c.parentId === cmt.id); if (children.length > 0) { const rc = block.querySelector('.replies-container'); children.forEach(child => renderComment(child, all, rc, depth + 1)); } }
     window.toggleReplyBox = function(id) { const b = document.getElementById('replyBox-'+id); if(b){b.classList.toggle('show');if(b.classList.contains('show'))setTimeout(()=>document.getElementById('replyInput-'+id)?.focus(),100);} };
@@ -347,7 +374,6 @@
     window.openComments = async function(pid) { activePostId=pid;document.getElementById('commentsOverlay').classList.add('show');document.getElementById('cmtInput').value='';await renderAllComments(pid); };
     window.closeComments = function() { cancelRecording(); Object.values(window._voicePlayers).forEach(a => { if (a) { a.pause(); a.src = ''; } }); window._voicePlayers = {}; document.getElementById('commentsOverlay').classList.remove('show'); activePostId=null; };
 
-    // Feed
     function isImagePost(src,type) { if(!src)return false;if(type==='reel'||type==='video')return false;if(src.startsWith('data:video/'))return false;if(src.match(/\.(mp4|webm|mov|avi|mkv)($|\?)/i))return false;return true; }
     async function loadMorePosts() { if(isLoadingPosts||allPostsLoaded)return;isLoadingPosts=true;try{let q;if(lastVisiblePost)q=query(collection(db,'posts'),orderBy('createdAt','desc'),startAfter(lastVisiblePost),limit(PAGE_SIZE));else q=query(collection(db,'posts'),orderBy('createdAt','desc'),limit(PAGE_SIZE));const snap=await getDocs(q);if(snap.empty){allPostsLoaded=true;if(!lastVisiblePost)document.getElementById('feedContainer').innerHTML='<div style="text-align:center;color:#555;padding:3rem;">No posts yet</div>';return;}const posts=[];snap.forEach(doc=>{const dt=doc.data();const src=dt.data||dt.url||'';const type=dt.type||'';if(src&&isImagePost(src,type))posts.push({id:doc.id,userId:dt.username||dt.userId||'@anonymous',caption:dt.caption||'',src,likes:dt.likes||0,comments:dt.comments||0,time:dt.createdAt?timeAgo(dt.createdAt.toDate()):'Recently'});});lastVisiblePost=snap.docs[snap.docs.length-1];if(posts.length>0){await batchLoadProfiles(posts.map(p=>p.userId));renderPostsToFeed(posts);}}catch(e){}finally{isLoadingPosts=false;} }
     function renderPostsToFeed(posts) { const c=document.getElementById('feedContainer');posts.forEach(p=>{const card=document.createElement('div');card.className='feed-card';card.innerHTML=`<div class="feed-header"><div class="feed-avatar" data-avatar-user="${p.userId}" onclick="window.location.href='profile.html?user=${encodeURIComponent(p.userId)}'">${getAvtFromCache(p.userId)}</div><div><div class="feed-username" onclick="window.location.href='profile.html?user=${encodeURIComponent(p.userId)}'">${cname(p.userId)}</div></div><span class="feed-time">${p.time}</span></div><div class="feed-image" onclick="openImageViewer('${p.src}')"><img src="${p.src}" alt="post" loading="lazy"></div><div class="feed-actions"><button class="feed-action" id="likeBtn-${p.id}" onclick="toggleLike('${p.id}')"><i class="far fa-heart"></i></button><button class="feed-action" onclick="openComments('${p.id}')"><i class="far fa-comment"></i></button><button class="feed-action" onclick="openShare('${p.id}','${p.src.replace(/'/g,"\\'")}','${(p.caption||'').replace(/'/g,"\\'")}','${p.userId}')"><i class="far fa-share-square"></i></button></div><div class="feed-likes" id="likes-${p.id}">${p.likes||0} likes</div><div class="feed-caption"><span onclick="window.location.href='profile.html?user=${encodeURIComponent(p.userId)}'">${cname(p.userId)}</span>${p.caption}</div><div class="view-comments-btn" onclick="openComments('${p.id}')">View all ${p.comments||0} comments</div>`;c.appendChild(card);}); }

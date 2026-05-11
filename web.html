@@ -14,6 +14,7 @@
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
     @keyframes livePulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.7)} 50%{box-shadow:0 0 0 10px rgba(239,68,68,0)} }
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+    @keyframes giftFloat { 0%{transform:translateY(0) scale(1);opacity:1} 100%{transform:translateY(-80px) scale(1.5);opacity:0} }
     
     .top-left-live {
       position:fixed;top:max(1rem,env(safe-area-inset-top,1rem));left:max(1rem,env(safe-area-inset-left,1rem));
@@ -30,7 +31,7 @@
       text-decoration:none;border:1px solid rgba(74,222,128,0.3);cursor:pointer;
     }
     
-    .camera-section { height:70%;display:flex;flex-direction:column;align-items:center;padding:3rem 1rem 0 1rem;color:#fff; }
+    .camera-section { height:65%;display:flex;flex-direction:column;align-items:center;padding:3rem 1rem 0 1rem;color:#fff; }
     .online-counter { display:flex;align-items:center;gap:0.3rem;color:#4ade80;font-size:0.6rem;flex-shrink:0; }
     .online-dot { width:4px;height:4px;background:#4ade80;border-radius:50%;animation:blink 2s infinite; }
     .live-status { display:none;align-items:center;gap:0.3rem;background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);padding:0.15rem 0.7rem;border-radius:1.5rem;font-size:0.55rem;color:#ef4444;font-weight:600;animation:livePulse 2s infinite;flex-shrink:0; }
@@ -52,7 +53,19 @@
     .my-placeholder { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.1rem;color:rgba(255,255,255,0.35);font-size:0.5rem; }
     .my-placeholder i { font-size:1rem; }
     
-    .buttons-section { height:10%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 1rem; }
+    /* Token/Gift buttons row - Mobile below You screen */
+    .token-row { display:flex;gap:0.4rem;justify-content:center;padding:0.3rem 1rem 0 1rem;flex-shrink:0; }
+    .token-btn { width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:all 0.2s;position:relative;color:#fff; }
+    .token-btn:active { transform:scale(0.85); }
+    .token-btn .token-cost { position:absolute;bottom:-4px;right:-4px;background:#FFFC00;color:#000;font-size:0.35rem;font-weight:700;padding:0.1rem 0.2rem;border-radius:0.3rem;min-width:16px;text-align:center; }
+    .token-btn.token-chicken { color:#f59e0b; }
+    .token-btn.token-lion { color:#ef4444; }
+    .token-btn.token-fish { color:#3b82f6; }
+    .token-btn.token-bike { color:#a855f7; }
+    
+    .gift-float { position:absolute;font-size:1.5rem;pointer-events:none;animation:giftFloat 1.5s ease-out forwards;z-index:50; }
+    
+    .buttons-section { display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0.2rem 1rem 0.5rem 1rem;flex-shrink:0; }
     .buttons-container { display:flex;gap:0.35rem;flex-wrap:wrap;justify-content:center;align-items:center; }
     .btn { height:32px;border-radius:2rem;display:inline-flex;align-items:center;justify-content:center;gap:0.2rem;cursor:pointer;border:1px solid transparent;outline:none;font-size:0.7rem;font-weight:600;padding:0 0.8rem;color:#fff;transition:all 0.3s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none;white-space:nowrap; }
     .btn:active { transform:scale(0.95); }
@@ -75,7 +88,7 @@
     .loading-screen { position:fixed;top:0;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:0.5rem; }
     .loading-screen i { font-size:2rem;color:#3897f0;animation:spin 1s infinite; }
     .loading-screen span { font-size:0.75rem;color:#888; }
-    .nav-spacer { height:20%; }
+    .nav-spacer { height:10%; }
 
     .floating-nav { position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(10,10,10,0.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.05);z-index:100;box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.03); }
     .floating-nav:hover { background:rgba(10,10,10,0.15); }
@@ -97,15 +110,23 @@
       .nav-center a.nav-live{color:rgba(239,68,68,0.8)}.nav-center a.nav-live:hover{color:#ef4444;background:rgba(239,68,68,0.15)}
       .nav-center a.nav-wallet{color:rgba(74,222,128,0.8)}.nav-center a.nav-wallet:hover{color:#4ade80;background:rgba(74,222,128,0.12)}
       .page{padding-left:5rem}
-      .camera-section{padding:1rem 2rem 0 2rem;height:75%;max-width:900px;margin:0 auto;width:100%}
+      .camera-section{padding:1rem 2rem 0 2rem;height:70%;max-width:900px;margin:0 auto;width:100%}
       .camera-container{max-width:900px;gap:1rem;align-items:stretch}
       .stranger-camera{width:50%;height:100%;border-radius:1.5rem}.my-camera{width:50%;max-height:none;height:100%;aspect-ratio:auto;border-radius:1.5rem}
       .stranger-placeholder i{font-size:3rem}.my-placeholder i{font-size:1.5rem}
-      .camera-labels{max-width:900px}.buttons-section{max-width:900px;margin:0 auto;width:100%}.nav-spacer{height:15%}
+      .camera-labels{max-width:900px}
+      /* Desktop: token row same line as live/start buttons */
+      .token-row{display:flex;gap:0.5rem;padding:0;flex-shrink:0;}
+      .token-btn{width:34px;height:34px;font-size:1rem;}
+      .buttons-container{gap:0.4rem;}
+      .buttons-section{max-width:900px;margin:0 auto;width:100%}
+      .nav-spacer{height:12%}
     }
     @media (max-width:380px) {
-      .camera-section{padding:3rem 0.5rem 0 0.5rem}.btn{height:29px;font-size:0.63rem;padding:0 0.55rem}
+      .camera-section{padding:3rem 0.5rem 0 0.5rem;height:60%}
+      .btn{height:29px;font-size:0.63rem;padding:0 0.55rem}
       .live-button{min-width:58px}.next-button{min-width:50px}.mic-button{width:29px;height:29px}
+      .token-btn{width:32px;height:32px;font-size:1rem}
       .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:max(0.8rem,env(safe-area-inset-bottom,0.8rem));background:rgba(10,10,10,0.1)}
       .nav-center a{font-size:1.1rem;width:2rem;height:2rem}.my-camera{max-height:85px}
       .top-left-live,.top-right-wallet{width:2rem;height:2rem;font-size:0.85rem}
@@ -133,8 +154,17 @@
         </div>
       </div>
     </div>
+    
+    <!-- ✅ Token/Gift Buttons - Mobile: below You screen -->
+    <div class="token-row" id="tokenRow">
+      <button class="token-btn token-chicken" onclick="sendToken('🍗',5)" title="Chicken - 5 coins"><span>🍗</span><span class="token-cost">5</span></button>
+      <button class="token-btn token-lion" onclick="sendToken('🦁',10)" title="Lion - 10 coins"><span>🦁</span><span class="token-cost">10</span></button>
+      <button class="token-btn token-fish" onclick="sendToken('🐟',15)" title="Fish - 15 coins"><span>🐟</span><span class="token-cost">15</span></button>
+      <button class="token-btn token-bike" onclick="sendToken('🏍️',20)" title="Bike - 20 coins"><span>🏍️</span><span class="token-cost">20</span></button>
+    </div>
+    
     <div class="buttons-section">
-      <div class="buttons-container">
+      <div class="buttons-container" id="buttonsContainer">
         <button class="btn live-button" id="liveBtn" type="button"><i class="fas fa-circle"></i><span>LIVE</span></button>
         <button class="btn start-stop-btn start" id="startStopBtn" type="button"><i class="fas fa-play"></i><span>Start</span></button>
         <button class="btn next-button" id="nextBtn" type="button"><i class="fas fa-forward"></i><span>Next</span></button>
@@ -170,11 +200,28 @@
     document.getElementById('mainPage').style.display = 'flex';
     startWebChat();
 
+    // ✅ Global token send function
+    window.sendToken = function(emoji, amount) {
+      const strangerCam = document.getElementById('strangerCamera');
+      // Create floating emoji animation
+      const float = document.createElement('span');
+      float.className = 'gift-float';
+      float.textContent = emoji;
+      float.style.left = (Math.random() * 60 + 20) + '%';
+      float.style.top = '50%';
+      strangerCam.appendChild(float);
+      setTimeout(() => float.remove(), 1500);
+      
+      // You can also save token data to Firestore here
+      console.log('Token sent:', emoji, amount);
+    };
+
     function startWebChat() {
       const myFeed=document.getElementById('myFeed'),myPlaceholder=document.getElementById('myPlaceholder'),myCameraEl=document.getElementById('myCamera');
       const strangerFeed=document.getElementById('strangerFeed'),strangerPlaceholder=document.getElementById('strangerPlaceholder'),strangerCamera=document.getElementById('strangerCamera');
       const liveStatus=document.getElementById('liveStatus'),liveViewerCount=document.getElementById('liveViewerCount');
       const startStopBtn=document.getElementById('startStopBtn'),nextBtn=document.getElementById('nextBtn'),micBtn=document.getElementById('micBtn'),liveBtn=document.getElementById('liveBtn');
+      const tokenRow=document.getElementById('tokenRow');
       const myId=crypto.randomUUID?crypto.randomUUID():'id_'+Date.now()+'_'+Math.random().toString(36).substr(2,9);
       const currentUser=localStorage.getItem('currentUser')||'@anonymous',liveUserId=currentUser.replace('@','');
       let localStream,pc,roomId,unsubs=[],isMuted=false,isLive=false,strangerStream=null,liveViewers={},liveUnsub=null;
@@ -198,13 +245,8 @@
       }
 
       function handleStartStop(){
-        if(startStopBtn.classList.contains('stop')){
-          // Stop - works whether searching or connected
-          stopChat();
-        }else if(startStopBtn.classList.contains('start')){
-          // Start
-          startChat();
-        }
+        if(startStopBtn.classList.contains('stop')){stopChat();}
+        else if(startStopBtn.classList.contains('start')){startChat();}
       }
 
       function updateLiveButton(){if(isLive){liveBtn.innerHTML='<i class="fas fa-stop-circle"></i><span>END</span>';liveBtn.classList.add('live-active-btn');}else{liveBtn.innerHTML='<i class="fas fa-circle"></i><span>LIVE</span>';liveBtn.classList.remove('live-active-btn');}}
@@ -231,19 +273,12 @@
       
       async function startChat(){
         if(isLive){alert('Please tap END first.');return;}
-        
-        // ✅ Show Stop button immediately
-        setButtonState('stop');
-        isSearching=true;
-        
+        setButtonState('stop');isSearching=true;
         strangerPlaceholder.innerHTML='<i class="fas fa-spinner fa-spin"></i><span style="color:#fbbf24;">Searching...</span>';
         strangerPlaceholder.classList.add('searching-text');
-        
         if(!(await startCamera())){stopChat();return;}
-        
         const snap=await getDocs(collection(db,'waiting'));let found=null;
         snap.forEach(d=>{if(d.data().userId!==myId&&!found)found=d.data().userId;});
-        
         if(found){await deleteDoc(doc(db,'waiting',myId)).catch(()=>{});await deleteDoc(doc(db,'waiting',found)).catch(()=>{});await createRoom(found,true);}
         else{await setDoc(doc(db,'waiting',myId),{userId:myId});listenForInvites();}
       }
@@ -252,8 +287,7 @@
         if(pc){pc.close();pc=null;}unsubs.forEach(u=>u());unsubs=[];
         if(roomId){deleteDoc(doc(db,'rooms',roomId)).catch(()=>{});roomId=null;}
         deleteDoc(doc(db,'waiting',myId)).catch(()=>{});deleteDoc(doc(db,'invites',myId)).catch(()=>{});
-        if(isLive){endLive();}
-        isSearching=false;
+        if(isLive){endLive();}isSearching=false;
         resetStranger();stopCamera();showDisconnected();
       }
       

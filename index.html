@@ -142,6 +142,11 @@
     </nav>
   </div>
 
+  <script>
+    // Store audio elements globally for proper playback
+    window._voicePlayers = {};
+  </script>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getFirestore, collection, query, orderBy, limit, startAfter, getDocs, doc, addDoc, serverTimestamp, increment, updateDoc, where, deleteDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
@@ -246,8 +251,8 @@
         reader.onload = async (e) => {
           try {
             const audioData = e.target.result;
+            console.log('Saving voice, data length:', audioData.length);
             
-            // Save to Firestore
             const docRef = await addDoc(collection(db, 'posts', activePostId, 'comments'), {
               audioUrl: audioData,
               audioDuration: duration,
@@ -257,6 +262,7 @@
               type: 'voice'
             });
             
+            console.log('Voice saved with ID:', docRef.id);
             await updateDoc(doc(db, 'posts', activePostId), { comments: increment(1) });
             await renderAllComments(activePostId);
             showToast('Voice comment posted! 🎤');
@@ -275,45 +281,68 @@
       voiceRecorder = null;
     };
 
-    // ============ PLAY VOICE ============
+    // ============ PLAY VOICE - FIXED ============
     window.playVoiceComment = function(cmtId, audioUrl) {
-      if (!audioUrl) return;
+      console.log('Play voice called for:', cmtId);
+      console.log('Audio URL starts with:', audioUrl?.substring(0, 50));
+      
+      if (!audioUrl) {
+        showToast('No audio data', true);
+        return;
+      }
       
       const el = document.getElementById('cmt-' + cmtId);
-      if (!el) return;
+      if (!el) {
+        console.log('Element not found: cmt-' + cmtId);
+        return;
+      }
       
       const btn = el.querySelector('.vc-play-btn');
       const icon = btn?.querySelector('i');
       
-      // Stop if already playing
-      if (el._audio) {
-        if (!el._audio.paused) {
-          el._audio.pause();
-          if (icon) icon.className = 'fas fa-play';
-          return;
-        }
-        // Resume
-        el._audio.play().catch(() => {});
-        if (icon) icon.className = 'fas fa-pause';
+      // Stop all other playing audio
+      Object.values(window._voicePlayers).forEach(a => {
+        if (a && !a.paused) { a.pause(); }
+      });
+      
+      // Reset all icons
+      document.querySelectorAll('.vc-play-btn i').forEach(i => { i.className = 'fas fa-play'; });
+      
+      // If already playing this one, pause it
+      if (window._voicePlayers[cmtId] && !window._voicePlayers[cmtId].paused) {
+        window._voicePlayers[cmtId].pause();
+        if (icon) icon.className = 'fas fa-play';
         return;
       }
       
-      // Create new audio
-      const audio = new Audio(audioUrl);
-      el._audio = audio;
+      // Create or reuse audio element
+      let audio = window._voicePlayers[cmtId];
+      if (!audio) {
+        audio = new Audio();
+        window._voicePlayers[cmtId] = audio;
+      }
+      
+      // Set source if changed
+      if (audio.src !== audioUrl) {
+        audio.src = audioUrl;
+      }
       
       audio.onplay = () => { if (icon) icon.className = 'fas fa-pause'; };
       audio.onpause = () => { if (icon) icon.className = 'fas fa-play'; };
       audio.onended = () => { if (icon) icon.className = 'fas fa-play'; };
-      audio.onerror = () => { 
+      audio.onerror = (e) => { 
+        console.error('Audio error:', e);
         if (icon) icon.className = 'fas fa-exclamation-triangle'; 
         showToast('Cannot play audio', true);
       };
       
-      audio.play().catch(err => {
+      // Play
+      audio.play().then(() => {
+        console.log('Playing voice for:', cmtId);
+      }).catch(err => {
         console.error('Play error:', err);
         if (icon) icon.className = 'fas fa-exclamation-triangle';
-        showToast('Playback failed', true);
+        showToast('Playback failed: ' + err.message, true);
       });
     };
 
@@ -327,13 +356,19 @@
         const q = query(commentsRef, orderBy('createdAt', 'asc'));
         const snap = await getDocs(q);
         
+        console.log('Comments found:', snap.size);
+        
         if (snap.empty) {
           list.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;">No comments yet. Be the first!</div>';
           return;
         }
         
         const allComments = [];
-        snap.forEach(doc => { allComments.push({ id: doc.id, ...doc.data() }); });
+        snap.forEach(doc => { 
+          const data = doc.data();
+          console.log('Comment:', doc.id, 'has audio:', !!data.audioUrl, 'text:', !!data.text);
+          allComments.push({ id: doc.id, ...data }); 
+        });
         
         const usernames = [...new Set(allComments.map(c => c.username).filter(Boolean))];
         await batchLoadProfiles(usernames);
@@ -368,8 +403,10 @@
       }
       if (cmt.audioUrl) {
         const dur = cmt.audioDuration || 0;
+        // Use data attribute to store audio URL safely
+        const audioId = 'va_' + cmt.id;
         contentHTML += `
-          <div class="vc-play-btn" onclick="event.stopPropagation();playVoiceComment('${cmt.id}','${cmt.audioUrl.replace(/'/g, "\\'")}')">
+          <div class="vc-play-btn" data-audio-id="${audioId}" data-audio-url="${cmt.audioUrl.replace(/"/g, '&quot;')}" onclick="event.stopPropagation();playVoiceComment('${cmt.id}', this.dataset.audioUrl)">
             <i class="fas fa-play"></i>
             <span>Voice</span>
             <span class="vc-duration">${fmtDur(dur)}</span>
@@ -495,6 +532,9 @@
 
     window.closeComments = function() {
       cancelRecording();
+      // Stop all playing audio
+      Object.values(window._voicePlayers).forEach(a => { if (a) { a.pause(); a.src = ''; } });
+      window._voicePlayers = {};
       document.getElementById('commentsOverlay').classList.remove('show');
       activePostId = null;
     };

@@ -19,7 +19,8 @@
     .top-left-live {position:fixed;top:max(1rem,env(safe-area-inset-top,1rem));left:max(1rem,env(safe-area-inset-left,1rem));z-index:200;width:2.4rem;height:2.4rem;background:rgba(239,68,68,0.2);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:50%;color:#ef4444;font-size:1rem;display:flex;align-items:center;justify-content:center;text-decoration:none;border:1px solid rgba(239,68,68,0.3);cursor:pointer;animation:pulse 2s infinite;}
     .top-right-wallet {position:fixed;top:max(1rem,env(safe-area-inset-top,1rem));right:max(1rem,env(safe-area-inset-right,1rem));z-index:200;width:2.4rem;height:2.4rem;background:rgba(255,255,255,0.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:50%;color:#4ade80;font-size:1rem;display:flex;align-items:center;justify-content:center;text-decoration:none;border:1px solid rgba(74,222,128,0.3);cursor:pointer;}
     
-    .camera-section { height:70%;display:flex;flex-direction:column;align-items:center;padding:3rem 1rem 0 1rem;color:#fff;position:relative; }
+    /* Camera section */
+    .camera-section { height:60%;display:flex;flex-direction:column;align-items:center;padding:3rem 1rem 0 1rem;color:#fff;position:relative; }
     .online-counter { display:flex;align-items:center;gap:0.3rem;color:#4ade80;font-size:0.6rem;flex-shrink:0; }
     .online-dot { width:4px;height:4px;background:#4ade80;border-radius:50%;animation:blink 2s infinite; }
     .live-status { display:none;align-items:center;gap:0.3rem;background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);padding:0.15rem 0.7rem;border-radius:1.5rem;font-size:0.55rem;color:#ef4444;font-weight:600;animation:livePulse 2s infinite;flex-shrink:0; }
@@ -41,53 +42,49 @@
     .my-placeholder { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.1rem;color:rgba(255,255,255,0.35);font-size:0.5rem; }
     .my-placeholder i { font-size:1rem; }
     
-    /* ✅ Token buttons - Bigger size, mobile positioned 5cm from top */
-    .token-column { 
-      position:absolute;
-      right:0.2rem;
-      top:5cm; /* ✅ 5cm from top */
+    /* ✅ Token row - Horizontal below camera, above buttons */
+    .token-row-horizontal {
       display:flex;
-      flex-direction:column;
       gap:0.5rem;
-      z-index:15;
-      padding:0.1rem;
+      justify-content:center;
+      align-items:center;
+      padding:0.5rem 1rem;
+      flex-shrink:0;
+      flex-wrap:wrap;
     }
     .token-btn { 
-      width:75px; /* Increased width */
-      height:28px; /* Increased height */
-      border-radius:0.8rem;
-      border:2px solid rgba(255,255,255,0.2);
-      background:rgba(0,0,0,0.6);
-      backdrop-filter:blur(15px);
-      -webkit-backdrop-filter:blur(15px);
+      width:70px;
+      height:26px;
+      border-radius:0.7rem;
+      border:1.5px solid rgba(255,255,255,0.15);
+      background:rgba(0,0,0,0.5);
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
       cursor:pointer;
       display:flex;
       align-items:center;
       justify-content:center;
-      gap:0.3rem;
-      font-size:0.7rem;
+      gap:0.25rem;
+      font-size:0.65rem;
       font-weight:600;
       transition:all 0.2s;
       color:#fff;
-      padding:0 0.5rem;
+      padding:0 0.4rem;
       white-space:nowrap;
     }
     .token-btn:active { transform:scale(0.9); }
-    .token-btn .token-emoji { font-size:0.85rem; line-height:1; }
-    .token-btn .token-cost { font-size:0.55rem; font-weight:700; color:#FFFC00; }
+    .token-btn .token-emoji { font-size:0.8rem; line-height:1; }
+    .token-btn .token-label { font-size:0.55rem; font-weight:700; color:#fff; }
     
-    .token-btn.token-chicken { border-color:rgba(245,158,11,0.5); background:rgba(245,158,11,0.2); }
-    .token-btn.token-chicken .token-emoji { color:#f59e0b; }
-    .token-btn.token-lion { border-color:rgba(239,68,68,0.5); background:rgba(239,68,68,0.2); }
-    .token-btn.token-lion .token-emoji { color:#ef4444; }
-    .token-btn.token-fish { border-color:rgba(59,130,246,0.5); background:rgba(59,130,246,0.2); }
-    .token-btn.token-fish .token-emoji { color:#3b82f6; }
-    .token-btn.token-bike { border-color:rgba(168,85,247,0.5); background:rgba(168,85,247,0.2); }
-    .token-btn.token-bike .token-emoji { color:#a855f7; }
+    .token-btn.token-chicken { border-color:rgba(245,158,11,0.5); background:rgba(245,158,11,0.15); }
+    .token-btn.token-lion { border-color:rgba(239,68,68,0.5); background:rgba(239,68,68,0.15); }
+    .token-btn.token-fish { border-color:rgba(59,130,246,0.5); background:rgba(59,130,246,0.15); }
+    .token-btn.token-bike { border-color:rgba(168,85,247,0.5); background:rgba(168,85,247,0.15); }
     
     .gift-float { position:absolute;font-size:2rem;pointer-events:none;animation:giftFloat 1.5s ease-out forwards;z-index:50; }
     
-    .buttons-section { display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0.2rem 1rem 0.5rem 1rem;flex-shrink:0; }
+    /* Buttons section */
+    .buttons-section { display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0.2rem 1rem 0.3rem 1rem;flex-shrink:0; }
     .buttons-container { display:flex;gap:0.4rem;flex-wrap:wrap;justify-content:center;align-items:center; }
     .btn { height:32px;border-radius:2rem;display:inline-flex;align-items:center;justify-content:center;gap:0.2rem;cursor:pointer;border:1px solid transparent;outline:none;font-size:0.7rem;font-weight:600;padding:0 0.8rem;color:#fff;transition:all 0.3s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none;white-space:nowrap; }
     .btn:active { transform:scale(0.95); }
@@ -132,25 +129,24 @@
       .nav-center a.nav-live{color:rgba(239,68,68,0.8)}.nav-center a.nav-live:hover{color:#ef4444;background:rgba(239,68,68,0.15)}
       .nav-center a.nav-wallet{color:rgba(74,222,128,0.8)}.nav-center a.nav-wallet:hover{color:#4ade80;background:rgba(74,222,128,0.12)}
       .page{padding-left:5rem}
-      .camera-section{padding:1rem 2rem 0 2rem;height:70%;max-width:900px;margin:0 auto;width:100%}
+      .camera-section{padding:1rem 2rem 0 2rem;height:65%;max-width:900px;margin:0 auto;width:100%}
       .camera-container{max-width:900px;gap:1rem;align-items:stretch}
       .stranger-camera{width:50%;height:100%;border-radius:1.5rem}.my-camera{width:50%;max-height:none;height:100%;aspect-ratio:auto;border-radius:1.5rem}
       .stranger-placeholder i{font-size:3rem}.my-placeholder i{font-size:1.5rem}
       .camera-labels{max-width:900px}
-      .token-column { display:none; }
-      .buttons-container{gap:0.5rem;}
+      .token-row-horizontal{max-width:900px;margin:0 auto;width:100%;padding:0.6rem 2rem;}
+      .token-btn{width:80px;height:30px;font-size:0.7rem;}
       .buttons-section{max-width:900px;margin:0 auto;width:100%}
       .nav-spacer{height:18%}
-      .desktop-token-btn { display:inline-flex !important; }
     }
     @media (max-width:380px) {
-      .camera-section{padding:3rem 0.5rem 0 0.5rem}
+      .camera-section{padding:3rem 0.5rem 0 0.5rem;height:55%}
       .btn{height:29px;font-size:0.63rem;padding:0 0.55rem}
       .live-button{min-width:58px}.next-button{min-width:50px}.mic-button{width:29px;height:29px}
-      .token-btn{width:65px;height:25px;font-size:0.6rem;gap:0.2rem;padding:0 0.3rem;}
-      .token-btn .token-emoji{font-size:0.75rem;}
-      .token-btn .token-cost{font-size:0.5rem;}
-      .token-column{right:0.1rem;top:4cm;gap:0.4rem;}
+      .token-btn{width:60px;height:24px;font-size:0.58rem;gap:0.2rem;padding:0 0.3rem;}
+      .token-btn .token-emoji{font-size:0.7rem;}
+      .token-btn .token-label{font-size:0.5rem;}
+      .token-row-horizontal{gap:0.35rem;padding:0.4rem 0.5rem;}
       .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:max(0.8rem,env(safe-area-inset-bottom,0.8rem));background:rgba(10,10,10,0.1)}
       .nav-center a{font-size:1.1rem;width:2rem;height:2rem}.my-camera{max-height:85px}
       .top-left-live,.top-right-wallet{width:2rem;height:2rem;font-size:0.85rem}
@@ -163,42 +159,41 @@
   <div class="page" id="mainPage" style="display:none;">
     <a href="live.html" class="top-left-live" title="Live"><i class="fas fa-broadcast-tower"></i></a>
     <a href="wallet.html" class="top-right-wallet" title="Wallet"><i class="fas fa-wallet"></i></a>
+    
+    <!-- Camera Section -->
     <div class="camera-section">
-      <div class="online-counter"><div class="online-dot"></div><span id="onlineCount">0 online</span></div>
       <div class="live-status" id="liveStatus"><i class="fas fa-circle"></i> LIVE • <span id="liveViewerCount">0</span> watching</div>
       <div class="camera-labels"><span class="stranger-label-outside">STRANGER</span><span class="you-label-outside">YOU</span></div>
-      <div class="camera-container" style="position:relative;">
+      <div class="camera-container">
         <div class="stranger-camera" id="strangerCamera">
           <video id="strangerFeed" autoplay playsinline></video>
           <div class="stranger-placeholder" id="strangerPlaceholder"><i class="fas fa-user-secret"></i><span>???</span></div>
         </div>
-        <div class="my-camera" id="myCamera" style="position:relative;">
+        <div class="my-camera" id="myCamera">
           <video id="myFeed" autoplay playsinline muted></video>
           <div class="my-placeholder" id="myPlaceholder"><i class="fas fa-video"></i><span>off</span></div>
-          <!-- ✅ Mobile: Token buttons - bigger size, 5cm from top -->
-          <div class="token-column" id="tokenColumn">
-            <button class="token-btn token-chicken" onclick="sendToken('🍗',5)" title="Chicken - 5 coins"><span class="token-emoji">🍗</span><span class="token-cost">5🪙</span></button>
-            <button class="token-btn token-lion" onclick="sendToken('🦁',10)" title="Lion - 10 coins"><span class="token-emoji">🦁</span><span class="token-cost">10🪙</span></button>
-            <button class="token-btn token-fish" onclick="sendToken('🐟',15)" title="Fish - 15 coins"><span class="token-emoji">🐟</span><span class="token-cost">15🪙</span></button>
-            <button class="token-btn token-bike" onclick="sendToken('🏍️',20)" title="Bike - 20 coins"><span class="token-emoji">🏍️</span><span class="token-cost">20🪙</span></button>
-          </div>
         </div>
       </div>
     </div>
     
+    <!-- ✅ Token Row - Horizontal below camera, above buttons -->
+    <div class="token-row-horizontal" id="tokenRow">
+      <button class="token-btn token-chicken" onclick="sendToken('🍗','Chicken',5)"><span class="token-emoji">🍗</span><span class="token-label">Chicken</span></button>
+      <button class="token-btn token-lion" onclick="sendToken('🦁','Lion',10)"><span class="token-emoji">🦁</span><span class="token-label">Lion</span></button>
+      <button class="token-btn token-fish" onclick="sendToken('🐟','Fish',15)"><span class="token-emoji">🐟</span><span class="token-label">Fish</span></button>
+      <button class="token-btn token-bike" onclick="sendToken('🏍️','Bike',20)"><span class="token-emoji">🏍️</span><span class="token-label">Bike</span></button>
+    </div>
+    
+    <!-- Buttons Section -->
     <div class="buttons-section">
       <div class="buttons-container" id="buttonsContainer">
-        <button class="btn live-button" id="liveBtn" type="button"><i class="fas fa-circle"></i><span>LIVE</span></button>
+        <button class="btn live-button" id="liveBtn" type="button"><i class="fas fa-circle"></i><span>Live</span></button>
         <button class="btn start-stop-btn start" id="startStopBtn" type="button"><i class="fas fa-play"></i><span>Start</span></button>
-        <!-- ✅ Desktop: Token buttons inline - same bigger size -->
-        <button class="btn token-btn token-chicken desktop-token-btn" onclick="sendToken('🍗',5)" title="Chicken - 5" style="display:none;width:75px;height:28px;border-radius:0.8rem;padding:0 0.5rem;font-size:0.7rem;gap:0.3rem;background:rgba(245,158,11,0.2);border-color:rgba(245,158,11,0.5);"><span class="token-emoji" style="color:#f59e0b;font-size:0.85rem;">🍗</span><span class="token-cost" style="color:#FFFC00;font-size:0.55rem;">5🪙</span></button>
-        <button class="btn token-btn token-lion desktop-token-btn" onclick="sendToken('🦁',10)" title="Lion - 10" style="display:none;width:75px;height:28px;border-radius:0.8rem;padding:0 0.5rem;font-size:0.7rem;gap:0.3rem;background:rgba(239,68,68,0.2);border-color:rgba(239,68,68,0.5);"><span class="token-emoji" style="color:#ef4444;font-size:0.85rem;">🦁</span><span class="token-cost" style="color:#FFFC00;font-size:0.55rem;">10🪙</span></button>
-        <button class="btn token-btn token-fish desktop-token-btn" onclick="sendToken('🐟',15)" title="Fish - 15" style="display:none;width:75px;height:28px;border-radius:0.8rem;padding:0 0.5rem;font-size:0.7rem;gap:0.3rem;background:rgba(59,130,246,0.2);border-color:rgba(59,130,246,0.5);"><span class="token-emoji" style="color:#3b82f6;font-size:0.85rem;">🐟</span><span class="token-cost" style="color:#FFFC00;font-size:0.55rem;">15🪙</span></button>
-        <button class="btn token-btn token-bike desktop-token-btn" onclick="sendToken('🏍️',20)" title="Bike - 20" style="display:none;width:75px;height:28px;border-radius:0.8rem;padding:0 0.5rem;font-size:0.7rem;gap:0.3rem;background:rgba(168,85,247,0.2);border-color:rgba(168,85,247,0.5);"><span class="token-emoji" style="color:#a855f7;font-size:0.85rem;">🏍️</span><span class="token-cost" style="color:#FFFC00;font-size:0.55rem;">20🪙</span></button>
         <button class="btn next-button" id="nextBtn" type="button"><i class="fas fa-forward"></i><span>Next</span></button>
         <button class="btn mic-button" id="micBtn" type="button" title="Mute"><i class="fas fa-microphone"></i></button>
       </div>
     </div>
+    
     <div class="nav-spacer"></div>
     <nav class="floating-nav">
       <div class="nav-center">
@@ -228,7 +223,7 @@
     document.getElementById('mainPage').style.display = 'flex';
     startWebChat();
 
-    window.sendToken = function(emoji, amount) {
+    window.sendToken = function(emoji, name, amount) {
       const strangerCam = document.getElementById('strangerCamera');
       const float = document.createElement('span');
       float.className = 'gift-float';
@@ -253,14 +248,14 @@
 
       function setButtonState(state){startStopBtn.classList.remove('start','stop');if(state==='start'){startStopBtn.classList.add('start');startStopBtn.innerHTML='<i class="fas fa-play"></i><span>Start</span>';startStopBtn.disabled=false;}else if(state==='stop'){startStopBtn.classList.add('stop');startStopBtn.innerHTML='<i class="fas fa-stop"></i><span>Stop</span>';startStopBtn.disabled=false;}}
       function handleStartStop(){if(startStopBtn.classList.contains('stop')){stopChat();}else if(startStopBtn.classList.contains('start')){startChat();}}
-      function updateLiveButton(){if(isLive){liveBtn.innerHTML='<i class="fas fa-stop-circle"></i><span>END</span>';liveBtn.classList.add('live-active-btn');}else{liveBtn.innerHTML='<i class="fas fa-circle"></i><span>LIVE</span>';liveBtn.classList.remove('live-active-btn');}}
+      function updateLiveButton(){if(isLive){liveBtn.innerHTML='<i class="fas fa-stop-circle"></i><span>End</span>';liveBtn.classList.add('live-active-btn');}else{liveBtn.innerHTML='<i class="fas fa-circle"></i><span>Live</span>';liveBtn.classList.remove('live-active-btn');}}
       async function startLive(){if(!localStream){alert('Start camera first!');return;}isLive=true;updateLiveButton();try{await setDoc(doc(db,'live',liveUserId),{userId:currentUser,active:true,startedAt:serverTimestamp(),viewers:0,hasStranger:!!strangerStream});strangerCamera.classList.add('live-active');liveStatus.classList.add('show');liveUnsub=onSnapshot(collection(db,'live_viewers'),(snap)=>{snap.docChanges().forEach(async(change)=>{const vd=change.doc.data();if(change.type==='added'&&vd.liveUser===currentUser&&vd.offer&&vd.active){await handleNewViewer(change.doc.id,vd);}if(change.type==='modified'&&vd.streamEnded){cleanupViewer(change.doc.id);}});});updateLiveViewerCount();}catch(e){isLive=false;updateLiveButton();}}
       async function handleNewViewer(vid,vd){try{const vpc=new RTCPeerConnection(servers);if(localStream)localStream.getTracks().forEach(t=>vpc.addTrack(t,localStream));if(strangerStream){strangerStream.getTracks().forEach(t=>{if(t.readyState==='live')vpc.addTrack(t,strangerStream);});}vpc.onicecandidate=async(e)=>{if(e.candidate){const ref=doc(db,'live_viewers',vid);const s=await getDoc(ref);const ex=s.data()?.hostCandidates||[];ex.push(e.candidate.toJSON());await setDoc(ref,{hostCandidates:ex},{merge:true});}};vpc.onconnectionstatechange=()=>{if(vpc.connectionState==='failed'||vpc.connectionState==='disconnected'){cleanupViewer(vid);}};await vpc.setRemoteDescription(new RTCSessionDescription(vd.offer));const a=await vpc.createAnswer();await vpc.setLocalDescription(a);await setDoc(doc(db,'live_viewers',vid),{answer:{type:a.type,sdp:a.sdp},status:'connected'},{merge:true});liveViewers[vid]=vpc;updateLiveViewerCount();}catch(e){}}
       function cleanupViewer(vid){if(liveViewers[vid]){liveViewers[vid].close();delete liveViewers[vid];updateLiveViewerCount();}}
       async function updateLiveViewerCount(){const c=Object.keys(liveViewers).length;liveViewerCount.textContent=c;try{await setDoc(doc(db,'live',liveUserId),{viewers:c},{merge:true});}catch(e){}}
       async function endLive(){isLive=false;updateLiveButton();Object.keys(liveViewers).forEach(id=>{if(liveViewers[id])liveViewers[id].close();});liveViewers={};try{const vs=await getDocs(collection(db,'live_viewers'));vs.forEach(async(ds)=>{if(ds.data().liveUser===currentUser){await setDoc(doc(db,'live_viewers',ds.id),{streamEnded:true,active:false},{merge:true}).catch(()=>{});}});}catch(e){}await deleteDoc(doc(db,'live',liveUserId)).catch(()=>{});if(liveUnsub){liveUnsub();liveUnsub=null;}strangerCamera.classList.remove('live-active');liveStatus.classList.remove('show');liveViewerCount.textContent='0';}
       async function toggleLive(){if(isLive){await endLive();}else{if(!localStream){const s=await startCamera();if(!s)return;}await startLive();}}
-      async function startCamera(){if(window.location.protocol==='http:'&&window.location.hostname!=='localhost'&&window.location.hostname!=='127.0.0.1'){alert('⚠️ Camera requires HTTPS!');window.location.href=window.location.href.replace('http://','https://');return false;}try{if(localStream){localStream.getTracks().forEach(t=>t.stop());}localStream=await navigator.mediaDevices.getUserMedia({video:{width:480,height:640,facingMode:'user'},audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});myFeed.srcObject=localStream;await myFeed.play();myFeed.style.display='block';myPlaceholder.style.display='none';myCameraEl.classList.add('active');return true;}catch(e){alert('📷 Camera error.');return false;}}
+      async function startCamera(){if(window.location.protocol==='http:'&&window.location.hostname!=='localhost'&&window.location.hostname!=='127.0.0.1'){alert('Camera HTTPS!');window.location.href=window.location.href.replace('http://','https://');return false;}try{if(localStream){localStream.getTracks().forEach(t=>t.stop());}localStream=await navigator.mediaDevices.getUserMedia({video:{width:480,height:640,facingMode:'user'},audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});myFeed.srcObject=localStream;await myFeed.play();myFeed.style.display='block';myPlaceholder.style.display='none';myCameraEl.classList.add('active');return true;}catch(e){alert('Camera error.');return false;}}
       function stopCamera(){if(localStream){localStream.getTracks().forEach(t=>t.stop());localStream=null;}myFeed.style.display='none';myFeed.srcObject=null;myPlaceholder.style.display='';myCameraEl.classList.remove('active');}
       function resetStranger(){strangerStream=null;strangerFeed.style.display='none';strangerFeed.srcObject=null;strangerPlaceholder.innerHTML='<i class="fas fa-user-secret"></i><span>???</span>';strangerPlaceholder.classList.remove('searching-text');strangerCamera.classList.remove('connected','live-active');}
       function showConnected(){setButtonState('stop');nextBtn.classList.add('visible');micBtn.classList.add('visible');}
@@ -268,7 +263,7 @@
       function toggleMute(){if(!localStream)return;const t=localStream.getAudioTracks();if(t.length>0){isMuted=!isMuted;t.forEach(t=>t.enabled=!isMuted);micBtn.classList.toggle('muted',isMuted);micBtn.querySelector('i').className=isMuted?'fas fa-microphone-slash':'fas fa-microphone';}}
       async function createRoom(oId,isCaller){roomId=[myId,oId].sort().join('_');const rr=doc(db,'rooms',roomId);showConnected();if(pc){pc.close();pc=null;}unsubs.forEach(u=>u());unsubs=[];pc=new RTCPeerConnection(servers);localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));pc.ontrack=(e)=>{if(e.streams[0]){strangerStream=e.streams[0];strangerFeed.srcObject=e.streams[0];strangerFeed.style.display='block';strangerPlaceholder.innerHTML='';strangerCamera.classList.add('connected');if(isLive){Object.values(liveViewers).forEach(vpc=>{try{strangerStream.getTracks().forEach(track=>{if(track.readyState==='live')vpc.addTrack(track,strangerStream);});}catch(e){}});}}};pc.onicecandidate=async(e)=>{if(e.candidate)await addDoc(collection(rr,'ice'),{sender:myId,candidate:e.candidate.toJSON()});};unsubs.push(onSnapshot(collection(rr,'ice'),(snap)=>{snap.docChanges().forEach(async(c)=>{if(c.type==='added'&&c.doc.data().sender!==myId&&pc){try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate));}catch(e){}}});}));if(isCaller){const offer=await pc.createOffer({offerToReceiveVideo:true,offerToReceiveAudio:true});await pc.setLocalDescription(offer);await setDoc(doc(db,'invites',oId),{from:myId,offer:{type:offer.type,sdp:offer.sdp}});unsubs.push(onSnapshot(doc(db,'invites',oId),async(snap)=>{const d=snap.data();if(d?.answer&&!pc.currentRemoteDescription&&pc.signalingState!=='closed'){await pc.setRemoteDescription(new RTCSessionDescription(d.answer));}}));}}
       function listenForInvites(){unsubs.push(onSnapshot(doc(db,'invites',myId),async(snap)=>{if(!snap.exists())return;const d=snap.data();await deleteDoc(doc(db,'waiting',myId)).catch(()=>{});roomId=[myId,d.from].sort().join('_');const rr=doc(db,'rooms',roomId);showConnected();if(pc){pc.close();pc=null;}unsubs.forEach(u=>u());unsubs=[];pc=new RTCPeerConnection(servers);localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));pc.ontrack=(e)=>{if(e.streams[0]){strangerStream=e.streams[0];strangerFeed.srcObject=e.streams[0];strangerFeed.style.display='block';strangerPlaceholder.innerHTML='';strangerCamera.classList.add('connected');if(isLive){Object.values(liveViewers).forEach(vpc=>{try{strangerStream.getTracks().forEach(track=>{if(track.readyState==='live')vpc.addTrack(track,strangerStream);});}catch(e){}});}}};pc.onicecandidate=async(e)=>{if(e.candidate)await addDoc(collection(rr,'ice'),{sender:myId,candidate:e.candidate.toJSON()});};if(d.offer&&pc.signalingState!=='closed'){await pc.setRemoteDescription(new RTCSessionDescription(d.offer));const answer=await pc.createAnswer();await pc.setLocalDescription(answer);await setDoc(doc(db,'invites',myId),{from:d.from,offer:d.offer,answer:{type:answer.type,sdp:answer.sdp}},{merge:true});}unsubs.push(onSnapshot(collection(rr,'ice'),(snap)=>{snap.docChanges().forEach(async(c)=>{if(c.type==='added'&&c.doc.data().sender!==myId&&pc){try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate));}catch(e){}}});}));}));}
-      async function startChat(){if(isLive){alert('Please tap END first.');return;}setButtonState('stop');strangerPlaceholder.innerHTML='<i class="fas fa-spinner fa-spin"></i><span style="color:#fbbf24;">Searching...</span>';strangerPlaceholder.classList.add('searching-text');if(!(await startCamera())){stopChat();return;}const snap=await getDocs(collection(db,'waiting'));let found=null;snap.forEach(d=>{if(d.data().userId!==myId&&!found)found=d.data().userId;});if(found){await deleteDoc(doc(db,'waiting',myId)).catch(()=>{});await deleteDoc(doc(db,'waiting',found)).catch(()=>{});await createRoom(found,true);}else{await setDoc(doc(db,'waiting',myId),{userId:myId});listenForInvites();}}
+      async function startChat(){if(isLive){alert('Please END first.');return;}setButtonState('stop');strangerPlaceholder.innerHTML='<i class="fas fa-spinner fa-spin"></i><span style="color:#fbbf24;">Searching...</span>';strangerPlaceholder.classList.add('searching-text');if(!(await startCamera())){stopChat();return;}const snap=await getDocs(collection(db,'waiting'));let found=null;snap.forEach(d=>{if(d.data().userId!==myId&&!found)found=d.data().userId;});if(found){await deleteDoc(doc(db,'waiting',myId)).catch(()=>{});await deleteDoc(doc(db,'waiting',found)).catch(()=>{});await createRoom(found,true);}else{await setDoc(doc(db,'waiting',myId),{userId:myId});listenForInvites();}}
       function stopChat(){if(pc){pc.close();pc=null;}unsubs.forEach(u=>u());unsubs=[];if(roomId){deleteDoc(doc(db,'rooms',roomId)).catch(()=>{});roomId=null;}deleteDoc(doc(db,'waiting',myId)).catch(()=>{});deleteDoc(doc(db,'invites',myId)).catch(()=>{});if(isLive){endLive();}resetStranger();stopCamera();showDisconnected();}
       window.addEventListener('beforeunload',()=>{if(isLive){endLive().catch(()=>{});}if(pc)pc.close();if(localStream)localStream.getTracks().forEach(t=>t.stop());});
     }

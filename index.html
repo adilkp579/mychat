@@ -110,7 +110,7 @@
       transform:translateX(-50%);
       width:92%;
       max-width:500px;
-      background:rgba(10, 10, 10, 0.1); /* 90% transparent */
+      background:rgba(10, 10, 10, 0.1);
       backdrop-filter:blur(20px);
       -webkit-backdrop-filter:blur(20px);
       border-radius:2.5rem;
@@ -274,14 +274,12 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, collection, query, orderBy, limit, startAfter, getDocs, doc, getDoc, setDoc, addDoc, serverTimestamp, increment, updateDoc, where } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, collection, query, orderBy, limit, startAfter, getDocs, doc, getDoc, setDoc, addDoc, serverTimestamp, increment, updateDoc, where, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
     const auth = getAuth(app);
-    const storage = getStorage(app);
 
     const userCache = new Map();
     const PAGE_SIZE = 10;
@@ -294,6 +292,7 @@
     const MAX_VOICE_SEC = 10;
     const currentUser = localStorage.getItem('currentUser') || '@anonymous';
     const loadedThreads = new Set();
+    let unsubComments = null;
 
     function cname(u) { return (u || '').replace(/^@/, ''); }
     function fmtDur(s) { const m = Math.floor(s/60), sec = Math.floor(s%60); return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0'); }
@@ -342,12 +341,273 @@
 
     function updateAllAvatars() { document.querySelectorAll('[data-avatar-user]').forEach(el => { el.innerHTML = getAvtFromCache(el.dataset.avatarUser); }); }
 
-    window.addEventListener('storage', function(e) {
-      if (e.key && e.key.startsWith('profile_')) { try { const data = JSON.parse(e.newValue); if (data.username) { userCache.set(data.username, { avatar: data.avatar || null, name: data.name || data.username }); updateAllAvatars(); } } catch(ex) {} }
-      if (e.key === 'userProfile') { try { const data = JSON.parse(e.newValue); if (data.username) { userCache.set(data.username, { avatar: data.avatar || null, name: data.name || data.username }); updateAllAvatars(); } } catch(ex) {} }
-    });
+    function showToast(m, e) { const t = document.getElementById('toast'); t.textContent = m; t.className = 'toast '+(e?'error':''); t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2500); }
 
-    window.addEventListener('focus', function() { const lp = JSON.parse(localStorage.getItem('userProfile') || '{}'); if (lp.username) userCache.set(lp.username, { avatar: lp.avatar || null, name: lp.name || lp.username }); updateAllAvatars(); });
+    // ✅ COMMENT FUNCTIONS
+    async function renderTopLevelComments(postId) {
+      const list = document.getElementById('commentsList');
+      list.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;">Loading comments...</div>';
+      
+      try {
+        const commentsRef = collection(db, 'posts', postId, 'comments');
+        const q = query(commentsRef, orderBy('createdAt', 'asc'));
+        const snap = await getDocs(q);
+        
+        if (snap.empty) {
+          list.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;">No comments yet. Be the first!</div>';
+          return;
+        }
+        
+        const comments = [];
+        snap.forEach(doc => {
+          comments.push({ id: doc.id, ...doc.data() });
+        });
+        
+        await batchLoadProfiles(comments.map(c => c.username));
+        list.innerHTML = '';
+        comments.forEach(cmt => renderComment(cmt, postId, list, false));
+      } catch(e) {
+        console.error('Load comments error:', e);
+        list.innerHTML = '<div style="text-align:center;color:#ef4444;padding:2rem;">Failed to load comments</div>';
+      }
+    }
+
+    function renderComment(cmt, postId, parentEl, isReply) {
+      const block = document.createElement('div');
+      block.className = 'cmt-block';
+      block.id = 'cmt-' + cmt.id;
+      
+      const timeStr = cmt.createdAt ? timeAgo(cmt.createdAt.toDate()) : '';
+      const isOwner = cmt.username === currentUser;
+      
+      block.innerHTML = `
+        <div class="cmt-row">
+          <div class="cmt-avatar" data-avatar-user="${cmt.username}">${getAvtFromCache(cmt.username)}</div>
+          <div class="cmt-body">
+            <div class="cmt-username">${cname(cmt.username)}</div>
+            <div class="cmt-content">${cmt.text || ''}</div>
+            ${cmt.audioUrl ? `<div class="vc-play-btn" onclick="playVoiceComment('${cmt.id}')" data-audio="${cmt.audioUrl}" data-dur="${cmt.audioDuration||0}"><i class="fas fa-play"></i> Voice <span class="vc-duration">${fmtDur(cmt.audioDuration||0)}</span></div>` : ''}
+            <div class="cmt-meta">
+              <span class="cmt-time">${timeStr}</span>
+              <button class="cmt-btn reply-btn" onclick="toggleReplyBox('${cmt.id}')">Reply</button>
+              <button class="cmt-btn del-btn ${isOwner?'show':''}" onclick="deleteComment('${postId}','${cmt.id}')">Delete</button>
+            </div>
+            ${cmt.replyCount > 0 ? `<button class="view-replies-btn" style="display:inline;" onclick="loadReplies('${postId}','${cmt.id}', this)">View ${cmt.replyCount} replies</button>` : ''}
+            <div class="reply-box" id="replyBox-${cmt.id}">
+              <div class="reply-input-wrap">
+                <button class="reply-mic-btn" onclick="toggleReplyMic('${cmt.id}')"><i class="fas fa-microphone"></i></button>
+                <input type="text" class="reply-input" id="replyInput-${cmt.id}" placeholder="Write a reply...">
+              </div>
+              <button class="reply-post-btn" onclick="postReply('${postId}','${cmt.id}')">Reply</button>
+            </div>
+            <div class="cmt-thread" id="thread-${cmt.id}"></div>
+          </div>
+        </div>
+      `;
+      
+      parentEl.appendChild(block);
+    }
+
+    window.postMainComment = async function() {
+      const input = document.getElementById('cmtInput');
+      const text = input.value.trim();
+      if (!text || !activePostId) return;
+      
+      try {
+        await addDoc(collection(db, 'posts', activePostId, 'comments'), {
+          text,
+          username: currentUser,
+          createdAt: serverTimestamp(),
+          replyCount: 0
+        });
+        await updateDoc(doc(db, 'posts', activePostId), {
+          comments: increment(1)
+        });
+        input.value = '';
+        await renderTopLevelComments(activePostId);
+        showToast('Comment posted! 💬');
+      } catch(e) {
+        console.error('Post comment error:', e);
+        showToast('Failed to post comment', true);
+      }
+    };
+
+    window.toggleReplyBox = function(cmtId) {
+      const box = document.getElementById('replyBox-' + cmtId);
+      if (box) box.classList.toggle('show');
+    };
+
+    window.postReply = async function(postId, parentId) {
+      const input = document.getElementById('replyInput-' + parentId);
+      const text = input?.value.trim();
+      if (!text || !postId) return;
+      
+      try {
+        await addDoc(collection(db, 'posts', postId, 'comments'), {
+          text,
+          username: currentUser,
+          parentId,
+          createdAt: serverTimestamp(),
+          replyCount: 0
+        });
+        await updateDoc(doc(db, 'posts', postId, 'comments', parentId), {
+          replyCount: increment(1)
+        });
+        await updateDoc(doc(db, 'posts', postId), {
+          comments: increment(1)
+        });
+        input.value = '';
+        document.getElementById('replyBox-' + parentId)?.classList.remove('show');
+        await renderTopLevelComments(postId);
+        showToast('Reply posted! 💬');
+      } catch(e) {
+        console.error('Post reply error:', e);
+        showToast('Failed to post reply', true);
+      }
+    };
+
+    window.deleteComment = async function(postId, cmtId) {
+      if (!confirm('Delete this comment?')) return;
+      try {
+        await deleteDoc(doc(db, 'posts', postId, 'comments', cmtId));
+        await updateDoc(doc(db, 'posts', postId), {
+          comments: increment(-1)
+        });
+        document.getElementById('cmt-' + cmtId)?.remove();
+        showToast('Comment deleted');
+      } catch(e) {
+        console.error('Delete error:', e);
+        showToast('Failed to delete', true);
+      }
+    };
+
+    window.loadReplies = async function(postId, parentId, btn) {
+      const thread = document.getElementById('thread-' + parentId);
+      if (loadedThreads.has(parentId)) {
+        thread.innerHTML = '';
+        loadedThreads.delete(parentId);
+        btn.textContent = 'View replies';
+        return;
+      }
+      
+      try {
+        const repliesRef = collection(db, 'posts', postId, 'comments');
+        const q = query(repliesRef, where('parentId', '==', parentId), orderBy('createdAt', 'asc'));
+        const snap = await getDocs(q);
+        
+        if (snap.empty) {
+          thread.innerHTML = '<div style="color:#555;font-size:0.6rem;padding:0.3rem;">No replies</div>';
+          return;
+        }
+        
+        const replies = [];
+        snap.forEach(doc => replies.push({ id: doc.id, ...doc.data() }));
+        await batchLoadProfiles(replies.map(r => r.username));
+        
+        thread.innerHTML = '';
+        replies.forEach(r => renderComment(r, postId, thread, true));
+        loadedThreads.add(parentId);
+        btn.textContent = 'Hide replies';
+      } catch(e) {
+        console.error('Load replies error:', e);
+      }
+    };
+
+    // Voice recording for comments
+    window.toggleMainMic = function() {
+      const btn = document.getElementById('mainMicBtn');
+      if (voiceRecorder && voiceRecorder.state === 'recording') {
+        sendRecording();
+      } else {
+        startMainRecording();
+      }
+    };
+
+    async function startMainRecording() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        voiceRecorder = new MediaRecorder(stream);
+        voiceChunks = [];
+        voiceSeconds = 0;
+        
+        voiceRecorder.ondataavailable = e => { if (e.data.size > 0) voiceChunks.push(e.data); };
+        voiceRecorder.onstop = () => stream.getTracks().forEach(t => t.stop());
+        voiceRecorder.start(100);
+        
+        document.getElementById('mainMicBtn').classList.add('recording');
+        document.getElementById('globalRecBar').classList.add('show');
+        document.getElementById('grecTimer').textContent = '00:00';
+        
+        voiceTimer = setInterval(() => {
+          voiceSeconds++;
+          document.getElementById('grecTimer').textContent = fmtDur(voiceSeconds);
+          if (voiceSeconds >= MAX_VOICE_SEC) sendRecording();
+        }, 1000);
+      } catch(e) {
+        showToast('Microphone access needed', true);
+      }
+    }
+
+    window.cancelRecording = function() {
+      if (voiceRecorder && voiceRecorder.state === 'recording') {
+        voiceRecorder.stop();
+        voiceChunks = [];
+      }
+      clearInterval(voiceTimer);
+      document.getElementById('mainMicBtn').classList.remove('recording');
+      document.getElementById('globalRecBar').classList.remove('show');
+      voiceRecorder = null;
+    };
+
+    window.sendRecording = async function() {
+      if (!voiceRecorder || voiceRecorder.state !== 'recording' || !activePostId) return;
+      if (voiceSeconds < 1) { cancelRecording(); return; }
+      
+      voiceRecorder.onstop = async () => {
+        const blob = new Blob(voiceChunks, { type: 'audio/webm' });
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          try {
+            await addDoc(collection(db, 'posts', activePostId, 'comments'), {
+              audioUrl: e.target.result,
+              audioDuration: voiceSeconds,
+              username: currentUser,
+              createdAt: serverTimestamp(),
+              replyCount: 0
+            });
+            await updateDoc(doc(db, 'posts', activePostId), { comments: increment(1) });
+            await renderTopLevelComments(activePostId);
+            showToast('Voice comment posted! 🎤');
+          } catch(err) {
+            console.error('Voice comment error:', err);
+          }
+        };
+        reader.readAsDataURL(blob);
+      };
+      
+      voiceRecorder.stop();
+      clearInterval(voiceTimer);
+      document.getElementById('mainMicBtn').classList.remove('recording');
+      document.getElementById('globalRecBar').classList.remove('show');
+      voiceRecorder = null;
+    };
+
+    window.openComments = async function(pid) {
+      activePostId = pid;
+      loadedThreads.clear();
+      document.getElementById('commentsOverlay').classList.add('show');
+      document.getElementById('cmtInput').value = '';
+      await renderTopLevelComments(pid);
+    };
+
+    window.closeComments = function() {
+      document.getElementById('commentsOverlay').classList.remove('show');
+      cancelRecording();
+      activePostId = null;
+      loadedThreads.clear();
+    };
+
+    // ... (rest of the functions remain the same: bootApp, loadMorePosts, renderStories, etc.)
 
     async function bootApp() {
       const hasLocalUid = localStorage.getItem("uid");
@@ -412,6 +672,7 @@
               caption: dt.caption || '',
               src,
               likes: dt.likes || 0,
+              comments: dt.comments || 0,
               time: dt.createdAt ? timeAgo(dt.createdAt.toDate()) : 'Recently'
             });
           }
@@ -444,7 +705,7 @@
           </div>
           <div class="feed-likes" id="likes-${p.id}">${p.likes||0} likes</div>
           <div class="feed-caption"><span onclick="window.location.href='profile.html?user=${encodeURIComponent(p.userId)}'">${cname(p.userId)}</span>${p.caption}</div>
-          <div class="view-comments-btn" onclick="openComments('${p.id}')">View all comments</div>
+          <div class="view-comments-btn" onclick="openComments('${p.id}')">View all ${p.comments||0} comments</div>
         `;
         container.appendChild(card);
       });
@@ -464,13 +725,6 @@
       }, { passive: true });
     }
 
-    window.openComments = async function(pid) {
-      activePostId = pid; loadedThreads.clear();
-      document.getElementById('commentsOverlay').classList.add('show'); document.getElementById('cmtInput').value = '';
-      await renderTopLevelComments(pid);
-    };
-    window.closeComments = function() { document.getElementById('commentsOverlay').classList.remove('show'); cancelRecording(); activePostId = null; loadedThreads.clear(); };
-
     window.toggleLike = async function(pid) {
       const b = document.getElementById('likeBtn-'+pid), l = document.getElementById('likes-'+pid);
       if (!b||!l) return;
@@ -478,8 +732,9 @@
       if (liked) { b.classList.remove('liked'); b.querySelector('i').className='far fa-heart'; l.textContent=(Math.max(0,parseInt(l.textContent)-1))+' likes'; try { await updateDoc(doc(db,'posts',pid),{likes:increment(-1)}); } catch(e) {} }
       else { b.classList.add('liked'); b.querySelector('i').className='fas fa-heart'; l.textContent=(parseInt(l.textContent)+1)+' likes'; try { await updateDoc(doc(db,'posts',pid),{likes:increment(1)}); } catch(e) {} }
     };
+    
     window.sharePost = function(s) { if (navigator.share) navigator.share({url:s}); else { navigator.clipboard.writeText(s); showToast('Link copied!'); } };
-    function showToast(m, e) { const t = document.getElementById('toast'); t.textContent = m; t.className = 'toast '+(e?'error':''); t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2500); }
+    
     window.openImageViewer = function(s) {
       const o = document.createElement('div'); o.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:800;display:flex;align-items:center;justify-content:center;';
       o.innerHTML = `<img src="${s}" style="max-width:95%;max-height:90vh;object-fit:contain;"><button style="position:absolute;top:1rem;right:1rem;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.6);border:none;color:#fff;font-size:1rem;cursor:pointer;">✕</button>`;
@@ -487,6 +742,10 @@
     };
 
     document.getElementById('cmtInput').addEventListener('keydown', function(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); postMainComment(); } });
+    
+    // Close overlay on backdrop click
+    document.getElementById('commentsOverlay').addEventListener('click', function(e) { if (e.target === this) closeComments(); });
+
     bootApp();
   </script>
 </body>

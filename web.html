@@ -16,20 +16,10 @@
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
     @keyframes giftFloat { 0%{transform:translateY(0) scale(1);opacity:1} 100%{transform:translateY(-80px) scale(1.5);opacity:0} }
     
-    .top-left-live {
-      position:fixed;top:max(1rem,env(safe-area-inset-top,1rem));left:max(1rem,env(safe-area-inset-left,1rem));
-      z-index:200;width:2.4rem;height:2.4rem;background:rgba(239,68,68,0.2);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-      border-radius:50%;color:#ef4444;font-size:1rem;display:flex;align-items:center;justify-content:center;
-      text-decoration:none;border:1px solid rgba(239,68,68,0.3);cursor:pointer;animation:pulse 2s infinite;
-    }
-    .top-right-wallet {
-      position:fixed;top:max(1rem,env(safe-area-inset-top,1rem));right:max(1rem,env(safe-area-inset-right,1rem));
-      z-index:200;width:2.4rem;height:2.4rem;background:rgba(255,255,255,0.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-      border-radius:50%;color:#4ade80;font-size:1rem;display:flex;align-items:center;justify-content:center;
-      text-decoration:none;border:1px solid rgba(74,222,128,0.3);cursor:pointer;
-    }
+    .top-left-live {position:fixed;top:max(1rem,env(safe-area-inset-top,1rem));left:max(1rem,env(safe-area-inset-left,1rem));z-index:200;width:2.4rem;height:2.4rem;background:rgba(239,68,68,0.2);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:50%;color:#ef4444;font-size:1rem;display:flex;align-items:center;justify-content:center;text-decoration:none;border:1px solid rgba(239,68,68,0.3);cursor:pointer;animation:pulse 2s infinite;}
+    .top-right-wallet {position:fixed;top:max(1rem,env(safe-area-inset-top,1rem));right:max(1rem,env(safe-area-inset-right,1rem));z-index:200;width:2.4rem;height:2.4rem;background:rgba(255,255,255,0.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:50%;color:#4ade80;font-size:1rem;display:flex;align-items:center;justify-content:center;text-decoration:none;border:1px solid rgba(74,222,128,0.3);cursor:pointer;}
     
-    .camera-section { height:70%;display:flex;flex-direction:column;align-items:center;padding:3rem 1rem 0 1rem;color:#fff; }
+    .camera-section { height:70%;display:flex;flex-direction:column;align-items:center;padding:3rem 1rem 0 1rem;color:#fff;position:relative; }
     .online-counter { display:flex;align-items:center;gap:0.3rem;color:#4ade80;font-size:0.6rem;flex-shrink:0; }
     .online-dot { width:4px;height:4px;background:#4ade80;border-radius:50%;animation:blink 2s infinite; }
     .live-status { display:none;align-items:center;gap:0.3rem;background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);padding:0.15rem 0.7rem;border-radius:1.5rem;font-size:0.55rem;color:#ef4444;font-weight:600;animation:livePulse 2s infinite;flex-shrink:0; }
@@ -37,21 +27,7 @@
     .camera-labels { display:flex;justify-content:space-between;width:100%;max-width:500px;padding:0;flex-shrink:0; }
     .stranger-label-outside { color:#777;font-size:0.5rem;letter-spacing:2px;text-transform:uppercase; }
     .you-label-outside { color:#777;font-size:0.5rem;letter-spacing:2px;text-transform:uppercase; }
-    
-    /* Camera + token area wrapper */
-    .camera-token-wrapper { flex:1;display:flex;gap:0.3rem;align-items:flex-start;justify-content:center;width:100%;max-width:500px;min-height:0; }
-    
-    /* Token column - LEFT side of You screen - MOBILE */
-    .token-column { display:flex;flex-direction:column;gap:0.3rem;justify-content:center;align-items:center;flex-shrink:0;padding:0; }
-    .token-btn { width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.9rem;transition:all 0.2s;position:relative;color:#fff; }
-    .token-btn:active { transform:scale(0.85); }
-    .token-btn .token-cost { position:absolute;bottom:-3px;right:-3px;background:#FFFC00;color:#000;font-size:0.3rem;font-weight:700;padding:0.05rem 0.15rem;border-radius:0.2rem;min-width:14px;text-align:center;line-height:1; }
-    .token-btn.token-chicken { color:#f59e0b; }
-    .token-btn.token-lion { color:#ef4444; }
-    .token-btn.token-fish { color:#3b82f6; }
-    .token-btn.token-bike { color:#a855f7; }
-    
-    .camera-container { flex:1;display:flex;gap:0.4rem;align-items:flex-start;justify-content:center;min-height:0; }
+    .camera-container { flex:1;display:flex;gap:0.4rem;align-items:flex-start;justify-content:center;width:100%;max-width:500px;min-height:0; }
     .stranger-camera { width:75%;height:100%;background:#111;border:2px solid rgba(255,255,255,0.2);border-radius:1.2rem;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center; }
     .stranger-camera.connected { border-color:#4ade80; }
     .stranger-camera.live-active { border-color:#ef4444; animation:livePulse 2s infinite; }
@@ -65,9 +41,19 @@
     .my-placeholder { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.1rem;color:rgba(255,255,255,0.35);font-size:0.5rem; }
     .my-placeholder i { font-size:1rem; }
     
-    .gift-float { position:absolute;font-size:1.5rem;pointer-events:none;animation:giftFloat 1.5s ease-out forwards;z-index:50; }
+    /* ✅ Token buttons - Mobile: right side vertical from top of you screen to bottom */
+    .token-column { position:absolute;right:0.3rem;top:0;bottom:0;display:flex;flex-direction:column;justify-content:center;gap:0.4rem;z-index:15;padding:0.2rem; }
+    .token-btn { width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,0.15);background:rgba(0,0,0,0.5);backdrop-filter:blur(10px);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:all 0.2s;position:relative;color:#fff; }
+    .token-btn:active { transform:scale(0.85); }
+    .token-btn .token-cost { position:absolute;bottom:-3px;right:-3px;background:#FFFC00;color:#000;font-size:0.35rem;font-weight:700;padding:0.1rem 0.2rem;border-radius:0.3rem;min-width:15px;text-align:center;line-height:1; }
+    .token-btn.token-chicken { color:#f59e0b; }
+    .token-btn.token-lion { color:#ef4444; }
+    .token-btn.token-fish { color:#3b82f6; }
+    .token-btn.token-bike { color:#a855f7; }
     
-    .buttons-section { height:10%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 1rem; }
+    .gift-float { position:absolute;font-size:2rem;pointer-events:none;animation:giftFloat 1.5s ease-out forwards;z-index:50; }
+    
+    .buttons-section { display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0.2rem 1rem 0.5rem 1rem;flex-shrink:0; }
     .buttons-container { display:flex;gap:0.35rem;flex-wrap:wrap;justify-content:center;align-items:center; }
     .btn { height:32px;border-radius:2rem;display:inline-flex;align-items:center;justify-content:center;gap:0.2rem;cursor:pointer;border:1px solid transparent;outline:none;font-size:0.7rem;font-weight:600;padding:0 0.8rem;color:#fff;transition:all 0.3s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none;white-space:nowrap; }
     .btn:active { transform:scale(0.95); }
@@ -84,15 +70,6 @@
     
     .live-button { min-width:70px;background:rgba(74,222,128,0.2);border-color:rgba(74,222,128,0.5);color:#4ade80;display:inline-flex; }
     .live-button.live-active-btn { background:rgba(239,68,68,0.3);border-color:rgba(239,68,68,0.7);color:#ef4444;animation:livePulse 2s infinite; }
-
-    /* Desktop: token buttons inline with start button */
-    .token-btn-desktop { display:none;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);cursor:pointer;font-size:1rem;transition:all 0.2s;position:relative;color:#fff;align-items:center;justify-content:center; }
-    .token-btn-desktop:active { transform:scale(0.9); }
-    .token-btn-desktop .token-cost { position:absolute;bottom:-3px;right:-3px;background:#FFFC00;color:#000;font-size:0.35rem;font-weight:700;padding:0.05rem 0.15rem;border-radius:0.2rem;min-width:14px;text-align:center;line-height:1; }
-    .token-btn-desktop.token-chicken { color:#f59e0b; }
-    .token-btn-desktop.token-lion { color:#ef4444; }
-    .token-btn-desktop.token-fish { color:#3b82f6; }
-    .token-btn-desktop.token-bike { color:#a855f7; }
 
     .https-warning { display:none;background:#ef4444;color:#fff;text-align:center;padding:0.3rem;font-size:0.55rem;font-weight:600;z-index:200;width:100%; }
     .https-warning.show { display:block; }
@@ -113,11 +90,6 @@
     .nav-upload,.nav-search { display:none !important; }
 
     @media (min-width:1024px) {
-      /* Hide mobile token column on desktop */
-      .token-column { display:none !important; }
-      /* Show desktop token buttons inline */
-      .token-btn-desktop { display:inline-flex; }
-      
       .nav-live,.nav-wallet { display:flex !important; }
       .top-left-live,.top-right-wallet { display:none !important; }
       .floating-nav{position:fixed;top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column;background:rgba(10,10,10,0.1);backdrop-filter:blur(20px);}
@@ -126,22 +98,24 @@
       .nav-center a.nav-live{color:rgba(239,68,68,0.8)}.nav-center a.nav-live:hover{color:#ef4444;background:rgba(239,68,68,0.15)}
       .nav-center a.nav-wallet{color:rgba(74,222,128,0.8)}.nav-center a.nav-wallet:hover{color:#4ade80;background:rgba(74,222,128,0.12)}
       .page{padding-left:5rem}
-      .camera-section{padding:1rem 2rem 0 2rem;height:75%;max-width:900px;margin:0 auto;width:100%}
-      .camera-token-wrapper{max-width:900px}
-      .camera-container{max-width:none;gap:1rem;align-items:stretch}
-      .stranger-camera{width:50%;height:100%;border-radius:1.5rem}
-      .my-camera{width:50%;max-height:none;height:100%;aspect-ratio:auto;border-radius:1.5rem}
+      .camera-section{padding:1rem 2rem 0 2rem;height:70%;max-width:900px;margin:0 auto;width:100%}
+      .camera-container{max-width:900px;gap:1rem;align-items:stretch}
+      .stranger-camera{width:50%;height:100%;border-radius:1.5rem}.my-camera{width:50%;max-height:none;height:100%;aspect-ratio:auto;border-radius:1.5rem}
       .stranger-placeholder i{font-size:3rem}.my-placeholder i{font-size:1.5rem}
       .camera-labels{max-width:900px}
-      .buttons-section{max-width:900px;margin:0 auto;width:100%;height:10%}
-      .buttons-container{gap:0.5rem}
-      .nav-spacer{height:15%}
+      /* Desktop: hide vertical token column */
+      .token-column { display:none; }
+      /* Desktop: token buttons inline with start button */
+      .buttons-container{gap:0.4rem;}
+      .buttons-section{max-width:900px;margin:0 auto;width:100%}
+      .nav-spacer{height:18%}
+      .desktop-token-btn { display:inline-flex !important; }
     }
     @media (max-width:380px) {
       .camera-section{padding:3rem 0.5rem 0 0.5rem}
       .btn{height:29px;font-size:0.63rem;padding:0 0.55rem}
       .live-button{min-width:58px}.next-button{min-width:50px}.mic-button{width:29px;height:29px}
-      .token-btn{width:26px;height:26px;font-size:0.8rem}
+      .token-btn{width:30px;height:30px;font-size:1rem}
       .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:max(0.8rem,env(safe-area-inset-bottom,0.8rem));background:rgba(10,10,10,0.1)}
       .nav-center a{font-size:1.1rem;width:2rem;height:2rem}.my-camera{max-height:85px}
       .top-left-live,.top-right-wallet{width:2rem;height:2rem;font-size:0.85rem}
@@ -158,22 +132,20 @@
       <div class="online-counter"><div class="online-dot"></div><span id="onlineCount">0 online</span></div>
       <div class="live-status" id="liveStatus"><i class="fas fa-circle"></i> LIVE • <span id="liveViewerCount">0</span> watching</div>
       <div class="camera-labels"><span class="stranger-label-outside">STRANGER</span><span class="you-label-outside">YOU</span></div>
-      <div class="camera-token-wrapper">
-        <!-- ✅ Mobile: Token column left of You screen -->
-        <div class="token-column" id="tokenColumn">
-          <button class="token-btn token-chicken" onclick="sendToken('🍗',5)" title="Chicken - 5"><span>🍗</span><span class="token-cost">5</span></button>
-          <button class="token-btn token-lion" onclick="sendToken('🦁',10)" title="Lion - 10"><span>🦁</span><span class="token-cost">10</span></button>
-          <button class="token-btn token-fish" onclick="sendToken('🐟',15)" title="Fish - 15"><span>🐟</span><span class="token-cost">15</span></button>
-          <button class="token-btn token-bike" onclick="sendToken('🏍️',20)" title="Bike - 20"><span>🏍️</span><span class="token-cost">20</span></button>
+      <div class="camera-container" style="position:relative;">
+        <div class="stranger-camera" id="strangerCamera">
+          <video id="strangerFeed" autoplay playsinline></video>
+          <div class="stranger-placeholder" id="strangerPlaceholder"><i class="fas fa-user-secret"></i><span>???</span></div>
         </div>
-        <div class="camera-container">
-          <div class="stranger-camera" id="strangerCamera">
-            <video id="strangerFeed" autoplay playsinline></video>
-            <div class="stranger-placeholder" id="strangerPlaceholder"><i class="fas fa-user-secret"></i><span>???</span></div>
-          </div>
-          <div class="my-camera" id="myCamera">
-            <video id="myFeed" autoplay playsinline muted></video>
-            <div class="my-placeholder" id="myPlaceholder"><i class="fas fa-video"></i><span>off</span></div>
+        <div class="my-camera" id="myCamera" style="position:relative;">
+          <video id="myFeed" autoplay playsinline muted></video>
+          <div class="my-placeholder" id="myPlaceholder"><i class="fas fa-video"></i><span>off</span></div>
+          <!-- ✅ Mobile: Token buttons vertical on right side of your video -->
+          <div class="token-column" id="tokenColumn">
+            <button class="token-btn token-chicken" onclick="sendToken('🍗',5)" title="Chicken - 5"><span>🍗</span><span class="token-cost">5</span></button>
+            <button class="token-btn token-lion" onclick="sendToken('🦁',10)" title="Lion - 10"><span>🦁</span><span class="token-cost">10</span></button>
+            <button class="token-btn token-fish" onclick="sendToken('🐟',15)" title="Fish - 15"><span>🐟</span><span class="token-cost">15</span></button>
+            <button class="token-btn token-bike" onclick="sendToken('🏍️',20)" title="Bike - 20"><span>🏍️</span><span class="token-cost">20</span></button>
           </div>
         </div>
       </div>
@@ -183,11 +155,11 @@
       <div class="buttons-container" id="buttonsContainer">
         <button class="btn live-button" id="liveBtn" type="button"><i class="fas fa-circle"></i><span>LIVE</span></button>
         <button class="btn start-stop-btn start" id="startStopBtn" type="button"><i class="fas fa-play"></i><span>Start</span></button>
-        <!-- ✅ Desktop: Token buttons inline with Start button -->
-        <button class="token-btn-desktop token-chicken" onclick="sendToken('🍗',5)" title="Chicken - 5"><span>🍗</span><span class="token-cost">5</span></button>
-        <button class="token-btn-desktop token-lion" onclick="sendToken('🦁',10)" title="Lion - 10"><span>🦁</span><span class="token-cost">10</span></button>
-        <button class="token-btn-desktop token-fish" onclick="sendToken('🐟',15)" title="Fish - 15"><span>🐟</span><span class="token-cost">15</span></button>
-        <button class="token-btn-desktop token-bike" onclick="sendToken('🏍️',20)" title="Bike - 20"><span>🏍️</span><span class="token-cost">20</span></button>
+        <!-- ✅ Desktop: Token buttons inline with start button (hidden on mobile) -->
+        <button class="btn token-btn token-chicken desktop-token-btn" onclick="sendToken('🍗',5)" title="Chicken - 5" style="display:none;min-width:auto;width:34px;height:34px;border-radius:50%;padding:0;font-size:1rem;background:rgba(245,158,11,0.2);border-color:rgba(245,158,11,0.4);color:#f59e0b;"><span>🍗</span></button>
+        <button class="btn token-btn token-lion desktop-token-btn" onclick="sendToken('🦁',10)" title="Lion - 10" style="display:none;min-width:auto;width:34px;height:34px;border-radius:50%;padding:0;font-size:1rem;background:rgba(239,68,68,0.2);border-color:rgba(239,68,68,0.4);color:#ef4444;"><span>🦁</span></button>
+        <button class="btn token-btn token-fish desktop-token-btn" onclick="sendToken('🐟',15)" title="Fish - 15" style="display:none;min-width:auto;width:34px;height:34px;border-radius:50%;padding:0;font-size:1rem;background:rgba(59,130,246,0.2);border-color:rgba(59,130,246,0.4);color:#3b82f6;"><span>🐟</span></button>
+        <button class="btn token-btn token-bike desktop-token-btn" onclick="sendToken('🏍️',20)" title="Bike - 20" style="display:none;min-width:auto;width:34px;height:34px;border-radius:50%;padding:0;font-size:1rem;background:rgba(168,85,247,0.2);border-color:rgba(168,85,247,0.4);color:#a855f7;"><span>🏍️</span></button>
         <button class="btn next-button" id="nextBtn" type="button"><i class="fas fa-forward"></i><span>Next</span></button>
         <button class="btn mic-button" id="micBtn" type="button" title="Mute"><i class="fas fa-microphone"></i></button>
       </div>
@@ -227,7 +199,7 @@
       float.className = 'gift-float';
       float.textContent = emoji;
       float.style.left = (Math.random() * 60 + 20) + '%';
-      float.style.top = '50%';
+      float.style.top = '60%';
       strangerCam.appendChild(float);
       setTimeout(() => float.remove(), 1500);
     };
@@ -239,14 +211,14 @@
       const startStopBtn=document.getElementById('startStopBtn'),nextBtn=document.getElementById('nextBtn'),micBtn=document.getElementById('micBtn'),liveBtn=document.getElementById('liveBtn');
       const myId=crypto.randomUUID?crypto.randomUUID():'id_'+Date.now()+'_'+Math.random().toString(36).substr(2,9);
       const currentUser=localStorage.getItem('currentUser')||'@anonymous',liveUserId=currentUser.replace('@','');
-      let localStream,pc,roomId,unsubs=[],isMuted=false,isLive=false,strangerStream=null,liveViewers={},liveUnsub=null,isSearching=false;
+      let localStream,pc,roomId,unsubs=[],isMuted=false,isLive=false,strangerStream=null,liveViewers={},liveUnsub=null;
       const servers={iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:"stun:stun1.l.google.com:19302"}]};
       
       liveBtn.onclick=toggleLive;startStopBtn.onclick=handleStartStop;nextBtn.onclick=()=>{stopChat();setTimeout(()=>startChat(),500);};micBtn.onclick=toggleMute;
 
       function setButtonState(state){
         startStopBtn.classList.remove('start','stop');
-        if(state==='start'){startStopBtn.classList.add('start');startStopBtn.innerHTML='<i class="fas fa-play"></i><span>Start</span>';startStopBtn.disabled=false;isSearching=false;}
+        if(state==='start'){startStopBtn.classList.add('start');startStopBtn.innerHTML='<i class="fas fa-play"></i><span>Start</span>';startStopBtn.disabled=false;}
         else if(state==='stop'){startStopBtn.classList.add('stop');startStopBtn.innerHTML='<i class="fas fa-stop"></i><span>Stop</span>';startStopBtn.disabled=false;}
       }
       function handleStartStop(){if(startStopBtn.classList.contains('stop')){stopChat();}else if(startStopBtn.classList.contains('start')){startChat();}}
@@ -260,13 +232,13 @@
       async function startCamera(){if(window.location.protocol==='http:'&&window.location.hostname!=='localhost'&&window.location.hostname!=='127.0.0.1'){alert('⚠️ Camera requires HTTPS!');window.location.href=window.location.href.replace('http://','https://');return false;}try{if(localStream){localStream.getTracks().forEach(t=>t.stop());}localStream=await navigator.mediaDevices.getUserMedia({video:{width:480,height:640,facingMode:'user'},audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});myFeed.srcObject=localStream;await myFeed.play();myFeed.style.display='block';myPlaceholder.style.display='none';myCameraEl.classList.add('active');return true;}catch(e){alert('📷 Camera error.');return false;}}
       function stopCamera(){if(localStream){localStream.getTracks().forEach(t=>t.stop());localStream=null;}myFeed.style.display='none';myFeed.srcObject=null;myPlaceholder.style.display='';myCameraEl.classList.remove('active');}
       function resetStranger(){strangerStream=null;strangerFeed.style.display='none';strangerFeed.srcObject=null;strangerPlaceholder.innerHTML='<i class="fas fa-user-secret"></i><span>???</span>';strangerPlaceholder.classList.remove('searching-text');strangerCamera.classList.remove('connected','live-active');}
-      function showConnected(){setButtonState('stop');nextBtn.classList.add('visible');micBtn.classList.add('visible');isSearching=false;}
-      function showDisconnected(){setButtonState('start');nextBtn.classList.remove('visible');micBtn.classList.remove('visible');isSearching=false;}
+      function showConnected(){setButtonState('stop');nextBtn.classList.add('visible');micBtn.classList.add('visible');}
+      function showDisconnected(){setButtonState('start');nextBtn.classList.remove('visible');micBtn.classList.remove('visible');}
       function toggleMute(){if(!localStream)return;const t=localStream.getAudioTracks();if(t.length>0){isMuted=!isMuted;t.forEach(t=>t.enabled=!isMuted);micBtn.classList.toggle('muted',isMuted);micBtn.querySelector('i').className=isMuted?'fas fa-microphone-slash':'fas fa-microphone';}}
       async function createRoom(oId,isCaller){roomId=[myId,oId].sort().join('_');const rr=doc(db,'rooms',roomId);showConnected();if(pc){pc.close();pc=null;}unsubs.forEach(u=>u());unsubs=[];pc=new RTCPeerConnection(servers);localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));pc.ontrack=(e)=>{if(e.streams[0]){strangerStream=e.streams[0];strangerFeed.srcObject=e.streams[0];strangerFeed.style.display='block';strangerPlaceholder.innerHTML='';strangerCamera.classList.add('connected');if(isLive){Object.values(liveViewers).forEach(vpc=>{try{strangerStream.getTracks().forEach(track=>{if(track.readyState==='live')vpc.addTrack(track,strangerStream);});}catch(e){}});}}};pc.onicecandidate=async(e)=>{if(e.candidate)await addDoc(collection(rr,'ice'),{sender:myId,candidate:e.candidate.toJSON()});};unsubs.push(onSnapshot(collection(rr,'ice'),(snap)=>{snap.docChanges().forEach(async(c)=>{if(c.type==='added'&&c.doc.data().sender!==myId&&pc){try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate));}catch(e){}}});}));if(isCaller){const offer=await pc.createOffer({offerToReceiveVideo:true,offerToReceiveAudio:true});await pc.setLocalDescription(offer);await setDoc(doc(db,'invites',oId),{from:myId,offer:{type:offer.type,sdp:offer.sdp}});unsubs.push(onSnapshot(doc(db,'invites',oId),async(snap)=>{const d=snap.data();if(d?.answer&&!pc.currentRemoteDescription&&pc.signalingState!=='closed'){await pc.setRemoteDescription(new RTCSessionDescription(d.answer));}}));}}
       function listenForInvites(){unsubs.push(onSnapshot(doc(db,'invites',myId),async(snap)=>{if(!snap.exists())return;const d=snap.data();await deleteDoc(doc(db,'waiting',myId)).catch(()=>{});roomId=[myId,d.from].sort().join('_');const rr=doc(db,'rooms',roomId);showConnected();if(pc){pc.close();pc=null;}unsubs.forEach(u=>u());unsubs=[];pc=new RTCPeerConnection(servers);localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));pc.ontrack=(e)=>{if(e.streams[0]){strangerStream=e.streams[0];strangerFeed.srcObject=e.streams[0];strangerFeed.style.display='block';strangerPlaceholder.innerHTML='';strangerCamera.classList.add('connected');if(isLive){Object.values(liveViewers).forEach(vpc=>{try{strangerStream.getTracks().forEach(track=>{if(track.readyState==='live')vpc.addTrack(track,strangerStream);});}catch(e){}});}}};pc.onicecandidate=async(e)=>{if(e.candidate)await addDoc(collection(rr,'ice'),{sender:myId,candidate:e.candidate.toJSON()});};if(d.offer&&pc.signalingState!=='closed'){await pc.setRemoteDescription(new RTCSessionDescription(d.offer));const answer=await pc.createAnswer();await pc.setLocalDescription(answer);await setDoc(doc(db,'invites',myId),{from:d.from,offer:d.offer,answer:{type:answer.type,sdp:answer.sdp}},{merge:true});}unsubs.push(onSnapshot(collection(rr,'ice'),(snap)=>{snap.docChanges().forEach(async(c)=>{if(c.type==='added'&&c.doc.data().sender!==myId&&pc){try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate));}catch(e){}}});}));}));}
-      async function startChat(){if(isLive){alert('Please tap END first.');return;}setButtonState('stop');isSearching=true;strangerPlaceholder.innerHTML='<i class="fas fa-spinner fa-spin"></i><span style="color:#fbbf24;">Searching...</span>';strangerPlaceholder.classList.add('searching-text');if(!(await startCamera())){stopChat();return;}const snap=await getDocs(collection(db,'waiting'));let found=null;snap.forEach(d=>{if(d.data().userId!==myId&&!found)found=d.data().userId;});if(found){await deleteDoc(doc(db,'waiting',myId)).catch(()=>{});await deleteDoc(doc(db,'waiting',found)).catch(()=>{});await createRoom(found,true);}else{await setDoc(doc(db,'waiting',myId),{userId:myId});listenForInvites();}}
-      function stopChat(){if(pc){pc.close();pc=null;}unsubs.forEach(u=>u());unsubs=[];if(roomId){deleteDoc(doc(db,'rooms',roomId)).catch(()=>{});roomId=null;}deleteDoc(doc(db,'waiting',myId)).catch(()=>{});deleteDoc(doc(db,'invites',myId)).catch(()=>{});if(isLive){endLive();}isSearching=false;resetStranger();stopCamera();showDisconnected();}
+      async function startChat(){if(isLive){alert('Please tap END first.');return;}setButtonState('stop');strangerPlaceholder.innerHTML='<i class="fas fa-spinner fa-spin"></i><span style="color:#fbbf24;">Searching...</span>';strangerPlaceholder.classList.add('searching-text');if(!(await startCamera())){stopChat();return;}const snap=await getDocs(collection(db,'waiting'));let found=null;snap.forEach(d=>{if(d.data().userId!==myId&&!found)found=d.data().userId;});if(found){await deleteDoc(doc(db,'waiting',myId)).catch(()=>{});await deleteDoc(doc(db,'waiting',found)).catch(()=>{});await createRoom(found,true);}else{await setDoc(doc(db,'waiting',myId),{userId:myId});listenForInvites();}}
+      function stopChat(){if(pc){pc.close();pc=null;}unsubs.forEach(u=>u());unsubs=[];if(roomId){deleteDoc(doc(db,'rooms',roomId)).catch(()=>{});roomId=null;}deleteDoc(doc(db,'waiting',myId)).catch(()=>{});deleteDoc(doc(db,'invites',myId)).catch(()=>{});if(isLive){endLive();}resetStranger();stopCamera();showDisconnected();}
       window.addEventListener('beforeunload',()=>{if(isLive){endLive().catch(()=>{});}if(pc)pc.close();if(localStream)localStream.getTracks().forEach(t=>t.stop());});
     }
   </script>

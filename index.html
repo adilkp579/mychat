@@ -67,93 +67,61 @@
     .cmt-btn.del-btn { color:#ef4444;display:none; }
     .cmt-btn.del-btn.show { display:inline; }
     
-    .cmt-thread { margin-left:1.5rem;padding-left:0.5rem;border-left:1px solid rgba(255,255,255,0.06); }
+    .vc-play-btn { display:flex;align-items:center;gap:0.3rem;padding:0.2rem 0.5rem;background:rgba(255,252,0,0.08);border:1px solid rgba(255,252,0,0.15);border-radius:0.8rem;cursor:pointer;font-size:0.7rem;color:#FFFC00;margin-top:0.2rem;width:fit-content; }
+    .vc-play-btn i { font-size:0.5rem; }
+    .vc-duration { font-size:0.55rem;color:#777;margin-left:0.2rem; }
     
     .reply-box { display:none;align-items:center;gap:0.3rem;margin-top:0.3rem;padding:0.2rem 0; }
     .reply-box.show { display:flex; }
     .reply-input-wrap { flex:1;display:flex;align-items:center;background:#1a1a1a;border-radius:0.8rem;border:1px solid rgba(255,255,255,0.12);overflow:hidden; }
     .reply-input-wrap:focus-within { border-color:#FFFC00; }
+    .reply-mic-btn { width:32px;height:32px;min-width:32px;border:none;background:transparent;color:#FFFC00;font-size:0.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center; }
+    .reply-mic-btn.recording { background:#ef4444;color:#fff;border-radius:50%;animation:recPulse 1s infinite; }
     .reply-input { flex:1;padding:0.35rem;border:none;background:transparent;color:#fff;font-size:0.65rem;outline:none; }
     .reply-post-btn { background:#FFFC00;border:none;color:#000;font-size:0.6rem;font-weight:600;padding:0.35rem 0.6rem;border-radius:0.8rem;cursor:pointer;flex-shrink:0; }
 
     .cmt-input-area { display:flex;align-items:center;gap:0.3rem;padding:0.5rem 1rem;padding-bottom:max(0.5rem,env(safe-area-inset-bottom,0.5rem));border-top:1px solid rgba(255,255,255,0.08);flex-shrink:0;background:#0a0a0a; }
     .cmt-input-wrap { flex:1;display:flex;align-items:center;background:#1a1a1a;border-radius:1.2rem;border:1px solid rgba(255,255,255,0.12);overflow:hidden; }
     .cmt-input-wrap:focus-within { border-color:#FFFC00; }
+    .cmt-mic-btn { width:38px;height:38px;min-width:38px;border:none;background:transparent;color:#FFFC00;font-size:0.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center; }
+    .cmt-mic-btn.recording { background:#ef4444;color:#fff;border-radius:50%;animation:recPulse 1s infinite; }
     .cmt-input { flex:1;padding:0.5rem;border:none;background:transparent;color:#fff;font-size:0.8rem;outline:none; }
     .cmt-post-btn { background:#FFFC00;border:none;color:#000;font-size:0.7rem;font-weight:600;padding:0.45rem 0.9rem;border-radius:1.2rem;cursor:pointer;flex-shrink:0; }
     .cmt-post-btn:disabled { opacity:0.4; }
 
+    .global-rec-bar { display:none;align-items:center;gap:0.4rem;padding:0.35rem 1rem;background:#ef4444;position:sticky;bottom:0;z-index:10; }
+    .global-rec-bar.show { display:flex; }
+    .grec-dot { width:8px;height:8px;border-radius:50%;background:#fff;animation:blink 0.5s infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    @keyframes recPulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.5)} 50%{box-shadow:0 0 0 6px rgba(239,68,68,0)} }
+    .grec-timer { font-size:0.75rem;color:#fff;font-weight:600;font-family:monospace;flex:1; }
+    .grec-cancel,.grec-send { width:30px;height:30px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.65rem; }
+    .grec-cancel { background:rgba(255,255,255,0.2);color:#fff; }
+    .grec-send { background:#fff;color:#ef4444; }
+
     .toast { position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#4ade80;color:#000;padding:0.4rem 1rem;border-radius:2rem;font-size:0.7rem;z-index:800;opacity:0;transition:all 0.3s;font-weight:600;pointer-events:none; }
     .toast.show { opacity:1; }.toast.error { background:#ef4444;color:#fff; }
 
-    /* Glass effect floating navbar with 90% transparency */
-    .floating-nav { 
-      position:fixed;
-      bottom:max(1rem,env(safe-area-inset-bottom,1rem));
-      left:50%;
-      transform:translateX(-50%);
-      width:92%;
-      max-width:500px;
-      background:rgba(10, 10, 10, 0.1);
-      backdrop-filter:blur(20px);
-      -webkit-backdrop-filter:blur(20px);
-      border-radius:2.5rem;
-      padding:0.7rem 1.5rem;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      border:1px solid rgba(255, 255, 255, 0.05);
-      z-index:100;
-      box-shadow:0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.03);
-      transition: all 0.3s ease;
-    }
-    .floating-nav:hover { background:rgba(10, 10, 10, 0.15); }
+    .floating-nav { position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(10,10,10,0.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.05);z-index:100;box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.03);transition:all 0.3s ease; }
+    .floating-nav:hover { background:rgba(10,10,10,0.15); }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
-    .nav-center a { color:rgba(255, 255, 255, 0.8);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;position:relative;background:transparent; }
-    .nav-center a:hover { color:#fff;background:rgba(255, 255, 255, 0.15);transform: translateY(-2px); }
+    .nav-center a { color:rgba(255,255,255,0.8);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;position:relative;background:transparent; }
+    .nav-center a:hover { color:#fff;background:rgba(255,255,255,0.15);transform:translateY(-2px); }
     .nav-center a::before { content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:4px;height:4px;border-radius:50%;background:#fff;transition:all 0.3s; }
     .nav-center a.active::before { transform:translateX(-50%) scale(1); }
-    .nav-center a.active { color:#fff;background:rgba(255, 255, 255, 0.2);box-shadow: 0 0 20px rgba(255, 255, 255, 0.15); }
-    
-    /* Mobile: hide upload & search */
-    .nav-upload, .nav-search { display:none !important; }
+    .nav-center a.active { color:#fff;background:rgba(255,255,255,0.2);box-shadow:0 0 20px rgba(255,255,255,0.15); }
+    .nav-upload,.nav-search { display:none !important; }
 
     @media (min-width:1024px) {
-      .top-icons{display:none}
-      /* Desktop: show upload & search in navbar */
-      .nav-upload, .nav-search { display:flex !important; }
-      
-      .floating-nav{
-        position:fixed;
-        top:50%;
-        left:1.5rem;
-        bottom:auto;
-        transform:translateY(-50%);
-        width:3.8rem;
-        height:auto;
-        max-width:none;
-        border-radius:2.5rem;
-        padding:1rem 0.6rem;
-        flex-direction:column;
-        background:rgba(10,10,10,0.1);
-        backdrop-filter:blur(20px);
-        -webkit-backdrop-filter:blur(20px);
-        border:1px solid rgba(255,255,255,0.05);
-        box-shadow:0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.03);
-      }
-      .nav-center{flex-direction:column;gap:1.2rem;max-width:none}
-      .nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
-      .nav-center a::before{bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0)}
-      .nav-center a.active::before{transform:translateY(-50%) scale(1)}
-      .content{padding:0.5rem 0 1rem 5.5rem}
-      .stories-section{max-width:550px}
-      .feed-section{max-width:550px}
+      .top-icons{display:none}.nav-upload,.nav-search{display:flex!important}
+      .floating-nav{position:fixed;top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column;background:rgba(10,10,10,0.1);backdrop-filter:blur(20px);}
+      .nav-center{flex-direction:column;gap:1.2rem;max-width:none}.nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
+      .nav-center a::before{bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0)}.nav-center a.active::before{transform:translateY(-50%) scale(1)}
+      .content{padding:0.5rem 0 1rem 5.5rem}.stories-section{max-width:550px}.feed-section{max-width:550px}
     }
-    
-    @media (max-width:380px) { 
-      .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:max(0.8rem,env(safe-area-inset-bottom,0.8rem));background:rgba(10,10,10,0.1);backdrop-filter:blur(20px);}
-      .nav-center a{font-size:1.1rem;width:2rem;height:2rem}
-      .content{padding:0 0 5rem 0}
+    @media (max-width:380px) {
+      .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:max(0.8rem,env(safe-area-inset-bottom,0.8rem));background:rgba(10,10,10,0.1);}
+      .nav-center a{font-size:1.1rem;width:2rem;height:2rem}.content{padding:0 0 5rem 0}
     }
   </style>
 </head>
@@ -167,8 +135,14 @@
     <div class="comments-overlay" id="commentsOverlay">
       <div class="comments-header"><h3>Comments</h3><button class="comments-close" onclick="closeComments()">✕</button></div>
       <div class="comments-list" id="commentsList"></div>
+      <div class="global-rec-bar" id="globalRecBar">
+        <div class="grec-dot"></div><span class="grec-timer" id="grecTimer">00:00</span>
+        <button class="grec-cancel" onclick="cancelRecording()">✕</button>
+        <button class="grec-send" onclick="sendRecording()"><i class="fas fa-paper-plane"></i></button>
+      </div>
       <div class="cmt-input-area">
         <div class="cmt-input-wrap">
+          <button class="cmt-mic-btn" id="mainMicBtn" onclick="toggleMainMic()"><i class="fas fa-microphone"></i></button>
           <input type="text" class="cmt-input" id="cmtInput" placeholder="Add a comment...">
         </div>
         <button class="cmt-post-btn" id="cmtPostBtn" onclick="postMainComment()">Post</button>
@@ -199,13 +173,14 @@
 
     const userCache = new Map();
     const PAGE_SIZE = 10;
-    let lastVisiblePost = null;
-    let allPostsLoaded = false;
-    let isLoadingPosts = false;
-    let activePostId = null;
+    let lastVisiblePost = null, allPostsLoaded = false, isLoadingPosts = false, activePostId = null;
     const currentUser = localStorage.getItem('currentUser') || '@anonymous';
+    const MAX_VOICE_SEC = 30;
+    let voiceRecorder = null, voiceChunks = [], voiceTimer = null, voiceSeconds = 0;
+    let replyRecordingFor = null;
 
     function cname(u) { return (u || '').replace(/^@/, ''); }
+    function fmtDur(s) { const m = Math.floor(s/60), sec = Math.floor(s%60); return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0'); }
     function timeAgo(d) { if (!d) return ''; const n = new Date(); const df = n - d; if (df < 60000) return 'now'; if (df < 3600000) return Math.floor(df/60000)+'m'; if (df < 86400000) return Math.floor(df/3600000)+'h'; if (df < 604800000) return Math.floor(df/86400000)+'d'; return d.toLocaleDateString(); }
 
     function loadUserFromLocalCache(username) {
@@ -225,120 +200,218 @@
       const firestoreUsers = uniqueUsers.filter(u => !userCache.has(u));
       for (let i = 0; i < firestoreUsers.length; i += 10) {
         const batch = firestoreUsers.slice(i, i + 10);
-        try {
-          const q = query(collection(db, 'users'), where('username', 'in', batch));
-          const snap = await getDocs(q);
-          snap.forEach(doc => { const d = doc.data(); userCache.set(d.username, { avatar: d.avatar || null, name: d.name || d.username }); localStorage.setItem('profile_' + d.username.replace('@',''), JSON.stringify(d)); });
-        } catch(e) {}
+        try { const q = query(collection(db, 'users'), where('username', 'in', batch)); const snap = await getDocs(q); snap.forEach(doc => { const d = doc.data(); userCache.set(d.username, { avatar: d.avatar || null, name: d.name || d.username }); localStorage.setItem('profile_' + d.username.replace('@',''), JSON.stringify(d)); }); } catch(e) {}
       }
       updateAllAvatars();
     }
 
-    function getAvtFromCache(username) {
-      const p = userCache.get(username);
-      if (p?.avatar && p.avatar !== 'null' && p.avatar !== 'undefined') return `<img src="${p.avatar}" alt="" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\\'fas fa-user\\'></i>';">`;
-      return '<i class="fas fa-user"></i>';
-    }
-
+    function getAvtFromCache(username) { const p = userCache.get(username); if (p?.avatar && p.avatar !== 'null' && p.avatar !== 'undefined') return `<img src="${p.avatar}" alt="" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\\'fas fa-user\\'></i>';">`; return '<i class="fas fa-user"></i>'; }
     function updateAllAvatars() { document.querySelectorAll('[data-avatar-user]').forEach(el => { el.innerHTML = getAvtFromCache(el.dataset.avatarUser); }); }
-
     function showToast(m, e) { const t = document.getElementById('toast'); t.textContent = m; t.className = 'toast '+(e?'error':''); t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2500); }
 
-    // ✅ RECURSIVE THREADED COMMENTS
+    // ✅ VOICE RECORDING FUNCTIONS
+    async function startVoiceRecording(forReplyId = null) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+        voiceRecorder = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm' });
+        voiceChunks = []; voiceSeconds = 0;
+        voiceRecorder.ondataavailable = e => { if (e.data.size > 0) voiceChunks.push(e.data); };
+        voiceRecorder.onstop = () => stream.getTracks().forEach(t => t.stop());
+        voiceRecorder.start(100);
+        
+        document.getElementById('globalRecBar').classList.add('show');
+        document.getElementById('grecTimer').textContent = '00:00';
+        document.getElementById('mainMicBtn').classList.add('recording');
+        
+        if (forReplyId) {
+          replyRecordingFor = forReplyId;
+          const replyMic = document.getElementById('replyMic-' + forReplyId);
+          if (replyMic) replyMic.classList.add('recording');
+        }
+        
+        voiceTimer = setInterval(() => {
+          voiceSeconds++;
+          document.getElementById('grecTimer').textContent = fmtDur(voiceSeconds);
+          if (voiceSeconds >= MAX_VOICE_SEC) sendRecording();
+        }, 1000);
+      } catch(e) { showToast('Microphone access needed!', true); }
+    }
+
+    window.cancelRecording = function() {
+      if (voiceRecorder && voiceRecorder.state === 'recording') {
+        voiceRecorder.stop();
+        voiceChunks = [];
+      }
+      clearInterval(voiceTimer);
+      document.getElementById('globalRecBar').classList.remove('show');
+      document.getElementById('mainMicBtn').classList.remove('recording');
+      if (replyRecordingFor) {
+        const replyMic = document.getElementById('replyMic-' + replyRecordingFor);
+        if (replyMic) replyMic.classList.remove('recording');
+        replyRecordingFor = null;
+      }
+      voiceRecorder = null;
+    };
+
+    window.sendRecording = async function() {
+      if (!voiceRecorder || voiceRecorder.state !== 'recording') return;
+      if (voiceSeconds < 1) { cancelRecording(); return; }
+      
+      const targetReplyId = replyRecordingFor;
+      
+      voiceRecorder.onstop = async () => {
+        const blob = new Blob(voiceChunks, { type: voiceRecorder.mimeType || 'audio/webm' });
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          try {
+            if (targetReplyId) {
+              // Voice reply
+              await addDoc(collection(db, 'posts', activePostId, 'comments'), {
+                audioUrl: e.target.result,
+                audioDuration: voiceSeconds,
+                username: currentUser,
+                parentId: targetReplyId,
+                createdAt: serverTimestamp()
+              });
+              document.getElementById('replyBox-' + targetReplyId)?.classList.remove('show');
+            } else {
+              // Voice main comment
+              await addDoc(collection(db, 'posts', activePostId, 'comments'), {
+                audioUrl: e.target.result,
+                audioDuration: voiceSeconds,
+                username: currentUser,
+                parentId: null,
+                createdAt: serverTimestamp()
+              });
+            }
+            await updateDoc(doc(db, 'posts', activePostId), { comments: increment(1) });
+            await renderAllComments(activePostId);
+            showToast('Voice comment posted! 🎤');
+          } catch(err) { console.error('Voice save error:', err); showToast('Failed to save voice', true); }
+        };
+        reader.readAsDataURL(blob);
+      };
+      
+      voiceRecorder.stop();
+      clearInterval(voiceTimer);
+      document.getElementById('globalRecBar').classList.remove('show');
+      document.getElementById('mainMicBtn').classList.remove('recording');
+      if (replyRecordingFor) {
+        const replyMic = document.getElementById('replyMic-' + replyRecordingFor);
+        if (replyMic) replyMic.classList.remove('recording');
+        replyRecordingFor = null;
+      }
+      voiceRecorder = null;
+    };
+
+    window.toggleMainMic = function() {
+      if (voiceRecorder && voiceRecorder.state === 'recording') {
+        sendRecording();
+      } else {
+        replyRecordingFor = null;
+        startVoiceRecording(null);
+      }
+    };
+
+    window.toggleReplyMic = function(cmtId) {
+      if (voiceRecorder && voiceRecorder.state === 'recording') {
+        sendRecording();
+      } else {
+        startVoiceRecording(cmtId);
+      }
+    };
+
+    // ✅ Play voice comment
+    window.playVoiceComment = function(cmtId) {
+      const el = document.getElementById('cmt-' + cmtId);
+      if (!el) return;
+      const playBtn = el.querySelector('.vc-play-btn');
+      const audioUrl = playBtn?.getAttribute('data-audio');
+      if (!audioUrl) return;
+      
+      const icon = playBtn.querySelector('i');
+      if (el._audio) {
+        if (el._audio.paused) {
+          el._audio.play();
+          if (icon) icon.className = 'fas fa-pause';
+        } else {
+          el._audio.pause();
+          if (icon) icon.className = 'fas fa-play';
+        }
+        return;
+      }
+      
+      el._audio = new Audio(audioUrl);
+      el._audio.onended = () => { if (icon) icon.className = 'fas fa-play'; };
+      el._audio.onerror = () => { if (icon) icon.className = 'fas fa-exclamation-triangle'; };
+      el._audio.play();
+      if (icon) icon.className = 'fas fa-pause';
+    };
+
+    // ✅ COMMENTS
     async function renderAllComments(postId) {
       const list = document.getElementById('commentsList');
       list.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;">Loading comments...</div>';
       try {
-        const commentsRef = collection(db, 'posts', postId, 'comments');
-        const q = query(commentsRef, orderBy('createdAt', 'asc'));
+        const q = query(collection(db, 'posts', postId, 'comments'), orderBy('createdAt', 'asc'));
         const snap = await getDocs(q);
         if (snap.empty) { list.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;">No comments yet. Be the first!</div>'; return; }
-        const allComments = [];
-        snap.forEach(doc => { allComments.push({ id: doc.id, ...doc.data() }); });
+        const allComments = []; snap.forEach(doc => { allComments.push({ id: doc.id, ...doc.data() }); });
         await batchLoadProfiles(allComments.map(c => c.username));
         const topLevel = allComments.filter(c => !c.parentId);
         list.innerHTML = '';
         topLevel.forEach(cmt => { renderCommentWithReplies(cmt, allComments, list, 0); });
-      } catch(e) { console.error(e); list.innerHTML = '<div style="text-align:center;color:#ef4444;padding:2rem;">Failed to load comments</div>'; }
+      } catch(e) { list.innerHTML = '<div style="text-align:center;color:#ef4444;padding:2rem;">Failed to load comments</div>'; }
     }
 
     function renderCommentWithReplies(cmt, allComments, parentEl, depth) {
       const block = document.createElement('div');
-      block.className = 'cmt-block';
-      block.id = 'cmt-' + cmt.id;
+      block.className = 'cmt-block'; block.id = 'cmt-' + cmt.id;
       block.style.marginLeft = depth > 0 ? '1.5rem' : '0';
-      if (depth > 0) block.style.borderLeft = '1px solid rgba(255,255,255,0.06)';
-      if (depth > 0) block.style.paddingLeft = '0.5rem';
+      if (depth > 0) { block.style.borderLeft = '1px solid rgba(255,255,255,0.06)'; block.style.paddingLeft = '0.5rem'; }
       const timeStr = cmt.createdAt ? timeAgo(cmt.createdAt.toDate()) : '';
       const isOwner = cmt.username === currentUser;
-      block.innerHTML = `<div class="cmt-row"><div class="cmt-avatar" data-avatar-user="${cmt.username}">${getAvtFromCache(cmt.username)}</div><div class="cmt-body"><div class="cmt-username">${cname(cmt.username)}</div><div class="cmt-content">${cmt.text || ''}</div><div class="cmt-meta"><span class="cmt-time">${timeStr}</span><button class="cmt-btn reply-btn" onclick="toggleReplyBox('${cmt.id}')">Reply</button><button class="cmt-btn del-btn ${isOwner?'show':''}" onclick="deleteComment('${activePostId}','${cmt.id}')">Delete</button></div><div class="reply-box" id="replyBox-${cmt.id}"><div class="reply-input-wrap"><input type="text" class="reply-input" id="replyInput-${cmt.id}" placeholder="Reply to ${cname(cmt.username)}..."></div><button class="reply-post-btn" onclick="postReply('${activePostId}','${cmt.id}')">Reply</button></div><div class="replies-container" id="replies-${cmt.id}"></div></div></div>`;
+      const voiceHTML = cmt.audioUrl ? `<div class="vc-play-btn" onclick="event.stopPropagation();playVoiceComment('${cmt.id}')" data-audio="${cmt.audioUrl}"><i class="fas fa-play"></i> Voice <span class="vc-duration">${fmtDur(cmt.audioDuration||0)}</span></div>` : '';
+      block.innerHTML = `<div class="cmt-row"><div class="cmt-avatar" data-avatar-user="${cmt.username}">${getAvtFromCache(cmt.username)}</div><div class="cmt-body"><div class="cmt-username">${cname(cmt.username)}</div>${cmt.text ? `<div class="cmt-content">${cmt.text}</div>` : ''}${voiceHTML}<div class="cmt-meta"><span class="cmt-time">${timeStr}</span><button class="cmt-btn reply-btn" onclick="toggleReplyBox('${cmt.id}')">Reply</button><button class="cmt-btn del-btn ${isOwner?'show':''}" onclick="deleteComment('${activePostId}','${cmt.id}')">Delete</button></div><div class="reply-box" id="replyBox-${cmt.id}"><div class="reply-input-wrap"><button class="reply-mic-btn" id="replyMic-${cmt.id}" onclick="event.stopPropagation();toggleReplyMic('${cmt.id}')"><i class="fas fa-microphone"></i></button><input type="text" class="reply-input" id="replyInput-${cmt.id}" placeholder="Reply..."></div><button class="reply-post-btn" onclick="postReply('${activePostId}','${cmt.id}')">Reply</button></div><div class="replies-container" id="replies-${cmt.id}"></div></div></div>`;
       parentEl.appendChild(block);
       const childReplies = allComments.filter(c => c.parentId === cmt.id);
-      if (childReplies.length > 0) {
-        const repliesContainer = block.querySelector('.replies-container');
-        childReplies.forEach(child => { renderCommentWithReplies(child, allComments, repliesContainer, depth + 1); });
-      }
+      if (childReplies.length > 0) { const rc = block.querySelector('.replies-container'); childReplies.forEach(child => { renderCommentWithReplies(child, allComments, rc, depth + 1); }); }
     }
 
-    window.toggleReplyBox = function(cmtId) { const box = document.getElementById('replyBox-' + cmtId); if (box) { box.classList.toggle('show'); if (box.classList.contains('show')) setTimeout(() => { const input = document.getElementById('replyInput-' + cmtId); if (input) input.focus(); }, 100); } };
-    window.postMainComment = async function() { const input = document.getElementById('cmtInput'); const text = input.value.trim(); if (!text || !activePostId) return; try { await addDoc(collection(db, 'posts', activePostId, 'comments'), { text, username: currentUser, createdAt: serverTimestamp(), parentId: null }); await updateDoc(doc(db, 'posts', activePostId), { comments: increment(1) }); input.value = ''; await renderAllComments(activePostId); showToast('Comment posted! 💬'); } catch(e) { showToast('Failed to post comment', true); } };
-    window.postReply = async function(postId, parentId) { const input = document.getElementById('replyInput-' + parentId); const text = input?.value.trim(); if (!text || !postId) return; try { await addDoc(collection(db, 'posts', postId, 'comments'), { text, username: currentUser, parentId, createdAt: serverTimestamp() }); await updateDoc(doc(db, 'posts', postId), { comments: increment(1) }); input.value = ''; document.getElementById('replyBox-' + parentId)?.classList.remove('show'); await renderAllComments(postId); showToast('Reply posted! 💬'); } catch(e) { showToast('Failed to post reply', true); } };
-    window.deleteComment = async function(postId, cmtId) { if (!confirm('Delete this comment?')) return; try { const allSnap = await getDocs(collection(db, 'posts', postId, 'comments')); const toDelete = [cmtId]; const findReplies = (parentIds) => { allSnap.forEach(doc => { if (parentIds.includes(doc.data().parentId)) { toDelete.push(doc.id); findReplies([doc.id]); } }); }; findReplies([cmtId]); for (const id of toDelete) { await deleteDoc(doc(db, 'posts', postId, 'comments', id)); } await updateDoc(doc(db, 'posts', postId), { comments: increment(-toDelete.length) }); await renderAllComments(postId); showToast('Comment deleted'); } catch(e) { showToast('Failed to delete', true); } };
+    window.toggleReplyBox = function(cmtId) { const box = document.getElementById('replyBox-' + cmtId); if (box) { box.classList.toggle('show'); if (box.classList.contains('show')) setTimeout(() => document.getElementById('replyInput-' + cmtId)?.focus(), 100); } };
+    window.postMainComment = async function() { const input = document.getElementById('cmtInput'); const text = input.value.trim(); if (!text || !activePostId) return; try { await addDoc(collection(db, 'posts', activePostId, 'comments'), { text, username: currentUser, createdAt: serverTimestamp(), parentId: null }); await updateDoc(doc(db, 'posts', activePostId), { comments: increment(1) }); input.value = ''; await renderAllComments(activePostId); showToast('Comment posted! 💬'); } catch(e) { showToast('Failed', true); } };
+    window.postReply = async function(postId, parentId) { const input = document.getElementById('replyInput-' + parentId); const text = input?.value.trim(); if (!text || !postId) return; try { await addDoc(collection(db, 'posts', postId, 'comments'), { text, username: currentUser, parentId, createdAt: serverTimestamp() }); await updateDoc(doc(db, 'posts', postId), { comments: increment(1) }); input.value = ''; document.getElementById('replyBox-' + parentId)?.classList.remove('show'); await renderAllComments(postId); showToast('Reply posted! 💬'); } catch(e) { showToast('Failed', true); } };
+    window.deleteComment = async function(postId, cmtId) { if (!confirm('Delete?')) return; try { const allSnap = await getDocs(collection(db, 'posts', postId, 'comments')); const toDelete = [cmtId]; const findReplies = (pids) => { allSnap.forEach(d => { if (pids.includes(d.data().parentId)) { toDelete.push(d.id); findReplies([d.id]); } }); }; findReplies([cmtId]); for (const id of toDelete) { await deleteDoc(doc(db, 'posts', postId, 'comments', id)); } await updateDoc(doc(db, 'posts', postId), { comments: increment(-toDelete.length) }); await renderAllComments(postId); showToast('Deleted'); } catch(e) { showToast('Failed', true); } };
     window.openComments = async function(pid) { activePostId = pid; document.getElementById('commentsOverlay').classList.add('show'); document.getElementById('cmtInput').value = ''; await renderAllComments(pid); };
-    window.closeComments = function() { document.getElementById('commentsOverlay').classList.remove('show'); activePostId = null; };
+    window.closeComments = function() { cancelRecording(); document.getElementById('commentsOverlay').classList.remove('show'); activePostId = null; };
 
     function isImagePost(src, type) { if (!src) return false; if (type === 'reel' || type === 'video') return false; if (src.startsWith('data:video/')) return false; if (src.match(/\.(mp4|webm|mov|avi|mkv)($|\?)/i)) return false; return true; }
 
     async function loadMorePosts() {
       if (isLoadingPosts || allPostsLoaded) return; isLoadingPosts = true;
       try {
-        let q; if (lastVisiblePost) { q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'), startAfter(lastVisiblePost), limit(PAGE_SIZE)); } else { q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'), limit(PAGE_SIZE)); }
+        let q; if (lastVisiblePost) q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'), startAfter(lastVisiblePost), limit(PAGE_SIZE)); else q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'), limit(PAGE_SIZE));
         const snap = await getDocs(q);
         if (snap.empty) { allPostsLoaded = true; if (!lastVisiblePost) document.getElementById('feedContainer').innerHTML = '<div style="text-align:center;color:#555;padding:3rem;">No posts yet</div>'; return; }
-        const posts = [];
-        snap.forEach(doc => { const dt = doc.data(); const src = dt.data || dt.url || ''; const type = dt.type || ''; if (src && isImagePost(src, type)) { posts.push({ id: doc.id, userId: dt.username || dt.userId || '@anonymous', caption: dt.caption || '', src, likes: dt.likes || 0, comments: dt.comments || 0, time: dt.createdAt ? timeAgo(dt.createdAt.toDate()) : 'Recently' }); } });
+        const posts = []; snap.forEach(doc => { const dt = doc.data(); const src = dt.data || dt.url || ''; const type = dt.type || ''; if (src && isImagePost(src, type)) posts.push({ id: doc.id, userId: dt.username || dt.userId || '@anonymous', caption: dt.caption || '', src, likes: dt.likes || 0, comments: dt.comments || 0, time: dt.createdAt ? timeAgo(dt.createdAt.toDate()) : 'Recently' }); });
         lastVisiblePost = snap.docs[snap.docs.length - 1];
         if (posts.length > 0) { await batchLoadProfiles(posts.map(p => p.userId)); renderPostsToFeed(posts); }
-      } catch(e) { console.error(e); } finally { isLoadingPosts = false; }
+      } catch(e) {} finally { isLoadingPosts = false; }
     }
 
-    function renderPostsToFeed(posts) {
-      const container = document.getElementById('feedContainer');
-      posts.forEach(p => {
-        const card = document.createElement('div'); card.className = 'feed-card';
-        card.innerHTML = `<div class="feed-header"><div class="feed-avatar" data-avatar-user="${p.userId}" onclick="window.location.href='profile.html?user=${encodeURIComponent(p.userId)}'">${getAvtFromCache(p.userId)}</div><div><div class="feed-username" onclick="window.location.href='profile.html?user=${encodeURIComponent(p.userId)}'">${cname(p.userId)}</div></div><span class="feed-time">${p.time}</span></div><div class="feed-image" onclick="openImageViewer('${p.src}')"><img src="${p.src}" alt="post" loading="lazy"></div><div class="feed-actions"><button class="feed-action" id="likeBtn-${p.id}" onclick="toggleLike('${p.id}')"><i class="far fa-heart"></i></button><button class="feed-action" onclick="openComments('${p.id}')"><i class="far fa-comment"></i></button><button class="feed-action" onclick="sharePost('${p.src}')"><i class="far fa-share-square"></i></button></div><div class="feed-likes" id="likes-${p.id}">${p.likes||0} likes</div><div class="feed-caption"><span onclick="window.location.href='profile.html?user=${encodeURIComponent(p.userId)}'">${cname(p.userId)}</span>${p.caption}</div><div class="view-comments-btn" onclick="openComments('${p.id}')">View all ${p.comments||0} comments</div>`;
-        container.appendChild(card);
-      });
-    }
+    function renderPostsToFeed(posts) { const container = document.getElementById('feedContainer'); posts.forEach(p => { const card = document.createElement('div'); card.className = 'feed-card'; card.innerHTML = `<div class="feed-header"><div class="feed-avatar" data-avatar-user="${p.userId}" onclick="window.location.href='profile.html?user=${encodeURIComponent(p.userId)}'">${getAvtFromCache(p.userId)}</div><div><div class="feed-username" onclick="window.location.href='profile.html?user=${encodeURIComponent(p.userId)}'">${cname(p.userId)}</div></div><span class="feed-time">${p.time}</span></div><div class="feed-image" onclick="openImageViewer('${p.src}')"><img src="${p.src}" alt="post" loading="lazy"></div><div class="feed-actions"><button class="feed-action" id="likeBtn-${p.id}" onclick="toggleLike('${p.id}')"><i class="far fa-heart"></i></button><button class="feed-action" onclick="openComments('${p.id}')"><i class="far fa-comment"></i></button><button class="feed-action" onclick="sharePost('${p.src}')"><i class="far fa-share-square"></i></button></div><div class="feed-likes" id="likes-${p.id}">${p.likes||0} likes</div><div class="feed-caption"><span onclick="window.location.href='profile.html?user=${encodeURIComponent(p.userId)}'">${cname(p.userId)}</span>${p.caption}</div><div class="view-comments-btn" onclick="openComments('${p.id}')">View all ${p.comments||0} comments</div>`; container.appendChild(card); }); }
 
     function setupInfiniteScroll() { const content = document.getElementById('mainContent'); let ticking = false; content.addEventListener('scroll', () => { if (!ticking) { requestAnimationFrame(() => { if (content.scrollHeight - content.scrollTop - content.clientHeight < 500) loadMorePosts(); ticking = false; }); ticking = true; } }, { passive: true }); }
     window.toggleLike = async function(pid) { const b = document.getElementById('likeBtn-'+pid), l = document.getElementById('likes-'+pid); if (!b||!l) return; const liked = b.classList.contains('liked'); if (liked) { b.classList.remove('liked'); b.querySelector('i').className='far fa-heart'; l.textContent=(Math.max(0,parseInt(l.textContent)-1))+' likes'; try { await updateDoc(doc(db,'posts',pid),{likes:increment(-1)}); } catch(e) {} } else { b.classList.add('liked'); b.querySelector('i').className='fas fa-heart'; l.textContent=(parseInt(l.textContent)+1)+' likes'; try { await updateDoc(doc(db,'posts',pid),{likes:increment(1)}); } catch(e) {} } };
     window.sharePost = function(s) { if (navigator.share) navigator.share({url:s}); else { navigator.clipboard.writeText(s); showToast('Link copied!'); } };
     window.openImageViewer = function(s) { const o = document.createElement('div'); o.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:800;display:flex;align-items:center;justify-content:center;'; o.innerHTML = `<img src="${s}" style="max-width:95%;max-height:90vh;object-fit:contain;"><button style="position:absolute;top:1rem;right:1rem;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.6);border:none;color:#fff;font-size:1rem;cursor:pointer;">✕</button>`; o.querySelector('button').onclick = () => o.remove(); o.onclick = e => { if (e.target === o) o.remove(); }; document.body.appendChild(o); };
 
-    async function renderStories() {
-      const p = JSON.parse(localStorage.getItem('userProfile')||'{}');
-      const ps = [...(p.friends||[]).map(f=>({name:f.name,type:'friend'})),...(p.besties||[]).map(b=>({name:b.name,type:'bestie'}))];
-      const bar = document.getElementById('storiesBar'), ns = document.getElementById('noStories');
-      if (ps.length === 0) { bar.style.display = 'none'; ns.style.display = 'block'; return; }
-      bar.style.display = 'flex'; ns.style.display = 'none';
-      await batchLoadProfiles(ps.map(s => s.name));
-      bar.innerHTML = ps.map(s => `<div class="story-item" onclick="window.location.href='profile.html?user=${encodeURIComponent(s.name)}'"><div class="story-ring ${s.type}"><div class="story-avatar">${getAvtFromCache(s.name)}</div></div><span class="story-name">${cname(s.name)}</span></div>`).join('');
-    }
+    async function renderStories() { const p = JSON.parse(localStorage.getItem('userProfile')||'{}'); const ps = [...(p.friends||[]).map(f=>({name:f.name,type:'friend'})),...(p.besties||[]).map(b=>({name:b.name,type:'bestie'}))]; const bar = document.getElementById('storiesBar'), ns = document.getElementById('noStories'); if (ps.length === 0) { bar.style.display = 'none'; ns.style.display = 'block'; return; } bar.style.display = 'flex'; ns.style.display = 'none'; await batchLoadProfiles(ps.map(s => s.name)); bar.innerHTML = ps.map(s => `<div class="story-item" onclick="window.location.href='profile.html?user=${encodeURIComponent(s.name)}'"><div class="story-ring ${s.type}"><div class="story-avatar">${getAvtFromCache(s.name)}</div></div><span class="story-name">${cname(s.name)}</span></div>`).join(''); }
 
     document.getElementById('cmtInput').addEventListener('keydown', function(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); postMainComment(); } });
     document.getElementById('commentsOverlay').addEventListener('click', function(e) { if (e.target === this) closeComments(); });
 
-    async function bootApp() {
-      const hasLocalUid = localStorage.getItem("uid");
-      if (!hasLocalUid && !auth.currentUser) { await new Promise(resolve => { const unsub = onAuthStateChanged(auth, (user) => { unsub(); if (user) localStorage.setItem("uid", user.uid); resolve(); }); }); }
-      if (!localStorage.getItem("uid") && !auth.currentUser) { window.location.replace("login.html"); return; }
-      document.getElementById('mainPage').style.display = 'flex';
-      const lp = JSON.parse(localStorage.getItem('userProfile') || '{}');
-      if (lp.username) userCache.set(lp.username, { avatar: lp.avatar || null, name: lp.name || lp.username });
-      renderStories(); setupInfiniteScroll(); loadMorePosts();
-    }
-
+    async function bootApp() { const uid = localStorage.getItem("uid"); if (!uid && !auth.currentUser) { await new Promise(r => { const u = onAuthStateChanged(auth, (user) => { u(); if (user) localStorage.setItem("uid", user.uid); r(); }); }); } if (!localStorage.getItem("uid") && !auth.currentUser) { window.location.replace("login.html"); return; } document.getElementById('mainPage').style.display = 'flex'; const lp = JSON.parse(localStorage.getItem('userProfile') || '{}'); if (lp.username) userCache.set(lp.username, { avatar: lp.avatar || null, name: lp.name || lp.username }); renderStories(); setupInfiniteScroll(); loadMorePosts(); }
     bootApp();
   </script>
 </body>

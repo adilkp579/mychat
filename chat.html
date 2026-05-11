@@ -10,27 +10,50 @@
     body { background:#000;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;overscroll-behavior:none; }
     .page { width:100%;height:100vh;height:100dvh;background:#000;display:flex;flex-direction:column;position:relative;overflow:hidden; }
 
+    /* ✅ Top-left: Heart icon */
     .top-left { position:fixed;top:max(1rem,env(safe-area-inset-top,1rem));left:max(1rem,env(safe-area-inset-left,1rem));z-index:200; }
     .top-right { position:fixed;top:max(1rem,env(safe-area-inset-top,1rem));right:max(1rem,env(safe-area-inset-right,1rem));z-index:200; }
-    .back-btn {
-      width:2.4rem;height:2.4rem;background:rgba(255,255,255,0.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-      border-radius:50%;color:#fff;font-size:1rem;display:none;align-items:center;justify-content:center;
-      text-decoration:none;border:1px solid rgba(255,255,255,0.15);cursor:pointer;
+    
+    .hart-btn {
+      width:2.4rem;height:2.4rem;
+      background:rgba(239,68,68,0.2);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+      border-radius:50%;color:#ef4444;font-size:1rem;
+      display:flex;align-items:center;justify-content:center;
+      text-decoration:none;border:1px solid rgba(239,68,68,0.3);cursor:pointer;
+      animation:pulse 2s infinite;
     }
-    .back-btn.show {display:flex;}
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+    
     .corner-btn {
-      width:2.4rem;height:2.4rem;background:rgba(255,255,255,0.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-      border-radius:50%;color:#fff;font-size:1rem;display:flex;align-items:center;justify-content:center;
+      width:2.4rem;height:2.4rem;
+      background:rgba(255,255,255,0.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+      border-radius:50%;color:#fff;font-size:1rem;
+      display:flex;align-items:center;justify-content:center;
       text-decoration:none;border:1px solid rgba(255,255,255,0.15);transition:all 0.3s;
     }
 
-    .chat-header {display:flex;align-items:center;gap:0.8rem;padding:0.8rem 1rem 0.5rem 1rem;padding-top:max(0.8rem,env(safe-area-inset-top,0.8rem));background:#000;flex-shrink:0;z-index:50;}
+    /* ✅ Chat header with back button and "Chats" text */
+    .chat-header {
+      display:flex;align-items:center;gap:0.8rem;
+      padding:0.8rem 1rem 0.5rem 1rem;padding-top:max(0.8rem,env(safe-area-inset-top,0.8rem));
+      background:#000;flex-shrink:0;z-index:50;
+    }
+    .chat-back {
+      width:2.4rem;height:2.4rem;
+      background:rgba(255,255,255,0.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+      border-radius:50%;color:#fff;font-size:1rem;
+      display:none;align-items:center;justify-content:center;
+      text-decoration:none;border:1px solid rgba(255,255,255,0.15);cursor:pointer;
+    }
+    .chat-back.show {display:flex;}
+    
     .chat-avatar {width:36px;height:36px;border-radius:50%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;font-size:0.85rem;color:#fff;flex-shrink:0;overflow:hidden;cursor:pointer;}
     .chat-avatar img {width:100%;height:100%;object-fit:cover;}
     .chat-partner-info {flex:1;min-width:0;cursor:pointer;}
     .chat-partner-name {font-size:0.9rem;font-weight:600;color:#fff;cursor:pointer;}
     .chat-partner-status {font-size:0.65rem;color:#4ade80;display:flex;align-items:center;gap:0.2rem;}
     .chat-partner-status .dot {width:5px;height:5px;border-radius:50%;background:#4ade80;display:inline-block;}
+
     .call-btns {display:none;align-items:center;gap:0.5rem;}
     .call-btns.show {display:flex;}
     .call-btn {width:2.2rem;height:2.2rem;border-radius:50%;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.85rem;cursor:pointer;border:none;transition:all 0.2s;}
@@ -109,6 +132,39 @@
 
     .empty-chat {flex:1;display:flex;align-items:center;justify-content:center;color:#333;font-size:0.8rem;}
 
+    .incoming-call-overlay {position:fixed;top:0;left:0;right:0;bottom:0;background:#000;z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:1rem;}
+    .incoming-call-overlay.show {display:flex;}
+    .incoming-call-avatar {width:80px;height:80px;border-radius:50%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;font-size:2rem;color:#fff;overflow:hidden;}
+    .incoming-call-avatar img {width:100%;height:100%;object-fit:cover;}
+    .incoming-call-name {font-size:1.2rem;color:#fff;font-weight:600;}
+    .incoming-call-type {font-size:0.9rem;color:#4ade80;}
+    .incoming-call-type.ringing {animation:pulse 1s infinite;}
+    @keyframes pulse {0%,100%{opacity:1;}50%{opacity:0.5;}}
+    .incoming-call-actions {display:flex;gap:2rem;margin-top:1rem;}
+    .incoming-call-btn {width:55px;height:55px;border-radius:50%;border:none;font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+    .incoming-call-btn.reject {background:#ef4444;color:#fff;}
+    .incoming-call-btn.accept {background:#4ade80;color:#fff;width:65px;height:65px;font-size:1.5rem;}
+
+    .call-overlay {position:fixed;top:0;left:0;right:0;bottom:0;background:#000;z-index:400;display:none;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;}
+    .call-overlay.show {display:flex;}
+    .call-video-container {position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;}
+    .call-remote-video {width:100%;height:100%;object-fit:cover;background:#000;}
+    .call-local-video {position:absolute;top:1rem;right:1rem;width:120px;height:160px;border-radius:0.8rem;object-fit:cover;background:#0a0a0a;border:2px solid rgba(255,255,255,0.3);z-index:10;}
+    .call-info {position:absolute;top:2rem;left:50%;transform:translateX(-50%);text-align:center;z-index:10;}
+    .call-info .call-name {font-size:1.2rem;color:#fff;font-weight:600;}
+    .call-info .call-status {font-size:0.9rem;color:#fff;margin-top:0.3rem;}
+    .call-actions {position:absolute;bottom:3rem;display:flex;gap:1.5rem;z-index:10;}
+    .call-action-btn {width:55px;height:55px;border-radius:50%;border:none;cursor:pointer;font-size:1.3rem;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+    .call-action-btn.end-call {background:#ef4444;color:#fff;}
+    .call-action-btn.toggle-video {background:rgba(255,255,255,0.2);color:#fff;}
+    .call-action-btn.toggle-mic {background:rgba(255,255,255,0.2);color:#fff;}
+    .call-action-btn.toggle-mic.muted {background:#ef4444;}
+    .call-action-btn.toggle-video.off {background:#ef4444;}
+
+    .loading-screen {position:fixed;top:0;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:0.5rem;}
+    .loading-screen i {font-size:2rem;color:#3897f0;animation:spin 1s infinite;}
+    @keyframes spin {from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
     /* Navbar */
     .floating-nav { 
       position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));
@@ -126,12 +182,6 @@
     .nav-center a::before {content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:4px;height:4px;border-radius:50%;background:#fff;transition:all 0.3s;}
     .nav-center a.active {color:#fff;background:rgba(255,255,255,0.2);box-shadow:0 0 20px rgba(255,255,255,0.15);}
     .nav-center a.active::before {transform:translateX(-50%) scale(1);}
-    
-    /* Heart icon in navbar */
-    .nav-hart {color:rgba(239,68,68,0.8) !important;}
-    .nav-hart:hover {color:#ef4444 !important;background:rgba(239,68,68,0.15) !important;}
-    .nav-hart::before {background:#ef4444 !important;}
-    
     .nav-upload,.nav-search {display:none !important;}
 
     @media (min-width:1024px) {
@@ -154,10 +204,18 @@
 <body>
   <div class="loading-screen" id="loadingScreen"><i class="fas fa-spinner"></i><span>Loading...</span></div>
   <div class="page" id="mainPage" style="display:none;">
-    <div class="top-left"><button class="back-btn" id="backBtn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button></div>
-    <div class="top-right" id="topRightBtn"><button class="corner-btn" id="newChatBtn" onclick="showNewChatModal()"><i class="fas fa-plus"></i></button></div>
+    <!-- ✅ Top-left: Heart icon -->
+    <div class="top-left">
+      <a href="hart.html" class="hart-btn" title="Likes"><i class="fas fa-heart"></i></a>
+    </div>
+    <!-- ✅ Top-right: New chat button -->
+    <div class="top-right" id="topRightBtn">
+      <button class="corner-btn" id="newChatBtn" onclick="showNewChatModal()"><i class="fas fa-plus"></i></button>
+    </div>
 
+    <!-- ✅ Header with back button and Chats text -->
     <div class="chat-header">
+      <button class="chat-back" id="backBtn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
       <div class="chat-avatar" id="partnerAvatar" onclick="goToPartnerProfile()"><i class="fas fa-comment-dots"></i></div>
       <div class="chat-partner-info" id="partnerInfo" onclick="goToPartnerProfile()">
         <div class="chat-partner-name" id="partnerName">Chats</div>
@@ -191,13 +249,12 @@
       <button class="send-btn" id="sendBtn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
     </div>
     
-    <!-- ✅ Navbar: chats icon removed, hart.html added -->
+    <!-- ✅ Navbar: No heart icon, Chat active -->
     <nav class="floating-nav" id="floatingNav">
       <div class="nav-center">
         <a href="index.html"><i class="fas fa-home"></i></a>
         <a href="web.html"><i class="fas fa-globe"></i></a>
         <a href="reel.html"><i class="fas fa-film"></i></a>
-        <a href="hart.html" class="nav-hart"><i class="fas fa-heart"></i></a>
         <a href="chat.html" class="active"><i class="fas fa-comment-dots"></i></a>
         <a href="profile.html"><i class="fas fa-user"></i></a>
         <a href="upload.html" class="nav-upload"><i class="fas fa-plus"></i></a>

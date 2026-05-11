@@ -134,64 +134,51 @@
     .mic-btn.visible { display:inline-flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid rgba(255,255,255,0.2);outline:none;font-size:0.8rem; }
     .mic-btn.muted { color:#ef4444;background:rgba(239,68,68,0.2);border-color:rgba(239,68,68,0.5); }
 
-    /* Chat section at bottom */
-    .chat-section {
-      display:flex;align-items:center;gap:8px;margin-top:auto;padding-bottom:70px;
-    }
-    .chat-btn {
-      width:90px;height:36px;border-radius:18px;
-      background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);
-      color:#fff;font-size:0.75rem;font-weight:600;cursor:pointer;
-      display:flex;align-items:center;justify-content:center;gap:4px;
-      flex-shrink:0;transition:all 0.2s;
-    }
-    .chat-btn:active { transform:scale(0.95); }
-    .chat-input {
-      width:55%;height:36px;border-radius:18px;
-      background:#111;border:1px solid rgba(255,255,255,0.12);
-      color:#fff;font-size:0.75rem;padding:0 14px;outline:none;
-    }
-    .chat-input:focus { border-color:#FFFC00; }
-
     .https-warning { display:none;background:#ef4444;color:#fff;text-align:center;padding:4px;font-size:0.55rem;font-weight:600;z-index:200;width:100%; }
     .https-warning.show { display:block; }
     .loading-screen { position:fixed;top:0;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:8px; }
     .loading-screen i { font-size:2rem;color:#3897f0;animation:spin 1s infinite; }
     .loading-screen span { font-size:0.75rem;color:#888; }
 
-    .floating-nav { position:fixed;bottom:max(8px,env(safe-area-inset-bottom,8px));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(10,10,10,0.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.05);z-index:100;box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.03); }
+    /* ✅ Navbar - Same as old index.html style */
+    .floating-nav { 
+      position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));
+      left:50%;transform:translateX(-50%);
+      width:92%;max-width:500px;
+      background:rgba(10,10,10,0.1);
+      backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+      border-radius:2.5rem;padding:0.7rem 1.5rem;
+      display:flex;align-items:center;justify-content:center;
+      border:1px solid rgba(255,255,255,0.05);
+      z-index:100;box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.03);
+      transition:all 0.3s ease;
+    }
     .floating-nav:hover { background:rgba(10,10,10,0.15); }
-    .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:4px; }
-    .nav-center a { color:rgba(255,255,255,0.8);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;position:relative;background:transparent; }
+    .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
+    .nav-center a { color:rgba(255,255,255,0.8);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);text-decoration:none;position:relative;background:transparent; }
     .nav-center a:hover { color:#fff;background:rgba(255,255,255,0.15);transform:translateY(-2px); }
-    .nav-center a::before { content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:4px;height:4px;border-radius:50%;background:#fff;transition:all 0.3s; }
+    .nav-center a::before { content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:4px;height:4px;border-radius:50%;background:#fff;transition:all 0.3s cubic-bezier(0.4,0,0.2,1); }
     .nav-center a.active::before { transform:translateX(-50%) scale(1); }
     .nav-center a.active { color:#fff;background:rgba(255,255,255,0.2);box-shadow:0 0 20px rgba(255,255,255,0.15); }
-    .nav-live,.nav-wallet { display:none !important; }
     .nav-upload,.nav-search { display:none !important; }
 
+    /* Desktop: show upload & search in navbar */
     @media (min-width:1024px) {
-      .nav-live,.nav-wallet { display:flex !important; }
+      .nav-upload,.nav-search { display:flex !important; }
       .top-left-icon,.top-right-icon { display:none !important; }
-      .floating-nav{position:fixed;top:50%;left:1.2rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column;background:rgba(10,10,10,0.1);backdrop-filter:blur(20px);}
+      .floating-nav{position:fixed;top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column;background:rgba(10,10,10,0.1);backdrop-filter:blur(20px);}
       .nav-center{flex-direction:column;gap:1.2rem;max-width:none}.nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
       .nav-center a::before{bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0)}.nav-center a.active::before{transform:translateY(-50%) scale(1)}
-      .nav-center a.nav-live{color:rgba(239,68,68,0.8)}.nav-center a.nav-live:hover{color:#ef4444;background:rgba(239,68,68,0.15)}
-      .nav-center a.nav-wallet{color:rgba(74,222,128,0.8)}.nav-center a.nav-wallet:hover{color:#4ade80;background:rgba(74,222,128,0.12)}
       .page{padding-left:5rem}
-      .main-content{max-width:800px;margin:0 auto;width:100%}
-      .stranger-camera{height:50vh}
+      .main-content{max-width:800px;margin:0 auto;width:100%;padding-bottom:1rem;}
+      .stranger-camera{height:55vh}
       .my-camera{height:28vh}
-      .chat-input{width:50%}
-      .chat-section{padding-bottom:20px}
     }
     @media (max-width:380px) {
       .token-btn{width:75px;height:28px;font-size:0.6rem;}
       .token-btn .token-emoji{font-size:0.75rem;}.token-btn .token-label{font-size:0.55rem;}
       .ctrl-btn{width:65px;height:30px;font-size:0.6rem;}
-      .chat-btn{width:70px;height:32px;font-size:0.65rem;}
-      .chat-input{width:45%;height:32px;font-size:0.7rem;}
-      .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:max(8px,env(safe-area-inset-bottom,8px));}
+      .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:max(0.8rem,env(safe-area-inset-bottom,0.8rem));background:rgba(10,10,10,0.1);}
       .nav-center a{font-size:1.1rem;width:2rem;height:2rem}
       .top-left-icon,.top-right-icon{width:20px;height:20px;font-size:8px;top:10px;}
       .top-left-icon{left:10px;}.top-right-icon{right:10px;}
@@ -241,14 +228,9 @@
         <button class="next-btn" id="nextBtn" type="button"><i class="fas fa-forward"></i><span>Next</span></button>
         <button class="mic-btn" id="micBtn" type="button" title="Mute"><i class="fas fa-microphone"></i></button>
       </div>
-      
-      <!-- Chat section -->
-      <div class="chat-section">
-        <button class="chat-btn" onclick="window.location.href='chat.html'"><i class="fas fa-comment-dots"></i> Chat</button>
-        <input type="text" class="chat-input" placeholder="Type a message...">
-      </div>
     </div>
     
+    <!-- ✅ Navbar - Same as old index.html -->
     <nav class="floating-nav">
       <div class="nav-center">
         <a href="index.html"><i class="fas fa-home"></i></a>
@@ -256,8 +238,8 @@
         <a href="reel.html"><i class="fas fa-film"></i></a>
         <a href="chat.html"><i class="fas fa-comment-dots"></i></a>
         <a href="profile.html"><i class="fas fa-user"></i></a>
-        <a href="live.html" class="nav-live" title="Live"><i class="fas fa-broadcast-tower"></i></a>
-        <a href="wallet.html" class="nav-wallet" title="Wallet"><i class="fas fa-wallet"></i></a>
+        <a href="upload.html" class="nav-upload"><i class="fas fa-plus"></i></a>
+        <a href="search.html" class="nav-search"><i class="fas fa-search"></i></a>
       </div>
     </nav>
   </div>
@@ -302,26 +284,20 @@
       function setButtonState(state){startStopBtn.classList.remove('stop-state');if(state==='start'){startStopBtn.innerHTML='<i class="fas fa-play"></i><span>Start</span>';startStopBtn.disabled=false;}else{startStopBtn.classList.add('stop-state');startStopBtn.innerHTML='<i class="fas fa-stop"></i><span>Stop</span>';startStopBtn.disabled=false;}}
       function handleStartStop(){if(startStopBtn.classList.contains('stop-state')){stopChat();}else{startChat();}}
       function updateLiveButton(){if(isLive){liveBtn.innerHTML='<i class="fas fa-stop-circle"></i><span>End</span>';liveBtn.classList.add('active');}else{liveBtn.innerHTML='<i class="fas fa-circle"></i><span>Live</span>';liveBtn.classList.remove('active');}}
-      
-      async function startLive(){if(!localStream){alert('Start camera first!');return;}isLive=true;updateLiveButton();try{await setDoc(doc(db,'live',liveUserId),{userId:currentUser,active:true,startedAt:serverTimestamp(),viewers:0});strangerCamera.classList.add('live-active');liveUnsub=onSnapshot(collection(db,'live_viewers'),(snap)=>{snap.docChanges().forEach(async(change)=>{const vd=change.doc.data();if(change.type==='added'&&vd.liveUser===currentUser&&vd.offer&&vd.active){await handleNewViewer(change.doc.id,vd);}if(change.type==='modified'&&vd.streamEnded){cleanupViewer(change.doc.id);}});});}catch(e){isLive=false;updateLiveButton();}}
-      async function handleNewViewer(vid,vd){try{const vpc=new RTCPeerConnection(servers);if(localStream)localStream.getTracks().forEach(t=>vpc.addTrack(t,localStream));vpc.onicecandidate=async(e)=>{if(e.candidate){const ref=doc(db,'live_viewers',vid);const s=await getDoc(ref);const ex=s.data()?.hostCandidates||[];ex.push(e.candidate.toJSON());await setDoc(ref,{hostCandidates:ex},{merge:true});}};vpc.onconnectionstatechange=()=>{if(vpc.connectionState==='failed'||vpc.connectionState==='disconnected'){cleanupViewer(vid);}};await vpc.setRemoteDescription(new RTCSessionDescription(vd.offer));const a=await vpc.createAnswer();await vpc.setLocalDescription(a);await setDoc(doc(db,'live_viewers',vid),{answer:{type:a.type,sdp:a.sdp},status:'connected'},{merge:true});liveViewers[vid]=vpc;}catch(e){}}
+      async function startLive(){if(!localStream){alert('Start camera first!');return;}isLive=true;updateLiveButton();try{await setDoc(doc(db,'live',liveUserId),{userId:currentUser,active:true,startedAt:serverTimestamp(),viewers:0});strangerCamera.classList.add('live-active');liveUnsub=onSnapshot(collection(db,'live_viewers'),(snap)=>{snap.docChanges().forEach(async(change)=>{const vd=change.doc.data();if(change.type==='added'&&vd.liveUser===currentUser&&vd.offer){await handleNewViewer(change.doc.id,vd);}if(change.type==='modified'&&vd.streamEnded){cleanupViewer(change.doc.id);}});});}catch(e){isLive=false;updateLiveButton();}}
+      async function handleNewViewer(vid,vd){try{const vpc=new RTCPeerConnection(servers);if(localStream)localStream.getTracks().forEach(t=>vpc.addTrack(t,localStream));vpc.onicecandidate=async(e)=>{if(e.candidate){const ref=doc(db,'live_viewers',vid);const s=await getDoc(ref);const ex=s.data()?.hostCandidates||[];ex.push(e.candidate.toJSON());await setDoc(ref,{hostCandidates:ex},{merge:true});}};await vpc.setRemoteDescription(new RTCSessionDescription(vd.offer));const a=await vpc.createAnswer();await vpc.setLocalDescription(a);await setDoc(doc(db,'live_viewers',vid),{answer:{type:a.type,sdp:a.sdp}},{merge:true});liveViewers[vid]=vpc;}catch(e){}}
       function cleanupViewer(vid){if(liveViewers[vid]){liveViewers[vid].close();delete liveViewers[vid];}}
       async function endLive(){isLive=false;updateLiveButton();Object.keys(liveViewers).forEach(id=>{if(liveViewers[id])liveViewers[id].close();});liveViewers={};await deleteDoc(doc(db,'live',liveUserId)).catch(()=>{});if(liveUnsub){liveUnsub();liveUnsub=null;}strangerCamera.classList.remove('live-active');}
       async function toggleLive(){if(isLive){await endLive();}else{if(!localStream){const s=await startCamera();if(!s)return;}await startLive();}}
-      
-      async function startCamera(){if(window.location.protocol==='http:'&&window.location.hostname!=='localhost'){alert('Camera requires HTTPS!');return false;}try{if(localStream){localStream.getTracks().forEach(t=>t.stop());}localStream=await navigator.mediaDevices.getUserMedia({video:{width:480,height:640,facingMode:'user'},audio:{echoCancellation:true,noiseSuppression:true}});myFeed.srcObject=localStream;await myFeed.play();myFeed.style.display='block';myPlaceholder.style.display='none';myCameraEl.classList.add('active');return true;}catch(e){alert('Camera error.');return false;}}
+      async function startCamera(){try{if(localStream){localStream.getTracks().forEach(t=>t.stop());}localStream=await navigator.mediaDevices.getUserMedia({video:{width:480,height:640,facingMode:'user'},audio:{echoCancellation:true,noiseSuppression:true}});myFeed.srcObject=localStream;await myFeed.play();myFeed.style.display='block';myPlaceholder.style.display='none';myCameraEl.classList.add('active');return true;}catch(e){alert('Camera error.');return false;}}
       function stopCamera(){if(localStream){localStream.getTracks().forEach(t=>t.stop());localStream=null;}myFeed.style.display='none';myFeed.srcObject=null;myPlaceholder.style.display='';myCameraEl.classList.remove('active');}
       function resetStranger(){strangerStream=null;strangerFeed.style.display='none';strangerFeed.srcObject=null;strangerPlaceholder.innerHTML='<i class="fas fa-user-secret"></i><span>???</span>';strangerPlaceholder.classList.remove('searching-text');strangerCamera.classList.remove('connected','live-active');}
       function showConnected(){setButtonState('stop');nextBtn.classList.add('visible');micBtn.classList.add('visible');}
       function showDisconnected(){setButtonState('start');nextBtn.classList.remove('visible');micBtn.classList.remove('visible');}
       function toggleMute(){if(!localStream)return;const t=localStream.getAudioTracks();if(t.length>0){isMuted=!isMuted;t.forEach(t=>t.enabled=!isMuted);micBtn.classList.toggle('muted',isMuted);micBtn.querySelector('i').className=isMuted?'fas fa-microphone-slash':'fas fa-microphone';}}
-      
-      async function createRoom(oId,isCaller){roomId=[myId,oId].sort().join('_');const rr=doc(db,'rooms',roomId);showConnected();if(pc){pc.close();pc=null;}unsubs.forEach(u=>u());unsubs=[];pc=new RTCPeerConnection(servers);localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));pc.ontrack=(e)=>{if(e.streams[0]){strangerStream=e.streams[0];strangerFeed.srcObject=e.streams[0];strangerFeed.style.display='block';strangerPlaceholder.innerHTML='';strangerCamera.classList.add('connected');if(isLive){Object.values(liveViewers).forEach(vpc=>{try{strangerStream.getTracks().forEach(track=>{if(track.readyState==='live')vpc.addTrack(track,strangerStream);});}catch(e){}});}}};pc.onicecandidate=async(e)=>{if(e.candidate)await addDoc(collection(rr,'ice'),{sender:myId,candidate:e.candidate.toJSON()});};unsubs.push(onSnapshot(collection(rr,'ice'),(snap)=>{snap.docChanges().forEach(async(c)=>{if(c.type==='added'&&c.doc.data().sender!==myId&&pc)try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate));}catch(e){}});}));if(isCaller){const offer=await pc.createOffer({offerToReceiveVideo:true,offerToReceiveAudio:true});await pc.setLocalDescription(offer);await setDoc(doc(db,'invites',oId),{from:myId,offer:{type:offer.type,sdp:offer.sdp}});unsubs.push(onSnapshot(doc(db,'invites',oId),async(snap)=>{const d=snap.data();if(d?.answer&&!pc.currentRemoteDescription)await pc.setRemoteDescription(new RTCSessionDescription(d.answer));}));}}
-      
+      async function createRoom(oId,isCaller){roomId=[myId,oId].sort().join('_');showConnected();if(pc){pc.close();pc=null;}unsubs.forEach(u=>u());unsubs=[];pc=new RTCPeerConnection(servers);localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));pc.ontrack=(e)=>{if(e.streams[0]){strangerStream=e.streams[0];strangerFeed.srcObject=e.streams[0];strangerFeed.style.display='block';strangerPlaceholder.innerHTML='';strangerCamera.classList.add('connected');}};pc.onicecandidate=async(e)=>{if(e.candidate)await addDoc(collection(doc(db,'rooms',roomId),'ice'),{sender:myId,candidate:e.candidate.toJSON()});};unsubs.push(onSnapshot(collection(doc(db,'rooms',roomId),'ice'),(snap)=>{snap.docChanges().forEach(async(c)=>{if(c.type==='added'&&c.doc.data().sender!==myId&&pc)try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate));}catch(e){}});}));if(isCaller){const offer=await pc.createOffer({offerToReceiveVideo:true,offerToReceiveAudio:true});await pc.setLocalDescription(offer);await setDoc(doc(db,'invites',oId),{from:myId,offer:{type:offer.type,sdp:offer.sdp}});unsubs.push(onSnapshot(doc(db,'invites',oId),async(snap)=>{const d=snap.data();if(d?.answer&&!pc.currentRemoteDescription)await pc.setRemoteDescription(new RTCSessionDescription(d.answer));}));}}
       function listenForInvites(){unsubs.push(onSnapshot(doc(db,'invites',myId),async(snap)=>{if(!snap.exists())return;const d=snap.data();await deleteDoc(doc(db,'waiting',myId)).catch(()=>{});roomId=[myId,d.from].sort().join('_');showConnected();if(pc){pc.close();pc=null;}unsubs.forEach(u=>u());unsubs=[];pc=new RTCPeerConnection(servers);localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));pc.ontrack=(e)=>{if(e.streams[0]){strangerStream=e.streams[0];strangerFeed.srcObject=e.streams[0];strangerFeed.style.display='block';strangerPlaceholder.innerHTML='';strangerCamera.classList.add('connected');}};pc.onicecandidate=async(e)=>{if(e.candidate)await addDoc(collection(doc(db,'rooms',roomId),'ice'),{sender:myId,candidate:e.candidate.toJSON()});};if(d.offer&&pc.signalingState!=='closed'){await pc.setRemoteDescription(new RTCSessionDescription(d.offer));const answer=await pc.createAnswer();await pc.setLocalDescription(answer);await setDoc(doc(db,'invites',myId),{answer:{type:answer.type,sdp:answer.sdp}},{merge:true});}unsubs.push(onSnapshot(collection(doc(db,'rooms',roomId),'ice'),(snap)=>{snap.docChanges().forEach(async(c)=>{if(c.type==='added'&&c.doc.data().sender!==myId&&pc)try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate));}catch(e){}});}));}));}
-      
       async function startChat(){if(isLive){alert('Please END first.');return;}setButtonState('stop');strangerPlaceholder.innerHTML='<i class="fas fa-spinner fa-spin"></i><span style="color:#fbbf24;">Searching...</span>';strangerPlaceholder.classList.add('searching-text');if(!(await startCamera())){stopChat();return;}const snap=await getDocs(collection(db,'waiting'));let found=null;snap.forEach(d=>{if(d.data().userId!==myId&&!found)found=d.data().userId;});if(found){await deleteDoc(doc(db,'waiting',myId)).catch(()=>{});await deleteDoc(doc(db,'waiting',found)).catch(()=>{});await createRoom(found,true);}else{await setDoc(doc(db,'waiting',myId),{userId:myId});listenForInvites();}}
-      
       function stopChat(){if(pc){pc.close();pc=null;}unsubs.forEach(u=>u());unsubs=[];if(roomId){deleteDoc(doc(db,'rooms',roomId)).catch(()=>{});roomId=null;}deleteDoc(doc(db,'waiting',myId)).catch(()=>{});deleteDoc(doc(db,'invites',myId)).catch(()=>{});if(isLive){endLive();}resetStranger();stopCamera();showDisconnected();}
       window.addEventListener('beforeunload',()=>{if(isLive)endLive().catch(()=>{});if(pc)pc.close();if(localStream)localStream.getTracks().forEach(t=>t.stop());});
     }

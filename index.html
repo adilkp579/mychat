@@ -9,13 +9,22 @@
     * { margin:0;padding:0;box-sizing:border-box; }
     body { background:#000;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center; }
     .page { width:100%;height:100vh;height:100dvh;background:#000;display:flex;flex-direction:column;position:relative;overflow:hidden; }
-    .content { flex:1;display:flex;flex-direction:column;align-items:center;color:#fff;padding:0 0 5.5rem 0;overflow-y:auto;background:#000; }
-    .content::-webkit-scrollbar { width:0; }
+    
+    /* ✅ Scrollable wrapper - everything scrolls together like Chat page */
+    .scrollable-content {
+      flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+      display:flex;flex-direction:column;align-items:center;color:#fff;
+      padding:0 0 5.5rem 0;background:#000;
+    }
+    .scrollable-content::-webkit-scrollbar { width:0;height:0; }
+    .scrollable-content { scrollbar-width:none;-ms-overflow-style:none; }
+
     .top-icons { width:100%;max-width:500px;display:flex;align-items:center;justify-content:space-between;padding:0.8rem 0.8rem 0.3rem 0.8rem;flex-shrink:0;position:relative;background:#000; }
     .corner-btn { width:2.4rem;height:2.4rem;background:#1a1a1a;border-radius:50%;color:#fff;font-size:1rem;display:flex;align-items:center;justify-content:center;text-decoration:none;border:1px solid #333; }
     .top-brand { font-size:2rem;font-weight:700;color:#fff;letter-spacing:3px;font-family:'Segoe Script','Brush Script MT','Apple Chancery','Comic Sans MS',cursive;position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;line-height:1;font-style:italic; }
     .stories-section { width:100%;max-width:500px;flex-shrink:0;background:#000; }
     .stories-bar { display:flex;gap:0.8rem;padding:0.3rem 0.8rem 0.5rem 0.8rem;overflow-x:auto;border-bottom:1px solid #1a1a1a;background:#000; }
+    .stories-bar::-webkit-scrollbar { height:0; }
     .story-item { display:flex;flex-direction:column;align-items:center;gap:0.25rem;cursor:pointer;flex-shrink:0; }
     .story-ring { width:62px;height:62px;border-radius:50%;padding:2px;display:flex;align-items:center;justify-content:center; }
     .story-ring.friend { background:linear-gradient(45deg,#f59e0b,#ef4444,#e91e63); }
@@ -41,19 +50,13 @@
     .feed-caption span { font-weight:600;color:#3897f0;cursor:pointer;margin-right:0.3rem; }
     .view-comments-btn { padding:0 0.8rem 0.5rem 0.8rem;font-size:0.65rem;color:#888;cursor:pointer;background:#000; }
 
-    /* Instagram-style Share Overlay */
+    /* Share overlay */
     .share-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:900;display:none;align-items:flex-end;justify-content:center; }
     .share-overlay.show { display:flex; }
     .share-sheet { background:#1a1a1a;border-radius:1.2rem 1.2rem 0 0;padding:0;width:100%;max-width:500px;max-height:80vh;display:flex;flex-direction:column;animation:slideUp 0.3s ease; }
     @keyframes slideUp { from{transform:translateY(100%);} to{transform:translateY(0);} }
-    
-    /* Top handle bar */
     .share-handle { width:36px;height:4px;background:rgba(255,255,255,0.3);border-radius:2px;margin:0.6rem auto;flex-shrink:0; }
-    
-    /* Share title */
     .share-title { font-size:0.85rem;color:#fff;text-align:center;padding:0 1rem 0.8rem 1rem;font-weight:600;flex-shrink:0; }
-    
-    /* Quick share row - horizontal scroll like Instagram */
     .share-quick-row { display:flex;gap:0.8rem;padding:0 1rem 1rem 1rem;overflow-x:auto;flex-shrink:0; }
     .share-quick-row::-webkit-scrollbar { height:0; }
     .share-quick-item { display:flex;flex-direction:column;align-items:center;gap:0.3rem;cursor:pointer;flex-shrink:0;min-width:60px;transition:all 0.2s; }
@@ -64,22 +67,15 @@
     .share-quick-item.selected .share-quick-check { display:flex; }
     .share-quick-avatar img { width:100%;height:100%;object-fit:cover; }
     .share-quick-name { font-size:0.55rem;color:#aaa;max-width:60px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
-    
-    /* Divider */
     .share-divider { display:flex;align-items:center;gap:0.5rem;padding:0 1rem;margin-bottom:0.5rem;flex-shrink:0; }
     .share-divider span { font-size:0.6rem;color:#666;flex-shrink:0; }
     .share-divider::before,.share-divider::after { content:'';flex:1;height:1px;background:rgba(255,255,255,0.1); }
-    
-    /* Search */
     .share-search { margin:0 1rem;padding:0.55rem 0.8rem;border-radius:0.8rem;border:1px solid #333;background:#111;color:#fff;font-size:0.72rem;outline:none;margin-bottom:0.5rem;flex-shrink:0; }
     .share-search:focus { border-color:#FFFC00; }
-    
-    /* Scrollable user list */
     .share-user-list { flex:1;overflow-y:auto;min-height:0;padding:0 1rem;display:flex;flex-direction:column;gap:0.1rem; }
     .share-user-list::-webkit-scrollbar { width:3px; }
     .share-user-list::-webkit-scrollbar-track { background:transparent; }
     .share-user-list::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1);border-radius:3px; }
-    
     .share-user-item { display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.5rem;border-radius:0.7rem;cursor:pointer;transition:all 0.15s;border:1px solid transparent;flex-shrink:0; }
     .share-user-item:active { background:rgba(255,255,255,0.03); }
     .share-user-item.selected { background:rgba(255,252,0,0.05);border-color:rgba(255,252,0,0.15); }
@@ -90,8 +86,6 @@
     .share-user-info { flex:1;min-width:0; }
     .share-user-name { font-size:0.78rem;color:#fff; }
     .share-user-username { font-size:0.6rem;color:#666; }
-    
-    /* Bottom send button */
     .share-bottom-bar { display:flex;align-items:center;justify-content:space-between;padding:0.8rem 1rem;border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0;padding-bottom:max(0.8rem,env(safe-area-inset-bottom,0.8rem)); }
     .share-selected-count { font-size:0.7rem;color:#FFFC00; }
     .share-send-btn { padding:0.55rem 1.5rem;border-radius:1.5rem;background:#FFFC00;color:#000;border:none;font-size:0.75rem;font-weight:600;cursor:pointer;display:none; }
@@ -143,6 +137,8 @@
     .grec-send { background:#fff;color:#ef4444; }
     .toast { position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#4ade80;color:#000;padding:0.4rem 1rem;border-radius:2rem;font-size:0.7rem;z-index:800;opacity:0;transition:all 0.3s;font-weight:600;pointer-events:none; }
     .toast.show { opacity:1; }
+    
+    /* Navbar */
     .floating-nav { position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(10,10,10,0.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.05);z-index:100; }
     .floating-nav:hover { background:rgba(10,10,10,0.15); }
     .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
@@ -156,32 +152,28 @@
       .top-icons{display:none}.nav-upload,.nav-search{display:flex!important}
       .floating-nav{position:fixed;top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column;background:rgba(10,10,10,0.1);backdrop-filter:blur(20px);}
       .nav-center{flex-direction:column;gap:1.2rem;max-width:none}.nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
-      .content{padding:0.5rem 0 1rem 5.5rem}.stories-section{max-width:550px}.feed-section{max-width:550px}
+      .scrollable-content{padding:0.5rem 0 1rem 5.5rem}.stories-section{max-width:550px}.feed-section{max-width:550px}
     }
   </style>
 </head>
 <body>
   <div class="page" id="mainPage">
-    <div class="content" id="mainContent">
+    <!-- ✅ Scrollable content wrapper -->
+    <div class="scrollable-content" id="mainContent">
       <div class="top-icons"><a href="upload.html" class="corner-btn"><i class="fas fa-plus"></i></a><span class="top-brand">Choicho</span><a href="search.html" class="corner-btn"><i class="fas fa-search"></i></a></div>
       <div class="stories-section"><div class="stories-bar" id="storiesBar"></div><div class="no-stories" id="noStories" style="display:none;">No recent stories</div></div>
       <div class="feed-section" id="feedContainer"></div>
     </div>
     
-    <!-- Instagram-style Share Overlay -->
+    <!-- Share Overlay -->
     <div class="share-overlay" id="shareOverlay">
       <div class="share-sheet">
         <div class="share-handle"></div>
         <div class="share-title">Share to</div>
-        
-        <!-- Quick share row - horizontal scroll like Instagram -->
         <div class="share-quick-row" id="shareQuickRow"></div>
-        
         <div class="share-divider"><span>OR SEARCH USERS</span></div>
-        
         <input type="text" class="share-search" id="shareSearch" placeholder="🔍 Search..." oninput="filterShareUsers()">
         <div class="share-user-list" id="shareUserList"></div>
-        
         <div class="share-bottom-bar">
           <span class="share-selected-count" id="shareSelectedCount">Select people</span>
           <div style="display:flex;gap:0.5rem;">
@@ -257,48 +249,30 @@
     function updateAllAvatars() { document.querySelectorAll('[data-avatar-user]').forEach(el => { el.innerHTML = getAvtFromCache(el.dataset.avatarUser); }); }
     function showToast(m, e) { const t = document.getElementById('toast'); t.textContent = m; t.className = 'toast '+(e?'error':''); t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2500); }
 
-    // ============ SHARE - INSTAGRAM STYLE ============
+    // Share functions (same as before)
     window.openShare = async function(postId, src, caption) {
-      window._sharePostId = postId;
-      window._sharePostSrc = src;
-      window._sharePostCaption = caption;
-      window._selectedUsers = [];
-      
+      window._sharePostId = postId; window._sharePostSrc = src; window._sharePostCaption = caption; window._selectedUsers = [];
       await loadShareUsers();
       document.getElementById('shareOverlay').classList.add('show');
       document.getElementById('shareSearch').value = '';
       document.getElementById('shareSelectedCount').textContent = 'Select people';
       document.getElementById('shareSendBtn').classList.remove('show');
-      
-      renderQuickRow(shareUserList.slice(0, 8)); // Show first 8 in quick row
+      renderQuickRow(shareUserList.slice(0, 8));
       renderShareUserList(shareUserList);
     };
-
-    window.closeShare = function() {
-      document.getElementById('shareOverlay').classList.remove('show');
-      window._selectedUsers = [];
-    };
+    window.closeShare = function() { document.getElementById('shareOverlay').classList.remove('show'); window._selectedUsers = []; };
 
     function renderQuickRow(users) {
       const row = document.getElementById('shareQuickRow');
       row.innerHTML = users.map(u => {
         const isSelected = window._selectedUsers.includes(u.username);
-        return `
-          <div class="share-quick-item ${isSelected ? 'selected' : ''}" onclick="toggleSelectUser('${u.username}')">
-            <div class="share-quick-avatar" style="position:relative;">
-              ${u.avatar && u.avatar !== 'null' ? `<img src="${u.avatar}" alt="" onerror="this.style.display='none';this.innerHTML='${u.name.charAt(0)}';"` : u.name.charAt(0).toUpperCase()}
-              <div class="share-quick-check">✓</div>
-            </div>
-            <span class="share-quick-name">${u.name}</span>
-          </div>
-        `;
+        return `<div class="share-quick-item ${isSelected ? 'selected' : ''}" onclick="toggleSelectUser('${u.username}')"><div class="share-quick-avatar" style="position:relative;">${u.avatar && u.avatar !== 'null' ? `<img src="${u.avatar}" alt="" onerror="this.style.display='none';this.innerHTML='${u.name.charAt(0)}';"` : u.name.charAt(0).toUpperCase()}<div class="share-quick-check">✓</div></div><span class="share-quick-name">${u.name}</span></div>`;
       }).join('');
     }
 
     window.toggleSelectUser = function(username) {
       const idx = window._selectedUsers.indexOf(username);
-      if (idx >= 0) { window._selectedUsers.splice(idx, 1); }
-      else { window._selectedUsers.push(username); }
+      if (idx >= 0) { window._selectedUsers.splice(idx, 1); } else { window._selectedUsers.push(username); }
       updateSelectedUI();
       renderQuickRow(shareUserList.slice(0, 8));
       const search = document.getElementById('shareSearch').value.toLowerCase();
@@ -310,85 +284,46 @@
       const count = window._selectedUsers.length;
       const countEl = document.getElementById('shareSelectedCount');
       const sendBtn = document.getElementById('shareSendBtn');
-      if (count > 0) {
-        countEl.textContent = count + ' selected';
-        sendBtn.classList.add('show');
-      } else {
-        countEl.textContent = 'Select people';
-        sendBtn.classList.remove('show');
-      }
+      if (count > 0) { countEl.textContent = count + ' selected'; sendBtn.classList.add('show'); }
+      else { countEl.textContent = 'Select people'; sendBtn.classList.remove('show'); }
     }
 
     window.filterShareUsers = function() {
       const search = document.getElementById('shareSearch').value.toLowerCase();
-      const filtered = shareUserList.filter(u => u.name.toLowerCase().includes(search) || u.username.toLowerCase().includes(search));
-      renderShareUserList(filtered);
+      renderShareUserList(shareUserList.filter(u => u.name.toLowerCase().includes(search) || u.username.toLowerCase().includes(search)));
     };
 
     function renderShareUserList(users) {
       const list = document.getElementById('shareUserList');
-      if (users.length === 0) {
-        list.innerHTML = '<div style="text-align:center;color:#555;padding:1.5rem;font-size:0.7rem;">No users found</div>';
-        return;
-      }
+      if (users.length === 0) { list.innerHTML = '<div style="text-align:center;color:#555;padding:1.5rem;font-size:0.7rem;">No users found</div>'; return; }
       list.innerHTML = users.map(u => {
         const isSelected = window._selectedUsers.includes(u.username);
-        return `
-          <div class="share-user-item ${isSelected ? 'selected' : ''}" onclick="toggleSelectUser('${u.username}')">
-            <div class="share-checkbox">${isSelected ? '✓' : ''}</div>
-            <div class="share-user-avatar">${u.avatar && u.avatar !== 'null' ? `<img src="${u.avatar}" alt="" onerror="this.style.display='none';this.innerHTML='${u.name.charAt(0)}';"` : u.name.charAt(0).toUpperCase()}</div>
-            <div class="share-user-info"><span class="share-user-name">${u.name}</span><span class="share-user-username">${u.username.replace('@','')}</span></div>
-          </div>
-        `;
+        return `<div class="share-user-item ${isSelected ? 'selected' : ''}" onclick="toggleSelectUser('${u.username}')"><div class="share-checkbox">${isSelected ? '✓' : ''}</div><div class="share-user-avatar">${u.avatar && u.avatar !== 'null' ? `<img src="${u.avatar}" alt="" onerror="this.style.display='none';this.innerHTML='${u.name.charAt(0)}';"` : u.name.charAt(0).toUpperCase()}</div><div class="share-user-info"><span class="share-user-name">${u.name}</span><span class="share-user-username">${u.username.replace('@','')}</span></div></div>`;
       }).join('');
     }
 
     async function loadShareUsers() {
       shareUserList = [];
       const profile = JSON.parse(localStorage.getItem('userProfile')||'{}');
-      (profile.friends || []).forEach(f => {
-        if (f.name !== currentUser) shareUserList.push({ username: f.name, name: cname(f.name), avatar: f.avatar || null });
-      });
-      try {
-        const snap = await getDocs(collection(db, 'users'));
-        snap.forEach(doc => {
-          const d = doc.data();
-          if (d.username && d.username !== currentUser && !shareUserList.find(u => u.username === d.username)) {
-            shareUserList.push({ username: d.username, name: d.name || cname(d.username), avatar: d.avatar || null });
-          }
-        });
-      } catch(e) {}
-      for (const u of shareUserList) {
-        const cached = loadUserFromLocalCache(u.username);
-        if (cached?.avatar) u.avatar = cached.avatar;
-      }
+      (profile.friends || []).forEach(f => { if (f.name !== currentUser) shareUserList.push({ username: f.name, name: cname(f.name), avatar: f.avatar || null }); });
+      try { const snap = await getDocs(collection(db, 'users')); snap.forEach(doc => { const d = doc.data(); if (d.username && d.username !== currentUser && !shareUserList.find(u => u.username === d.username)) { shareUserList.push({ username: d.username, name: d.name || cname(d.username), avatar: d.avatar || null }); } }); } catch(e) {}
+      for (const u of shareUserList) { const cached = loadUserFromLocalCache(u.username); if (cached?.avatar) u.avatar = cached.avatar; }
     }
 
     window.sendToAllSelected = async function() {
       if (window._selectedUsers.length === 0) return;
-      const src = window._sharePostSrc;
-      const caption = window._sharePostCaption || '';
-      const postId = window._sharePostId;
-      const btn = document.getElementById('shareSendBtn');
-      btn.disabled = true; btn.textContent = 'Sending...';
+      const src = window._sharePostSrc; const caption = window._sharePostCaption || ''; const postId = window._sharePostId;
+      const btn = document.getElementById('shareSendBtn'); btn.disabled = true; btn.textContent = 'Sending...';
       let sent = 0;
       for (const targetUser of window._selectedUsers) {
         try {
           const chatId = [currentUserId, targetUser.replace('@','')].sort().join('_');
-          await addDoc(collection(db, 'chats', chatId, 'messages'), {
-            imageUrl: src, text: '📷 ' + (caption || 'Shared post'),
-            sender: currentUserId, createdAt: serverTimestamp(), seen: false,
-            type: 'shared_post', originalPostId: postId
-          });
-          await setDoc(doc(db, 'chats', chatId), {
-            lastMessageTime: serverTimestamp(), lastMessage: '📷 Shared a post', lastSender: currentUserId
-          }, { merge: true });
+          await addDoc(collection(db, 'chats', chatId, 'messages'), { imageUrl: src, text: '📷 ' + (caption || 'Shared post'), sender: currentUserId, createdAt: serverTimestamp(), seen: false, type: 'shared_post', originalPostId: postId });
+          await setDoc(doc(db, 'chats', chatId), { lastMessageTime: serverTimestamp(), lastMessage: '📷 Shared a post', lastSender: currentUserId }, { merge: true });
           sent++;
         } catch(e) {}
       }
-      closeShare();
-      showToast('Shared to ' + sent + ' people! ✅');
-      btn.disabled = false;
+      closeShare(); showToast('Shared to ' + sent + ' people! ✅'); btn.disabled = false;
     };
 
     document.getElementById('shareOverlay').addEventListener('click', function(e) { if (e.target === this) closeShare(); });

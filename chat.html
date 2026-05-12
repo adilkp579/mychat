@@ -13,42 +13,45 @@
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
     
-    /* ✅ Scrollable wrapper - everything scrolls together */
+    /* Scrollable wrapper */
     .scrollable-page {
       flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
       display:flex;flex-direction:column;background:#000;
       padding-bottom:6rem;
     }
-    /* Hide scrollbar */
     .scrollable-page::-webkit-scrollbar { width:0;height:0; }
     .scrollable-page { scrollbar-width:none;-ms-overflow-style:none; }
 
-    /* Top icons - now scrollable (not fixed) */
+    /* ✅ Top row: Heart icon - Chats text - Plus icon */
     .top-icons-row {
-      display:flex;justify-content:space-between;align-items:center;
+      display:flex;align-items:center;justify-content:space-between;
       padding:0.8rem 1rem 0.3rem 1rem;padding-top:max(0.8rem,env(safe-area-inset-top,0.8rem));
       flex-shrink:0;
     }
     .hart-btn {
-      width:2.4rem;height:2.4rem;
+      width:2.4rem;height:2.4rem;min-width:2.4rem;
       background:rgba(239,68,68,0.2);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
       border-radius:50%;color:#ef4444;font-size:1rem;
       display:flex;align-items:center;justify-content:center;
       text-decoration:none;border:1px solid rgba(239,68,68,0.3);cursor:pointer;
       animation:pulse 2s infinite;
     }
+    .chats-title {
+      font-size:1.1rem;font-weight:700;color:#fff;
+      letter-spacing:1px;text-align:center;
+    }
     .corner-btn {
-      width:2.4rem;height:2.4rem;
+      width:2.4rem;height:2.4rem;min-width:2.4rem;
       background:rgba(255,255,255,0.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
       border-radius:50%;color:#fff;font-size:1rem;
       display:flex;align-items:center;justify-content:center;
       border:1px solid rgba(255,255,255,0.15);cursor:pointer;transition:all 0.3s;
     }
 
-    /* Header */
+    /* Header - for back button when chat is open */
     .chat-header {
       display:flex;align-items:center;gap:0.6rem;
-      padding:0.5rem 1rem 0.5rem 1rem;
+      padding:0.3rem 1rem 0.5rem 1rem;
       background:#000;flex-shrink:0;
     }
     .chat-back {
@@ -154,7 +157,7 @@
     .loading-screen i {font-size:2rem;color:#3897f0;animation:spin 1s infinite;}
     .loading-screen span {font-size:0.75rem;color:#888;}
 
-    /* Navbar - fixed at bottom */
+    /* Navbar */
     .floating-nav { 
       position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));
       left:50%;transform:translateX(-50%);width:92%;max-width:500px;
@@ -190,19 +193,19 @@
 <body>
   <div class="loading-screen" id="loadingScreen"><i class="fas fa-spinner"></i><span>Loading...</span></div>
   <div class="page" id="mainPage" style="display:none;">
-    <!-- ✅ Scrollable wrapper - everything inside scrolls together -->
     <div class="scrollable-page" id="scrollablePage">
-      <!-- Top icons row - scrolls with content -->
+      <!-- ✅ Heart icon - Chats text - Plus icon (in one row) -->
       <div class="top-icons-row">
         <a href="hart.html" class="hart-btn" title="Likes"><i class="fas fa-heart"></i></a>
+        <span class="chats-title">Chats</span>
         <button class="corner-btn" id="newChatBtn" onclick="showNewChatModal()"><i class="fas fa-plus"></i></button>
       </div>
 
-      <!-- Header - scrolls with content -->
+      <!-- Header (back button + partner info when chat open) -->
       <div class="chat-header">
         <button class="chat-back" id="backBtn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
         <div class="chat-partner-info" id="partnerInfo" onclick="goToPartnerProfile()">
-          <div class="chat-partner-name" id="partnerName">Chats</div>
+          <div class="chat-partner-name" id="partnerName"></div>
           <div class="chat-partner-status" id="partnerStatus"></div>
         </div>
         <div class="call-btns" id="callBtns">
@@ -211,7 +214,7 @@
         </div>
       </div>
 
-      <!-- Search bar - scrolls with content -->
+      <!-- Search bar -->
       <div class="search-bar-container" id="searchBarContainer">
         <div class="search-bar">
           <i class="fas fa-search"></i>
@@ -219,7 +222,7 @@
         </div>
       </div>
 
-      <!-- Chat list / Chat view area -->
+      <!-- Chat list / Chat view -->
       <div class="chat-list-full" id="chatListFull">
         <div class="chat-list-header">Messages <span id="chatCount"></span></div>
         <div id="userList"></div>
@@ -233,7 +236,7 @@
       </div>
     </div>
 
-    <!-- Chat input - fixed at bottom when open -->
+    <!-- Chat input - fixed bottom -->
     <div class="chat-input-area" id="chatInputArea">
       <button class="camera-btn" onclick="document.getElementById('imageInput').click()"><i class="fas fa-camera"></i></button>
       <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="sendImage(event)">
@@ -296,11 +299,11 @@
     
     function setupRealtimeChatList(){if(unsubChatList)unsubChatList();unsubChatList=onSnapshot(collection(db,'chats'),(snap)=>{loadChatListFromSnapshot(snap);},(error)=>{console.error('Chat list listener error:',error);});}
     async function loadChatListFromSnapshot(snap){let cu=[];const pp=new Set();snap.forEach(doc=>{const ids=doc.id.split('_');if(ids.includes(currentUserId)){const p=ids.find(id=>id!==currentUserId);if(p)pp.add(p);}});const proms=[];for(const pid of pp){const cid=[currentUserId,pid].sort().join('_');proms.push((async()=>{try{const ms=await getDocs(query(collection(db,'chats',cid,'messages'),orderBy('createdAt','desc')));let lm='',lt=new Date(0),uc=0;if(!ms.empty){const d=ms.docs[0].data();lm=d.imageUrl?'📷 Photo':d.audioUrl?'🎤 Voice':(d.text||'');if(d.createdAt)lt=d.createdAt.toDate?d.createdAt.toDate():new Date(d.createdAt);ms.forEach(doc=>{const m=doc.data();if(m.sender!==currentUserId&&!m.seen)uc++;});}return{username:'@'+pid,lastMsg:lm,lastTime:lt,unreadCount:uc};}catch(e){return{username:'@'+pid,lastMsg:'',lastTime:new Date(0),unreadCount:0};}})());}cu=await Promise.all(proms);cu.sort((a,b)=>b.lastTime-a.lastTime);chatListData=cu;renderChatList(cu);}
-    function renderChatList(cu){const l=document.getElementById('userList'),cnt=document.getElementById('chatCount');const tu=cu.reduce((s,c)=>s+c.unreadCount,0);cnt.textContent=cu.length>0?'('+cu.length+')':'';if(!chatPartner)document.getElementById('partnerName').textContent=tu>0?'Chats ('+tu+')':'Chats';if(cu.length===0){l.innerHTML='<div style="text-align:center;color:#555;padding:3rem;font-size:0.8rem;">No messages yet</div>';return;}l.innerHTML=cu.map(c=>{const ts=c.lastTime.getTime()>0?fmtTime(c.lastTime):'';const dn=dispName(c.username);return`<div class="user-list-item ${chatPartner===c.username?'active':''}" onclick="openChat('${c.username}')"><div class="user-avatar" onclick="event.stopPropagation();window.location.href='profile.html?user=${encodeURIComponent(c.username)}'">${avatarHTML(c.username)}</div><div class="user-info"><div class="user-name-row"><span class="user-name" onclick="event.stopPropagation();window.location.href='profile.html?user=${encodeURIComponent(c.username)}'">${dn}</span><span class="user-time">${ts}</span></div><div class="user-msg-row"><span class="user-last-msg ${c.unreadCount>0?'unread-msg':''}">${c.lastMsg||'No messages'}</span>${c.unreadCount>0?`<span class="unread-count">${c.unreadCount}</span>`:''}</div></div></div>`;}).join('');}
+    function renderChatList(cu){const l=document.getElementById('userList'),cnt=document.getElementById('chatCount');const tu=cu.reduce((s,c)=>s+c.unreadCount,0);cnt.textContent=cu.length>0?'('+cu.length+')':'';if(cu.length===0){l.innerHTML='<div style="text-align:center;color:#555;padding:3rem;font-size:0.8rem;">No messages yet</div>';return;}l.innerHTML=cu.map(c=>{const ts=c.lastTime.getTime()>0?fmtTime(c.lastTime):'';const dn=dispName(c.username);return`<div class="user-list-item ${chatPartner===c.username?'active':''}" onclick="openChat('${c.username}')"><div class="user-avatar" onclick="event.stopPropagation();window.location.href='profile.html?user=${encodeURIComponent(c.username)}'">${avatarHTML(c.username)}</div><div class="user-info"><div class="user-name-row"><span class="user-name" onclick="event.stopPropagation();window.location.href='profile.html?user=${encodeURIComponent(c.username)}'">${dn}</span><span class="user-time">${ts}</span></div><div class="user-msg-row"><span class="user-last-msg ${c.unreadCount>0?'unread-msg':''}">${c.lastMsg||'No messages'}</span>${c.unreadCount>0?`<span class="unread-count">${c.unreadCount}</span>`:''}</div></div></div>`;}).join('');}
     function fmtTime(d){if(!d||d.getTime()===0)return'';const n=new Date(),df=n-d;if(df<60000)return'Now';if(df<3600000)return Math.floor(df/60000)+'m';if(d.toDateString()===n.toDateString())return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});if(n-d<604800000)return['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];return d.toLocaleDateString([],{month:'short',day:'numeric'});}
     
-    window.openChat=function(u){chatPartner=u;chatId=[currentUserId,u.replace('@','')].sort().join('_');document.getElementById('chatListFull').classList.add('hidden');document.getElementById('chatView').classList.add('show');document.getElementById('backBtn').classList.add('show');document.getElementById('newChatBtn').style.display='none';document.getElementById('searchBarContainer').style.display='none';document.getElementById('callBtns').classList.add('show');document.getElementById('partnerName').textContent=dispName(u);document.getElementById('partnerStatus').innerHTML='<span class="dot"></span> online';document.getElementById('chatInputArea').classList.add('show');document.getElementById('floatingNav').classList.add('hidden');const c=document.getElementById('messagesContainer');c.querySelectorAll('.message-wrapper').forEach(el=>el.remove());document.getElementById('emptyChat').style.display='flex';listenToMessages();listenToTyping();scrollToBottom();};
-    window.goBack=function(){chatPartner=null;chatId=null;if(unsubMessages){unsubMessages();unsubMessages=null;}stopVoice(true);document.getElementById('chatListFull').classList.remove('hidden');document.getElementById('chatView').classList.remove('show');document.getElementById('backBtn').classList.remove('show');document.getElementById('newChatBtn').style.display='flex';document.getElementById('searchBarContainer').style.display='block';document.getElementById('callBtns').classList.remove('show');document.getElementById('partnerName').textContent='Chats';document.getElementById('partnerStatus').textContent='';document.getElementById('chatInputArea').classList.remove('show');document.getElementById('floatingNav').classList.remove('hidden');setupRealtimeChatList();};
+    window.openChat=function(u){chatPartner=u;chatId=[currentUserId,u.replace('@','')].sort().join('_');document.getElementById('chatListFull').classList.add('hidden');document.getElementById('chatView').classList.add('show');document.getElementById('backBtn').classList.add('show');document.getElementById('newChatBtn').style.display='none';document.getElementById('searchBarContainer').style.display='none';document.querySelector('.chats-title').style.display='none';document.getElementById('callBtns').classList.add('show');document.getElementById('partnerName').textContent=dispName(u);document.getElementById('partnerStatus').innerHTML='<span class="dot"></span> online';document.getElementById('chatInputArea').classList.add('show');document.getElementById('floatingNav').classList.add('hidden');const c=document.getElementById('messagesContainer');c.querySelectorAll('.message-wrapper').forEach(el=>el.remove());document.getElementById('emptyChat').style.display='flex';listenToMessages();listenToTyping();scrollToBottom();};
+    window.goBack=function(){chatPartner=null;chatId=null;if(unsubMessages){unsubMessages();unsubMessages=null;}stopVoice(true);document.getElementById('chatListFull').classList.remove('hidden');document.getElementById('chatView').classList.remove('show');document.getElementById('backBtn').classList.remove('show');document.getElementById('newChatBtn').style.display='flex';document.querySelector('.chats-title').style.display='block';document.getElementById('searchBarContainer').style.display='block';document.getElementById('callBtns').classList.remove('show');document.getElementById('partnerName').textContent='';document.getElementById('partnerStatus').textContent='';document.getElementById('chatInputArea').classList.remove('show');document.getElementById('floatingNav').classList.remove('hidden');setupRealtimeChatList();};
     
     window.toggleVoice=function(){if(isRecording){window.sendVoice();}else{startVoice();}};
     async function startVoice(){if(!chatId)return;try{const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,sampleRate:44100}});const opts={audioBitsPerSecond:128000};if(MediaRecorder.isTypeSupported('audio/webm;codecs=opus'))opts.mimeType='audio/webm;codecs=opus';else opts.mimeType='audio/webm';mediaRecorder=new MediaRecorder(stream,opts);audioChunks=[];mediaRecorder.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data);};mediaRecorder.onstop=()=>{stream.getTracks().forEach(t=>t.stop());};mediaRecorder.start(100);isRecording=true;voiceSeconds=0;document.getElementById('recordingBar').classList.add('show');document.getElementById('micBtn').style.display='none';document.getElementById('sendBtn').style.display='none';document.getElementById('chatInput').style.display='none';document.getElementById('recTime').textContent='00:00';voiceTimer=setInterval(()=>{voiceSeconds++;document.getElementById('recTime').textContent=formatDuration(voiceSeconds);},1000);}catch(e){}}

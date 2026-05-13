@@ -37,10 +37,10 @@
     }
     .top-right-icon:hover { background:rgba(74,222,128,0.2); }
     
-    /* Main content area */
+    /* Main content area - Desktop default */
     .main-content {
       flex:1;display:flex;flex-direction:column;padding:3.5rem 1.2rem 1rem 1.2rem;position:relative;
-      gap:8px;
+      gap:8px;min-height:0;overflow:hidden;
     }
     
     /* Labels */
@@ -50,18 +50,18 @@
     
     /* Camera area wrapper */
     .camera-area {
-      display:flex;gap:8px;align-items:flex-start;
+      display:flex;gap:8px;align-items:flex-start;min-height:0;
     }
     
-    /* Stranger camera - 60% width, 55vh height */
+    /* Stranger camera - 60% width */
     .stranger-section {
-      width:60%;display:flex;flex-direction:column;gap:4px;
+      width:60%;display:flex;flex-direction:column;gap:4px;min-height:0;
     }
     .stranger-camera {
       width:100%;height:55vh;background:#111;
       border:2px solid rgba(255,255,255,0.2);border-radius:14px;
       position:relative;overflow:hidden;
-      display:flex;align-items:center;justify-content:center;
+      display:flex;align-items:center;justify-content:center;min-height:0;
     }
     .stranger-camera.connected { border-color:#4ade80; }
     .stranger-camera.live-active { border-color:#ef4444; animation:livePulse 2s infinite; }
@@ -71,15 +71,15 @@
     .stranger-placeholder span { font-size:0.8rem; }
     .stranger-placeholder.searching-text { color:#fbbf24; }
     
-    /* You camera - 35% width, 28vh height, aligned top-right */
+    /* You camera - 35% width */
     .you-section {
-      width:35%;display:flex;flex-direction:column;gap:4px;align-items:flex-end;
+      width:35%;display:flex;flex-direction:column;gap:4px;align-items:flex-end;min-height:0;
     }
     .my-camera {
       width:100%;height:28vh;background:#111;
       border:2px solid rgba(255,255,255,0.3);border-radius:14px;
       position:relative;overflow:hidden;
-      display:flex;align-items:center;justify-content:center;
+      display:flex;align-items:center;justify-content:center;min-height:0;
     }
     .my-camera.active { border-color:#ef4444; }
     #myFeed { width:100%;height:100%;object-fit:cover;display:none;background:#000;transform:rotateY(180deg);-webkit-transform:rotateY(180deg); }
@@ -88,14 +88,14 @@
     
     /* Token buttons */
     .token-stack {
-      display:flex;flex-direction:column;gap:10px;align-items:flex-end;margin-top:4px;
+      display:flex;flex-direction:column;gap:10px;align-items:flex-end;margin-top:4px;min-height:0;
     }
     .token-btn {
       width:90px;height:32px;border-radius:8px;
       border:1.5px solid rgba(255,255,255,0.15);
       background:rgba(0,0,0,0.5);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
       cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;
-      font-size:0.7rem;font-weight:600;transition:all 0.2s;color:#fff;padding:0 8px;
+      font-size:0.7rem;font-weight:600;transition:all 0.2s;color:#fff;padding:0 8px;flex-shrink:0;
     }
     .token-btn:active { transform:scale(0.9); }
     .token-btn .token-emoji { font-size:0.85rem;line-height:1; }
@@ -113,7 +113,7 @@
     
     /* Control buttons */
     .control-row {
-      display:flex;gap:12px;align-items:center;
+      display:flex;gap:12px;align-items:center;flex-shrink:0;
     }
     .ctrl-btn {
       width:80px;height:34px;border-radius:17px;
@@ -121,7 +121,7 @@
       cursor:pointer;border:1px solid transparent;outline:none;
       font-size:0.7rem;font-weight:600;padding:0;color:#fff;
       transition:all 0.3s;-webkit-tap-highlight-color:transparent;
-      touch-action:manipulation;user-select:none;-webkit-user-select:none;
+      touch-action:manipulation;user-select:none;-webkit-user-select:none;flex-shrink:0;
     }
     .ctrl-btn:active { transform:scale(0.95); }
     .live-btn { background:rgba(74,222,128,0.2);border-color:rgba(74,222,128,0.5);color:#4ade80; }
@@ -129,9 +129,9 @@
     .start-btn { background:rgba(74,222,128,0.2);border-color:rgba(74,222,128,0.5);color:#4ade80; }
     .start-btn.stop-state { background:rgba(239,68,68,0.2);border-color:rgba(239,68,68,0.5);color:#ef4444; }
     
-    .next-btn { display:none;width:60px;height:34px;border-radius:17px;background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);color:#ccc; }
+    .next-btn { display:none;width:60px;height:34px;border-radius:17px;background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);color:#ccc;flex-shrink:0; }
     .next-btn.visible { display:inline-flex;align-items:center;justify-content:center;gap:4px;cursor:pointer;border:1px solid rgba(255,255,255,0.2);outline:none;font-size:0.7rem;font-weight:600; }
-    .mic-btn { display:none;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);color:#4ade80; }
+    .mic-btn { display:none;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);color:#4ade80;flex-shrink:0; }
     .mic-btn.visible { display:inline-flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid rgba(255,255,255,0.2);outline:none;font-size:0.8rem; }
     .mic-btn.muted { color:#ef4444;background:rgba(239,68,68,0.2);border-color:rgba(239,68,68,0.5); }
 
@@ -158,6 +158,112 @@
     .nav-center a.active::before { transform:translateX(-50%) scale(1); }
     .nav-center a.active { color:#fff;background:rgba(255,255,255,0.2);box-shadow:0 0 20px rgba(255,255,255,0.15); }
     .nav-upload,.nav-search { display:none !important; }
+
+    /* ✅ MOBILE LAYOUT FIX - Only affects screens under 1024px */
+    @media (max-width: 1023px) {
+      .page {
+        height: 100dvh;
+        overflow: hidden;
+      }
+      
+      .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding-top: calc(3.5rem + env(safe-area-inset-top, 0px));
+        padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+        padding-left: max(1.2rem, env(safe-area-inset-left, 1.2rem));
+        padding-right: max(1.2rem, env(safe-area-inset-right, 1.2rem));
+        overflow: hidden;
+        min-height: 0;
+        gap: 8px;
+      }
+      
+      .camera-area {
+        flex: 1;
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+        min-height: 0;
+        overflow: hidden;
+      }
+      
+      .stranger-section {
+        width: 60%;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-height: 0;
+      }
+      
+      .stranger-camera {
+        flex: 1;
+        width: 100%;
+        height: auto;
+        min-height: 0;
+        background: #111;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 14px;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .you-section {
+        width: 35%;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        align-items: flex-end;
+        min-height: 0;
+      }
+      
+      .my-camera {
+        width: 100%;
+        height: 40%;
+        min-height: 0;
+        max-height: 50%;
+        background: #111;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 14px;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .token-stack {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-end;
+        margin-top: 4px;
+        min-height: 0;
+        overflow-y: auto;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      
+      .token-stack::-webkit-scrollbar {
+        display: none;
+      }
+      
+      .control-row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-shrink: 0;
+        padding-top: 8px;
+      }
+      
+      .section-label {
+        flex-shrink: 0;
+      }
+    }
 
     @media (min-width:1024px) {
       .nav-upload,.nav-search { display:flex !important; }

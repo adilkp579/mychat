@@ -12,7 +12,6 @@
 
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 
-    /* ✅ Scrollable content */
     .scrollable-content {
       flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
       display:flex;flex-direction:column;align-items:center;color:#fff;
@@ -21,14 +20,14 @@
     .scrollable-content::-webkit-scrollbar { width:0;height:0; }
     .scrollable-content { scrollbar-width:none;-ms-overflow-style:none; }
 
-    /* ✅ Same top row as index/chat */
+    /* Top row - same as index/chat */
     .top-icons-row {
       width:100%;max-width:500px;
       display:flex;align-items:center;justify-content:space-between;
       padding:0.8rem 1rem 0.3rem 1rem;padding-top:max(0.8rem,env(safe-area-inset-top,0.8rem));
       flex-shrink:0;position:relative;background:#000;
     }
-    .corner-btn { width:2.4rem;height:2.4rem;background:#1a1a1a;border-radius:50%;color:#fff;font-size:1rem;display:flex;align-items:center;justify-content:center;text-decoration:none;border:1px solid #333; }
+    .corner-btn { width:2.4rem;height:2.4rem;background:#1a1a1a;border-radius:50%;color:#fff;font-size:1rem;display:flex;align-items:center;justify-content:center;text-decoration:none;border:1px solid #333;cursor:pointer; }
     .back-btn {
       width:2.4rem;height:2.4rem;background:#1a1a1a;border-radius:50%;color:#fff;font-size:1rem;
       display:none;align-items:center;justify-content:center;
@@ -171,12 +170,12 @@
 
   <div class="page" id="mainPage" style="display:none;">
     <div class="scrollable-content" id="mainContent">
-      <!-- ✅ Same top row as index/chat -->
+      <!-- ✅ Top row - same style as index/chat -->
       <div class="top-icons-row">
         <button class="back-btn" id="backBtn" onclick="window.history.back()"><i class="fas fa-arrow-left"></i></button>
         <button class="corner-btn" id="settingsBtn" style="display:flex;" onclick="window.location.href='settings.html'"><i class="fas fa-cog"></i></button>
-        <span class="top-brand" id="currentUserDisplay"></span>
-        <a href="login.html" class="corner-btn" id="loginBtn"><i class="fas fa-sign-in-alt"></i></a>
+        <span class="top-brand" id="topBarUsername">Profile</span>
+        <a href="login.html" class="corner-btn" id="logoutBtn" title="Logout"><i class="fas fa-sign-out-alt"></i></a>
       </div>
 
       <div class="content">
@@ -209,7 +208,6 @@
       </div>
     </div>
 
-    <!-- Overlays remain same -->
     <div class="post-viewer-overlay" id="postViewer">
       <button class="post-viewer-close" onclick="closePostViewer()">✕</button>
       <button class="post-viewer-nav prev" id="postViewerPrev" onclick="navigatePost(-1)"><i class="fas fa-chevron-left"></i></button>
@@ -274,16 +272,20 @@
     document.getElementById('mainPage').style.display = 'flex';
 
     // ✅ Setup top row
-    if (!isOwnProfile) {
+    if (isOwnProfile) {
+      document.getElementById('backBtn').style.display = 'none';
+      document.getElementById('settingsBtn').style.display = 'flex';
+      document.getElementById('logoutBtn').style.display = 'flex';
+      document.getElementById('topBarUsername').textContent = currentUser.replace('@','');
+    } else {
       document.getElementById('backBtn').classList.add('show');
       document.getElementById('settingsBtn').style.display = 'none';
-      document.getElementById('loginBtn').style.display = 'none';
-      document.getElementById('currentUserDisplay').textContent = '📋 ' + (viewUser || '').replace('@','');
-    } else {
-      document.getElementById('backBtn').style.display = 'none';
-      document.getElementById('loginBtn').style.display = 'none';
-      document.getElementById('currentUserDisplay').textContent = '✅ ' + currentUser.replace('@','');
+      document.getElementById('logoutBtn').style.display = 'none';
+      document.getElementById('topBarUsername').textContent = (viewUser || '').replace('@','');
+      loadOtherUserProfile(viewUser);
     }
+
+    if (isOwnProfile) loadOwnProfile();
 
     window.savePostToUser = async function(postDataUrl, caption, type) {
       const newPost = { type: type, src: postDataUrl, caption: caption || '', likes: 0, liked: false, createdAt: new Date().toISOString() };
@@ -298,8 +300,6 @@
     async function addFollower(targetUsername, followerUsername) { const myProfile = JSON.parse(localStorage.getItem('userProfile') || '{}'); const myAvatar = myProfile.avatar || null; try { const q = query(collection(db, 'users'), where('username', '==', targetUsername)); const snap = await getDocs(q); if (!snap.empty) { let friends = snap.docs[0].data().friends || []; if (!friends.find(f => f.name === followerUsername)) { friends.push({ name: followerUsername, avatar: myAvatar }); await setDoc(doc(db, 'users', targetUsername.replace('@','')), { friends: friends }, { merge: true }); } } else { await setDoc(doc(db, 'users', targetUsername.replace('@','')), { username: targetUsername, friends: [{ name: followerUsername, avatar: myAvatar }], besties: [], posts: [], name: targetUsername.replace('@',''), bio: '', avatar: null, updatedAt: serverTimestamp() }); } const cacheKey = 'profile_' + targetUsername.replace('@',''); const cached = JSON.parse(localStorage.getItem(cacheKey) || '{}'); let f = cached.friends || []; if (!f.find(x => x.name === followerUsername)) { f.push({ name: followerUsername, avatar: myAvatar }); } cached.friends = f; cached.username = targetUsername; localStorage.setItem(cacheKey, JSON.stringify(cached)); } catch(e) {} }
 
     async function removeFollower(targetUsername, followerUsername) { try { const q = query(collection(db, 'users'), where('username', '==', targetUsername)); const snap = await getDocs(q); if (!snap.empty) { let friends = (snap.docs[0].data().friends || []).filter(f => f.name !== followerUsername); await setDoc(doc(db, 'users', targetUsername.replace('@','')), { friends: friends }, { merge: true }); } const cacheKey = 'profile_' + targetUsername.replace('@',''); const cached = JSON.parse(localStorage.getItem(cacheKey) || '{}'); cached.friends = (cached.friends || []).filter(f => f.name !== followerUsername); localStorage.setItem(cacheKey, JSON.stringify(cached)); } catch(e) {} }
-
-    if (!isOwnProfile) { loadOtherUserProfile(viewUser); } else { loadOwnProfile(); }
 
     async function loadOtherUserProfile(username) { const cname = (username || '').replace(/^@/, ''); document.getElementById('displayName').textContent = cname; let userData = null; try { const q = query(collection(db, 'users'), where('username', '==', username)); const snap = await getDocs(q); if (!snap.empty) userData = snap.docs[0].data(); } catch(e) {} if (!userData) { const sp = localStorage.getItem('profile_' + username.replace('@','')); if (sp) try { userData = JSON.parse(sp); } catch(e) {} } if (!userData) { const mp = JSON.parse(localStorage.getItem('userProfile') || '{}'); const f = [...(mp.friends || []), ...(mp.besties || [])].find(x => x.name === username); if (f) userData = { name: f.name, avatar: f.avatar, posts: [], friends: [], besties: [] }; } if (userData) { document.getElementById('displayName').textContent = userData.name || cname; document.getElementById('displayBio').textContent = userData.bio || ''; document.getElementById('displayWebsite').textContent = userData.website ? '🔗 ' + userData.website : ''; document.getElementById('profileAvatar').innerHTML = userData.avatar && userData.avatar !== 'null' && userData.avatar !== 'undefined' ? `<img src="${userData.avatar}" alt="avatar">` : '<i class="fas fa-user"></i>'; document.getElementById('friendsCount').textContent = (userData.friends || []).length; document.getElementById('bestiesCount').textContent = (userData.besties || []).length; document.getElementById('postCount').textContent = (userData.posts || []).filter(p => p.type === 'image').length; window._viewProfile = userData; renderContent(); localStorage.setItem('profile_' + username.replace('@',''), JSON.stringify(userData)); } document.getElementById('actionsRow').innerHTML = `<button class="action-btn primary" onclick="window.location.href='chat.html'">💬 Message</button><button class="action-btn" id="followBtn" onclick="toggleFollowUser('${username}')">Follow</button>`; const mp = JSON.parse(localStorage.getItem('userProfile') || '{}'); if ((mp.friends || []).some(f => f.name === username)) { const fb = document.getElementById('followBtn'); if (fb) { fb.textContent = 'Following'; fb.classList.add('following'); } } }
 
@@ -317,7 +317,7 @@
     window.likeViewedPost = function() { const post = currentPostList[currentPostIndex]; if (!post) return; post.liked = !post.liked; post.likes = (post.likes || 0) + (post.liked ? 1 : -1); showPost(currentPostIndex); if (isOwnProfile) saveToFirestore(); };
     window.shareViewedPost = function() { const post = currentPostList[currentPostIndex]; if (!post) return; if (navigator.share) navigator.share({ title: 'Check out this post', url: post.src }); else { navigator.clipboard.writeText(post.src); showToast('Link copied! 📋'); } };
     function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2000); }
-    
+
     document.getElementById('postViewer').addEventListener('click', function(e) { if (e.target === this) closePostViewer(); });
     document.addEventListener('keydown', function(e) { if (document.getElementById('postViewer').classList.contains('show')) { if (e.key === 'ArrowLeft') navigatePost(-1); if (e.key === 'ArrowRight') navigatePost(1); if (e.key === 'Escape') closePostViewer(); } });
 
@@ -328,7 +328,7 @@
     function updateEditPreview() { const preview = document.getElementById('editAvatarPreview'); if (tempEditAvatar && tempEditAvatar !== 'null' && tempEditAvatar !== 'undefined') { preview.innerHTML = `<img src="${tempEditAvatar}" alt="avatar">`; } else { preview.innerHTML = '<i class="fas fa-user"></i>'; } }
     window.updateEditAvatar = function(e) { const file = e.target.files[0]; if (file) { const r = new FileReader(); r.onload = function(ev) { tempEditAvatar = ev.target.result; updateEditPreview(); }; r.readAsDataURL(file); } };
     window.removeEditAvatar = function() { tempEditAvatar = null; updateEditPreview(); };
-    window.saveProfile = function() { if (!isOwnProfile) return; const p = window._profile; p.username = '@' + (document.getElementById('editUsername').value.trim() || currentUser.replace('@','')); p.name = document.getElementById('editUsername').value.trim() || currentUser.replace('@',''); p.bio = document.getElementById('editBio').value.trim(); p.website = document.getElementById('editWebsite').value.trim(); p.avatar = tempEditAvatar; if (p.username !== currentUser) localStorage.setItem('currentUser', p.username); saveToFirestore(); updateUI(); closeEditProfile(); showToast('Profile saved! ✅'); };
+    window.saveProfile = function() { if (!isOwnProfile) return; const p = window._profile; p.username = '@' + (document.getElementById('editUsername').value.trim() || currentUser.replace('@','')); p.name = document.getElementById('editUsername').value.trim() || currentUser.replace('@',''); p.bio = document.getElementById('editBio').value.trim(); p.website = document.getElementById('editWebsite').value.trim(); p.avatar = tempEditAvatar; if (p.username !== currentUser) { localStorage.setItem('currentUser', p.username); document.getElementById('topBarUsername').textContent = p.username.replace('@',''); } saveToFirestore(); updateUI(); closeEditProfile(); showToast('Profile saved! ✅'); };
     window.switchTab = function(el) { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); renderContent(); };
     window.showList = function(type) { const p = window._viewProfile || window._profile; document.getElementById('listTitle').textContent = type === 'friends' ? '👥 Friends (Following)' : '⭐ Besties'; const list = type === 'friends' ? (p.friends || []) : (p.besties || []); document.getElementById('listContent').innerHTML = list.length === 0 ? '<div style="text-align:center;color:#555;padding:1rem;">No one yet</div>' : list.map(u => `<div class="list-item" onclick="window.location.href='profile.html?user=${encodeURIComponent(u.name)}'"><div class="mini-avatar">${u.avatar && u.avatar !== 'null' && u.avatar !== 'undefined' ? `<img src="${u.avatar}" alt="">` : '<i class="fas fa-user"></i>'}</div><div><div class="name">${(u.name||'').replace('@','')}</div><div class="sub">Tap to view profile</div></div></div>`).join(''); document.getElementById('listModal').classList.add('show'); };
     window.closeList = function() { document.getElementById('listModal').classList.remove('show'); };

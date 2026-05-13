@@ -7,8 +7,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     * { margin:0;padding:0;box-sizing:border-box; }
-    body { background:#000;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;overscroll-behavior:none;overflow:hidden; }
-    .page { width:100%;height:100vh;height:100dvh;background:#000;display:flex;flex-direction:column;position:relative;overflow:hidden; }
+    body { background:#000;font-family:-apple-system,sans-serif;overscroll-behavior:none;overflow:hidden;position:fixed;width:100%;height:100%;height:100dvh; }
+    .page { width:100%;height:100%;height:100dvh;background:#000;display:flex;flex-direction:column;position:relative;overflow:hidden; }
     
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
@@ -37,28 +37,28 @@
     }
     .top-right-icon:hover { background:rgba(74,222,128,0.2); }
     
-    /* Main content area - Desktop default */
+    /* Main content area */
     .main-content {
-      flex:1;display:flex;flex-direction:column;padding:3.5rem 1.2rem 1rem 1.2rem;position:relative;
+      flex:1;display:flex;flex-direction:column;position:relative;
       gap:8px;min-height:0;overflow:hidden;
     }
     
     /* Labels */
     .section-label {
-      font-size:14px;font-weight:600;color:#aaa;letter-spacing:1px;
+      font-size:14px;font-weight:600;color:#aaa;letter-spacing:1px;flex-shrink:0;
     }
     
     /* Camera area wrapper */
     .camera-area {
-      display:flex;gap:8px;align-items:flex-start;min-height:0;
+      flex:1;display:flex;gap:8px;align-items:flex-start;min-height:0;overflow:hidden;
     }
     
     /* Stranger camera - 60% width */
     .stranger-section {
-      width:60%;display:flex;flex-direction:column;gap:4px;min-height:0;
+      width:60%;display:flex;flex-direction:column;gap:4px;min-height:0;height:100%;
     }
     .stranger-camera {
-      width:100%;height:55vh;background:#111;
+      flex:1;width:100%;background:#111;
       border:2px solid rgba(255,255,255,0.2);border-radius:14px;
       position:relative;overflow:hidden;
       display:flex;align-items:center;justify-content:center;min-height:0;
@@ -73,13 +73,13 @@
     
     /* You camera - 35% width */
     .you-section {
-      width:35%;display:flex;flex-direction:column;gap:4px;align-items:flex-end;min-height:0;
+      width:35%;display:flex;flex-direction:column;gap:4px;align-items:flex-end;min-height:0;height:100%;
     }
     .my-camera {
-      width:100%;height:28vh;background:#111;
+      flex:0 0 auto;width:100%;height:40%;max-height:50%;min-height:120px;background:#111;
       border:2px solid rgba(255,255,255,0.3);border-radius:14px;
       position:relative;overflow:hidden;
-      display:flex;align-items:center;justify-content:center;min-height:0;
+      display:flex;align-items:center;justify-content:center;
     }
     .my-camera.active { border-color:#ef4444; }
     #myFeed { width:100%;height:100%;object-fit:cover;display:none;background:#000;transform:rotateY(180deg);-webkit-transform:rotateY(180deg); }
@@ -88,14 +88,17 @@
     
     /* Token buttons */
     .token-stack {
-      display:flex;flex-direction:column;gap:10px;align-items:flex-end;margin-top:4px;min-height:0;
+      flex:1;display:flex;flex-direction:column;gap:10px;align-items:flex-end;
+      padding-top:4px;min-height:0;overflow-y:auto;
+      -ms-overflow-style:none;scrollbar-width:none;
     }
+    .token-stack::-webkit-scrollbar { display:none; }
     .token-btn {
-      width:90px;height:32px;border-radius:8px;
+      width:90px;height:32px;border-radius:8px;flex-shrink:0;
       border:1.5px solid rgba(255,255,255,0.15);
       background:rgba(0,0,0,0.5);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
       cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;
-      font-size:0.7rem;font-weight:600;transition:all 0.2s;color:#fff;padding:0 8px;flex-shrink:0;
+      font-size:0.7rem;font-weight:600;transition:all 0.2s;color:#fff;padding:0 8px;
     }
     .token-btn:active { transform:scale(0.9); }
     .token-btn .token-emoji { font-size:0.85rem;line-height:1; }
@@ -113,15 +116,15 @@
     
     /* Control buttons */
     .control-row {
-      display:flex;gap:12px;align-items:center;flex-shrink:0;
+      display:flex;gap:12px;align-items:center;flex-shrink:0;padding-top:8px;
     }
     .ctrl-btn {
-      width:80px;height:34px;border-radius:17px;
+      width:80px;height:34px;border-radius:17px;flex-shrink:0;
       display:inline-flex;align-items:center;justify-content:center;gap:4px;
       cursor:pointer;border:1px solid transparent;outline:none;
       font-size:0.7rem;font-weight:600;padding:0;color:#fff;
       transition:all 0.3s;-webkit-tap-highlight-color:transparent;
-      touch-action:manipulation;user-select:none;-webkit-user-select:none;flex-shrink:0;
+      touch-action:manipulation;user-select:none;-webkit-user-select:none;
     }
     .ctrl-btn:active { transform:scale(0.95); }
     .live-btn { background:rgba(74,222,128,0.2);border-color:rgba(74,222,128,0.5);color:#4ade80; }
@@ -159,112 +162,21 @@
     .nav-center a.active { color:#fff;background:rgba(255,255,255,0.2);box-shadow:0 0 20px rgba(255,255,255,0.15); }
     .nav-upload,.nav-search { display:none !important; }
 
-    /* ✅ MOBILE LAYOUT FIX - Only affects screens under 1024px */
+    /* Mobile layout - applies to ALL mobile devices */
     @media (max-width: 1023px) {
-      .page {
-        height: 100dvh;
-        overflow: hidden;
-      }
-      
       .main-content {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        padding-top: calc(3.5rem + env(safe-area-inset-top, 0px));
-        padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
-        padding-left: max(1.2rem, env(safe-area-inset-left, 1.2rem));
-        padding-right: max(1.2rem, env(safe-area-inset-right, 1.2rem));
-        overflow: hidden;
-        min-height: 0;
-        gap: 8px;
-      }
-      
-      .camera-area {
-        flex: 1;
-        display: flex;
-        gap: 8px;
-        align-items: flex-start;
-        min-height: 0;
-        overflow: hidden;
-      }
-      
-      .stranger-section {
-        width: 60%;
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-        min-height: 0;
-      }
-      
-      .stranger-camera {
-        flex: 1;
-        width: 100%;
-        height: auto;
-        min-height: 0;
-        background: #111;
-        border: 2px solid rgba(255, 255, 255, 0.2);
-        border-radius: 14px;
-        position: relative;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      
-      .you-section {
-        width: 35%;
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-        align-items: flex-end;
-        min-height: 0;
-      }
-      
-      .my-camera {
-        width: 100%;
-        height: 40%;
-        min-height: 0;
-        max-height: 50%;
-        background: #111;
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        border-radius: 14px;
-        position: relative;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      
-      .token-stack {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        align-items: flex-end;
-        margin-top: 4px;
-        min-height: 0;
-        overflow-y: auto;
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-      }
-      
-      .token-stack::-webkit-scrollbar {
-        display: none;
+        padding: 0 max(1rem, env(safe-area-inset-right, 1rem)) 0 max(1rem, env(safe-area-inset-left, 1rem));
+        margin-top: calc(3.5rem + env(safe-area-inset-top, 0px));
+        margin-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
       }
       
       .control-row {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-        flex-shrink: 0;
-        padding-top: 8px;
-      }
-      
-      .section-label {
-        flex-shrink: 0;
+        padding-bottom: 0;
+        padding-top: 6px;
       }
     }
 
+    /* Desktop layout */
     @media (min-width:1024px) {
       .nav-upload,.nav-search { display:flex !important; }
       .top-left-icon,.top-right-icon { display:none !important; }
@@ -272,8 +184,11 @@
       .nav-center{flex-direction:column;gap:1.2rem;max-width:none}.nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
       .nav-center a::before{bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0)}.nav-center a.active::before{transform:translateY(-50%) scale(1)}
       .page{padding-left:5rem}
-      .main-content{max-width:800px;margin:0 auto;width:100%;padding-bottom:1rem;}
-      .stranger-camera{height:55vh}.my-camera{height:28vh}
+      .main-content{max-width:800px;margin:0 auto;width:100%;padding:3.5rem 1.2rem 1rem 1.2rem}
+      .stranger-camera{height:55vh;flex:none}
+      .my-camera{height:28vh;flex:none;max-height:none}
+      .camera-area{flex:none}
+      .token-stack{flex:none;overflow-y:visible}
     }
     @media (max-width:380px) {
       .token-btn{width:75px;height:28px;font-size:0.6rem;}

@@ -11,17 +11,11 @@
     .page { width:100%;height:100vh;height:100dvh;background:#000;display:flex;flex-direction:column;position:relative;overflow:hidden; }
     
     @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    @keyframes slideLeft { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     
     /* Main Wallet Page */
     .wallet-main {
       flex: 1; display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden;
-      transition: transform 0.3s ease, opacity 0.3s ease;
-    }
-    .wallet-main.hidden {
-      transform: translateX(-30%); opacity: 0; pointer-events: none;
-      position: absolute; width: 100%;
     }
     
     .wallet-header {
@@ -88,7 +82,6 @@
     .menu-card-title { font-size: 15px; font-weight: 700; color: #fff; }
     .menu-card-subtitle { font-size: 10px; color: #888; }
     
-    /* History Tabs */
     .history-section { flex: 1; display: flex; flex-direction: column; padding: 0 1.5rem; overflow: hidden; }
     .history-tabs { display: flex; gap: 6px; padding-bottom: 1rem; flex-wrap: wrap; }
     .history-tab {
@@ -148,28 +141,68 @@
     }
     .sub-page-title { font-size: 17px; font-weight: 700; color: #fff; }
     
-    .sub-page-content { flex: 1; padding: 1.5rem; }
+    .sub-page-content { flex: 1; padding: 1.5rem; padding-bottom: 3rem; }
     
-    .token-list { display: flex; flex-direction: column; gap: 12px; }
-    .token-item {
-      background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01));
+    .token-buy-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
       backdrop-filter: blur(20px); border-radius: 16px;
       padding: 16px; border: 1px solid rgba(255,255,255,0.1);
-      display: flex; align-items: center; gap: 12px;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
     }
-    .token-item-icon {
-      width: 44px; height: 44px; border-radius: 12px;
+    .token-buy-info { display: flex; align-items: center; gap: 10px; }
+    .token-buy-icon {
+      width: 40px; height: 40px; border-radius: 12px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 22px; flex-shrink: 0;
+      font-size: 22px;
     }
-    .token-item-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
-    .token-item-name { font-size: 15px; font-weight: 600; color: #fff; }
-    .token-item-balance { font-size: 12px; color: #888; }
-    .token-item-value { font-size: 18px; font-weight: 700; }
-    .token-item-value.chicken { color: #f59e0b; }
-    .token-item-value.lion { color: #ef4444; }
-    .token-item-value.fish { color: #3b82f6; }
-    .token-item-value.bike { color: #a855f7; }
+    .token-buy-details { display: flex; flex-direction: column; gap: 2px; }
+    .token-buy-name { font-size: 14px; font-weight: 600; color: #fff; }
+    .token-buy-price { font-size: 11px; color: #888; }
+    .token-buy-balance { font-size: 10px; color: #aaa; }
+    
+    .buy-controls { display: flex; align-items: center; gap: 8px; }
+    .quantity-selector {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(0,0,0,0.3); border-radius: 20px;
+      padding: 4px;
+    }
+    .qty-btn {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(255,255,255,0.1); border: none;
+      color: #fff; font-size: 16px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .qty-num { font-size: 14px; font-weight: 700; color: #fff; min-width: 24px; text-align: center; }
+    .buy-btn {
+      padding: 8px 16px; border-radius: 20px;
+      background: rgba(74,222,128,0.2); border: 1px solid rgba(74,222,128,0.4);
+      color: #4ade80; font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .buy-btn:hover { background: rgba(74,222,128,0.35); }
+    .buy-btn:active { transform: scale(0.95); }
+    
+    .withdraw-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+      backdrop-filter: blur(20px); border-radius: 16px;
+      padding: 16px; border: 1px solid rgba(255,255,255,0.1);
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .withdraw-input {
+      background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 10px; padding: 8px 10px; color: #fff;
+      font-size: 14px; width: 55px; text-align: center; outline: none;
+    }
+    .cashout-btn {
+      padding: 8px 14px; border-radius: 20px;
+      background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.4);
+      color: #ef4444; font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .cashout-btn:hover { background: rgba(239,68,68,0.35); }
+    .cash-value { font-size: 11px; color: #f59e0b; font-weight: 600; }
     
     .back-btn {
       position: fixed; top: max(1rem, env(safe-area-inset-top, 1rem));
@@ -181,6 +214,7 @@
       display: flex; align-items: center; justify-content: center;
       text-decoration: none; border: 1px solid rgba(255,255,255,0.2);
     }
+    .back-btn.hidden { display: none; }
     
     .page-bottom-spacer { height: 30px; }
     
@@ -192,7 +226,8 @@
 </head>
 <body>
   <div class="page">
-    <a href="web.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+    <!-- Main back button - hidden on sub-pages -->
+    <a href="web.html" class="back-btn" id="mainBackBtn"><i class="fas fa-arrow-left"></i></a>
     
     <!-- Main Wallet Page -->
     <div class="wallet-main" id="walletMain">
@@ -242,12 +277,12 @@
         <div class="menu-card" onclick="openSubPage('deposit')">
           <div class="menu-card-icon deposit"><i class="fas fa-plus-circle"></i></div>
           <span class="menu-card-title">Deposit</span>
-          <span class="menu-card-subtitle">View your tokens</span>
+          <span class="menu-card-subtitle">Buy tokens</span>
         </div>
         <div class="menu-card" onclick="openSubPage('withdraw')">
           <div class="menu-card-icon withdraw"><i class="fas fa-arrow-down"></i></div>
           <span class="menu-card-title">Withdraw</span>
-          <span class="menu-card-subtitle">View your tokens</span>
+          <span class="menu-card-subtitle">Cash out tokens</span>
         </div>
       </div>
       
@@ -273,42 +308,79 @@
     <div class="sub-page" id="depositPage">
       <div class="sub-page-header">
         <button class="sub-back-btn" onclick="closeSubPage()"><i class="fas fa-arrow-left"></i></button>
-        <span class="sub-page-title">💎 Deposit Tokens</span>
+        <span class="sub-page-title">💎 Buy Tokens</span>
       </div>
       <div class="sub-page-content">
-        <div class="balance-label" style="margin-bottom:12px;">YOUR TOKEN BALANCES</div>
-        <div class="token-list">
-          <div class="token-item">
-            <div class="token-item-icon" style="background:rgba(245,158,11,0.2)">🍗</div>
-            <div class="token-item-info">
-              <span class="token-item-name">Chicken Token</span>
-              <span class="token-item-balance">$1.00 per token</span>
+        <div class="token-buy-card">
+          <div class="token-buy-info">
+            <div class="token-buy-icon" style="background:rgba(245,158,11,0.2)">🍗</div>
+            <div class="token-buy-details">
+              <span class="token-buy-name">Chicken Token</span>
+              <span class="token-buy-price">$1.00 per token</span>
+              <span class="token-buy-balance">Balance: <span id="depBalChicken">0</span></span>
             </div>
-            <span class="token-item-value chicken" id="depChicken">0</span>
           </div>
-          <div class="token-item">
-            <div class="token-item-icon" style="background:rgba(239,68,68,0.2)">🦁</div>
-            <div class="token-item-info">
-              <span class="token-item-name">Lion Token</span>
-              <span class="token-item-balance">$2.00 per token</span>
+          <div class="buy-controls">
+            <div class="quantity-selector">
+              <button class="qty-btn" onclick="changeQty('chicken', -1)">−</button>
+              <span class="qty-num" id="qtyChicken">1</span>
+              <button class="qty-btn" onclick="changeQty('chicken', 1)">+</button>
             </div>
-            <span class="token-item-value lion" id="depLion">0</span>
+            <button class="buy-btn" onclick="buyTokens('chicken')">Buy</button>
           </div>
-          <div class="token-item">
-            <div class="token-item-icon" style="background:rgba(59,130,246,0.2)">🐟</div>
-            <div class="token-item-info">
-              <span class="token-item-name">Fish Token</span>
-              <span class="token-item-balance">$0.50 per token</span>
+        </div>
+        <div class="token-buy-card">
+          <div class="token-buy-info">
+            <div class="token-buy-icon" style="background:rgba(239,68,68,0.2)">🦁</div>
+            <div class="token-buy-details">
+              <span class="token-buy-name">Lion Token</span>
+              <span class="token-buy-price">$2.00 per token</span>
+              <span class="token-buy-balance">Balance: <span id="depBalLion">0</span></span>
             </div>
-            <span class="token-item-value fish" id="depFish">0</span>
           </div>
-          <div class="token-item">
-            <div class="token-item-icon" style="background:rgba(168,85,247,0.2)">🏍️</div>
-            <div class="token-item-info">
-              <span class="token-item-name">Bike Token</span>
-              <span class="token-item-balance">$3.00 per token</span>
+          <div class="buy-controls">
+            <div class="quantity-selector">
+              <button class="qty-btn" onclick="changeQty('lion', -1)">−</button>
+              <span class="qty-num" id="qtyLion">1</span>
+              <button class="qty-btn" onclick="changeQty('lion', 1)">+</button>
             </div>
-            <span class="token-item-value bike" id="depBike">0</span>
+            <button class="buy-btn" onclick="buyTokens('lion')">Buy</button>
+          </div>
+        </div>
+        <div class="token-buy-card">
+          <div class="token-buy-info">
+            <div class="token-buy-icon" style="background:rgba(59,130,246,0.2)">🐟</div>
+            <div class="token-buy-details">
+              <span class="token-buy-name">Fish Token</span>
+              <span class="token-buy-price">$0.50 per token</span>
+              <span class="token-buy-balance">Balance: <span id="depBalFish">0</span></span>
+            </div>
+          </div>
+          <div class="buy-controls">
+            <div class="quantity-selector">
+              <button class="qty-btn" onclick="changeQty('fish', -1)">−</button>
+              <span class="qty-num" id="qtyFish">1</span>
+              <button class="qty-btn" onclick="changeQty('fish', 1)">+</button>
+            </div>
+            <button class="buy-btn" onclick="buyTokens('fish')">Buy</button>
+          </div>
+        </div>
+        <div class="token-buy-card">
+          <div class="token-buy-info">
+            <div class="token-buy-icon" style="background:rgba(168,85,247,0.2)">🏍️</div>
+            <div class="token-buy-details">
+              <span class="token-buy-name">Bike Token</span>
+              <span class="token-buy-price">$3.00 per token</span>
+              <span class="token-buy-balance">Balance: <span id="depBalBike">0</span></span>
+            </div>
+          </div>
+          <div class="buy-controls">
+            <div class="quantity-selector">
+              <button class="qty-btn" onclick="changeQty('bike', -1)">−</button>
+              <span class="qty-num" id="qtyBike">1</span>
+              <button class="qty-btn" onclick="changeQty('bike', 1)">+</button>
+            </div>
+            <button class="buy-btn" onclick="buyTokens('bike')">Buy</button>
           </div>
         </div>
       </div>
@@ -318,42 +390,59 @@
     <div class="sub-page" id="withdrawPage">
       <div class="sub-page-header">
         <button class="sub-back-btn" onclick="closeSubPage()"><i class="fas fa-arrow-left"></i></button>
-        <span class="sub-page-title">💸 Withdraw Tokens</span>
+        <span class="sub-page-title">💸 Cash Out Tokens</span>
       </div>
       <div class="sub-page-content">
-        <div class="balance-label" style="margin-bottom:12px;">YOUR TOKEN BALANCES</div>
-        <div class="token-list">
-          <div class="token-item">
-            <div class="token-item-icon" style="background:rgba(245,158,11,0.2)">🍗</div>
-            <div class="token-item-info">
-              <span class="token-item-name">Chicken Token</span>
-              <span class="token-item-balance">Cash value: $0.80 each</span>
+        <div class="withdraw-card">
+          <div class="token-buy-info">
+            <div class="token-buy-icon" style="background:rgba(245,158,11,0.2)">🍗</div>
+            <div class="token-buy-details">
+              <span class="token-buy-name">Chicken Token</span>
+              <span class="cash-value">💵 $0.80 each | Balance: <span id="wdBalChicken">0</span></span>
             </div>
-            <span class="token-item-value chicken" id="wdChicken">0</span>
           </div>
-          <div class="token-item">
-            <div class="token-item-icon" style="background:rgba(239,68,68,0.2)">🦁</div>
-            <div class="token-item-info">
-              <span class="token-item-name">Lion Token</span>
-              <span class="token-item-balance">Cash value: $1.60 each</span>
-            </div>
-            <span class="token-item-value lion" id="wdLion">0</span>
+          <div class="buy-controls">
+            <input type="number" class="withdraw-input" id="wdInputChicken" value="0" min="0" max="0" onchange="updateMax('chicken')">
+            <button class="cashout-btn" onclick="withdrawTokens('chicken')">Cash Out</button>
           </div>
-          <div class="token-item">
-            <div class="token-item-icon" style="background:rgba(59,130,246,0.2)">🐟</div>
-            <div class="token-item-info">
-              <span class="token-item-name">Fish Token</span>
-              <span class="token-item-balance">Cash value: $0.40 each</span>
+        </div>
+        <div class="withdraw-card">
+          <div class="token-buy-info">
+            <div class="token-buy-icon" style="background:rgba(239,68,68,0.2)">🦁</div>
+            <div class="token-buy-details">
+              <span class="token-buy-name">Lion Token</span>
+              <span class="cash-value">💵 $1.60 each | Balance: <span id="wdBalLion">0</span></span>
             </div>
-            <span class="token-item-value fish" id="wdFish">0</span>
           </div>
-          <div class="token-item">
-            <div class="token-item-icon" style="background:rgba(168,85,247,0.2)">🏍️</div>
-            <div class="token-item-info">
-              <span class="token-item-name">Bike Token</span>
-              <span class="token-item-balance">Cash value: $2.40 each</span>
+          <div class="buy-controls">
+            <input type="number" class="withdraw-input" id="wdInputLion" value="0" min="0" max="0" onchange="updateMax('lion')">
+            <button class="cashout-btn" onclick="withdrawTokens('lion')">Cash Out</button>
+          </div>
+        </div>
+        <div class="withdraw-card">
+          <div class="token-buy-info">
+            <div class="token-buy-icon" style="background:rgba(59,130,246,0.2)">🐟</div>
+            <div class="token-buy-details">
+              <span class="token-buy-name">Fish Token</span>
+              <span class="cash-value">💵 $0.40 each | Balance: <span id="wdBalFish">0</span></span>
             </div>
-            <span class="token-item-value bike" id="wdBike">0</span>
+          </div>
+          <div class="buy-controls">
+            <input type="number" class="withdraw-input" id="wdInputFish" value="0" min="0" max="0" onchange="updateMax('fish')">
+            <button class="cashout-btn" onclick="withdrawTokens('fish')">Cash Out</button>
+          </div>
+        </div>
+        <div class="withdraw-card">
+          <div class="token-buy-info">
+            <div class="token-buy-icon" style="background:rgba(168,85,247,0.2)">🏍️</div>
+            <div class="token-buy-details">
+              <span class="token-buy-name">Bike Token</span>
+              <span class="cash-value">💵 $2.40 each | Balance: <span id="wdBalBike">0</span></span>
+            </div>
+          </div>
+          <div class="buy-controls">
+            <input type="number" class="withdraw-input" id="wdInputBike" value="0" min="0" max="0" onchange="updateMax('bike')">
+            <button class="cashout-btn" onclick="withdrawTokens('bike')">Cash Out</button>
           </div>
         </div>
       </div>
@@ -365,7 +454,7 @@
   </script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, serverTimestamp, query, orderBy, limit, where } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc, getDocs, serverTimestamp, query, orderBy, limit, where } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
     
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
@@ -378,6 +467,9 @@
     document.getElementById('profilePhoto').textContent = currentUser.charAt(0).toUpperCase();
     
     let tokenBalances = { chicken: 0, lion: 0, fish: 0, bike: 0 };
+    let buyQuantities = { chicken: 1, lion: 1, fish: 1, bike: 1 };
+    const tokenPrices = { chicken: 1.00, lion: 2.00, fish: 0.50, bike: 3.00 };
+    const withdrawRates = { chicken: 0.80, lion: 1.60, fish: 0.40, bike: 2.40 };
     
     async function loadWallet() {
       try {
@@ -401,26 +493,85 @@
     }
     
     function updateAllDisplays() {
-      // Main balance cards
       document.getElementById('balChicken').textContent = tokenBalances.chicken;
       document.getElementById('balLion').textContent = tokenBalances.lion;
       document.getElementById('balFish').textContent = tokenBalances.fish;
       document.getElementById('balBike').textContent = tokenBalances.bike;
       
-      // Deposit page
-      document.getElementById('depChicken').textContent = tokenBalances.chicken;
-      document.getElementById('depLion').textContent = tokenBalances.lion;
-      document.getElementById('depFish').textContent = tokenBalances.fish;
-      document.getElementById('depBike').textContent = tokenBalances.bike;
+      document.getElementById('depBalChicken').textContent = tokenBalances.chicken;
+      document.getElementById('depBalLion').textContent = tokenBalances.lion;
+      document.getElementById('depBalFish').textContent = tokenBalances.fish;
+      document.getElementById('depBalBike').textContent = tokenBalances.bike;
       
-      // Withdraw page
-      document.getElementById('wdChicken').textContent = tokenBalances.chicken;
-      document.getElementById('wdLion').textContent = tokenBalances.lion;
-      document.getElementById('wdFish').textContent = tokenBalances.fish;
-      document.getElementById('wdBike').textContent = tokenBalances.bike;
+      document.getElementById('wdBalChicken').textContent = tokenBalances.chicken;
+      document.getElementById('wdBalLion').textContent = tokenBalances.lion;
+      document.getElementById('wdBalFish').textContent = tokenBalances.fish;
+      document.getElementById('wdBalBike').textContent = tokenBalances.bike;
+      
+      document.getElementById('wdInputChicken').max = tokenBalances.chicken;
+      document.getElementById('wdInputLion').max = tokenBalances.lion;
+      document.getElementById('wdInputFish').max = tokenBalances.fish;
+      document.getElementById('wdInputBike').max = tokenBalances.bike;
     }
     
+    window.changeQty = function(token, delta) {
+      const key = 'qty' + token.charAt(0).toUpperCase() + token.slice(1);
+      buyQuantities[token] = Math.max(1, (buyQuantities[token] || 1) + delta);
+      document.getElementById(key).textContent = buyQuantities[token];
+    };
+    
+    window.buyTokens = async function(token) {
+      const qty = buyQuantities[token];
+      const price = tokenPrices[token] * qty;
+      
+      if (confirm(`Buy ${qty} ${token} tokens for $${price.toFixed(2)}?`)) {
+        tokenBalances[token] += qty;
+        updateAllDisplays();
+        
+        await updateDoc(doc(db, 'wallets', uid), { [token]: tokenBalances[token] });
+        
+        await addDoc(collection(db, 'transactions'), {
+          userId: uid, type: 'deposit', token: token, amount: qty,
+          cashValue: price, timestamp: serverTimestamp()
+        });
+      }
+    };
+    
+    window.withdrawTokens = async function(token) {
+      const inputEl = document.getElementById('wdInput' + token.charAt(0).toUpperCase() + token.slice(1));
+      const amount = parseInt(inputEl.value) || 0;
+      
+      if (amount <= 0) return alert('Enter valid amount');
+      if (amount > tokenBalances[token]) return alert('Insufficient balance');
+      
+      const cashValue = withdrawRates[token] * amount;
+      
+      if (confirm(`Cash out ${amount} ${token} tokens for $${cashValue.toFixed(2)}?`)) {
+        tokenBalances[token] -= amount;
+        updateAllDisplays();
+        
+        await updateDoc(doc(db, 'wallets', uid), { [token]: tokenBalances[token] });
+        
+        await addDoc(collection(db, 'transactions'), {
+          userId: uid, type: 'withdrawal', token: token, amount: amount,
+          cashValue: cashValue, timestamp: serverTimestamp()
+        });
+        
+        inputEl.value = 0;
+      }
+    };
+    
+    window.updateMax = function(token) {
+      const inputEl = document.getElementById('wdInput' + token.charAt(0).toUpperCase() + token.slice(1));
+      if (parseInt(inputEl.value) > tokenBalances[token]) {
+        inputEl.value = tokenBalances[token];
+      }
+    };
+    
     window.openSubPage = function(type) {
+      // Hide main back button
+      document.getElementById('mainBackBtn').classList.add('hidden');
+      
       if (type === 'deposit') {
         document.getElementById('depositPage').classList.add('visible');
       } else {
@@ -429,8 +580,13 @@
     };
     
     window.closeSubPage = function() {
+      // Show main back button
+      document.getElementById('mainBackBtn').classList.remove('hidden');
+      
       document.getElementById('depositPage').classList.remove('visible');
       document.getElementById('withdrawPage').classList.remove('visible');
+      updateAllDisplays();
+      loadHistory('transactions');
     };
     
     window.switchHistory = function(type) {

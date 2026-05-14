@@ -17,7 +17,6 @@
     @keyframes giftFloat { 0%{transform:translateY(0) scale(1);opacity:1} 100%{transform:translateY(-60px) scale(1.3);opacity:0} }
     @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
-    @keyframes glowPulse { 0%,100%{box-shadow:0 0 5px rgba(255,255,255,0.1),0 0 10px rgba(255,255,255,0.05)} 50%{box-shadow:0 0 10px rgba(255,255,255,0.2),0 0 20px rgba(255,255,255,0.1)} }
     
     .top-left-icon {
       position:fixed;top:max(1rem,env(safe-area-inset-top,1rem));left:max(1rem,env(safe-area-inset-left,1rem));z-index:200;
@@ -49,9 +48,9 @@
       display:flex;align-items:center;gap:8px;
     }
     .section-label .username-badge {
-      font-size:12px;font-weight:500;color:#fff;
-      background:linear-gradient(135deg,rgba(255,255,255,0.15),rgba(255,255,255,0.05));
-      border:1px solid rgba(255,255,255,0.2);
+      font-size:12px;font-weight:500;color:#4ade80;
+      background:linear-gradient(135deg,rgba(74,222,128,0.15),rgba(74,222,128,0.05));
+      border:1px solid rgba(74,222,128,0.3);
       padding:2px 10px;border-radius:12px;
       letter-spacing:0.5px;
       backdrop-filter:blur(10px);
@@ -85,31 +84,6 @@
     .stranger-placeholder span { font-size:0.8rem; }
     .stranger-placeholder.searching-text { color:#fbbf24; }
     
-    .stranger-info-overlay {
-      position:absolute;bottom:10px;left:10px;right:10px;
-      background:linear-gradient(135deg,rgba(0,0,0,0.7),rgba(0,0,0,0.4));
-      backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-      border-radius:10px;padding:8px 12px;
-      display:none;align-items:center;gap:8px;
-      border:1px solid rgba(255,255,255,0.15);
-    }
-    .stranger-info-overlay.visible { display:flex; }
-    .stranger-info-avatar {
-      width:28px;height:28px;border-radius:50%;
-      background:linear-gradient(135deg,#4ade80,#3b82f6);
-      display:flex;align-items:center;justify-content:center;
-      font-size:12px;color:#fff;font-weight:700;
-    }
-    .stranger-info-details {
-      flex:1;display:flex;flex-direction:column;gap:1px;
-    }
-    .stranger-info-name {
-      font-size:11px;font-weight:600;color:#fff;
-    }
-    .stranger-info-status {
-      font-size:9px;color:#4ade80;
-    }
-    
     .you-section {
       width:35%;display:flex;flex-direction:column;gap:4px;align-items:flex-end;
     }
@@ -131,7 +105,7 @@
       width:110px;height:40px;border-radius:10px;
       border:1.5px solid rgba(255,255,255,0.15);
       background:rgba(0,0,0,0.5);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-      cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
       font-size:0.75rem;font-weight:600;transition:all 0.2s;color:#fff;padding:0 12px;
       position:relative;
     }
@@ -163,37 +137,6 @@
     .token-btn.no-receiver {
       animation: shake 0.5s ease-in-out;
       border-color: rgba(239,68,68,0.8) !important;
-    }
-    
-    /* Premium token info section */
-    .token-info-panel {
-      width:100%;
-      background:linear-gradient(135deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02));
-      backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-      border-radius:12px;padding:8px 10px;
-      border:1px solid rgba(255,255,255,0.1);
-      margin-top:6px;
-      display:none;
-    }
-    .token-info-panel.visible { display:block; }
-    .token-info-title {
-      font-size:9px;color:#aaa;letter-spacing:1px;margin-bottom:6px;
-      display:flex;align-items:center;gap:4px;
-    }
-    .token-info-title i { font-size:8px;color:#f59e0b; }
-    .token-info-row {
-      display:flex;justify-content:space-between;align-items:center;
-      padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.05);
-    }
-    .token-info-row:last-child { border-bottom:none; }
-    .token-info-token {
-      display:flex;align-items:center;gap:4px;font-size:10px;color:#ccc;
-    }
-    .token-info-token .mini-emoji { font-size:12px; }
-    .token-info-count {
-      font-size:10px;font-weight:700;
-      background:rgba(255,255,255,0.1);
-      padding:1px 8px;border-radius:10px;
     }
     
     .gift-float { position:absolute;font-size:2rem;pointer-events:none;animation:giftFloat 1.5s ease-out forwards;z-index:50; }
@@ -426,39 +369,12 @@
         <div class="stranger-section">
           <span class="section-label" id="strangerLabel">
             Stranger
-            <span class="username-badge" id="strangerUsername" style="display:none;"></span>
             <span class="online-dot" id="strangerOnlineDot" style="display:none;"></span>
+            <span class="username-badge" id="strangerUsername" style="display:none;"></span>
           </span>
           <div class="stranger-camera" id="strangerCamera">
             <video id="strangerFeed" autoplay playsinline></video>
             <div class="stranger-placeholder" id="strangerPlaceholder"><i class="fas fa-user-secret"></i><span>???</span></div>
-            <div class="stranger-info-overlay" id="strangerInfoOverlay">
-              <div class="stranger-info-avatar" id="strangerAvatar">?</div>
-              <div class="stranger-info-details">
-                <span class="stranger-info-name" id="strangerInfoName">Unknown</span>
-                <span class="stranger-info-status">🟢 Connected</span>
-              </div>
-            </div>
-          </div>
-          <!-- Premium token info panel below stranger camera -->
-          <div class="token-info-panel" id="strangerTokenPanel">
-            <div class="token-info-title"><i class="fas fa-gem"></i> Stranger's Tokens</div>
-            <div class="token-info-row">
-              <span class="token-info-token"><span class="mini-emoji">🍗</span> Chicken</span>
-              <span class="token-info-count" id="strangerChickenCount" style="color:#f59e0b;">0</span>
-            </div>
-            <div class="token-info-row">
-              <span class="token-info-token"><span class="mini-emoji">🦁</span> Lion</span>
-              <span class="token-info-count" id="strangerLionCount" style="color:#ef4444;">0</span>
-            </div>
-            <div class="token-info-row">
-              <span class="token-info-token"><span class="mini-emoji">🐟</span> Fish</span>
-              <span class="token-info-count" id="strangerFishCount" style="color:#3b82f6;">0</span>
-            </div>
-            <div class="token-info-row">
-              <span class="token-info-token"><span class="mini-emoji">🏍️</span> Bike</span>
-              <span class="token-info-count" id="strangerBikeCount" style="color:#a855f7;">0</span>
-            </div>
           </div>
         </div>
         <div class="you-section">
@@ -470,22 +386,18 @@
           <div class="token-stack" id="tokenStack">
             <button class="token-btn token-chicken" id="chickenBtn" onclick="window.handleTokenSend('chicken')">
               <span class="token-emoji">🍗</span>
-              <span class="token-label">Chicken</span>
               <span class="token-count" id="chickenCount">0</span>
             </button>
             <button class="token-btn token-lion" id="lionBtn" onclick="window.handleTokenSend('lion')">
               <span class="token-emoji">🦁</span>
-              <span class="token-label">Lion</span>
               <span class="token-count" id="lionCount">0</span>
             </button>
             <button class="token-btn token-fish" id="fishBtn" onclick="window.handleTokenSend('fish')">
               <span class="token-emoji">🐟</span>
-              <span class="token-label">Fish</span>
               <span class="token-count" id="fishCount">0</span>
             </button>
             <button class="token-btn token-bike" id="bikeBtn" onclick="window.handleTokenSend('bike')">
               <span class="token-emoji">🏍️</span>
-              <span class="token-label">Bike</span>
               <span class="token-count" id="bikeCount">0</span>
             </button>
           </div>
@@ -551,16 +463,7 @@
     let chatVisible = false;
     let pendingMessages = 0;
     
-    // Token balances from wallet (Firestore)
     let tokenBalances = {
-      chicken: 0,
-      lion: 0,
-      fish: 0,
-      bike: 0
-    };
-    
-    // Stranger's token balances
-    let strangerTokenBalances = {
       chicken: 0,
       lion: 0,
       fish: 0,
@@ -570,7 +473,6 @@
     const uid = localStorage.getItem('uid');
     const currentUser = localStorage.getItem('currentUser') || '@anonymous';
     
-    // Load wallet balances from Firestore
     async function loadWalletBalances() {
       try {
         const walletDoc = await getDoc(doc(db, 'wallets', uid));
@@ -626,39 +528,18 @@
       document.getElementById('bikeBtn').disabled = tokenBalances.bike <= 0;
     }
     
-    function updateStrangerTokenDisplay() {
-      document.getElementById('strangerChickenCount').textContent = strangerTokenBalances.chicken;
-      document.getElementById('strangerLionCount').textContent = strangerTokenBalances.lion;
-      document.getElementById('strangerFishCount').textContent = strangerTokenBalances.fish;
-      document.getElementById('strangerBikeCount').textContent = strangerTokenBalances.bike;
-    }
-    
     function showStrangerInfo(username) {
       const badge = document.getElementById('strangerUsername');
       const dot = document.getElementById('strangerOnlineDot');
-      const overlay = document.getElementById('strangerInfoOverlay');
-      const panel = document.getElementById('strangerTokenPanel');
-      const infoName = document.getElementById('strangerInfoName');
-      const avatar = document.getElementById('strangerAvatar');
       
       badge.textContent = username;
       badge.style.display = 'inline-block';
       dot.style.display = 'inline-block';
-      overlay.classList.add('visible');
-      panel.classList.add('visible');
-      
-      infoName.textContent = username;
-      avatar.textContent = username.charAt(0).toUpperCase();
-      
-      updateStrangerTokenDisplay();
     }
     
     function hideStrangerInfo() {
       document.getElementById('strangerUsername').style.display = 'none';
       document.getElementById('strangerOnlineDot').style.display = 'none';
-      document.getElementById('strangerInfoOverlay').classList.remove('visible');
-      document.getElementById('strangerTokenPanel').classList.remove('visible');
-      strangerTokenBalances = { chicken: 0, lion: 0, fish: 0, bike: 0 };
     }
     
     function toggleChat() {
@@ -739,7 +620,7 @@
         sendTokenToStrangerFn(emoji, tokenType);
       }
       
-      addChatMessage(`🎁 Sent ${emoji} ${tokenType.charAt(0).toUpperCase() + tokenType.slice(1)} to ${strangerUsername} (${tokenBalances[tokenType]} left)`, true);
+      addChatMessage(`🎁 Sent ${emoji} to ${strangerUsername} (${tokenBalances[tokenType]} left)`, true);
     };
     
     chatSendBtn.addEventListener('click', () => {
@@ -985,7 +866,7 @@
         isConnectedToStranger = true;
         strangerUsername = username || 'Stranger';
         showStrangerInfo(strangerUsername);
-        addChatMessage(`🔗 Connected with ${strangerUsername}! You can now send tokens.`, false, '', true);
+        addChatMessage(`🔗 Connected with ${strangerUsername}!`, false, '', true);
       }
       
       function showDisconnected() {
@@ -1034,14 +915,8 @@
                     updateTokenDisplay();
                     saveWalletBalances();
                     
-                    // Update stranger's display balance (what they sent)
-                    if (strangerTokenBalances[tokenType] !== undefined) {
-                      strangerTokenBalances[tokenType]++;
-                      updateStrangerTokenDisplay();
-                    }
-                    
                     const senderName = tokenData.senderUsername || 'Stranger';
-                    addChatMessage(`🎁 Received ${tokenData.emoji} ${tokenType.charAt(0).toUpperCase() + tokenType.slice(1)} from ${senderName}! Added to wallet. (${tokenBalances[tokenType]} total)`, false);
+                    addChatMessage(`🎁 Received ${tokenData.emoji} from ${senderName}! Added to wallet. (${tokenBalances[tokenType]} total)`, false);
                     
                     const myCam = document.getElementById('myCamera');
                     const float = document.createElement('span');
@@ -1101,13 +976,14 @@
       async function createRoom(oId, isCaller) {
         roomId = [myId, oId].sort().join('_');
         
-        // Get stranger's username
         let strangerUser = 'Stranger';
         try {
-          const strangerDoc = await getDoc(doc(db, 'wallets', oId.replace('id_', '').split('_')[0]));
-          if (strangerDoc.exists()) {
-            strangerUser = strangerDoc.data().username || 'Stranger';
-          }
+          const waitingDocs = await getDocs(collection(db, 'waiting'));
+          waitingDocs.forEach(d => {
+            if (d.data().userId === oId) {
+              strangerUser = d.data().username || 'Stranger';
+            }
+          });
         } catch(e) {}
         
         showConnected(strangerUser);

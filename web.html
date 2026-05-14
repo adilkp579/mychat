@@ -17,6 +17,7 @@
     @keyframes giftFloat { 0%{transform:translateY(0) scale(1);opacity:1} 100%{transform:translateY(-60px) scale(1.3);opacity:0} }
     @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+    @keyframes glowPulse { 0%,100%{box-shadow:0 0 5px rgba(255,255,255,0.1),0 0 10px rgba(255,255,255,0.05)} 50%{box-shadow:0 0 10px rgba(255,255,255,0.2),0 0 20px rgba(255,255,255,0.1)} }
     
     .top-left-icon {
       position:fixed;top:max(1rem,env(safe-area-inset-top,1rem));left:max(1rem,env(safe-area-inset-left,1rem));z-index:200;
@@ -45,6 +46,21 @@
     
     .section-label {
       font-size:14px;font-weight:600;color:#aaa;letter-spacing:1px;
+      display:flex;align-items:center;gap:8px;
+    }
+    .section-label .username-badge {
+      font-size:12px;font-weight:500;color:#fff;
+      background:linear-gradient(135deg,rgba(255,255,255,0.15),rgba(255,255,255,0.05));
+      border:1px solid rgba(255,255,255,0.2);
+      padding:2px 10px;border-radius:12px;
+      letter-spacing:0.5px;
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+    }
+    .section-label .online-dot {
+      width:6px;height:6px;border-radius:50%;
+      background:#4ade80;
+      box-shadow:0 0 8px rgba(74,222,128,0.5);
     }
     
     .camera-area {
@@ -61,13 +77,38 @@
       position:relative;overflow:hidden;
       display:flex;align-items:center;justify-content:center;
     }
-    .stranger-camera.connected { border-color:#4ade80; }
+    .stranger-camera.connected { border-color:#4ade80; box-shadow:0 0 20px rgba(74,222,128,0.15); }
     .stranger-camera.live-active { border-color:#ef4444; animation:livePulse 2s infinite; }
     #strangerFeed { width:100%;height:100%;object-fit:cover;display:none;background:#000;transform:rotateY(180deg);-webkit-transform:rotateY(180deg); }
     .stranger-placeholder { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:rgba(255,255,255,0.25); }
     .stranger-placeholder i { font-size:2.5rem; }
     .stranger-placeholder span { font-size:0.8rem; }
     .stranger-placeholder.searching-text { color:#fbbf24; }
+    
+    .stranger-info-overlay {
+      position:absolute;bottom:10px;left:10px;right:10px;
+      background:linear-gradient(135deg,rgba(0,0,0,0.7),rgba(0,0,0,0.4));
+      backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+      border-radius:10px;padding:8px 12px;
+      display:none;align-items:center;gap:8px;
+      border:1px solid rgba(255,255,255,0.15);
+    }
+    .stranger-info-overlay.visible { display:flex; }
+    .stranger-info-avatar {
+      width:28px;height:28px;border-radius:50%;
+      background:linear-gradient(135deg,#4ade80,#3b82f6);
+      display:flex;align-items:center;justify-content:center;
+      font-size:12px;color:#fff;font-weight:700;
+    }
+    .stranger-info-details {
+      flex:1;display:flex;flex-direction:column;gap:1px;
+    }
+    .stranger-info-name {
+      font-size:11px;font-weight:600;color:#fff;
+    }
+    .stranger-info-status {
+      font-size:9px;color:#4ade80;
+    }
     
     .you-section {
       width:35%;display:flex;flex-direction:column;gap:4px;align-items:flex-end;
@@ -122,6 +163,37 @@
     .token-btn.no-receiver {
       animation: shake 0.5s ease-in-out;
       border-color: rgba(239,68,68,0.8) !important;
+    }
+    
+    /* Premium token info section */
+    .token-info-panel {
+      width:100%;
+      background:linear-gradient(135deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02));
+      backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+      border-radius:12px;padding:8px 10px;
+      border:1px solid rgba(255,255,255,0.1);
+      margin-top:6px;
+      display:none;
+    }
+    .token-info-panel.visible { display:block; }
+    .token-info-title {
+      font-size:9px;color:#aaa;letter-spacing:1px;margin-bottom:6px;
+      display:flex;align-items:center;gap:4px;
+    }
+    .token-info-title i { font-size:8px;color:#f59e0b; }
+    .token-info-row {
+      display:flex;justify-content:space-between;align-items:center;
+      padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.05);
+    }
+    .token-info-row:last-child { border-bottom:none; }
+    .token-info-token {
+      display:flex;align-items:center;gap:4px;font-size:10px;color:#ccc;
+    }
+    .token-info-token .mini-emoji { font-size:12px; }
+    .token-info-count {
+      font-size:10px;font-weight:700;
+      background:rgba(255,255,255,0.1);
+      padding:1px 8px;border-radius:10px;
     }
     
     .gift-float { position:absolute;font-size:2rem;pointer-events:none;animation:giftFloat 1.5s ease-out forwards;z-index:50; }
@@ -352,10 +424,41 @@
     <div class="main-content">
       <div class="camera-area">
         <div class="stranger-section">
-          <span class="section-label">Stranger</span>
+          <span class="section-label" id="strangerLabel">
+            Stranger
+            <span class="username-badge" id="strangerUsername" style="display:none;"></span>
+            <span class="online-dot" id="strangerOnlineDot" style="display:none;"></span>
+          </span>
           <div class="stranger-camera" id="strangerCamera">
             <video id="strangerFeed" autoplay playsinline></video>
             <div class="stranger-placeholder" id="strangerPlaceholder"><i class="fas fa-user-secret"></i><span>???</span></div>
+            <div class="stranger-info-overlay" id="strangerInfoOverlay">
+              <div class="stranger-info-avatar" id="strangerAvatar">?</div>
+              <div class="stranger-info-details">
+                <span class="stranger-info-name" id="strangerInfoName">Unknown</span>
+                <span class="stranger-info-status">🟢 Connected</span>
+              </div>
+            </div>
+          </div>
+          <!-- Premium token info panel below stranger camera -->
+          <div class="token-info-panel" id="strangerTokenPanel">
+            <div class="token-info-title"><i class="fas fa-gem"></i> Stranger's Tokens</div>
+            <div class="token-info-row">
+              <span class="token-info-token"><span class="mini-emoji">🍗</span> Chicken</span>
+              <span class="token-info-count" id="strangerChickenCount" style="color:#f59e0b;">0</span>
+            </div>
+            <div class="token-info-row">
+              <span class="token-info-token"><span class="mini-emoji">🦁</span> Lion</span>
+              <span class="token-info-count" id="strangerLionCount" style="color:#ef4444;">0</span>
+            </div>
+            <div class="token-info-row">
+              <span class="token-info-token"><span class="mini-emoji">🐟</span> Fish</span>
+              <span class="token-info-count" id="strangerFishCount" style="color:#3b82f6;">0</span>
+            </div>
+            <div class="token-info-row">
+              <span class="token-info-token"><span class="mini-emoji">🏍️</span> Bike</span>
+              <span class="token-info-count" id="strangerBikeCount" style="color:#a855f7;">0</span>
+            </div>
           </div>
         </div>
         <div class="you-section">
@@ -431,7 +534,7 @@
   </script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, collection, addDoc, onSnapshot, getDocs, serverTimestamp, query, orderBy, increment } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, collection, addDoc, onSnapshot, getDocs, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
     
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
@@ -456,6 +559,14 @@
       bike: 0
     };
     
+    // Stranger's token balances
+    let strangerTokenBalances = {
+      chicken: 0,
+      lion: 0,
+      fish: 0,
+      bike: 0
+    };
+    
     const uid = localStorage.getItem('uid');
     const currentUser = localStorage.getItem('currentUser') || '@anonymous';
     
@@ -470,7 +581,6 @@
           tokenBalances.fish = walletData.fish || 0;
           tokenBalances.bike = walletData.bike || 0;
         } else {
-          // Initialize wallet if not exists
           await setDoc(doc(db, 'wallets', uid), {
             userId: uid,
             username: currentUser,
@@ -491,7 +601,6 @@
       }
     }
     
-    // Save wallet balances to Firestore
     async function saveWalletBalances() {
       try {
         await updateDoc(doc(db, 'wallets', uid), {
@@ -515,6 +624,41 @@
       document.getElementById('lionBtn').disabled = tokenBalances.lion <= 0;
       document.getElementById('fishBtn').disabled = tokenBalances.fish <= 0;
       document.getElementById('bikeBtn').disabled = tokenBalances.bike <= 0;
+    }
+    
+    function updateStrangerTokenDisplay() {
+      document.getElementById('strangerChickenCount').textContent = strangerTokenBalances.chicken;
+      document.getElementById('strangerLionCount').textContent = strangerTokenBalances.lion;
+      document.getElementById('strangerFishCount').textContent = strangerTokenBalances.fish;
+      document.getElementById('strangerBikeCount').textContent = strangerTokenBalances.bike;
+    }
+    
+    function showStrangerInfo(username) {
+      const badge = document.getElementById('strangerUsername');
+      const dot = document.getElementById('strangerOnlineDot');
+      const overlay = document.getElementById('strangerInfoOverlay');
+      const panel = document.getElementById('strangerTokenPanel');
+      const infoName = document.getElementById('strangerInfoName');
+      const avatar = document.getElementById('strangerAvatar');
+      
+      badge.textContent = username;
+      badge.style.display = 'inline-block';
+      dot.style.display = 'inline-block';
+      overlay.classList.add('visible');
+      panel.classList.add('visible');
+      
+      infoName.textContent = username;
+      avatar.textContent = username.charAt(0).toUpperCase();
+      
+      updateStrangerTokenDisplay();
+    }
+    
+    function hideStrangerInfo() {
+      document.getElementById('strangerUsername').style.display = 'none';
+      document.getElementById('strangerOnlineDot').style.display = 'none';
+      document.getElementById('strangerInfoOverlay').classList.remove('visible');
+      document.getElementById('strangerTokenPanel').classList.remove('visible');
+      strangerTokenBalances = { chicken: 0, lion: 0, fish: 0, bike: 0 };
     }
     
     function toggleChat() {
@@ -559,15 +703,13 @@
     let sendTokenToStrangerFn = null;
     let myId = null;
     let isConnectedToStranger = false;
+    let strangerUsername = '';
     
-    // Global handler for token send
     window.handleTokenSend = function(tokenType) {
       if (!isConnectedToStranger) {
-        // No receiver - show shake animation
         const btn = document.getElementById(tokenType + 'Btn');
         btn.classList.add('no-receiver');
         setTimeout(() => btn.classList.remove('no-receiver'), 500);
-        
         addChatMessage(`❌ No stranger connected! Cannot send ${tokenType}.`, true);
         return;
       }
@@ -577,12 +719,10 @@
         return;
       }
       
-      // Decrease local balance
       tokenBalances[tokenType]--;
       updateTokenDisplay();
-      saveWalletBalances(); // Save to Firestore
+      saveWalletBalances();
       
-      // Show floating animation
       const emojiMap = { chicken: '🍗', lion: '🦁', fish: '🐟', bike: '🏍️' };
       const emoji = emojiMap[tokenType];
       
@@ -595,12 +735,11 @@
       strangerCam.appendChild(float);
       setTimeout(() => float.remove(), 1500);
       
-      // Send token to stranger
       if (sendTokenToStrangerFn) {
         sendTokenToStrangerFn(emoji, tokenType);
       }
       
-      addChatMessage(`🎁 Sent ${emoji} ${tokenType.charAt(0).toUpperCase() + tokenType.slice(1)} (${tokenBalances[tokenType]} left in wallet)`, true);
+      addChatMessage(`🎁 Sent ${emoji} ${tokenType.charAt(0).toUpperCase() + tokenType.slice(1)} to ${strangerUsername} (${tokenBalances[tokenType]} left)`, true);
     };
     
     chatSendBtn.addEventListener('click', () => {
@@ -617,9 +756,7 @@
       }
     });
     
-    // Load wallet on start
     loadWalletBalances();
-    
     startWebChat();
     
     function startWebChat() {
@@ -667,6 +804,7 @@
           const tokenData = {
             sender: myId,
             senderUid: uid,
+            senderUsername: currentUser,
             emoji: emoji,
             tokenType: tokenType,
             timestamp: serverTimestamp(),
@@ -674,9 +812,7 @@
           };
           
           await addDoc(collection(db, 'rooms', roomId, 'tokens'), tokenData);
-          addChatMessage(`✅ Token sent to stranger successfully!`, false, '', true);
         } catch (e) {
-          // Refund if failed
           tokenBalances[tokenType]++;
           updateTokenDisplay();
           saveWalletBalances();
@@ -837,15 +973,19 @@
         strangerPlaceholder.classList.remove('searching-text');
         strangerCamera.classList.remove('connected','live-active');
         isConnectedToStranger = false;
+        strangerUsername = '';
+        hideStrangerInfo();
       }
       
-      function showConnected() {
+      function showConnected(username) {
         setButtonState('stop');
         nextBtn.classList.add('visible');
         micBtn.classList.add('visible');
         chatToggleBtn.classList.add('visible');
         isConnectedToStranger = true;
-        addChatMessage('🔗 Connected! You can now send tokens.', false, '', true);
+        strangerUsername = username || 'Stranger';
+        showStrangerInfo(strangerUsername);
+        addChatMessage(`🔗 Connected with ${strangerUsername}! You can now send tokens.`, false, '', true);
       }
       
       function showDisconnected() {
@@ -856,6 +996,8 @@
         chatToggleBtn.classList.remove('has-messages');
         pendingMessages = 0;
         isConnectedToStranger = false;
+        strangerUsername = '';
+        hideStrangerInfo();
       }
       
       function toggleMute() {
@@ -869,7 +1011,6 @@
         }
       }
       
-      // Listen for token transfers from stranger
       function listenForTokenTransfers() {
         if (tokenTransferUnsub) {
           tokenTransferUnsub();
@@ -886,18 +1027,22 @@
               if (change.type === 'added') {
                 const tokenData = change.doc.data();
                 
-                // If token is from stranger (not from me)
                 if (tokenData.sender !== myId) {
                   const tokenType = tokenData.tokenType;
                   if (tokenType && tokenBalances[tokenType] !== undefined) {
-                    // Add to my wallet
                     tokenBalances[tokenType]++;
                     updateTokenDisplay();
-                    saveWalletBalances(); // Save to Firestore
+                    saveWalletBalances();
                     
-                    addChatMessage(`🎁 Received ${tokenData.emoji} ${tokenType.charAt(0).toUpperCase() + tokenType.slice(1)} from stranger! Added to wallet. (${tokenBalances[tokenType]} total)`, false);
+                    // Update stranger's display balance (what they sent)
+                    if (strangerTokenBalances[tokenType] !== undefined) {
+                      strangerTokenBalances[tokenType]++;
+                      updateStrangerTokenDisplay();
+                    }
                     
-                    // Show floating animation on my camera
+                    const senderName = tokenData.senderUsername || 'Stranger';
+                    addChatMessage(`🎁 Received ${tokenData.emoji} ${tokenType.charAt(0).toUpperCase() + tokenType.slice(1)} from ${senderName}! Added to wallet. (${tokenBalances[tokenType]} total)`, false);
+                    
                     const myCam = document.getElementById('myCamera');
                     const float = document.createElement('span');
                     float.className = 'gift-float';
@@ -955,7 +1100,17 @@
       
       async function createRoom(oId, isCaller) {
         roomId = [myId, oId].sort().join('_');
-        showConnected();
+        
+        // Get stranger's username
+        let strangerUser = 'Stranger';
+        try {
+          const strangerDoc = await getDoc(doc(db, 'wallets', oId.replace('id_', '').split('_')[0]));
+          if (strangerDoc.exists()) {
+            strangerUser = strangerDoc.data().username || 'Stranger';
+          }
+        } catch(e) {}
+        
+        showConnected(strangerUser);
         
         if (pc) {
           pc.close();
@@ -1002,6 +1157,7 @@
           await pc.setLocalDescription(offer);
           await setDoc(doc(db,'invites',oId), {
             from: myId,
+            fromUsername: currentUser,
             offer: {type: offer.type, sdp: offer.sdp}
           });
           unsubs.push(onSnapshot(doc(db,'invites',oId), async (snap) => {
@@ -1022,7 +1178,9 @@
           const d = snap.data();
           await deleteDoc(doc(db,'waiting',myId)).catch(() => {});
           roomId = [myId, d.from].sort().join('_');
-          showConnected();
+          
+          const strangerUser = d.fromUsername || 'Stranger';
+          showConnected(strangerUser);
           
           if (pc) {
             pc.close();
@@ -1059,6 +1217,7 @@
             const answer = await pc.createAnswer();
             await pc.setLocalDescription(answer);
             await setDoc(doc(db,'invites',myId), {
+              fromUsername: currentUser,
               answer: {type: answer.type, sdp: answer.sdp}
             }, {merge: true});
           }
@@ -1104,7 +1263,7 @@
           await deleteDoc(doc(db,'waiting',found)).catch(() => {});
           await createRoom(found, true);
         } else {
-          await setDoc(doc(db,'waiting',myId), {userId: myId});
+          await setDoc(doc(db,'waiting',myId), {userId: myId, username: currentUser});
           listenForInvites();
         }
       }
@@ -1158,12 +1317,10 @@
         chatMessages.innerHTML = '';
         chatBox.classList.add('hidden');
         chatVisible = false;
-        
-        addChatMessage('Disconnected. Tokens saved to wallet.', false, '', true);
       }
       
       window.addEventListener('beforeunload', () => {
-        saveWalletBalances(); // Save wallet on exit
+        saveWalletBalances();
         if (isLive) endLive().catch(() => {});
         if (pc) pc.close();
         if (localStream) localStream.getTracks().forEach(t => t.stop());

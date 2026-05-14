@@ -16,13 +16,12 @@
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
     @keyframes giftFloat { 0%{transform:translateY(0) scale(1);opacity:1} 100%{transform:translateY(-60px) scale(1.3);opacity:0} }
     
-    /* ✅ Glass effect for top icons */
     .top-left-icon {
-      position:fixed;top:max(1rem,env(safe-area-inset-top,1rem));left:max(1rem,env(safe-area-inset-left,1rem));z-index:200;
-      width:2.4rem;height:2.4rem;
+      position:fixed;top:max(0.8rem,env(safe-area-inset-top,0.8rem));left:max(0.8rem,env(safe-area-inset-left,0.8rem));z-index:200;
+      width:2.2rem;height:2.2rem;
       background: rgba(239, 68, 68, 0.15);
       backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-      border-radius:50%;color:#ef4444;font-size:1rem;
+      border-radius:50%;color:#ef4444;font-size:0.9rem;
       display:flex;align-items:center;justify-content:center;
       text-decoration:none;
       border:1px solid rgba(239, 68, 68, 0.25);
@@ -33,11 +32,11 @@
     .top-left-icon:hover { background:rgba(239,68,68,0.3); border-color: rgba(239,68,68,0.5); }
     
     .top-right-icon {
-      position:fixed;top:max(1rem,env(safe-area-inset-top,1rem));right:max(1rem,env(safe-area-inset-right,1rem));z-index:200;
-      width:2.4rem;height:2.4rem;
+      position:fixed;top:max(0.8rem,env(safe-area-inset-top,0.8rem));right:max(0.8rem,env(safe-area-inset-right,0.8rem));z-index:200;
+      width:2.2rem;height:2.2rem;
       background: rgba(255, 255, 255, 0.08);
       backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-      border-radius:50%;color:#4ade80;font-size:1rem;
+      border-radius:50%;color:#4ade80;font-size:0.9rem;
       display:flex;align-items:center;justify-content:center;
       text-decoration:none;
       border:1px solid rgba(74, 222, 128, 0.3);
@@ -47,40 +46,40 @@
     }
     .top-right-icon:hover { background:rgba(74,222,128,0.2); border-color: rgba(74,222,128,0.5); }
     
-    /* Main content area */
     .main-content {
-      flex:1;display:flex;flex-direction:column;padding:3.5rem 1.2rem 1rem 1.2rem;position:relative;
-      gap:8px;
+      flex:1;display:flex;flex-direction:column;
+      padding:3rem 0.8rem 0.8rem 0.8rem;
+      position:relative;
+      gap:6px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
     
-    /* Glass Labels */
     .section-label {
-      font-size:13px;font-weight:600;color:rgba(255,255,255,0.5);
-      letter-spacing:1.2px;
+      font-size:11px;font-weight:600;color:rgba(255,255,255,0.5);
+      letter-spacing:1px;
       background: rgba(255,255,255,0.05);
       backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-      padding: 4px 12px;
-      border-radius: 20px;
+      padding: 3px 10px;
+      border-radius: 16px;
       display: inline-block;
       margin-bottom: 2px;
       border: 1px solid rgba(255,255,255,0.1);
     }
     
-    /* Camera area wrapper */
     .camera-area {
-      display:flex;gap:8px;align-items:flex-start;
+      display:flex;gap:6px;align-items:flex-start;
     }
     
-    /* Glass Camera Containers */
     .stranger-section {
-      width:60%;display:flex;flex-direction:column;gap:4px;
+      width:58%;display:flex;flex-direction:column;gap:3px;
     }
     .stranger-camera {
-      width:100%;height:55vh;
+      width:100%;height:50vh;
       background: rgba(20, 20, 20, 0.4);
       backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
       border:1.5px solid rgba(255, 255, 255, 0.15);
-      border-radius:20px;
+      border-radius:16px;
       position:relative;overflow:hidden;
       display:flex;align-items:center;justify-content:center;
       box-shadow: 0 15px 35px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.4);
@@ -97,32 +96,32 @@
       position: absolute;
       top: 0;
       left: 0;
+      border-radius: 15px;
     }
     
     .stranger-placeholder { 
-      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
       color:rgba(255,255,255,0.3);
       background: rgba(0,0,0,0.2);
       backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-      padding: 12px 24px;
-      border-radius: 30px;
+      padding: 10px 20px;
+      border-radius: 25px;
       position: relative;
       z-index: 2;
     }
-    .stranger-placeholder i { font-size:2.5rem; }
-    .stranger-placeholder span { font-size:0.8rem; font-weight: 500; }
+    .stranger-placeholder i { font-size:2rem; }
+    .stranger-placeholder span { font-size:0.7rem; font-weight: 500; }
     .stranger-placeholder.searching-text { color:#fbbf24; background: rgba(251,191,36,0.1); }
     
-    /* You camera glass */
     .you-section {
-      width:35%;display:flex;flex-direction:column;gap:4px;align-items:flex-end;
+      width:38%;display:flex;flex-direction:column;gap:3px;align-items:flex-end;
     }
     .my-camera {
-      width:100%;height:28vh;
+      width:100%;height:24vh;
       background: rgba(20, 20, 20, 0.4);
       backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
       border:1.5px solid rgba(255, 255, 255, 0.2);
-      border-radius:20px;
+      border-radius:16px;
       position:relative;overflow:hidden;
       display:flex;align-items:center;justify-content:center;
       box-shadow: 0 15px 35px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.4);
@@ -138,37 +137,37 @@
       position: absolute;
       top: 0;
       left: 0;
+      border-radius: 15px;
     }
     
     .my-placeholder { 
-      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
       color:rgba(255,255,255,0.4);
       background: rgba(0,0,0,0.2);
       backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-      padding: 8px 18px;
-      border-radius: 30px;
-      font-size:0.65rem;
+      padding: 6px 14px;
+      border-radius: 25px;
+      font-size:0.6rem;
       position: relative;
       z-index: 2;
     }
-    .my-placeholder i { font-size:1.2rem; }
+    .my-placeholder i { font-size:1rem; }
     
-    /* Glass Token buttons - MOBILE: vertical stack */
     .token-stack {
-      display:flex;flex-direction:column;gap:10px;align-items:flex-end;margin-top:4px;
+      display:flex;flex-direction:column;gap:6px;align-items:flex-end;margin-top:3px;
     }
     .token-btn {
-      width:90px;height:32px;border-radius:20px;
+      width:75px;height:28px;border-radius:18px;
       border:1px solid rgba(255, 255, 255, 0.15);
       background: rgba(0, 0, 0, 0.35);
       backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-      cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;
-      font-size:0.7rem;font-weight:600;transition:all 0.25s;color:#fff;padding:0 10px;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;
+      font-size:0.6rem;font-weight:600;transition:all 0.25s;color:#fff;padding:0 8px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     }
     .token-btn:active { transform:scale(0.9); background: rgba(255,255,255,0.15); }
-    .token-btn .token-emoji { font-size:0.9rem;line-height:1; filter: drop-shadow(0 2px 3px black); }
-    .token-btn .token-label { font-size:0.6rem;font-weight:700; letter-spacing:0.3px; }
+    .token-btn .token-emoji { font-size:0.8rem;line-height:1; filter: drop-shadow(0 2px 3px black); }
+    .token-btn .token-label { font-size:0.55rem;font-weight:700; letter-spacing:0.3px; }
     .token-btn.token-chicken { border-color:rgba(245,158,11,0.5); background:rgba(245,158,11,0.15); backdrop-filter: blur(12px); }
     .token-btn.token-chicken .token-label { color:#f59e0b; }
     .token-btn.token-lion { border-color:rgba(239,68,68,0.5); background:rgba(239,68,68,0.15); backdrop-filter: blur(12px); }
@@ -178,18 +177,17 @@
     .token-btn.token-bike { border-color:rgba(168,85,247,0.5); background:rgba(168,85,247,0.15); backdrop-filter: blur(12px); }
     .token-btn.token-bike .token-label { color:#a855f7; }
     
-    .gift-float { position:absolute;font-size:2rem;pointer-events:none;animation:giftFloat 1.5s ease-out forwards;z-index:50; filter: drop-shadow(0 0 8px white); }
+    .gift-float { position:absolute;font-size:1.8rem;pointer-events:none;animation:giftFloat 1.5s ease-out forwards;z-index:50; filter: drop-shadow(0 0 8px white); }
     
-    /* Glass Control buttons */
     .control-row {
-      display:flex;gap:12px;align-items:center; margin-top: 6px;
+      display:flex;gap:8px;align-items:center; margin-top: 4px; flex-wrap: wrap;
     }
     .ctrl-btn {
-      width:80px;height:36px;border-radius:22px;
-      display:inline-flex;align-items:center;justify-content:center;gap:5px;
+      width:65px;height:30px;border-radius:18px;
+      display:inline-flex;align-items:center;justify-content:center;gap:4px;
       cursor:pointer;border:1px solid rgba(255, 255, 255, 0.2);
       outline:none;
-      font-size:0.7rem;font-weight:600;padding:0;color:#fff;
+      font-size:0.6rem;font-weight:600;padding:0;color:#fff;
       background: rgba(0, 0, 0, 0.4);
       backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
       transition:all 0.3s; -webkit-tap-highlight-color:transparent;
@@ -202,10 +200,10 @@
     .start-btn { border-color:rgba(74,222,128,0.4); color:#4ade80; }
     .start-btn.stop-state { border-color:rgba(239,68,68,0.5); color:#ef4444; background: rgba(239,68,68,0.15); }
     
-    .next-btn { display:none;width:60px;height:36px;border-radius:22px; background:rgba(255,255,255,0.05); border-color:rgba(255,255,255,0.2); color:#ccc; backdrop-filter: blur(14px); }
-    .next-btn.visible { display:inline-flex;align-items:center;justify-content:center;gap:4px;cursor:pointer;border:1px solid rgba(255,255,255,0.2);outline:none;font-size:0.7rem;font-weight:600; }
-    .mic-btn { display:none;width:36px;height:36px;border-radius:50%; background:rgba(255,255,255,0.05); border-color:rgba(255,255,255,0.2); color:#4ade80; backdrop-filter: blur(14px); }
-    .mic-btn.visible { display:inline-flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid rgba(255,255,255,0.2);outline:none;font-size:0.8rem; }
+    .next-btn { display:none;width:55px;height:30px;border-radius:18px; background:rgba(255,255,255,0.05); border-color:rgba(255,255,255,0.2); color:#ccc; backdrop-filter: blur(14px); }
+    .next-btn.visible { display:inline-flex;align-items:center;justify-content:center;gap:3px;cursor:pointer;border:1px solid rgba(255,255,255,0.2);outline:none;font-size:0.6rem;font-weight:600; }
+    .mic-btn { display:none;width:30px;height:30px;border-radius:50%; background:rgba(255,255,255,0.05); border-color:rgba(255,255,255,0.2); color:#4ade80; backdrop-filter: blur(14px); }
+    .mic-btn.visible { display:inline-flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid rgba(255,255,255,0.2);outline:none;font-size:0.7rem; }
     .mic-btn.muted { color:#ef4444; background:rgba(239,68,68,0.2); border-color:rgba(239,68,68,0.5); }
 
     .https-warning { display:none;background:rgba(239,68,68,0.8); backdrop-filter: blur(10px); color:#fff;text-align:center;padding:4px;font-size:0.55rem;font-weight:600;z-index:200;width:100%; }
@@ -214,41 +212,104 @@
     .loading-screen i { font-size:2rem;color:#3897f0;animation:spin 1s infinite; }
     .loading-screen span { font-size:0.75rem;color:#ccc; }
 
-    /* Glass Navbar */
     .floating-nav { 
-      position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));
-      left:50%;transform:translateX(-50%);width:92%;max-width:500px;
+      position:fixed;bottom:max(0.7rem,env(safe-area-inset-bottom,0.7rem));
+      left:50%;transform:translateX(-50%);width:94%;max-width:450px;
       background: rgba(10, 10, 10, 0.25);
       backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-      border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;
+      border-radius:2.2rem;padding:0.5rem 1rem;display:flex;align-items:center;justify-content:center;
       border:1px solid rgba(255, 255, 255, 0.1);z-index:100;
       box-shadow:0 10px 30px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.08);
       transition:all 0.3s ease;
     }
     .floating-nav:hover { background:rgba(10,10,10,0.35); }
-    .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
+    .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:340px;gap:0.2rem; }
     .nav-center a { 
-      color:rgba(255,255,255,0.7);font-size:1.3rem;display:flex;align-items:center;justify-content:center;
-      width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);text-decoration:none;position:relative;
+      color:rgba(255,255,255,0.7);font-size:1.1rem;display:flex;align-items:center;justify-content:center;
+      width:2rem;height:2rem;border-radius:50%;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);text-decoration:none;position:relative;
       background: transparent;
     }
     .nav-center a:hover { color:#fff; background:rgba(255,255,255,0.2); backdrop-filter: blur(8px); transform:translateY(-2px); }
-    .nav-center a::before { content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:4px;height:4px;border-radius:50%;background:#fff;transition:all 0.3s; }
+    .nav-center a::before { content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:3px;height:3px;border-radius:50%;background:#fff;transition:all 0.3s; }
     .nav-center a.active::before { transform:translateX(-50%) scale(1); }
     .nav-center a.active { color:#fff; background:rgba(255,255,255,0.25); backdrop-filter: blur(10px); box-shadow:0 0 20px rgba(255,255,255,0.2); }
     .nav-upload,.nav-search { display:none !important; }
 
-    /* 📱 MOBILE STYLES - NO CHANGE */
-    @media (max-width:1023px) {
-      /* Keep all mobile styles exactly as they were */
+    /* 📱 SMALL PHONES (320px - 374px) */
+    @media (max-width: 374px) {
+      .main-content { padding: 2.5rem 0.5rem 0.5rem 0.5rem; gap: 4px; }
+      .section-label { font-size: 10px; padding: 2px 8px; }
+      .camera-area { gap: 4px; }
+      .stranger-camera { height: 42vh; border-radius: 12px; }
+      .my-camera { height: 20vh; border-radius: 12px; }
+      .stranger-placeholder i { font-size: 1.5rem; }
+      .stranger-placeholder span { font-size: 0.65rem; }
+      .my-placeholder { padding: 4px 10px; font-size: 0.55rem; }
+      .token-btn { width: 62px; height: 24px; font-size: 0.55rem; gap: 3px; }
+      .token-btn .token-emoji { font-size: 0.7rem; }
+      .token-btn .token-label { font-size: 0.5rem; }
+      .ctrl-btn { width: 55px; height: 26px; font-size: 0.55rem; }
+      .next-btn { width: 48px; height: 26px; }
+      .mic-btn { width: 26px; height: 26px; }
+      .floating-nav { width: 96%; padding: 0.4rem 0.6rem; border-radius: 2rem; }
+      .nav-center a { font-size: 1rem; width: 1.8rem; height: 1.8rem; }
+      .top-left-icon, .top-right-icon { width: 1.8rem; height: 1.8rem; font-size: 0.8rem; }
+    }
+
+    /* 📱 MEDIUM PHONES (375px - 429px) */
+    @media (min-width: 375px) and (max-width: 429px) {
+      .main-content { padding: 2.8rem 0.6rem 0.6rem 0.6rem; }
+      .stranger-camera { height: 46vh; }
+      .my-camera { height: 22vh; }
+      .token-btn { width: 68px; height: 26px; }
+      .ctrl-btn { width: 60px; height: 28px; }
+      .floating-nav { width: 94%; padding: 0.5rem 1rem; }
+      .nav-center a { font-size: 1.05rem; width: 1.9rem; height: 1.9rem; }
+    }
+
+    /* 📱 LARGE PHONES (430px+) */
+    @media (min-width: 430px) and (max-width: 767px) {
+      .main-content { padding: 3.2rem 1rem 0.8rem 1rem; gap: 8px; }
+      .section-label { font-size: 12px; }
+      .stranger-camera { height: 52vh; border-radius: 18px; }
+      .my-camera { height: 26vh; border-radius: 18px; }
+      .stranger-placeholder i { font-size: 2.2rem; }
+      .token-btn { width: 85px; height: 30px; font-size: 0.65rem; }
+      .token-btn .token-emoji { font-size: 0.85rem; }
+      .token-btn .token-label { font-size: 0.58rem; }
+      .ctrl-btn { width: 75px; height: 32px; font-size: 0.65rem; }
+      .next-btn { width: 58px; height: 32px; }
+      .mic-btn { width: 32px; height: 32px; }
+      .floating-nav { padding: 0.6rem 1.3rem; border-radius: 2.4rem; }
+      .nav-center a { font-size: 1.2rem; width: 2.2rem; height: 2.2rem; }
+      .top-left-icon, .top-right-icon { width: 2.3rem; height: 2.3rem; font-size: 0.95rem; }
+    }
+
+    /* 📱 TABLETS (768px - 1023px) */
+    @media (min-width: 768px) and (max-width: 1023px) {
+      .main-content { padding: 3.5rem 1.5rem 1rem 1.5rem; gap: 10px; max-width: 700px; margin: 0 auto; }
+      .section-label { font-size: 13px; }
+      .camera-area { gap: 10px; }
+      .stranger-section { width: 55%; }
+      .stranger-camera { height: 50vh; border-radius: 20px; }
+      .you-section { width: 42%; }
+      .my-camera { height: 28vh; border-radius: 20px; }
+      .token-btn { width: 90px; height: 32px; font-size: 0.7rem; }
+      .token-btn .token-emoji { font-size: 0.9rem; }
+      .token-btn .token-label { font-size: 0.6rem; }
+      .ctrl-btn { width: 80px; height: 34px; font-size: 0.7rem; }
+      .next-btn { width: 60px; height: 34px; }
+      .mic-btn { width: 34px; height: 34px; font-size: 0.8rem; }
+      .floating-nav { width: 90%; max-width: 500px; padding: 0.7rem 1.5rem; }
+      .nav-center a { font-size: 1.3rem; width: 2.5rem; height: 2.5rem; }
+      .top-left-icon, .top-right-icon { width: 2.4rem; height: 2.4rem; font-size: 1rem; }
     }
     
-    /* 💻 DESKTOP STYLES - ADJUSTED */
-    @media (min-width:1024px) {
+    /* 💻 DESKTOP */
+    @media (min-width: 1024px) {
       .nav-upload,.nav-search { display:flex !important; }
       .top-left-icon,.top-right-icon { display:none !important; }
       
-      /* Side navbar */
       .floating-nav {
         position:fixed;top:50%;left:1.5rem;bottom:auto;
         transform:translateY(-50%);width:3.8rem;height:auto;
@@ -270,7 +331,6 @@
         padding: 3.5rem 2rem 1rem 2rem;
       }
       
-      /* ✅ DESKTOP: Camera area - stranger and you SAME SIZE */
       .camera-area {
         gap: 20px;
         justify-content: center;
@@ -293,7 +353,6 @@
         height: 50vh;
       }
       
-      /* ✅ DESKTOP: Token buttons in a ROW below You camera */
       .token-stack {
         flex-direction: row;
         gap: 12px;
@@ -309,7 +368,6 @@
         padding: 0 14px;
       }
       
-      /* ✅ DESKTOP: Control row with Live, Start, Next, Mic in same line as token buttons */
       .control-row {
         margin-top: 16px;
         justify-content: center;
@@ -334,15 +392,6 @@
       .section-label {
         font-size: 14px;
       }
-    }
-    
-    @media (max-width:380px) {
-      .token-btn{width:75px;height:28px;font-size:0.6rem;}
-      .token-btn .token-emoji{font-size:0.75rem;}.token-btn .token-label{font-size:0.55rem;}
-      .ctrl-btn{width:65px;height:30px;font-size:0.6rem;}
-      .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:max(0.8rem,env(safe-area-inset-bottom,0.8rem));background:rgba(10,10,10,0.25);}
-      .nav-center a{font-size:1.1rem;width:2rem;height:2rem}
-      .top-left-icon,.top-right-icon{width:2rem;height:2rem;font-size:0.9rem;}
     }
   </style>
 </head>

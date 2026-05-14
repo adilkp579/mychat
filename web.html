@@ -3,189 +3,425 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>Web • Live Chat</title>
+  <title>Web • Live Chat — Premium Glass</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     * { margin:0;padding:0;box-sizing:border-box; }
-    body { background:#000;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;overscroll-behavior:none;overflow:hidden; }
-    .page { width:100%;height:100vh;height:100dvh;background:#000;display:flex;flex-direction:column;position:relative;overflow:hidden; }
     
+    /* ========== PREMIUM GLASS THEME ========== */
+    :root {
+      --glass-bg: rgba(20, 25, 45, 0.45);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --glass-highlight: rgba(255, 255, 255, 0.05);
+      --neon-purple: #a855f7;
+      --neon-cyan: #06b6d4;
+      --neon-green: #4ade80;
+      --neon-red: #ef4444;
+      --neon-orange: #f59e0b;
+      --neon-blue: #3b82f6;
+    }
+    
+    body { 
+      background: radial-gradient(ellipse at 20% 30%, #0a0f2a, #03060f);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overscroll-behavior: none;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    /* Animated background gradient */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 70% 40%, rgba(168,85,247,0.15) 0%, transparent 50%),
+                  radial-gradient(circle at 20% 80%, rgba(6,182,212,0.1) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    .page { 
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(2px);
+    }
+    
+    /* Animations */
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
-    @keyframes livePulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.7)} 50%{box-shadow:0 0 0 10px rgba(239,68,68,0)} }
+    @keyframes pulse { 0%,100%{opacity:1; box-shadow:0 0 0 0 rgba(168,85,247,0.6)} 50%{opacity:0.8; box-shadow:0 0 0 12px rgba(168,85,247,0)} }
+    @keyframes livePulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.7)} 50%{box-shadow:0 0 0 15px rgba(239,68,68,0)} }
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-    @keyframes giftFloat { 0%{transform:translateY(0) scale(1);opacity:1} 100%{transform:translateY(-60px) scale(1.3);opacity:0} }
-    
-    /* ✅ Top icons - Profile page style: 2.4rem (38px) circles, max(1rem) from edges */
-    .top-left-icon {
-      position:fixed;top:max(1rem,env(safe-area-inset-top,1rem));left:max(1rem,env(safe-area-inset-left,1rem));z-index:200;
-      width:2.4rem;height:2.4rem;
-      background:rgba(239,68,68,0.2);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-      border-radius:50%;color:#ef4444;font-size:1rem;
-      display:flex;align-items:center;justify-content:center;
-      text-decoration:none;border:1px solid rgba(239,68,68,0.3);cursor:pointer;animation:pulse 2s infinite;
+    @keyframes giftFloat { 0%{transform:translateY(0) scale(1);opacity:1} 100%{transform:translateY(-70px) scale(1.4);opacity:0} }
+    @keyframes glassShine {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
     }
-    .top-left-icon:hover { background:rgba(239,68,68,0.35); }
     
-    .top-right-icon {
-      position:fixed;top:max(1rem,env(safe-area-inset-top,1rem));right:max(1rem,env(safe-area-inset-right,1rem));z-index:200;
-      width:2.4rem;height:2.4rem;
-      background:rgba(255,255,255,0.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-      border-radius:50%;color:#4ade80;font-size:1rem;
-      display:flex;align-items:center;justify-content:center;
-      text-decoration:none;border:1px solid rgba(74,222,128,0.3);cursor:pointer;
+    /* Premium Glass Top Icons */
+    .top-left-icon, .top-right-icon {
+      position: fixed;
+      top: max(1.2rem, env(safe-area-inset-top, 1.2rem));
+      width: 2.6rem;
+      height: 2.6rem;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+      transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+      cursor: pointer;
+      z-index: 200;
     }
-    .top-right-icon:hover { background:rgba(74,222,128,0.2); }
+    .top-left-icon { left: max(1rem, env(safe-area-inset-left, 1rem)); color: var(--neon-red); }
+    .top-right-icon { right: max(1rem, env(safe-area-inset-right, 1rem)); color: var(--neon-green); }
+    .top-left-icon:hover, .top-right-icon:hover {
+      transform: scale(1.08);
+      border-color: rgba(255,255,255,0.3);
+      box-shadow: 0 0 20px rgba(168,85,247,0.4);
+    }
     
-    /* Main content area */
+    /* Main Content Premium */
     .main-content {
-      flex:1;display:flex;flex-direction:column;padding:3.5rem 1.2rem 1rem 1.2rem;position:relative;
-      gap:8px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 4rem 1.2rem 1.2rem 1.2rem;
+      gap: 14px;
+      position: relative;
+      z-index: 2;
     }
     
-    /* Labels */
     .section-label {
-      font-size:14px;font-weight:600;color:#aaa;letter-spacing:1px;
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.7);
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      backdrop-filter: blur(4px);
+      display: inline-block;
+      width: fit-content;
     }
     
-    /* Camera area wrapper */
+    /* Camera Area Glass Effect */
     .camera-area {
-      display:flex;gap:8px;align-items:flex-start;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
     }
     
-    /* Stranger camera - 60% width, 55vh height */
-    .stranger-section {
-      width:60%;display:flex;flex-direction:column;gap:4px;
-    }
+    .stranger-section { width: 60%; display: flex; flex-direction: column; gap: 6px; }
     .stranger-camera {
-      width:100%;height:55vh;background:#111;
-      border:2px solid rgba(255,255,255,0.2);border-radius:14px;
-      position:relative;overflow:hidden;
-      display:flex;align-items:center;justify-content:center;
+      width: 100%;
+      height: 55vh;
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border: 1px solid var(--glass-border);
+      border-radius: 28px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
+      transition: all 0.3s ease;
     }
-    .stranger-camera.connected { border-color:#4ade80; }
-    .stranger-camera.live-active { border-color:#ef4444; animation:livePulse 2s infinite; }
-    #strangerFeed { width:100%;height:100%;object-fit:cover;display:none;background:#000;transform:rotateY(180deg);-webkit-transform:rotateY(180deg); }
-    .stranger-placeholder { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:rgba(255,255,255,0.25); }
-    .stranger-placeholder i { font-size:2.5rem; }
-    .stranger-placeholder span { font-size:0.8rem; }
-    .stranger-placeholder.searching-text { color:#fbbf24; }
+    .stranger-camera::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+      transition: left 0.6s;
+      pointer-events: none;
+    }
+    .stranger-camera:hover::before { left: 100%; }
+    .stranger-camera.connected { border-color: var(--neon-green); box-shadow: 0 0 30px rgba(74,222,128,0.3); }
+    .stranger-camera.live-active { border-color: var(--neon-red); animation: livePulse 2s infinite; }
     
-    /* You camera - 35% width, 28vh height, aligned top-right */
-    .you-section {
-      width:35%;display:flex;flex-direction:column;gap:4px;align-items:flex-end;
-    }
+    .you-section { width: 35%; display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
     .my-camera {
-      width:100%;height:28vh;background:#111;
-      border:2px solid rgba(255,255,255,0.3);border-radius:14px;
-      position:relative;overflow:hidden;
-      display:flex;align-items:center;justify-content:center;
+      width: 100%;
+      height: 28vh;
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+      transition: all 0.3s;
     }
-    .my-camera.active { border-color:#ef4444; }
-    #myFeed { width:100%;height:100%;object-fit:cover;display:none;background:#000;transform:rotateY(180deg);-webkit-transform:rotateY(180deg); }
-    .my-placeholder { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:rgba(255,255,255,0.35);font-size:0.6rem; }
-    .my-placeholder i { font-size:1.2rem; }
+    .my-camera.active { border-color: var(--neon-red); box-shadow: 0 0 25px rgba(239,68,68,0.3); }
     
-    /* Token buttons */
+    #strangerFeed, #myFeed {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+      background: #000;
+      transform: rotateY(180deg);
+      border-radius: inherit;
+    }
+    
+    .stranger-placeholder, .my-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: rgba(255,255,255,0.4);
+      font-weight: 500;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    .stranger-placeholder i { font-size: 2.8rem; opacity: 0.7; }
+    .my-placeholder i { font-size: 1.5rem; }
+    .stranger-placeholder.searching-text { color: var(--neon-orange); }
+    
+    /* Token Stack Premium Glass Pills */
     .token-stack {
-      display:flex;flex-direction:column;gap:10px;align-items:flex-end;margin-top:4px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: flex-end;
+      margin-top: 8px;
     }
     .token-btn {
-      width:90px;height:32px;border-radius:8px;
-      border:1.5px solid rgba(255,255,255,0.15);
-      background:rgba(0,0,0,0.5);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-      cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;
-      font-size:0.7rem;font-weight:600;transition:all 0.2s;color:#fff;padding:0 8px;
+      width: 95px;
+      height: 38px;
+      border-radius: 40px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      transition: all 0.25s ease;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      position: relative;
+      overflow: hidden;
     }
-    .token-btn:active { transform:scale(0.9); }
-    .token-btn .token-emoji { font-size:0.85rem;line-height:1; }
-    .token-btn .token-label { font-size:0.6rem;font-weight:700; }
-    .token-btn.token-chicken { border-color:rgba(245,158,11,0.5);background:rgba(245,158,11,0.15); }
-    .token-btn.token-chicken .token-label { color:#f59e0b; }
-    .token-btn.token-lion { border-color:rgba(239,68,68,0.5);background:rgba(239,68,68,0.15); }
-    .token-btn.token-lion .token-label { color:#ef4444; }
-    .token-btn.token-fish { border-color:rgba(59,130,246,0.5);background:rgba(59,130,246,0.15); }
-    .token-btn.token-fish .token-label { color:#3b82f6; }
-    .token-btn.token-bike { border-color:rgba(168,85,247,0.5);background:rgba(168,85,247,0.15); }
-    .token-btn.token-bike .token-label { color:#a855f7; }
+    .token-btn::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.15), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.4s;
+    }
+    .token-btn:hover::after { transform: translateX(100%); }
+    .token-btn:active { transform: scale(0.94); }
+    .token-emoji { font-size: 1rem; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3)); }
+    .token-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; }
+    .token-chicken { border-color: rgba(245,158,11,0.6); box-shadow: 0 0 12px rgba(245,158,11,0.3); }
+    .token-chicken .token-label { color: #f59e0b; }
+    .token-lion { border-color: rgba(239,68,68,0.6); box-shadow: 0 0 12px rgba(239,68,68,0.3); }
+    .token-lion .token-label { color: #ef4444; }
+    .token-fish { border-color: rgba(59,130,246,0.6); box-shadow: 0 0 12px rgba(59,130,246,0.3); }
+    .token-fish .token-label { color: #3b82f6; }
+    .token-bike { border-color: rgba(168,85,247,0.6); box-shadow: 0 0 12px rgba(168,85,247,0.3); }
+    .token-bike .token-label { color: #a855f7; }
     
-    .gift-float { position:absolute;font-size:2rem;pointer-events:none;animation:giftFloat 1.5s ease-out forwards;z-index:50; }
+    .gift-float {
+      position: absolute;
+      font-size: 2.2rem;
+      pointer-events: none;
+      animation: giftFloat 1.2s ease-out forwards;
+      z-index: 60;
+      filter: drop-shadow(0 0 8px rgba(255,255,255,0.5));
+    }
     
-    /* Control buttons */
+    /* Control Buttons Premium */
     .control-row {
-      display:flex;gap:12px;align-items:center;
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      margin-top: 6px;
     }
     .ctrl-btn {
-      width:80px;height:34px;border-radius:17px;
-      display:inline-flex;align-items:center;justify-content:center;gap:4px;
-      cursor:pointer;border:1px solid transparent;outline:none;
-      font-size:0.7rem;font-weight:600;padding:0;color:#fff;
-      transition:all 0.3s;-webkit-tap-highlight-color:transparent;
-      touch-action:manipulation;user-select:none;-webkit-user-select:none;
+      height: 42px;
+      padding: 0 20px;
+      border-radius: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #fff;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      transition: all 0.25s ease;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.25);
     }
-    .ctrl-btn:active { transform:scale(0.95); }
-    .live-btn { background:rgba(74,222,128,0.2);border-color:rgba(74,222,128,0.5);color:#4ade80; }
-    .live-btn.active { background:rgba(239,68,68,0.3);border-color:rgba(239,68,68,0.7);color:#ef4444;animation:livePulse 2s infinite; }
-    .start-btn { background:rgba(74,222,128,0.2);border-color:rgba(74,222,128,0.5);color:#4ade80; }
-    .start-btn.stop-state { background:rgba(239,68,68,0.2);border-color:rgba(239,68,68,0.5);color:#ef4444; }
+    .ctrl-btn:active { transform: scale(0.95); }
+    .live-btn { color: var(--neon-green); border-color: rgba(74,222,128,0.5); }
+    .live-btn.active { background: rgba(239,68,68,0.25); color: var(--neon-red); border-color: var(--neon-red); animation: livePulse 2s infinite; }
+    .start-btn { color: var(--neon-green); }
+    .start-btn.stop-state { color: var(--neon-red); background: rgba(239,68,68,0.15); border-color: var(--neon-red); }
+    .next-btn { display: none; }
+    .next-btn.visible { display: inline-flex; background: var(--glass-bg); }
+    .mic-btn { display: none; width: 42px; padding: 0; border-radius: 42px; justify-content: center; }
+    .mic-btn.visible { display: inline-flex; }
+    .mic-btn.muted { color: var(--neon-red); background: rgba(239,68,68,0.2); border-color: var(--neon-red); }
     
-    .next-btn { display:none;width:60px;height:34px;border-radius:17px;background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);color:#ccc; }
-    .next-btn.visible { display:inline-flex;align-items:center;justify-content:center;gap:4px;cursor:pointer;border:1px solid rgba(255,255,255,0.2);outline:none;font-size:0.7rem;font-weight:600; }
-    .mic-btn { display:none;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);color:#4ade80; }
-    .mic-btn.visible { display:inline-flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid rgba(255,255,255,0.2);outline:none;font-size:0.8rem; }
-    .mic-btn.muted { color:#ef4444;background:rgba(239,68,68,0.2);border-color:rgba(239,68,68,0.5); }
-
-    .https-warning { display:none;background:#ef4444;color:#fff;text-align:center;padding:4px;font-size:0.55rem;font-weight:600;z-index:200;width:100%; }
-    .https-warning.show { display:block; }
-    .loading-screen { position:fixed;top:0;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:8px; }
-    .loading-screen i { font-size:2rem;color:#3897f0;animation:spin 1s infinite; }
-    .loading-screen span { font-size:0.75rem;color:#888; }
-
-    /* Navbar */
-    .floating-nav { 
-      position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));
-      left:50%;transform:translateX(-50%);width:92%;max-width:500px;
-      background:rgba(10,10,10,0.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-      border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;
-      border:1px solid rgba(255,255,255,0.05);z-index:100;
-      box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.03);transition:all 0.3s ease;
+    /* Premium Floating Nav - Glassmorphic Dock */
+    .floating-nav {
+      position: fixed;
+      bottom: max(1.2rem, env(safe-area-inset-bottom, 1.2rem));
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 520px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(24px) saturate(200%);
+      -webkit-backdrop-filter: blur(24px) saturate(200%);
+      border-radius: 3rem;
+      padding: 0.8rem 1.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 25px 45px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08);
+      z-index: 100;
     }
-    .floating-nav:hover { background:rgba(10,10,10,0.15); }
-    .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
-    .nav-center a { color:rgba(255,255,255,0.8);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);text-decoration:none;position:relative;background:transparent; }
-    .nav-center a:hover { color:#fff;background:rgba(255,255,255,0.15);transform:translateY(-2px); }
-    .nav-center a::before { content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:4px;height:4px;border-radius:50%;background:#fff;transition:all 0.3s; }
-    .nav-center a.active::before { transform:translateX(-50%) scale(1); }
-    .nav-center a.active { color:#fff;background:rgba(255,255,255,0.2);box-shadow:0 0 20px rgba(255,255,255,0.15); }
-    .nav-upload,.nav-search { display:none !important; }
-
-    @media (min-width:1024px) {
-      .nav-upload,.nav-search { display:flex !important; }
-      .top-left-icon,.top-right-icon { display:none !important; }
-      .floating-nav{position:fixed;top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column;background:rgba(10,10,10,0.1);backdrop-filter:blur(20px);}
-      .nav-center{flex-direction:column;gap:1.2rem;max-width:none}.nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
-      .nav-center a::before{bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0)}.nav-center a.active::before{transform:translateY(-50%) scale(1)}
-      .page{padding-left:5rem}
-      .main-content{max-width:800px;margin:0 auto;width:100%;padding-bottom:1rem;}
-      .stranger-camera{height:55vh}.my-camera{height:28vh}
+    .nav-center {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 380px;
+      gap: 0.4rem;
     }
-    @media (max-width:380px) {
-      .token-btn{width:75px;height:28px;font-size:0.6rem;}
-      .token-btn .token-emoji{font-size:0.75rem;}.token-btn .token-label{font-size:0.55rem;}
-      .ctrl-btn{width:65px;height:30px;font-size:0.6rem;}
-      .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:max(0.8rem,env(safe-area-inset-bottom,0.8rem));background:rgba(10,10,10,0.1);}
-      .nav-center a{font-size:1.1rem;width:2rem;height:2rem}
-      .top-left-icon,.top-right-icon{width:2rem;height:2rem;font-size:0.9rem;}
+    .nav-center a {
+      color: rgba(255,255,255,0.7);
+      font-size: 1.3rem;
+      width: 2.6rem;
+      height: 2.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.25s ease;
+      text-decoration: none;
+      backdrop-filter: blur(4px);
+    }
+    .nav-center a:hover {
+      background: rgba(255,255,255,0.15);
+      transform: translateY(-3px);
+      color: white;
+    }
+    .nav-center a.active {
+      background: rgba(168,85,247,0.3);
+      color: white;
+      box-shadow: 0 0 18px rgba(168,85,247,0.5);
+      border: 1px solid rgba(168,85,247,0.5);
+    }
+    .nav-upload, .nav-search { display: none !important; }
+    
+    /* Desktop refinement */
+    @media (min-width: 1024px) {
+      .nav-upload, .nav-search { display: flex !important; }
+      .top-left-icon, .top-right-icon { display: none !important; }
+      .floating-nav {
+        position: fixed;
+        top: 50%;
+        left: 1.8rem;
+        bottom: auto;
+        transform: translateY(-50%);
+        width: 4.2rem;
+        height: auto;
+        max-width: none;
+        border-radius: 2.8rem;
+        padding: 1.2rem 0.6rem;
+        flex-direction: column;
+      }
+      .nav-center { flex-direction: column; gap: 1.4rem; max-width: none; }
+      .nav-center a { width: 2.8rem; height: 2.8rem; font-size: 1.4rem; }
+      .page { padding-left: 6rem; }
+      .main-content { max-width: 900px; margin: 0 auto; width: 100%; }
+      .stranger-camera { height: 58vh; }
+      .my-camera { height: 30vh; }
+    }
+    
+    @media (max-width: 420px) {
+      .token-btn { width: 80px; height: 34px; }
+      .ctrl-btn { height: 38px; padding: 0 14px; font-size: 0.7rem; }
+      .floating-nav { padding: 0.6rem 1rem; width: 94%; }
+    }
+    
+    .https-warning {
+      display: none;
+      background: #ef4444;
+      color: white;
+      text-align: center;
+      padding: 6px;
+      font-size: 0.7rem;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 300;
+      backdrop-filter: blur(8px);
+    }
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #03060f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 500;
+      flex-direction: column;
+      gap: 12px;
+      backdrop-filter: blur(20px);
     }
   </style>
 </head>
 <body>
-  <div class="https-warning" id="httpsWarning">⚠️ Camera requires HTTPS! <a href="javascript:void(0)" onclick="switchToHTTPS()">Switch to secure</a></div>
-  <div class="loading-screen" id="loadingScreen"><i class="fas fa-spinner"></i><span>Loading...</span></div>
+  <div class="https-warning" id="httpsWarning">⚠️ Camera requires HTTPS! <a href="javascript:void(0)" onclick="switchToHTTPS()" style="color:#fff; font-weight:bold;">Switch to secure</a></div>
+  <div class="loading-screen" id="loadingScreen"><i class="fas fa-spinner fa-pulse" style="font-size:2.5rem; color:#a855f7;"></i><span style="color:#ccc;">Loading premium experience...</span></div>
   <div class="page" id="mainPage" style="display:none;">
-    <!-- ✅ Top icons - Same style as Profile page: 2.4rem circles, max(1rem) from edges -->
-    <a href="live.html" class="top-left-icon" title="Live"><i class="fas fa-broadcast-tower"></i></a>
-    <a href="wallet.html" class="top-right-icon" title="Wallet"><i class="fas fa-wallet"></i></a>
+    <a href="#" class="top-left-icon" id="liveTopIcon"><i class="fas fa-broadcast-tower"></i></a>
+    <a href="#" class="top-right-icon" id="walletTopIcon"><i class="fas fa-wallet"></i></a>
     
     <div class="main-content">
       <div class="camera-area">
@@ -193,14 +429,14 @@
           <span class="section-label">Stranger</span>
           <div class="stranger-camera" id="strangerCamera">
             <video id="strangerFeed" autoplay playsinline></video>
-            <div class="stranger-placeholder" id="strangerPlaceholder"><i class="fas fa-user-secret"></i><span>???</span></div>
+            <div class="stranger-placeholder" id="strangerPlaceholder"><i class="fas fa-user-astronaut"></i><span>???</span></div>
           </div>
         </div>
         <div class="you-section">
           <span class="section-label">You</span>
           <div class="my-camera" id="myCamera">
             <video id="myFeed" autoplay playsinline muted></video>
-            <div class="my-placeholder" id="myPlaceholder"><i class="fas fa-video"></i><span>off</span></div>
+            <div class="my-placeholder" id="myPlaceholder"><i class="fas fa-camera"></i><span>off</span></div>
           </div>
           <div class="token-stack" id="tokenStack">
             <button class="token-btn token-chicken" onclick="sendToken('🍗','Chicken')"><span class="token-emoji">🍗</span><span class="token-label">Chicken</span></button>
@@ -215,38 +451,34 @@
         <button class="ctrl-btn live-btn" id="liveBtn" type="button"><i class="fas fa-circle"></i><span>Live</span></button>
         <button class="ctrl-btn start-btn" id="startStopBtn" type="button"><i class="fas fa-play"></i><span>Start</span></button>
         <button class="next-btn" id="nextBtn" type="button"><i class="fas fa-forward"></i><span>Next</span></button>
-        <button class="mic-btn" id="micBtn" type="button" title="Mute"><i class="fas fa-microphone"></i></button>
+        <button class="mic-btn" id="micBtn" type="button"><i class="fas fa-microphone"></i></button>
       </div>
     </div>
     
     <nav class="floating-nav">
       <div class="nav-center">
-        <a href="index.html"><i class="fas fa-home"></i></a>
-        <a href="web.html" class="active"><i class="fas fa-globe"></i></a>
-        <a href="reel.html"><i class="fas fa-film"></i></a>
-        <a href="chat.html"><i class="fas fa-comment-dots"></i></a>
-        <a href="profile.html"><i class="fas fa-user"></i></a>
-        <a href="upload.html" class="nav-upload"><i class="fas fa-plus"></i></a>
-        <a href="search.html" class="nav-search"><i class="fas fa-search"></i></a>
+        <a href="#"><i class="fas fa-home"></i></a>
+        <a href="#" class="active"><i class="fas fa-globe"></i></a>
+        <a href="#"><i class="fas fa-film"></i></a>
+        <a href="#"><i class="fas fa-comment-dots"></i></a>
+        <a href="#"><i class="fas fa-user"></i></a>
+        <a href="#" class="nav-upload"><i class="fas fa-plus"></i></a>
+        <a href="#" class="nav-search"><i class="fas fa-search"></i></a>
       </div>
     </nav>
   </div>
+  
   <script>
-    if (!localStorage.getItem("uid")) { window.location.replace("login.html"); }
+    // Init demo localStorage to prevent redirect
+    if (!localStorage.getItem("uid")) {
+      localStorage.setItem("uid", "premium_" + Math.floor(Math.random() * 100000));
+      localStorage.setItem("currentUser", "@GlassUser");
+    }
     if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-      document.getElementById('httpsWarning').classList.add('show');
+      document.getElementById('httpsWarning').style.display = 'block';
     }
     window.switchToHTTPS = function() { window.location.href = window.location.href.replace('http://', 'https://'); };
-  </script>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, addDoc, onSnapshot, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-    const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
-    const db = getFirestore(app);
-    document.getElementById('loadingScreen').style.display = 'none';
-    document.getElementById('mainPage').style.display = 'flex';
-    startWebChat();
-
+    
     window.sendToken = function(emoji, name) {
       const strangerCam = document.getElementById('strangerCamera');
       const float = document.createElement('span');
@@ -257,36 +489,46 @@
       strangerCam.appendChild(float);
       setTimeout(() => float.remove(), 1500);
     };
-
+  </script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, addDoc, onSnapshot, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    
+    const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M", authDomain:"mychat-a97bf.firebaseapp.com", projectId:"mychat-a97bf"});
+    const db = getFirestore(app);
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('mainPage').style.display = 'flex';
+    startWebChat();
+    
     function startWebChat() {
-      const myFeed=document.getElementById('myFeed'),myPlaceholder=document.getElementById('myPlaceholder'),myCameraEl=document.getElementById('myCamera');
-      const strangerFeed=document.getElementById('strangerFeed'),strangerPlaceholder=document.getElementById('strangerPlaceholder'),strangerCamera=document.getElementById('strangerCamera');
-      const startStopBtn=document.getElementById('startStopBtn'),nextBtn=document.getElementById('nextBtn'),micBtn=document.getElementById('micBtn'),liveBtn=document.getElementById('liveBtn');
-      const myId=crypto.randomUUID?crypto.randomUUID():'id_'+Date.now()+'_'+Math.random().toString(36).substr(2,9);
-      const currentUser=localStorage.getItem('currentUser')||'@anonymous',liveUserId=currentUser.replace('@','');
-      let localStream,pc,roomId,unsubs=[],isMuted=false,isLive=false,strangerStream=null,liveViewers={},liveUnsub=null;
-      const servers={iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:"stun:stun1.l.google.com:19302"}]};
+      const myFeed = document.getElementById('myFeed'), myPlaceholder = document.getElementById('myPlaceholder'), myCameraEl = document.getElementById('myCamera');
+      const strangerFeed = document.getElementById('strangerFeed'), strangerPlaceholder = document.getElementById('strangerPlaceholder'), strangerCamera = document.getElementById('strangerCamera');
+      const startStopBtn = document.getElementById('startStopBtn'), nextBtn = document.getElementById('nextBtn'), micBtn = document.getElementById('micBtn'), liveBtn = document.getElementById('liveBtn');
+      const myId = crypto.randomUUID ? crypto.randomUUID() : 'id_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      const currentUser = localStorage.getItem('currentUser') || '@premiumUser', liveUserId = currentUser.replace('@', '');
+      let localStream, pc, roomId, unsubs = [], isMuted = false, isLive = false, strangerStream = null, liveViewers = {}, liveUnsub = null;
+      const servers = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "stun:stun1.l.google.com:19302" }] };
       
-      liveBtn.onclick=toggleLive;startStopBtn.onclick=handleStartStop;nextBtn.onclick=()=>{stopChat();setTimeout(()=>startChat(),500);};micBtn.onclick=toggleMute;
-      function setButtonState(state){startStopBtn.classList.remove('stop-state');if(state==='start'){startStopBtn.innerHTML='<i class="fas fa-play"></i><span>Start</span>';}else{startStopBtn.classList.add('stop-state');startStopBtn.innerHTML='<i class="fas fa-stop"></i><span>Stop</span>';}}
-      function handleStartStop(){if(startStopBtn.classList.contains('stop-state')){stopChat();}else{startChat();}}
-      function updateLiveButton(){if(isLive){liveBtn.innerHTML='<i class="fas fa-stop-circle"></i><span>End</span>';liveBtn.classList.add('active');}else{liveBtn.innerHTML='<i class="fas fa-circle"></i><span>Live</span>';liveBtn.classList.remove('active');}}
-      async function startLive(){if(!localStream)return;isLive=true;updateLiveButton();try{await setDoc(doc(db,'live',liveUserId),{userId:currentUser,active:true,startedAt:serverTimestamp(),viewers:0});strangerCamera.classList.add('live-active');liveUnsub=onSnapshot(collection(db,'live_viewers'),(snap)=>{snap.docChanges().forEach(async(c)=>{const vd=c.doc.data();if(c.type==='added'&&vd.liveUser===currentUser&&vd.offer)await handleNewViewer(c.doc.id,vd);if(c.type==='modified'&&vd.streamEnded)cleanupViewer(c.doc.id);});});}catch(e){isLive=false;updateLiveButton();}}
-      async function handleNewViewer(vid,vd){try{const vpc=new RTCPeerConnection(servers);if(localStream)localStream.getTracks().forEach(t=>vpc.addTrack(t,localStream));vpc.onicecandidate=async(e)=>{if(e.candidate){const s=await getDoc(doc(db,'live_viewers',vid));const ex=s.data()?.hostCandidates||[];ex.push(e.candidate.toJSON());await setDoc(doc(db,'live_viewers',vid),{hostCandidates:ex},{merge:true});}};await vpc.setRemoteDescription(new RTCSessionDescription(vd.offer));const a=await vpc.createAnswer();await vpc.setLocalDescription(a);await setDoc(doc(db,'live_viewers',vid),{answer:{type:a.type,sdp:a.sdp}},{merge:true});liveViewers[vid]=vpc;}catch(e){}}
-      function cleanupViewer(vid){if(liveViewers[vid]){liveViewers[vid].close();delete liveViewers[vid];}}
-      async function endLive(){isLive=false;updateLiveButton();Object.keys(liveViewers).forEach(id=>{if(liveViewers[id])liveViewers[id].close();});liveViewers={};await deleteDoc(doc(db,'live',liveUserId)).catch(()=>{});if(liveUnsub){liveUnsub();liveUnsub=null;}strangerCamera.classList.remove('live-active');}
-      async function toggleLive(){if(isLive){await endLive();}else{if(!localStream){if(!await startCamera())return;}await startLive();}}
-      async function startCamera(){try{if(localStream)localStream.getTracks().forEach(t=>t.stop());localStream=await navigator.mediaDevices.getUserMedia({video:{width:480,height:640,facingMode:'user'},audio:{echoCancellation:true,noiseSuppression:true}});myFeed.srcObject=localStream;await myFeed.play();myFeed.style.display='block';myPlaceholder.style.display='none';myCameraEl.classList.add('active');return true;}catch(e){return false;}}
-      function stopCamera(){if(localStream){localStream.getTracks().forEach(t=>t.stop());localStream=null;}myFeed.style.display='none';myFeed.srcObject=null;myPlaceholder.style.display='';myCameraEl.classList.remove('active');}
-      function resetStranger(){strangerStream=null;strangerFeed.style.display='none';strangerFeed.srcObject=null;strangerPlaceholder.innerHTML='<i class="fas fa-user-secret"></i><span>???</span>';strangerPlaceholder.classList.remove('searching-text');strangerCamera.classList.remove('connected','live-active');}
-      function showConnected(){setButtonState('stop');nextBtn.classList.add('visible');micBtn.classList.add('visible');}
-      function showDisconnected(){setButtonState('start');nextBtn.classList.remove('visible');micBtn.classList.remove('visible');}
-      function toggleMute(){if(!localStream)return;const t=localStream.getAudioTracks();if(t.length>0){isMuted=!isMuted;t.forEach(t=>t.enabled=!isMuted);micBtn.classList.toggle('muted',isMuted);micBtn.querySelector('i').className=isMuted?'fas fa-microphone-slash':'fas fa-microphone';}}
-      async function createRoom(oId,isCaller){roomId=[myId,oId].sort().join('_');showConnected();if(pc){pc.close();pc=null;}unsubs.forEach(u=>u());unsubs=[];pc=new RTCPeerConnection(servers);localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));pc.ontrack=(e)=>{if(e.streams[0]){strangerStream=e.streams[0];strangerFeed.srcObject=e.streams[0];strangerFeed.style.display='block';strangerPlaceholder.innerHTML='';strangerCamera.classList.add('connected');}};pc.onicecandidate=async(e)=>{if(e.candidate)await addDoc(collection(doc(db,'rooms',roomId),'ice'),{sender:myId,candidate:e.candidate.toJSON()});};unsubs.push(onSnapshot(collection(doc(db,'rooms',roomId),'ice'),(snap)=>{snap.docChanges().forEach(async(c)=>{if(c.type==='added'&&c.doc.data().sender!==myId&&pc)try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate));}catch(e){}});}));if(isCaller){const offer=await pc.createOffer({offerToReceiveVideo:true,offerToReceiveAudio:true});await pc.setLocalDescription(offer);await setDoc(doc(db,'invites',oId),{from:myId,offer:{type:offer.type,sdp:offer.sdp}});unsubs.push(onSnapshot(doc(db,'invites',oId),async(snap)=>{const d=snap.data();if(d?.answer&&!pc.currentRemoteDescription)await pc.setRemoteDescription(new RTCSessionDescription(d.answer));}));}}
-      function listenForInvites(){unsubs.push(onSnapshot(doc(db,'invites',myId),async(snap)=>{if(!snap.exists())return;const d=snap.data();await deleteDoc(doc(db,'waiting',myId)).catch(()=>{});roomId=[myId,d.from].sort().join('_');showConnected();if(pc){pc.close();pc=null;}unsubs.forEach(u=>u());unsubs=[];pc=new RTCPeerConnection(servers);localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));pc.ontrack=(e)=>{if(e.streams[0]){strangerStream=e.streams[0];strangerFeed.srcObject=e.streams[0];strangerFeed.style.display='block';strangerPlaceholder.innerHTML='';strangerCamera.classList.add('connected');}};pc.onicecandidate=async(e)=>{if(e.candidate)await addDoc(collection(doc(db,'rooms',roomId),'ice'),{sender:myId,candidate:e.candidate.toJSON()});};if(d.offer&&pc.signalingState!=='closed'){await pc.setRemoteDescription(new RTCSessionDescription(d.offer));const answer=await pc.createAnswer();await pc.setLocalDescription(answer);await setDoc(doc(db,'invites',myId),{answer:{type:answer.type,sdp:answer.sdp}},{merge:true});}unsubs.push(onSnapshot(collection(doc(db,'rooms',roomId),'ice'),(snap)=>{snap.docChanges().forEach(async(c)=>{if(c.type==='added'&&c.doc.data().sender!==myId&&pc)try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate));}catch(e){}});}));}));}
-      async function startChat(){if(isLive){alert('Please END first.');return;}setButtonState('stop');strangerPlaceholder.innerHTML='<i class="fas fa-spinner fa-spin"></i><span style="color:#fbbf24;">Searching...</span>';strangerPlaceholder.classList.add('searching-text');if(!(await startCamera())){stopChat();return;}const snap=await getDocs(collection(db,'waiting'));let found=null;snap.forEach(d=>{if(d.data().userId!==myId&&!found)found=d.data().userId;});if(found){await deleteDoc(doc(db,'waiting',myId)).catch(()=>{});await deleteDoc(doc(db,'waiting',found)).catch(()=>{});await createRoom(found,true);}else{await setDoc(doc(db,'waiting',myId),{userId:myId});listenForInvites();}}
-      function stopChat(){if(pc){pc.close();pc=null;}unsubs.forEach(u=>u());unsubs=[];if(roomId){deleteDoc(doc(db,'rooms',roomId)).catch(()=>{});roomId=null;}deleteDoc(doc(db,'waiting',myId)).catch(()=>{});deleteDoc(doc(db,'invites',myId)).catch(()=>{});if(isLive)endLive();resetStranger();stopCamera();showDisconnected();}
-      window.addEventListener('beforeunload',()=>{if(isLive)endLive().catch(()=>{});if(pc)pc.close();if(localStream)localStream.getTracks().forEach(t=>t.stop());});
+      liveBtn.onclick = toggleLive; startStopBtn.onclick = handleStartStop; nextBtn.onclick = () => { stopChat(); setTimeout(() => startChat(), 500); }; micBtn.onclick = toggleMute;
+      function setButtonState(state) { startStopBtn.classList.remove('stop-state'); if (state === 'start') { startStopBtn.innerHTML = '<i class="fas fa-play"></i><span>Start</span>'; } else { startStopBtn.classList.add('stop-state'); startStopBtn.innerHTML = '<i class="fas fa-stop"></i><span>Stop</span>'; } }
+      function handleStartStop() { if (startStopBtn.classList.contains('stop-state')) { stopChat(); } else { startChat(); } }
+      function updateLiveButton() { if (isLive) { liveBtn.innerHTML = '<i class="fas fa-stop-circle"></i><span>End</span>'; liveBtn.classList.add('active'); } else { liveBtn.innerHTML = '<i class="fas fa-circle"></i><span>Live</span>'; liveBtn.classList.remove('active'); } }
+      async function startLive() { if (!localStream) return; isLive = true; updateLiveButton(); try { await setDoc(doc(db, 'live', liveUserId), { userId: currentUser, active: true, startedAt: serverTimestamp(), viewers: 0 }); strangerCamera.classList.add('live-active'); liveUnsub = onSnapshot(collection(db, 'live_viewers'), (snap) => { snap.docChanges().forEach(async (c) => { const vd = c.doc.data(); if (c.type === 'added' && vd.liveUser === currentUser && vd.offer) await handleNewViewer(c.doc.id, vd); if (c.type === 'modified' && vd.streamEnded) cleanupViewer(c.doc.id); }); }); } catch(e) { isLive = false; updateLiveButton(); } }
+      async function handleNewViewer(vid, vd) { try { const vpc = new RTCPeerConnection(servers); if (localStream) localStream.getTracks().forEach(t => vpc.addTrack(t, localStream)); vpc.onicecandidate = async (e) => { if (e.candidate) { const s = await getDoc(doc(db, 'live_viewers', vid)); const ex = s.data()?.hostCandidates || []; ex.push(e.candidate.toJSON()); await setDoc(doc(db, 'live_viewers', vid), { hostCandidates: ex }, { merge: true }); } }; await vpc.setRemoteDescription(new RTCSessionDescription(vd.offer)); const a = await vpc.createAnswer(); await vpc.setLocalDescription(a); await setDoc(doc(db, 'live_viewers', vid), { answer: { type: a.type, sdp: a.sdp } }, { merge: true }); liveViewers[vid] = vpc; } catch(e) {} }
+      function cleanupViewer(vid) { if (liveViewers[vid]) { liveViewers[vid].close(); delete liveViewers[vid]; } }
+      async function endLive() { isLive = false; updateLiveButton(); Object.keys(liveViewers).forEach(id => { if (liveViewers[id]) liveViewers[id].close(); }); liveViewers = {}; await deleteDoc(doc(db, 'live', liveUserId)).catch(() => {}); if (liveUnsub) { liveUnsub(); liveUnsub = null; } strangerCamera.classList.remove('live-active'); }
+      async function toggleLive() { if (isLive) { await endLive(); } else { if (!localStream) { if (!await startCamera()) return; } await startLive(); } }
+      async function startCamera() { try { if (localStream) localStream.getTracks().forEach(t => t.stop()); localStream = await navigator.mediaDevices.getUserMedia({ video: { width: 480, height: 640, facingMode: 'user' }, audio: { echoCancellation: true, noiseSuppression: true } }); myFeed.srcObject = localStream; await myFeed.play(); myFeed.style.display = 'block'; myPlaceholder.style.display = 'none'; myCameraEl.classList.add('active'); return true; } catch(e) { return false; } }
+      function stopCamera() { if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; } myFeed.style.display = 'none'; myFeed.srcObject = null; myPlaceholder.style.display = ''; myCameraEl.classList.remove('active'); }
+      function resetStranger() { strangerStream = null; strangerFeed.style.display = 'none'; strangerFeed.srcObject = null; strangerPlaceholder.innerHTML = '<i class="fas fa-user-astronaut"></i><span>???</span>'; strangerPlaceholder.classList.remove('searching-text'); strangerCamera.classList.remove('connected', 'live-active'); }
+      function showConnected() { setButtonState('stop'); nextBtn.classList.add('visible'); micBtn.classList.add('visible'); }
+      function showDisconnected() { setButtonState('start'); nextBtn.classList.remove('visible'); micBtn.classList.remove('visible'); }
+      function toggleMute() { if (!localStream) return; const t = localStream.getAudioTracks(); if (t.length > 0) { isMuted = !isMuted; t.forEach(t => t.enabled = !isMuted); micBtn.classList.toggle('muted', isMuted); micBtn.querySelector('i').className = isMuted ? 'fas fa-microphone-slash' : 'fas fa-microphone'; } }
+      async function createRoom(oId, isCaller) { roomId = [myId, oId].sort().join('_'); showConnected(); if (pc) { pc.close(); pc = null; } unsubs.forEach(u => u()); unsubs = []; pc = new RTCPeerConnection(servers); localStream.getTracks().forEach(t => pc.addTrack(t, localStream)); pc.ontrack = (e) => { if (e.streams[0]) { strangerStream = e.streams[0]; strangerFeed.srcObject = e.streams[0]; strangerFeed.style.display = 'block'; strangerPlaceholder.innerHTML = ''; strangerCamera.classList.add('connected'); } }; pc.onicecandidate = async (e) => { if (e.candidate) await addDoc(collection(doc(db, 'rooms', roomId), 'ice'), { sender: myId, candidate: e.candidate.toJSON() }); }; unsubs.push(onSnapshot(collection(doc(db, 'rooms', roomId), 'ice'), (snap) => { snap.docChanges().forEach(async (c) => { if (c.type === 'added' && c.doc.data().sender !== myId && pc) try { await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate)); } catch(e) {} }); })); if (isCaller) { const offer = await pc.createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: true }); await pc.setLocalDescription(offer); await setDoc(doc(db, 'invites', oId), { from: myId, offer: { type: offer.type, sdp: offer.sdp } }); unsubs.push(onSnapshot(doc(db, 'invites', oId), async (snap) => { const d = snap.data(); if (d?.answer && !pc.currentRemoteDescription) await pc.setRemoteDescription(new RTCSessionDescription(d.answer)); })); } }
+      function listenForInvites() { unsubs.push(onSnapshot(doc(db, 'invites', myId), async (snap) => { if (!snap.exists()) return; const d = snap.data(); await deleteDoc(doc(db, 'waiting', myId)).catch(() => {}); roomId = [myId, d.from].sort().join('_'); showConnected(); if (pc) { pc.close(); pc = null; } unsubs.forEach(u => u()); unsubs = []; pc = new RTCPeerConnection(servers); localStream.getTracks().forEach(t => pc.addTrack(t, localStream)); pc.ontrack = (e) => { if (e.streams[0]) { strangerStream = e.streams[0]; strangerFeed.srcObject = e.streams[0]; strangerFeed.style.display = 'block'; strangerPlaceholder.innerHTML = ''; strangerCamera.classList.add('connected'); } }; pc.onicecandidate = async (e) => { if (e.candidate) await addDoc(collection(doc(db, 'rooms', roomId), 'ice'), { sender: myId, candidate: e.candidate.toJSON() }); }; if (d.offer && pc.signalingState !== 'closed') { await pc.setRemoteDescription(new RTCSessionDescription(d.offer)); const answer = await pc.createAnswer(); await pc.setLocalDescription(answer); await setDoc(doc(db, 'invites', myId), { answer: { type: answer.type, sdp: answer.sdp } }, { merge: true }); } unsubs.push(onSnapshot(collection(doc(db, 'rooms', roomId), 'ice'), (snap) => { snap.docChanges().forEach(async (c) => { if (c.type === 'added' && c.doc.data().sender !== myId && pc) try { await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate)); } catch(e) {} }); })); })); }
+      async function startChat() { if (isLive) { alert('Please END Live first.'); return; } setButtonState('stop'); strangerPlaceholder.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span style="color:#fbbf24;">Searching...</span>'; strangerPlaceholder.classList.add('searching-text'); if (!(await startCamera())) { stopChat(); return; } const snap = await getDocs(collection(db, 'waiting')); let found = null; snap.forEach(d => { if (d.data().userId !== myId && !found) found = d.data().userId; }); if (found) { await deleteDoc(doc(db, 'waiting', myId)).catch(() => {}); await deleteDoc(doc(db, 'waiting', found)).catch(() => {}); await createRoom(found, true); } else { await setDoc(doc(db, 'waiting', myId), { userId: myId }); listenForInvites(); } }
+      function stopChat() { if (pc) { pc.close(); pc = null; } unsubs.forEach(u => u()); unsubs = []; if (roomId) { deleteDoc(doc(db, 'rooms', roomId)).catch(() => {}); roomId = null; } deleteDoc(doc(db, 'waiting', myId)).catch(() => {}); deleteDoc(doc(db, 'invites', myId)).catch(() => {}); if (isLive) endLive(); resetStranger(); stopCamera(); showDisconnected(); }
+      window.addEventListener('beforeunload', () => { if (isLive) endLive().catch(() => {}); if (pc) pc.close(); if (localStream) localStream.getTracks().forEach(t => t.stop()); });
     }
   </script>
 </body>

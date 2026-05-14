@@ -16,6 +16,7 @@
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
     @keyframes giftFloat { 0%{transform:translateY(0) scale(1);opacity:1} 100%{transform:translateY(-60px) scale(1.3);opacity:0} }
     @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
     
     .top-left-icon {
       position:fixed;top:max(1rem,env(safe-area-inset-top,1rem));left:max(1rem,env(safe-area-inset-left,1rem));z-index:200;
@@ -48,7 +49,7 @@
     
     .camera-area {
       display:flex;gap:8px;align-items:flex-start;
-      margin-top: 5mm; /* Added 5mm space below icons */
+      margin-top: 5mm;
     }
     
     .stranger-section {
@@ -86,23 +87,42 @@
       display:flex;flex-direction:column;gap:10px;align-items:flex-end;margin-top:4px;
     }
     .token-btn {
-      width:90px;height:32px;border-radius:8px;
+      width:110px;height:40px;border-radius:10px;
       border:1.5px solid rgba(255,255,255,0.15);
       background:rgba(0,0,0,0.5);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-      cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;
-      font-size:0.7rem;font-weight:600;transition:all 0.2s;color:#fff;padding:0 8px;
+      cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;
+      font-size:0.75rem;font-weight:600;transition:all 0.2s;color:#fff;padding:0 12px;
+      position:relative;
     }
-    .token-btn:active { transform:scale(0.9); }
-    .token-btn .token-emoji { font-size:0.85rem;line-height:1; }
-    .token-btn .token-label { font-size:0.6rem;font-weight:700; }
+    .token-btn:active { transform:scale(0.95); }
+    .token-btn .token-emoji { font-size:1.1rem;line-height:1; }
+    .token-btn .token-label { font-size:0.7rem;font-weight:700; }
+    .token-btn .token-count {
+      font-size:0.65rem;font-weight:700;
+      background:rgba(0,0,0,0.4);
+      padding:2px 6px;border-radius:8px;
+      min-width:20px;text-align:center;
+    }
     .token-btn.token-chicken { border-color:rgba(245,158,11,0.5);background:rgba(245,158,11,0.15); }
     .token-btn.token-chicken .token-label { color:#f59e0b; }
+    .token-btn.token-chicken .token-count { color:#f59e0b; }
     .token-btn.token-lion { border-color:rgba(239,68,68,0.5);background:rgba(239,68,68,0.15); }
     .token-btn.token-lion .token-label { color:#ef4444; }
+    .token-btn.token-lion .token-count { color:#ef4444; }
     .token-btn.token-fish { border-color:rgba(59,130,246,0.5);background:rgba(59,130,246,0.15); }
     .token-btn.token-fish .token-label { color:#3b82f6; }
+    .token-btn.token-fish .token-count { color:#3b82f6; }
     .token-btn.token-bike { border-color:rgba(168,85,247,0.5);background:rgba(168,85,247,0.15); }
     .token-btn.token-bike .token-label { color:#a855f7; }
+    .token-btn.token-bike .token-count { color:#a855f7; }
+    .token-btn:disabled {
+      opacity:0.4;
+      cursor:not-allowed;
+    }
+    .token-btn.no-receiver {
+      animation: shake 0.5s ease-in-out;
+      border-color: rgba(239,68,68,0.8) !important;
+    }
     
     .gift-float { position:absolute;font-size:2rem;pointer-events:none;animation:giftFloat 1.5s ease-out forwards;z-index:50; }
     
@@ -129,7 +149,6 @@
     .mic-btn.visible { display:inline-flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid rgba(255,255,255,0.2);outline:none;font-size:0.8rem; }
     .mic-btn.muted { color:#ef4444;background:rgba(239,68,68,0.2);border-color:rgba(239,68,68,0.5); }
     
-    /* Chat button next to mic */
     .chat-toggle-btn {
       display:none; width:34px; height:34px; border-radius:50%;
       background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.2); color:#fff;
@@ -144,7 +163,6 @@
       border-color: rgba(74, 222, 128, 0.5);
     }
     
-    /* Premium glass chat box */
     .chat-box {
       position: fixed; bottom: 5.5rem; left: 50%; transform: translateX(-50%);
       width: 92%; max-width: 500px; height: 35vh; max-height: 350px;
@@ -225,6 +243,15 @@
       -webkit-backdrop-filter: blur(20px);
       box-shadow: 0 6px 20px rgba(74, 222, 128, 0.15);
     }
+    .chat-message.system {
+      align-self: center;
+      background: rgba(255,255,255,0.05);
+      border-color: rgba(255,255,255,0.08);
+      color: #aaa;
+      font-size: 0.7rem;
+      max-width: 90%;
+      text-align: center;
+    }
     .chat-input-area {
       display: flex; padding: 0.6rem 0.8rem; gap: 8px;
       background: rgba(0, 0, 0, 0.15);
@@ -296,12 +323,18 @@
       .nav-center a::before{bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0)}.nav-center a.active::before{transform:translateY(-50%) scale(1)}
       .page{padding-left:5rem}
       .main-content{max-width:800px;margin:0 auto;width:100%;padding-bottom:1rem;}
-      .stranger-camera{height:55vh}.my-camera{height:28vh}
+      .camera-area { gap: 12px; }
+      .stranger-section { width: 50%; }
+      .you-section { width: 50%; align-items: flex-start; }
+      .stranger-camera { height: 60vh; }
+      .my-camera { height: 60vh; }
+      .token-stack { flex-direction: row; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+      .token-btn { width: 130px; height: 44px; }
       .chat-box { width: 400px; left: auto; right: 2rem; transform: none; }
     }
     @media (max-width:380px) {
-      .token-btn{width:75px;height:28px;font-size:0.6rem;}
-      .token-btn .token-emoji{font-size:0.75rem;}.token-btn .token-label{font-size:0.55rem;}
+      .token-btn{width:100px;height:36px;font-size:0.7rem;}
+      .token-btn .token-emoji{font-size:1rem;}.token-btn .token-label{font-size:0.65rem;}
       .ctrl-btn{width:65px;height:30px;font-size:0.6rem;}
       .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:max(0.8rem,env(safe-area-inset-bottom,0.8rem));background:rgba(10,10,10,0.1);}
       .nav-center a{font-size:1.1rem;width:2rem;height:2rem}
@@ -332,10 +365,26 @@
             <div class="my-placeholder" id="myPlaceholder"><i class="fas fa-video"></i><span>off</span></div>
           </div>
           <div class="token-stack" id="tokenStack">
-            <button class="token-btn token-chicken" onclick="sendToken('🍗','Chicken')"><span class="token-emoji">🍗</span><span class="token-label">Chicken</span></button>
-            <button class="token-btn token-lion" onclick="sendToken('🦁','Lion')"><span class="token-emoji">🦁</span><span class="token-label">Lion</span></button>
-            <button class="token-btn token-fish" onclick="sendToken('🐟','Fish')"><span class="token-emoji">🐟</span><span class="token-label">Fish</span></button>
-            <button class="token-btn token-bike" onclick="sendToken('🏍️','Bike')"><span class="token-emoji">🏍️</span><span class="token-label">Bike</span></button>
+            <button class="token-btn token-chicken" id="chickenBtn" onclick="window.handleTokenSend('chicken')">
+              <span class="token-emoji">🍗</span>
+              <span class="token-label">Chicken</span>
+              <span class="token-count" id="chickenCount">0</span>
+            </button>
+            <button class="token-btn token-lion" id="lionBtn" onclick="window.handleTokenSend('lion')">
+              <span class="token-emoji">🦁</span>
+              <span class="token-label">Lion</span>
+              <span class="token-count" id="lionCount">0</span>
+            </button>
+            <button class="token-btn token-fish" id="fishBtn" onclick="window.handleTokenSend('fish')">
+              <span class="token-emoji">🐟</span>
+              <span class="token-label">Fish</span>
+              <span class="token-count" id="fishCount">0</span>
+            </button>
+            <button class="token-btn token-bike" id="bikeBtn" onclick="window.handleTokenSend('bike')">
+              <span class="token-emoji">🏍️</span>
+              <span class="token-label">Bike</span>
+              <span class="token-count" id="bikeCount">0</span>
+            </button>
           </div>
         </div>
       </div>
@@ -349,7 +398,6 @@
       </div>
     </div>
 
-    <!-- Premium Glass Chat Box -->
     <div class="chat-box hidden" id="chatBox">
       <div class="chat-header">
         <span>💬 Chat</span>
@@ -383,14 +431,13 @@
   </script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, addDoc, onSnapshot, getDocs, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, collection, addDoc, onSnapshot, getDocs, serverTimestamp, query, orderBy, increment } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
     
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('mainPage').style.display = 'flex';
     
-    // Chat UI elements
     const chatBox = document.getElementById('chatBox');
     const chatToggleBtn = document.getElementById('chatToggleBtn');
     const chatCloseBtn = document.getElementById('chatCloseBtn');
@@ -400,6 +447,75 @@
     
     let chatVisible = false;
     let pendingMessages = 0;
+    
+    // Token balances from wallet (Firestore)
+    let tokenBalances = {
+      chicken: 0,
+      lion: 0,
+      fish: 0,
+      bike: 0
+    };
+    
+    const uid = localStorage.getItem('uid');
+    const currentUser = localStorage.getItem('currentUser') || '@anonymous';
+    
+    // Load wallet balances from Firestore
+    async function loadWalletBalances() {
+      try {
+        const walletDoc = await getDoc(doc(db, 'wallets', uid));
+        if (walletDoc.exists()) {
+          const walletData = walletDoc.data();
+          tokenBalances.chicken = walletData.chicken || 0;
+          tokenBalances.lion = walletData.lion || 0;
+          tokenBalances.fish = walletData.fish || 0;
+          tokenBalances.bike = walletData.bike || 0;
+        } else {
+          // Initialize wallet if not exists
+          await setDoc(doc(db, 'wallets', uid), {
+            userId: uid,
+            username: currentUser,
+            chicken: 10,
+            lion: 5,
+            fish: 8,
+            bike: 3,
+            createdAt: serverTimestamp()
+          });
+          tokenBalances.chicken = 10;
+          tokenBalances.lion = 5;
+          tokenBalances.fish = 8;
+          tokenBalances.bike = 3;
+        }
+        updateTokenDisplay();
+      } catch (e) {
+        console.error("Error loading wallet:", e);
+      }
+    }
+    
+    // Save wallet balances to Firestore
+    async function saveWalletBalances() {
+      try {
+        await updateDoc(doc(db, 'wallets', uid), {
+          chicken: tokenBalances.chicken,
+          lion: tokenBalances.lion,
+          fish: tokenBalances.fish,
+          bike: tokenBalances.bike
+        });
+      } catch (e) {
+        console.error("Error saving wallet:", e);
+      }
+    }
+    
+    function updateTokenDisplay() {
+      document.getElementById('chickenCount').textContent = tokenBalances.chicken;
+      document.getElementById('lionCount').textContent = tokenBalances.lion;
+      document.getElementById('fishCount').textContent = tokenBalances.fish;
+      document.getElementById('bikeCount').textContent = tokenBalances.bike;
+      
+      document.getElementById('chickenBtn').disabled = tokenBalances.chicken <= 0;
+      document.getElementById('lionBtn').disabled = tokenBalances.lion <= 0;
+      document.getElementById('fishBtn').disabled = tokenBalances.fish <= 0;
+      document.getElementById('bikeBtn').disabled = tokenBalances.bike <= 0;
+    }
     
     function toggleChat() {
       chatVisible = !chatVisible;
@@ -418,11 +534,11 @@
       chatVisible = false;
     });
     
-    function addChatMessage(text, isSelf = false, username = '') {
+    function addChatMessage(text, isSelf = false, username = '', isSystem = false) {
       const msgDiv = document.createElement('div');
-      msgDiv.className = 'chat-message' + (isSelf ? ' self' : '');
+      msgDiv.className = 'chat-message' + (isSelf ? ' self' : '') + (isSystem ? ' system' : '');
       
-      if (username && !isSelf) {
+      if (username && !isSelf && !isSystem) {
         msgDiv.innerHTML = `<span style="font-size:0.65rem;color:#aaa;display:block;margin-bottom:2px;">${username}</span>${text}`;
       } else {
         msgDiv.textContent = text;
@@ -431,8 +547,7 @@
       chatMessages.appendChild(msgDiv);
       chatMessages.scrollTop = chatMessages.scrollHeight;
       
-      // If chat is hidden, increment pending messages and add notification
-      if (!chatVisible && !isSelf) {
+      if (!chatVisible && !isSelf && !isSystem) {
         pendingMessages++;
         if (pendingMessages > 0) {
           chatToggleBtn.classList.add('has-messages');
@@ -440,10 +555,53 @@
       }
     }
     
-    // These will be set later from startWebChat
     let sendChatMessageFn = null;
+    let sendTokenToStrangerFn = null;
     let myId = null;
-    let currentUser = null;
+    let isConnectedToStranger = false;
+    
+    // Global handler for token send
+    window.handleTokenSend = function(tokenType) {
+      if (!isConnectedToStranger) {
+        // No receiver - show shake animation
+        const btn = document.getElementById(tokenType + 'Btn');
+        btn.classList.add('no-receiver');
+        setTimeout(() => btn.classList.remove('no-receiver'), 500);
+        
+        addChatMessage(`❌ No stranger connected! Cannot send ${tokenType}.`, true);
+        return;
+      }
+      
+      if (tokenBalances[tokenType] <= 0) {
+        addChatMessage(`❌ No more ${tokenType} tokens in wallet!`, true);
+        return;
+      }
+      
+      // Decrease local balance
+      tokenBalances[tokenType]--;
+      updateTokenDisplay();
+      saveWalletBalances(); // Save to Firestore
+      
+      // Show floating animation
+      const emojiMap = { chicken: '🍗', lion: '🦁', fish: '🐟', bike: '🏍️' };
+      const emoji = emojiMap[tokenType];
+      
+      const strangerCam = document.getElementById('strangerCamera');
+      const float = document.createElement('span');
+      float.className = 'gift-float';
+      float.textContent = emoji;
+      float.style.left = (Math.random() * 60 + 20) + '%';
+      float.style.top = '55%';
+      strangerCam.appendChild(float);
+      setTimeout(() => float.remove(), 1500);
+      
+      // Send token to stranger
+      if (sendTokenToStrangerFn) {
+        sendTokenToStrangerFn(emoji, tokenType);
+      }
+      
+      addChatMessage(`🎁 Sent ${emoji} ${tokenType.charAt(0).toUpperCase() + tokenType.slice(1)} (${tokenBalances[tokenType]} left in wallet)`, true);
+    };
     
     chatSendBtn.addEventListener('click', () => {
       const text = chatInput.value.trim();
@@ -459,43 +617,27 @@
       }
     });
     
-    window.sendToken = function(emoji, name) {
-      const strangerCam = document.getElementById('strangerCamera');
-      const float = document.createElement('span');
-      float.className = 'gift-float';
-      float.textContent = emoji;
-      float.style.left = (Math.random() * 60 + 20) + '%';
-      float.style.top = '55%';
-      strangerCam.appendChild(float);
-      setTimeout(() => float.remove(), 1500);
-      
-      // Also send token as a chat message
-      if (sendChatMessageFn) {
-        sendChatMessageFn(`🎁 Sent ${emoji} ${name}`);
-      } else {
-        addChatMessage(`Sent ${emoji} ${name}`, true);
-      }
-    };
-
+    // Load wallet on start
+    loadWalletBalances();
+    
     startWebChat();
-
+    
     function startWebChat() {
       const myFeed=document.getElementById('myFeed'),myPlaceholder=document.getElementById('myPlaceholder'),myCameraEl=document.getElementById('myCamera');
       const strangerFeed=document.getElementById('strangerFeed'),strangerPlaceholder=document.getElementById('strangerPlaceholder'),strangerCamera=document.getElementById('strangerCamera');
       const startStopBtn=document.getElementById('startStopBtn'),nextBtn=document.getElementById('nextBtn'),micBtn=document.getElementById('micBtn'),liveBtn=document.getElementById('liveBtn');
       
       myId = crypto.randomUUID ? crypto.randomUUID() : 'id_' + Date.now() + '_' + Math.random().toString(36).substr(2,9);
-      currentUser = localStorage.getItem('currentUser') || '@anonymous';
       const liveUserId = currentUser.replace('@','');
       
       let localStream, pc, roomId, unsubs=[], isMuted=false, isLive=false;
       let strangerStream=null, liveViewers={}, liveUnsub=null;
       let chatMessagesUnsub = null;
-      let messageCache = new Set(); // To prevent duplicate messages
+      let tokenTransferUnsub = null;
+      let messageCache = new Set();
       
       const servers={iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:"stun:stun1.l.google.com:19302"}]};
       
-      // Set up the chat send function
       sendChatMessageFn = async (text) => {
         if (!roomId) {
           addChatMessage(text, true);
@@ -512,10 +654,34 @@
           };
           
           await addDoc(collection(db, 'rooms', roomId, 'messages'), messageData);
-          // Message will be added via the listener
         } catch (e) {
           console.error("Error sending message:", e);
-          addChatMessage(text, true); // Fallback to local display
+          addChatMessage(text, true);
+        }
+      };
+      
+      sendTokenToStrangerFn = async (emoji, tokenType) => {
+        if (!roomId || !isConnectedToStranger) return;
+        
+        try {
+          const tokenData = {
+            sender: myId,
+            senderUid: uid,
+            emoji: emoji,
+            tokenType: tokenType,
+            timestamp: serverTimestamp(),
+            tokenId: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)
+          };
+          
+          await addDoc(collection(db, 'rooms', roomId, 'tokens'), tokenData);
+          addChatMessage(`✅ Token sent to stranger successfully!`, false, '', true);
+        } catch (e) {
+          // Refund if failed
+          tokenBalances[tokenType]++;
+          updateTokenDisplay();
+          saveWalletBalances();
+          console.error("Error sending token:", e);
+          addChatMessage(`❌ Failed to send token. Refunded to wallet.`, true);
         }
       };
       
@@ -670,6 +836,7 @@
         strangerPlaceholder.innerHTML = '<i class="fas fa-user-secret"></i><span>???</span>';
         strangerPlaceholder.classList.remove('searching-text');
         strangerCamera.classList.remove('connected','live-active');
+        isConnectedToStranger = false;
       }
       
       function showConnected() {
@@ -677,6 +844,8 @@
         nextBtn.classList.add('visible');
         micBtn.classList.add('visible');
         chatToggleBtn.classList.add('visible');
+        isConnectedToStranger = true;
+        addChatMessage('🔗 Connected! You can now send tokens.', false, '', true);
       }
       
       function showDisconnected() {
@@ -686,6 +855,7 @@
         chatToggleBtn.classList.remove('visible');
         chatToggleBtn.classList.remove('has-messages');
         pendingMessages = 0;
+        isConnectedToStranger = false;
       }
       
       function toggleMute() {
@@ -699,7 +869,51 @@
         }
       }
       
-      // Chat message listener
+      // Listen for token transfers from stranger
+      function listenForTokenTransfers() {
+        if (tokenTransferUnsub) {
+          tokenTransferUnsub();
+        }
+        
+        if (roomId) {
+          const tokensQuery = query(
+            collection(db, 'rooms', roomId, 'tokens'),
+            orderBy('timestamp', 'asc')
+          );
+          
+          tokenTransferUnsub = onSnapshot(tokensQuery, (snapshot) => {
+            snapshot.docChanges().forEach((change) => {
+              if (change.type === 'added') {
+                const tokenData = change.doc.data();
+                
+                // If token is from stranger (not from me)
+                if (tokenData.sender !== myId) {
+                  const tokenType = tokenData.tokenType;
+                  if (tokenType && tokenBalances[tokenType] !== undefined) {
+                    // Add to my wallet
+                    tokenBalances[tokenType]++;
+                    updateTokenDisplay();
+                    saveWalletBalances(); // Save to Firestore
+                    
+                    addChatMessage(`🎁 Received ${tokenData.emoji} ${tokenType.charAt(0).toUpperCase() + tokenType.slice(1)} from stranger! Added to wallet. (${tokenBalances[tokenType]} total)`, false);
+                    
+                    // Show floating animation on my camera
+                    const myCam = document.getElementById('myCamera');
+                    const float = document.createElement('span');
+                    float.className = 'gift-float';
+                    float.textContent = tokenData.emoji;
+                    float.style.left = (Math.random() * 60 + 20) + '%';
+                    float.style.top = '55%';
+                    myCam.appendChild(float);
+                    setTimeout(() => float.remove(), 1500);
+                  }
+                }
+              }
+            });
+          });
+        }
+      }
+      
       function listenForChatMessages() {
         if (chatMessagesUnsub) {
           chatMessagesUnsub();
@@ -716,7 +930,6 @@
               if (change.type === 'added') {
                 const messageData = change.doc.data();
                 
-                // Prevent duplicate messages using messageId
                 if (messageData.messageId && messageCache.has(messageData.messageId)) {
                   return;
                 }
@@ -727,11 +940,9 @@
                 
                 const isSelf = messageData.sender === myId;
                 
-                // Don't show messages from self that are already shown
                 if (!isSelf || !messageData.messageId) {
                   addChatMessage(messageData.text, isSelf, messageData.username);
                 } else {
-                  // For self messages, add them via the listener too
                   addChatMessage(messageData.text, true);
                 }
               }
@@ -801,8 +1012,8 @@
           }));
         }
         
-        // Start listening for chat messages
         listenForChatMessages();
+        listenForTokenTransfers();
       }
       
       function listenForInvites() {
@@ -862,8 +1073,8 @@
             });
           }));
           
-          // Start listening for chat messages
           listenForChatMessages();
+          listenForTokenTransfers();
         }));
       }
       
@@ -907,17 +1118,26 @@
         unsubs.forEach(u => u());
         unsubs = [];
         
-        // Clean up chat listener
         if (chatMessagesUnsub) {
           chatMessagesUnsub();
           chatMessagesUnsub = null;
         }
         
+        if (tokenTransferUnsub) {
+          tokenTransferUnsub();
+          tokenTransferUnsub = null;
+        }
+        
         messageCache.clear();
         
         if (roomId) {
-          // Delete messages collection
           getDocs(collection(db, 'rooms', roomId, 'messages')).then((snapshot) => {
+            snapshot.forEach((doc) => {
+              deleteDoc(doc.ref).catch(() => {});
+            });
+          }).catch(() => {});
+          
+          getDocs(collection(db, 'rooms', roomId, 'tokens')).then((snapshot) => {
             snapshot.forEach((doc) => {
               deleteDoc(doc.ref).catch(() => {});
             });
@@ -935,13 +1155,15 @@
         stopCamera();
         showDisconnected();
         
-        // Clear chat messages display
         chatMessages.innerHTML = '';
         chatBox.classList.add('hidden');
         chatVisible = false;
+        
+        addChatMessage('Disconnected. Tokens saved to wallet.', false, '', true);
       }
       
       window.addEventListener('beforeunload', () => {
+        saveWalletBalances(); // Save wallet on exit
         if (isLive) endLive().catch(() => {});
         if (pc) pc.close();
         if (localStream) localStream.getTracks().forEach(t => t.stop());

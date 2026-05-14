@@ -16,7 +16,7 @@
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
     @keyframes giftFloat { 0%{transform:translateY(0) scale(1);opacity:1} 100%{transform:translateY(-60px) scale(1.3);opacity:0} }
     
-    /* Glass effect for top icons */
+    /* ✅ Glass effect for top icons */
     .top-left-icon {
       position:fixed;top:max(1rem,env(safe-area-inset-top,1rem));left:max(1rem,env(safe-area-inset-left,1rem));z-index:200;
       width:2.4rem;height:2.4rem;
@@ -71,13 +71,13 @@
       display:flex;gap:8px;align-items:flex-start;
     }
     
-    /* Glass Camera Containers */
+    /* Glass Camera Containers - FIXED */
     .stranger-section {
       width:60%;display:flex;flex-direction:column;gap:4px;
     }
     .stranger-camera {
       width:100%;height:55vh;
-      background: #111;
+      background: rgba(20, 20, 20, 0.4);
       backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
       border:1.5px solid rgba(255, 255, 255, 0.15);
       border-radius:20px;
@@ -88,15 +88,18 @@
     }
     .stranger-camera.connected { border-color:rgba(74,222,128,0.6); box-shadow: 0 0 25px rgba(74,222,128,0.2); }
     .stranger-camera.live-active { border-color:#ef4444; animation:livePulse 2s infinite; }
+    
+    /* FIXED: Video element should fill the container completely */
     #strangerFeed { 
       width:100%;height:100%;object-fit:cover;
-      display:none;
-      background:#000;
-      border-radius: 20px;
+      display:none;background:#000;
+      transform: rotateY(180deg);
+      -webkit-transform: rotateY(180deg);
       position: absolute;
       top: 0;
       left: 0;
     }
+    
     .stranger-placeholder { 
       display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
       color:rgba(255,255,255,0.3);
@@ -105,7 +108,7 @@
       padding: 12px 24px;
       border-radius: 30px;
       position: relative;
-      z-index: 1;
+      z-index: 2;
     }
     .stranger-placeholder i { font-size:2.5rem; }
     .stranger-placeholder span { font-size:0.8rem; font-weight: 500; }
@@ -117,7 +120,7 @@
     }
     .my-camera {
       width:100%;height:28vh;
-      background: #111;
+      background: rgba(20, 20, 20, 0.4);
       backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
       border:1.5px solid rgba(255, 255, 255, 0.2);
       border-radius:20px;
@@ -127,15 +130,18 @@
       transition: border-color 0.3s ease;
     }
     .my-camera.active { border-color:rgba(239,68,68,0.7); box-shadow: 0 0 25px rgba(239,68,68,0.2); }
+    
+    /* FIXED: My video should also fill container */
     #myFeed { 
       width:100%;height:100%;object-fit:cover;
-      display:none;
-      background:#000;
-      border-radius: 20px;
+      display:none;background:#000;
+      transform: rotateY(180deg);
+      -webkit-transform: rotateY(180deg);
       position: absolute;
       top: 0;
       left: 0;
     }
+    
     .my-placeholder { 
       display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
       color:rgba(255,255,255,0.4);
@@ -145,7 +151,7 @@
       border-radius: 30px;
       font-size:0.65rem;
       position: relative;
-      z-index: 1;
+      z-index: 2;
     }
     .my-placeholder i { font-size:1.2rem; }
     
@@ -356,8 +362,8 @@
       function showConnected(){setButtonState('stop');nextBtn.classList.add('visible');micBtn.classList.add('visible');}
       function showDisconnected(){setButtonState('start');nextBtn.classList.remove('visible');micBtn.classList.remove('visible');}
       function toggleMute(){if(!localStream)return;const t=localStream.getAudioTracks();if(t.length>0){isMuted=!isMuted;t.forEach(t=>t.enabled=!isMuted);micBtn.classList.toggle('muted',isMuted);micBtn.querySelector('i').className=isMuted?'fas fa-microphone-slash':'fas fa-microphone';}}
-      async function createRoom(oId,isCaller){roomId=[myId,oId].sort().join('_');showConnected();if(pc){pc.close();pc=null;}unsubs.forEach(u=>u());unsubs=[];pc=new RTCPeerConnection(servers);localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));pc.ontrack=(e)=>{if(e.streams[0]){strangerStream=e.streams[0];strangerFeed.srcObject=e.streams[0];strangerFeed.style.display='block';strangerPlaceholder.style.display='none';strangerCamera.classList.add('connected');}};pc.onicecandidate=async(e)=>{if(e.candidate)await addDoc(collection(doc(db,'rooms',roomId),'ice'),{sender:myId,candidate:e.candidate.toJSON()});};unsubs.push(onSnapshot(collection(doc(db,'rooms',roomId),'ice'),(snap)=>{snap.docChanges().forEach(async(c)=>{if(c.type==='added'&&c.doc.data().sender!==myId&&pc)try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate));}catch(e){}});}));if(isCaller){const offer=await pc.createOffer({offerToReceiveVideo:true,offerToReceiveAudio:true});await pc.setLocalDescription(offer);await setDoc(doc(db,'invites',oId),{from:myId,offer:{type:offer.type,sdp:offer.sdp}});unsubs.push(onSnapshot(doc(db,'invites',oId),async(snap)=>{const d=snap.data();if(d?.answer&&!pc.currentRemoteDescription)await pc.setRemoteDescription(new RTCSessionDescription(d.answer));}));}}
-      function listenForInvites(){unsubs.push(onSnapshot(doc(db,'invites',myId),async(snap)=>{if(!snap.exists())return;const d=snap.data();await deleteDoc(doc(db,'waiting',myId)).catch(()=>{});roomId=[myId,d.from].sort().join('_');showConnected();if(pc){pc.close();pc=null;}unsubs.forEach(u=>u());unsubs=[];pc=new RTCPeerConnection(servers);localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));pc.ontrack=(e)=>{if(e.streams[0]){strangerStream=e.streams[0];strangerFeed.srcObject=e.streams[0];strangerFeed.style.display='block';strangerPlaceholder.style.display='none';strangerCamera.classList.add('connected');}};pc.onicecandidate=async(e)=>{if(e.candidate)await addDoc(collection(doc(db,'rooms',roomId),'ice'),{sender:myId,candidate:e.candidate.toJSON()});};if(d.offer&&pc.signalingState!=='closed'){await pc.setRemoteDescription(new RTCSessionDescription(d.offer));const answer=await pc.createAnswer();await pc.setLocalDescription(answer);await setDoc(doc(db,'invites',myId),{answer:{type:answer.type,sdp:answer.sdp}},{merge:true});}unsubs.push(onSnapshot(collection(doc(db,'rooms',roomId),'ice'),(snap)=>{snap.docChanges().forEach(async(c)=>{if(c.type==='added'&&c.doc.data().sender!==myId&&pc)try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate));}catch(e){}});}));}));}
+      async function createRoom(oId,isCaller){roomId=[myId,oId].sort().join('_');showConnected();if(pc){pc.close();pc=null;}unsubs.forEach(u=>u());unsubs=[];pc=new RTCPeerConnection(servers);localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));pc.ontrack=(e)=>{if(e.streams[0]){strangerStream=e.streams[0];strangerFeed.srcObject=e.streams[0];strangerFeed.style.display='block';strangerPlaceholder.innerHTML='';strangerCamera.classList.add('connected');}};pc.onicecandidate=async(e)=>{if(e.candidate)await addDoc(collection(doc(db,'rooms',roomId),'ice'),{sender:myId,candidate:e.candidate.toJSON()});};unsubs.push(onSnapshot(collection(doc(db,'rooms',roomId),'ice'),(snap)=>{snap.docChanges().forEach(async(c)=>{if(c.type==='added'&&c.doc.data().sender!==myId&&pc)try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate));}catch(e){}});}));if(isCaller){const offer=await pc.createOffer({offerToReceiveVideo:true,offerToReceiveAudio:true});await pc.setLocalDescription(offer);await setDoc(doc(db,'invites',oId),{from:myId,offer:{type:offer.type,sdp:offer.sdp}});unsubs.push(onSnapshot(doc(db,'invites',oId),async(snap)=>{const d=snap.data();if(d?.answer&&!pc.currentRemoteDescription)await pc.setRemoteDescription(new RTCSessionDescription(d.answer));}));}}
+      function listenForInvites(){unsubs.push(onSnapshot(doc(db,'invites',myId),async(snap)=>{if(!snap.exists())return;const d=snap.data();await deleteDoc(doc(db,'waiting',myId)).catch(()=>{});roomId=[myId,d.from].sort().join('_');showConnected();if(pc){pc.close();pc=null;}unsubs.forEach(u=>u());unsubs=[];pc=new RTCPeerConnection(servers);localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));pc.ontrack=(e)=>{if(e.streams[0]){strangerStream=e.streams[0];strangerFeed.srcObject=e.streams[0];strangerFeed.style.display='block';strangerPlaceholder.innerHTML='';strangerCamera.classList.add('connected');}};pc.onicecandidate=async(e)=>{if(e.candidate)await addDoc(collection(doc(db,'rooms',roomId),'ice'),{sender:myId,candidate:e.candidate.toJSON()});};if(d.offer&&pc.signalingState!=='closed'){await pc.setRemoteDescription(new RTCSessionDescription(d.offer));const answer=await pc.createAnswer();await pc.setLocalDescription(answer);await setDoc(doc(db,'invites',myId),{answer:{type:answer.type,sdp:answer.sdp}},{merge:true});}unsubs.push(onSnapshot(collection(doc(db,'rooms',roomId),'ice'),(snap)=>{snap.docChanges().forEach(async(c)=>{if(c.type==='added'&&c.doc.data().sender!==myId&&pc)try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate));}catch(e){}});}));}));}
       async function startChat(){if(isLive){alert('Please END first.');return;}setButtonState('stop');strangerPlaceholder.innerHTML='<i class="fas fa-spinner fa-spin"></i><span style="color:#fbbf24;">Searching...</span>';strangerPlaceholder.classList.add('searching-text');if(!(await startCamera())){stopChat();return;}const snap=await getDocs(collection(db,'waiting'));let found=null;snap.forEach(d=>{if(d.data().userId!==myId&&!found)found=d.data().userId;});if(found){await deleteDoc(doc(db,'waiting',myId)).catch(()=>{});await deleteDoc(doc(db,'waiting',found)).catch(()=>{});await createRoom(found,true);}else{await setDoc(doc(db,'waiting',myId),{userId:myId});listenForInvites();}}
       function stopChat(){if(pc){pc.close();pc=null;}unsubs.forEach(u=>u());unsubs=[];if(roomId){deleteDoc(doc(db,'rooms',roomId)).catch(()=>{});roomId=null;}deleteDoc(doc(db,'waiting',myId)).catch(()=>{});deleteDoc(doc(db,'invites',myId)).catch(()=>{});if(isLive)endLive();resetStranger();stopCamera();showDisconnected();}
       window.addEventListener('beforeunload',()=>{if(isLive)endLive().catch(()=>{});if(pc)pc.close();if(localStream)localStream.getTracks().forEach(t=>t.stop());});

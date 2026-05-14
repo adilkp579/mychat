@@ -178,6 +178,13 @@
       border-color: rgba(74, 222, 128, 0.5);
     }
     
+    .stranger-controls-row {
+      display: none;
+      gap: 10px;
+      align-items: center;
+      margin-top: 4px;
+    }
+    
     .chat-box {
       position: fixed; bottom: 5.5rem; left: 50%; transform: translateX(-50%);
       width: 92%; max-width: 500px; height: 35vh; max-height: 350px;
@@ -328,24 +335,49 @@
     .nav-center a::before { content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:4px;height:4px;border-radius:50%;background:#fff;transition:all 0.3s; }
     .nav-center a.active::before { transform:translateX(-50%) scale(1); }
     .nav-center a.active { color:#fff;background:rgba(255,255,255,0.2);box-shadow:0 0 20px rgba(255,255,255,0.15); }
-    .nav-upload,.nav-search { display:none !important; }
+    .nav-wallet,.nav-live { display:none !important; }
 
     @media (min-width:1024px) {
-      .nav-upload,.nav-search { display:flex !important; }
+      .nav-wallet,.nav-live { display:flex !important; }
       .top-left-icon,.top-right-icon { display:none !important; }
       .floating-nav{position:fixed;top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column;background:rgba(10,10,10,0.1);backdrop-filter:blur(20px);}
       .nav-center{flex-direction:column;gap:1.2rem;max-width:none}.nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
       .nav-center a::before{bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0)}.nav-center a.active::before{transform:translateY(-50%) scale(1)}
       .page{padding-left:5rem}
-      .main-content{max-width:800px;margin:0 auto;width:100%;padding-bottom:1rem;}
-      .camera-area { gap: 12px; }
-      .stranger-section { width: 50%; }
-      .you-section { width: 50%; align-items: flex-start; }
-      .stranger-camera { height: 60vh; }
-      .my-camera { height: 60vh; }
-      .token-stack { flex-direction: row; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-      .token-btn { width: 130px; height: 44px; }
+      .main-content{max-width:950px;margin:0 auto;width:100%;padding-bottom:1rem;}
+      .camera-area { gap: 20px; }
+      /* Desktop: both screens same size - 48% each */
+      .stranger-section { width: 48%; }
+      .you-section { width: 48%; align-items: flex-start; }
+      .stranger-camera { height: 50vh; }
+      .my-camera { height: 50vh; }
+      
+      .token-stack { 
+        flex-direction: row; 
+        flex-wrap: wrap; 
+        gap: 8px; 
+        margin-top: 8px; 
+        align-items: center;
+        justify-content: flex-start;
+      }
+      .token-btn { width: auto; min-width: 90px; height: 36px; padding: 0 10px; }
+      
+      .stranger-controls-row {
+        display: flex;
+      }
+      .control-row.mobile-only {
+        display: none;
+      }
+      
       .chat-box { width: 400px; left: auto; right: 2rem; transform: none; }
+    }
+    @media (max-width:1023px) {
+      .stranger-controls-row {
+        display: none;
+      }
+      .control-row.mobile-only {
+        display: flex;
+      }
     }
     @media (max-width:380px) {
       .token-btn{width:100px;height:36px;font-size:0.7rem;}
@@ -376,6 +408,13 @@
             <video id="strangerFeed" autoplay playsinline></video>
             <div class="stranger-placeholder" id="strangerPlaceholder"><i class="fas fa-user-secret"></i><span>???</span></div>
           </div>
+          <div class="stranger-controls-row" id="strangerControlsRow">
+            <button class="ctrl-btn live-btn" id="liveBtnDesktop" type="button"><i class="fas fa-circle"></i><span>Live</span></button>
+            <button class="ctrl-btn start-btn" id="startStopBtnDesktop" type="button"><i class="fas fa-play"></i><span>Start</span></button>
+            <button class="next-btn" id="nextBtnDesktop" type="button"><i class="fas fa-forward"></i><span>Next</span></button>
+            <button class="mic-btn" id="micBtnDesktop" type="button" title="Mute"><i class="fas fa-microphone"></i></button>
+            <button class="chat-toggle-btn" id="chatToggleBtnDesktop" type="button" title="Chat"><i class="fas fa-comment"></i></button>
+          </div>
         </div>
         <div class="you-section">
           <span class="section-label">You</span>
@@ -404,7 +443,7 @@
         </div>
       </div>
       
-      <div class="control-row">
+      <div class="control-row mobile-only">
         <button class="ctrl-btn live-btn" id="liveBtn" type="button"><i class="fas fa-circle"></i><span>Live</span></button>
         <button class="ctrl-btn start-btn" id="startStopBtn" type="button"><i class="fas fa-play"></i><span>Start</span></button>
         <button class="next-btn" id="nextBtn" type="button"><i class="fas fa-forward"></i><span>Next</span></button>
@@ -432,8 +471,8 @@
         <a href="reel.html"><i class="fas fa-film"></i></a>
         <a href="chat.html"><i class="fas fa-comment-dots"></i></a>
         <a href="profile.html"><i class="fas fa-user"></i></a>
-        <a href="upload.html" class="nav-upload"><i class="fas fa-plus"></i></a>
-        <a href="search.html" class="nav-search"><i class="fas fa-search"></i></a>
+        <a href="wallet.html" class="nav-wallet"><i class="fas fa-wallet"></i></a>
+        <a href="live.html" class="nav-live"><i class="fas fa-broadcast-tower"></i></a>
       </div>
     </nav>
   </div>
@@ -455,6 +494,7 @@
     
     const chatBox = document.getElementById('chatBox');
     const chatToggleBtn = document.getElementById('chatToggleBtn');
+    const chatToggleBtnDesktop = document.getElementById('chatToggleBtnDesktop');
     const chatCloseBtn = document.getElementById('chatCloseBtn');
     const chatMessages = document.getElementById('chatMessages');
     const chatInput = document.getElementById('chatInput');
@@ -548,12 +588,14 @@
         chatBox.classList.remove('hidden');
         pendingMessages = 0;
         chatToggleBtn.classList.remove('has-messages');
+        if (chatToggleBtnDesktop) chatToggleBtnDesktop.classList.remove('has-messages');
       } else {
         chatBox.classList.add('hidden');
       }
     }
     
     chatToggleBtn.addEventListener('click', toggleChat);
+    if (chatToggleBtnDesktop) chatToggleBtnDesktop.addEventListener('click', toggleChat);
     chatCloseBtn.addEventListener('click', () => {
       chatBox.classList.add('hidden');
       chatVisible = false;
@@ -576,6 +618,7 @@
         pendingMessages++;
         if (pendingMessages > 0) {
           chatToggleBtn.classList.add('has-messages');
+          if (chatToggleBtnDesktop) chatToggleBtnDesktop.classList.add('has-messages');
         }
       }
     }
@@ -643,7 +686,9 @@
     function startWebChat() {
       const myFeed=document.getElementById('myFeed'),myPlaceholder=document.getElementById('myPlaceholder'),myCameraEl=document.getElementById('myCamera');
       const strangerFeed=document.getElementById('strangerFeed'),strangerPlaceholder=document.getElementById('strangerPlaceholder'),strangerCamera=document.getElementById('strangerCamera');
+      
       const startStopBtn=document.getElementById('startStopBtn'),nextBtn=document.getElementById('nextBtn'),micBtn=document.getElementById('micBtn'),liveBtn=document.getElementById('liveBtn');
+      const startStopBtnDesktop=document.getElementById('startStopBtnDesktop'),nextBtnDesktop=document.getElementById('nextBtnDesktop'),micBtnDesktop=document.getElementById('micBtnDesktop'),liveBtnDesktop=document.getElementById('liveBtnDesktop');
       
       myId = crypto.randomUUID ? crypto.randomUUID() : 'id_' + Date.now() + '_' + Math.random().toString(36).substr(2,9);
       const liveUserId = currentUser.replace('@','');
@@ -702,19 +747,29 @@
         }
       };
       
-      liveBtn.onclick = toggleLive;
+      liveBtn.onclick = () => toggleLive();
+      if (liveBtnDesktop) liveBtnDesktop.onclick = () => toggleLive();
+      
       startStopBtn.onclick = handleStartStop;
+      if (startStopBtnDesktop) startStopBtnDesktop.onclick = handleStartStop;
+      
       nextBtn.onclick = () => { stopChat(); setTimeout(() => startChat(), 500); };
+      if (nextBtnDesktop) nextBtnDesktop.onclick = () => { stopChat(); setTimeout(() => startChat(), 500); };
+      
       micBtn.onclick = toggleMute;
+      if (micBtnDesktop) micBtnDesktop.onclick = toggleMute;
       
       function setButtonState(state) {
-        startStopBtn.classList.remove('stop-state');
-        if (state === 'start') {
-          startStopBtn.innerHTML = '<i class="fas fa-play"></i><span>Start</span>';
-        } else {
-          startStopBtn.classList.add('stop-state');
-          startStopBtn.innerHTML = '<i class="fas fa-stop"></i><span>Stop</span>';
-        }
+        [startStopBtn, startStopBtnDesktop].forEach(btn => {
+          if (!btn) return;
+          btn.classList.remove('stop-state');
+          if (state === 'start') {
+            btn.innerHTML = '<i class="fas fa-play"></i><span>Start</span>';
+          } else {
+            btn.classList.add('stop-state');
+            btn.innerHTML = '<i class="fas fa-stop"></i><span>Stop</span>';
+          }
+        });
       }
       
       function handleStartStop() {
@@ -726,13 +781,16 @@
       }
       
       function updateLiveButton() {
-        if (isLive) {
-          liveBtn.innerHTML = '<i class="fas fa-stop-circle"></i><span>End</span>';
-          liveBtn.classList.add('active');
-        } else {
-          liveBtn.innerHTML = '<i class="fas fa-circle"></i><span>Live</span>';
-          liveBtn.classList.remove('active');
-        }
+        [liveBtn, liveBtnDesktop].forEach(btn => {
+          if (!btn) return;
+          if (isLive) {
+            btn.innerHTML = '<i class="fas fa-stop-circle"></i><span>End</span>';
+            btn.classList.add('active');
+          } else {
+            btn.innerHTML = '<i class="fas fa-circle"></i><span>Live</span>';
+            btn.classList.remove('active');
+          }
+        });
       }
       
       async function startLive() {
@@ -860,9 +918,9 @@
       
       function showConnected(username) {
         setButtonState('stop');
-        nextBtn.classList.add('visible');
-        micBtn.classList.add('visible');
-        chatToggleBtn.classList.add('visible');
+        [nextBtn, nextBtnDesktop].forEach(btn => { if (btn) btn.classList.add('visible'); });
+        [micBtn, micBtnDesktop].forEach(btn => { if (btn) btn.classList.add('visible'); });
+        [chatToggleBtn, chatToggleBtnDesktop].forEach(btn => { if (btn) btn.classList.add('visible'); });
         isConnectedToStranger = true;
         strangerUsername = username || 'Stranger';
         showStrangerInfo(strangerUsername);
@@ -871,10 +929,14 @@
       
       function showDisconnected() {
         setButtonState('start');
-        nextBtn.classList.remove('visible');
-        micBtn.classList.remove('visible');
-        chatToggleBtn.classList.remove('visible');
-        chatToggleBtn.classList.remove('has-messages');
+        [nextBtn, nextBtnDesktop].forEach(btn => { if (btn) btn.classList.remove('visible'); });
+        [micBtn, micBtnDesktop].forEach(btn => { if (btn) btn.classList.remove('visible'); });
+        [chatToggleBtn, chatToggleBtnDesktop].forEach(btn => { 
+          if (btn) {
+            btn.classList.remove('visible');
+            btn.classList.remove('has-messages');
+          }
+        });
         pendingMessages = 0;
         isConnectedToStranger = false;
         strangerUsername = '';
@@ -887,8 +949,11 @@
         if (t.length > 0) {
           isMuted = !isMuted;
           t.forEach(t => t.enabled = !isMuted);
-          micBtn.classList.toggle('muted', isMuted);
-          micBtn.querySelector('i').className = isMuted ? 'fas fa-microphone-slash' : 'fas fa-microphone';
+          [micBtn, micBtnDesktop].forEach(btn => {
+            if (!btn) return;
+            btn.classList.toggle('muted', isMuted);
+            btn.querySelector('i').className = isMuted ? 'fas fa-microphone-slash' : 'fas fa-microphone';
+          });
         }
       }
       

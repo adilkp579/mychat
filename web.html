@@ -15,8 +15,8 @@
     @keyframes livePulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.7)} 50%{box-shadow:0 0 0 10px rgba(239,68,68,0)} }
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
     @keyframes giftFloat { 0%{transform:translateY(0) scale(1);opacity:1} 100%{transform:translateY(-60px) scale(1.3);opacity:0} }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     
-    /* ✅ Top icons - Profile page style: 2.4rem (38px) circles, max(1rem) from edges */
     .top-left-icon {
       position:fixed;top:max(1rem,env(safe-area-inset-top,1rem));left:max(1rem,env(safe-area-inset-left,1rem));z-index:200;
       width:2.4rem;height:2.4rem;
@@ -37,23 +37,19 @@
     }
     .top-right-icon:hover { background:rgba(74,222,128,0.2); }
     
-    /* Main content area */
     .main-content {
       flex:1;display:flex;flex-direction:column;padding:3.5rem 1.2rem 1rem 1.2rem;position:relative;
       gap:8px;
     }
     
-    /* Labels */
     .section-label {
       font-size:14px;font-weight:600;color:#aaa;letter-spacing:1px;
     }
     
-    /* Camera area wrapper */
     .camera-area {
       display:flex;gap:8px;align-items:flex-start;
     }
     
-    /* Stranger camera - 60% width, 55vh height */
     .stranger-section {
       width:60%;display:flex;flex-direction:column;gap:4px;
     }
@@ -71,7 +67,6 @@
     .stranger-placeholder span { font-size:0.8rem; }
     .stranger-placeholder.searching-text { color:#fbbf24; }
     
-    /* You camera - 35% width, 28vh height, aligned top-right */
     .you-section {
       width:35%;display:flex;flex-direction:column;gap:4px;align-items:flex-end;
     }
@@ -86,7 +81,6 @@
     .my-placeholder { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:rgba(255,255,255,0.35);font-size:0.6rem; }
     .my-placeholder i { font-size:1.2rem; }
     
-    /* Token buttons */
     .token-stack {
       display:flex;flex-direction:column;gap:10px;align-items:flex-end;margin-top:4px;
     }
@@ -111,9 +105,8 @@
     
     .gift-float { position:absolute;font-size:2rem;pointer-events:none;animation:giftFloat 1.5s ease-out forwards;z-index:50; }
     
-    /* Control buttons */
     .control-row {
-      display:flex;gap:12px;align-items:center;
+      display:flex;gap:12px;align-items:center; flex-wrap: wrap;
     }
     .ctrl-btn {
       width:80px;height:34px;border-radius:17px;
@@ -134,6 +127,137 @@
     .mic-btn { display:none;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);color:#4ade80; }
     .mic-btn.visible { display:inline-flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid rgba(255,255,255,0.2);outline:none;font-size:0.8rem; }
     .mic-btn.muted { color:#ef4444;background:rgba(239,68,68,0.2);border-color:rgba(239,68,68,0.5); }
+    
+    /* Chat button next to mic */
+    .chat-toggle-btn {
+      display:none; width:34px; height:34px; border-radius:50%;
+      background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.2); color:#fff;
+    }
+    .chat-toggle-btn.visible {
+      display:inline-flex; align-items:center; justify-content:center;
+      cursor:pointer; border:1px solid rgba(255,255,255,0.2); outline:none; font-size:0.8rem;
+    }
+    
+    /* Premium glass chat box */
+    .chat-box {
+      position: fixed; bottom: 5.5rem; left: 50%; transform: translateX(-50%);
+      width: 92%; max-width: 500px; height: 25vh; max-height: 300px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%);
+      backdrop-filter: blur(40px) saturate(200%);
+      -webkit-backdrop-filter: blur(40px) saturate(200%);
+      border-radius: 28px;
+      border: 1.5px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+        0 0 30px rgba(255, 255, 255, 0.05) inset,
+        0 0 80px rgba(138, 43, 226, 0.08);
+      display: flex; flex-direction: column; z-index: 150;
+      animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    .chat-box::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      opacity: 0.6;
+    }
+    .chat-box.hidden { display: none; }
+    .chat-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.8rem 1.2rem;
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      color: #f5f5f5; font-size: 0.85rem; font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    .chat-close-btn {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #eee; font-size: 0.85rem; cursor: pointer;
+      width: 30px; height: 30px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.25s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .chat-close-btn:hover { 
+      background: rgba(255, 255, 255, 0.2); 
+      color: #fff; 
+      transform: rotate(90deg);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 0.8rem; display: flex; flex-direction: column; gap: 8px;
+      background: transparent;
+    }
+    .chat-messages::-webkit-scrollbar { width: 3px; }
+    .chat-messages::-webkit-scrollbar-track { background: transparent; }
+    .chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+    .chat-message {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 0.55rem 0.95rem; border-radius: 18px;
+      color: #f0f0f0; font-size: 0.8rem; max-width: 78%; align-self: flex-start;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+      transition: all 0.2s;
+      animation: slideUp 0.25s ease;
+    }
+    .chat-message.self { 
+      align-self: flex-end; 
+      background: linear-gradient(135deg, rgba(74, 222, 128, 0.25), rgba(74, 222, 128, 0.08));
+      border-color: rgba(74, 222, 128, 0.3);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 6px 20px rgba(74, 222, 128, 0.15);
+    }
+    .chat-input-area {
+      display: flex; padding: 0.6rem 0.8rem; gap: 8px;
+      background: rgba(0, 0, 0, 0.15);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .chat-input {
+      flex:1;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 24px; padding: 0.55rem 1rem; color: #fff; font-size: 0.8rem; outline: none;
+      transition: all 0.3s;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .chat-input::placeholder { color: rgba(255,255,255,0.4); }
+    .chat-input:focus { 
+      border-color: rgba(255,255,255,0.45); 
+      background: rgba(255,255,255,0.12);
+      box-shadow: 0 0 20px rgba(138, 43, 226, 0.15), inset 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .chat-send-btn {
+      background: linear-gradient(135deg, rgba(74, 222, 128, 0.3), rgba(74, 222, 128, 0.1));
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(74, 222, 128, 0.35);
+      border-radius: 50%; width: 38px; height: 38px;
+      color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(74, 222, 128, 0.2);
+    }
+    .chat-send-btn:hover { 
+      background: rgba(74, 222, 128, 0.45); 
+      transform: scale(1.05);
+      box-shadow: 0 8px 25px rgba(74, 222, 128, 0.35);
+    }
+    .chat-send-btn:active { transform: scale(0.9); }
 
     .https-warning { display:none;background:#ef4444;color:#fff;text-align:center;padding:4px;font-size:0.55rem;font-weight:600;z-index:200;width:100%; }
     .https-warning.show { display:block; }
@@ -141,7 +265,6 @@
     .loading-screen i { font-size:2rem;color:#3897f0;animation:spin 1s infinite; }
     .loading-screen span { font-size:0.75rem;color:#888; }
 
-    /* Navbar */
     .floating-nav { 
       position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));
       left:50%;transform:translateX(-50%);width:92%;max-width:500px;
@@ -168,6 +291,7 @@
       .page{padding-left:5rem}
       .main-content{max-width:800px;margin:0 auto;width:100%;padding-bottom:1rem;}
       .stranger-camera{height:55vh}.my-camera{height:28vh}
+      .chat-box { width: 400px; left: auto; right: 2rem; transform: none; }
     }
     @media (max-width:380px) {
       .token-btn{width:75px;height:28px;font-size:0.6rem;}
@@ -183,7 +307,6 @@
   <div class="https-warning" id="httpsWarning">⚠️ Camera requires HTTPS! <a href="javascript:void(0)" onclick="switchToHTTPS()">Switch to secure</a></div>
   <div class="loading-screen" id="loadingScreen"><i class="fas fa-spinner"></i><span>Loading...</span></div>
   <div class="page" id="mainPage" style="display:none;">
-    <!-- ✅ Top icons - Same style as Profile page: 2.4rem circles, max(1rem) from edges -->
     <a href="live.html" class="top-left-icon" title="Live"><i class="fas fa-broadcast-tower"></i></a>
     <a href="wallet.html" class="top-right-icon" title="Wallet"><i class="fas fa-wallet"></i></a>
     
@@ -216,6 +339,20 @@
         <button class="ctrl-btn start-btn" id="startStopBtn" type="button"><i class="fas fa-play"></i><span>Start</span></button>
         <button class="next-btn" id="nextBtn" type="button"><i class="fas fa-forward"></i><span>Next</span></button>
         <button class="mic-btn" id="micBtn" type="button" title="Mute"><i class="fas fa-microphone"></i></button>
+        <button class="chat-toggle-btn" id="chatToggleBtn" type="button" title="Chat"><i class="fas fa-comment"></i></button>
+      </div>
+    </div>
+
+    <!-- Premium Glass Chat Box -->
+    <div class="chat-box hidden" id="chatBox">
+      <div class="chat-header">
+        <span>💬 Chat</span>
+        <button class="chat-close-btn" id="chatCloseBtn"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-input-area">
+        <input type="text" class="chat-input" id="chatInput" placeholder="Type a message..." autocomplete="off">
+        <button class="chat-send-btn" id="chatSendBtn"><i class="fas fa-paper-plane"></i></button>
       </div>
     </div>
     
@@ -245,8 +382,51 @@
     const db = getFirestore(app);
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('mainPage').style.display = 'flex';
-    startWebChat();
-
+    
+    // Chat UI logic
+    const chatBox = document.getElementById('chatBox');
+    const chatToggleBtn = document.getElementById('chatToggleBtn');
+    const chatCloseBtn = document.getElementById('chatCloseBtn');
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const chatSendBtn = document.getElementById('chatSendBtn');
+    
+    let chatVisible = false;
+    function toggleChat() {
+      chatVisible = !chatVisible;
+      if (chatVisible) {
+        chatBox.classList.remove('hidden');
+      } else {
+        chatBox.classList.add('hidden');
+      }
+    }
+    chatToggleBtn.addEventListener('click', toggleChat);
+    chatCloseBtn.addEventListener('click', () => {
+      chatBox.classList.add('hidden');
+      chatVisible = false;
+    });
+    
+    function addChatMessage(text, isSelf = false) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'chat-message' + (isSelf ? ' self' : '');
+      msgDiv.textContent = text;
+      chatMessages.appendChild(msgDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    chatSendBtn.addEventListener('click', () => {
+      const text = chatInput.value.trim();
+      if (text) {
+        addChatMessage(text, true);
+        chatInput.value = '';
+      }
+    });
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        chatSendBtn.click();
+      }
+    });
+    
     window.sendToken = function(emoji, name) {
       const strangerCam = document.getElementById('strangerCamera');
       const float = document.createElement('span');
@@ -256,7 +436,10 @@
       float.style.top = '55%';
       strangerCam.appendChild(float);
       setTimeout(() => float.remove(), 1500);
+      addChatMessage(`Sent ${emoji} ${name}`, true);
     };
+
+    startWebChat();
 
     function startWebChat() {
       const myFeed=document.getElementById('myFeed'),myPlaceholder=document.getElementById('myPlaceholder'),myCameraEl=document.getElementById('myCamera');
@@ -279,8 +462,8 @@
       async function startCamera(){try{if(localStream)localStream.getTracks().forEach(t=>t.stop());localStream=await navigator.mediaDevices.getUserMedia({video:{width:480,height:640,facingMode:'user'},audio:{echoCancellation:true,noiseSuppression:true}});myFeed.srcObject=localStream;await myFeed.play();myFeed.style.display='block';myPlaceholder.style.display='none';myCameraEl.classList.add('active');return true;}catch(e){return false;}}
       function stopCamera(){if(localStream){localStream.getTracks().forEach(t=>t.stop());localStream=null;}myFeed.style.display='none';myFeed.srcObject=null;myPlaceholder.style.display='';myCameraEl.classList.remove('active');}
       function resetStranger(){strangerStream=null;strangerFeed.style.display='none';strangerFeed.srcObject=null;strangerPlaceholder.innerHTML='<i class="fas fa-user-secret"></i><span>???</span>';strangerPlaceholder.classList.remove('searching-text');strangerCamera.classList.remove('connected','live-active');}
-      function showConnected(){setButtonState('stop');nextBtn.classList.add('visible');micBtn.classList.add('visible');}
-      function showDisconnected(){setButtonState('start');nextBtn.classList.remove('visible');micBtn.classList.remove('visible');}
+      function showConnected(){setButtonState('stop');nextBtn.classList.add('visible');micBtn.classList.add('visible');chatToggleBtn.classList.add('visible');}
+      function showDisconnected(){setButtonState('start');nextBtn.classList.remove('visible');micBtn.classList.remove('visible');chatToggleBtn.classList.remove('visible');}
       function toggleMute(){if(!localStream)return;const t=localStream.getAudioTracks();if(t.length>0){isMuted=!isMuted;t.forEach(t=>t.enabled=!isMuted);micBtn.classList.toggle('muted',isMuted);micBtn.querySelector('i').className=isMuted?'fas fa-microphone-slash':'fas fa-microphone';}}
       async function createRoom(oId,isCaller){roomId=[myId,oId].sort().join('_');showConnected();if(pc){pc.close();pc=null;}unsubs.forEach(u=>u());unsubs=[];pc=new RTCPeerConnection(servers);localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));pc.ontrack=(e)=>{if(e.streams[0]){strangerStream=e.streams[0];strangerFeed.srcObject=e.streams[0];strangerFeed.style.display='block';strangerPlaceholder.innerHTML='';strangerCamera.classList.add('connected');}};pc.onicecandidate=async(e)=>{if(e.candidate)await addDoc(collection(doc(db,'rooms',roomId),'ice'),{sender:myId,candidate:e.candidate.toJSON()});};unsubs.push(onSnapshot(collection(doc(db,'rooms',roomId),'ice'),(snap)=>{snap.docChanges().forEach(async(c)=>{if(c.type==='added'&&c.doc.data().sender!==myId&&pc)try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate));}catch(e){}});}));if(isCaller){const offer=await pc.createOffer({offerToReceiveVideo:true,offerToReceiveAudio:true});await pc.setLocalDescription(offer);await setDoc(doc(db,'invites',oId),{from:myId,offer:{type:offer.type,sdp:offer.sdp}});unsubs.push(onSnapshot(doc(db,'invites',oId),async(snap)=>{const d=snap.data();if(d?.answer&&!pc.currentRemoteDescription)await pc.setRemoteDescription(new RTCSessionDescription(d.answer));}));}}
       function listenForInvites(){unsubs.push(onSnapshot(doc(db,'invites',myId),async(snap)=>{if(!snap.exists())return;const d=snap.data();await deleteDoc(doc(db,'waiting',myId)).catch(()=>{});roomId=[myId,d.from].sort().join('_');showConnected();if(pc){pc.close();pc=null;}unsubs.forEach(u=>u());unsubs=[];pc=new RTCPeerConnection(servers);localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));pc.ontrack=(e)=>{if(e.streams[0]){strangerStream=e.streams[0];strangerFeed.srcObject=e.streams[0];strangerFeed.style.display='block';strangerPlaceholder.innerHTML='';strangerCamera.classList.add('connected');}};pc.onicecandidate=async(e)=>{if(e.candidate)await addDoc(collection(doc(db,'rooms',roomId),'ice'),{sender:myId,candidate:e.candidate.toJSON()});};if(d.offer&&pc.signalingState!=='closed'){await pc.setRemoteDescription(new RTCSessionDescription(d.offer));const answer=await pc.createAnswer();await pc.setLocalDescription(answer);await setDoc(doc(db,'invites',myId),{answer:{type:answer.type,sdp:answer.sdp}},{merge:true});}unsubs.push(onSnapshot(collection(doc(db,'rooms',roomId),'ice'),(snap)=>{snap.docChanges().forEach(async(c)=>{if(c.type==='added'&&c.doc.data().sender!==myId&&pc)try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate));}catch(e){}});}));}));}

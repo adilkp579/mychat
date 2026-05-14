@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>Wallet • Token Wallet</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { margin:0;padding:0;box-sizing:border-box; }
+    body { background:#000;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;overscroll-behavior:none; }
+    .page { width:100%;height:100vh;height:100dvh;background:#000;display:flex;flex-direction:column;position:relative;overflow-y:auto;overflow-x:hidden; }
+    
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+    
+    .wallet-header {
+      padding: 2rem 1.5rem 1.5rem;
+      padding-top: max(2rem, env(safe-area-inset-top, 2rem));
+      display: flex; align-items: center; gap: 14px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%);
+    }
+    .profile-photo {
+      width: 50px; height: 50px; border-radius: 50%;
+      background: linear-gradient(135deg, #4ade80, #3b82f6);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 700; color: #fff;
+      border: 2px solid rgba(255,255,255,0.2);
+      flex-shrink: 0;
+    }
+    .profile-info {
+      display: flex; flex-direction: column; gap: 2px;
+    }
+    .profile-name {
+      font-size: 18px; font-weight: 700; color: #fff;
+    }
+    .profile-id {
+      font-size: 11px; color: #888;
+    }
+    
+    .balance-section {
+      padding: 0 1.5rem 1.5rem;
+    }
+    .balance-label {
+      font-size: 11px; color: #888; letter-spacing: 1px; margin-bottom: 6px;
+    }
+    .balance-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .balance-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-radius: 16px; padding: 14px;
+      border: 1px solid rgba(255,255,255,0.1);
+      display: flex; flex-direction: column; gap: 8px;
+      animation: slideUp 0.4s ease;
+    }
+    .balance-card-header {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .balance-card-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .balance-card-icon.chicken { background: rgba(245,158,11,0.2); }
+    .balance-card-icon.lion { background: rgba(239,68,68,0.2); }
+    .balance-card-icon.fish { background: rgba(59,130,246,0.2); }
+    .balance-card-icon.bike { background: rgba(168,85,247,0.2); }
+    
+    .balance-card-name {
+      font-size: 13px; font-weight: 600; color: #ccc;
+    }
+    .balance-card-amount {
+      font-size: 24px; font-weight: 700;
+    }
+    .balance-card-amount.chicken { color: #f59e0b; }
+    .balance-card-amount.lion { color: #ef4444; }
+    .balance-card-amount.fish { color: #3b82f6; }
+    .balance-card-amount.bike { color: #a855f7; }
+    
+    .action-tabs {
+      display: flex; gap: 8px; padding: 0 1.5rem 1rem;
+    }
+    .action-tab {
+      flex: 1; padding: 12px; border-radius: 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #aaa; font-size: 13px; font-weight: 600;
+      text-align: center; cursor: pointer;
+      transition: all 0.3s;
+    }
+    .action-tab.active {
+      background: rgba(74,222,128,0.15);
+      border-color: rgba(74,222,128,0.4);
+      color: #4ade80;
+    }
+    
+    .content-area {
+      flex: 1; padding: 0 1.5rem 1rem;
+      overflow-y: auto;
+    }
+    
+    /* Deposit Section */
+    .deposit-section { display: none; flex-direction: column; gap: 12px; }
+    .deposit-section.visible { display: flex; animation: fadeIn 0.3s ease; }
+    
+    .token-buy-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+      backdrop-filter: blur(20px); border-radius: 16px;
+      padding: 16px; border: 1px solid rgba(255,255,255,0.1);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .token-buy-info {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .token-buy-icon {
+      width: 40px; height: 40px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+    .token-buy-details { display: flex; flex-direction: column; gap: 2px; }
+    .token-buy-name { font-size: 14px; font-weight: 600; color: #fff; }
+    .token-buy-price { font-size: 11px; color: #888; }
+    .buy-btn {
+      padding: 8px 18px; border-radius: 20px;
+      background: rgba(74,222,128,0.2); border: 1px solid rgba(74,222,128,0.4);
+      color: #4ade80; font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .buy-btn:hover { background: rgba(74,222,128,0.35); }
+    .buy-btn:active { transform: scale(0.95); }
+    
+    .quantity-selector {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(0,0,0,0.3); border-radius: 20px;
+      padding: 4px;
+    }
+    .qty-btn {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(255,255,255,0.1); border: none;
+      color: #fff; font-size: 16px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .qty-num {
+      font-size: 14px; font-weight: 700; color: #fff; min-width: 24px; text-align: center;
+    }
+    
+    /* Withdraw Section */
+    .withdraw-section { display: none; flex-direction: column; gap: 12px; }
+    .withdraw-section.visible { display: flex; animation: fadeIn 0.3s ease; }
+    
+    .withdraw-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+      backdrop-filter: blur(20px); border-radius: 16px;
+      padding: 16px; border: 1px solid rgba(255,255,255,0.1);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .withdraw-input {
+      background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 10px; padding: 8px 12px; color: #fff;
+      font-size: 14px; width: 60px; text-align: center; outline: none;
+    }
+    .withdraw-method {
+      padding: 8px 14px; border-radius: 20px;
+      background: rgba(59,130,246,0.2); border: 1px solid rgba(59,130,246,0.4);
+      color: #3b82f6; font-size: 11px; font-weight: 600;
+      cursor: pointer;
+    }
+    .cash-value {
+      font-size: 12px; color: #4ade80; font-weight: 600;
+    }
+    
+    /* History bottom tabs */
+    .history-tabs {
+      display: flex; gap: 6px; padding: 0 1.5rem 1rem;
+      flex-wrap: wrap;
+    }
+    .history-tab {
+      padding: 8px 14px; border-radius: 20px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #aaa; font-size: 11px; font-weight: 600;
+      cursor: pointer; transition: all 0.3s;
+      white-space: nowrap;
+    }
+    .history-tab.active {
+      background: rgba(255,255,255,0.15);
+      border-color: rgba(255,255,255,0.3);
+      color: #fff;
+    }
+    
+    .history-content {
+      flex: 1; padding: 0 1.5rem;
+      overflow-y: auto; max-height: 35vh;
+    }
+    .history-list { display: none; flex-direction: column; gap: 8px; }
+    .history-list.visible { display: flex; animation: fadeIn 0.3s ease; }
+    
+    .history-item {
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px; padding: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .history-item-left {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .history-icon {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .history-icon.received { background: rgba(74,222,128,0.2); }
+    .history-icon.sent { background: rgba(239,68,68,0.2); }
+    .history-icon.deposit { background: rgba(59,130,246,0.2); }
+    .history-icon.withdraw { background: rgba(245,158,11,0.2); }
+    
+    .history-details { display: flex; flex-direction: column; gap: 2px; }
+    .history-title { font-size: 13px; font-weight: 600; color: #fff; }
+    .history-subtitle { font-size: 10px; color: #888; }
+    .history-amount { font-size: 14px; font-weight: 700; }
+    .history-amount.positive { color: #4ade80; }
+    .history-amount.negative { color: #ef4444; }
+    
+    .empty-state {
+      text-align: center; color: #666; padding: 30px;
+      font-size: 13px;
+    }
+    
+    .back-btn {
+      position: fixed; top: max(1rem, env(safe-area-inset-top, 1rem));
+      left: 1rem; z-index: 200;
+      width: 2.4rem; height: 2.4rem;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-radius: 50%; color: #fff; font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      text-decoration: none; border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .page-bottom-spacer { height: 30px; }
+    
+    @media (min-width:1024px) {
+      .page{max-width:600px;margin:0 auto;border-left:1px solid rgba(255,255,255,0.05);border-right:1px solid rgba(255,255,255,0.05);}
+      .back-btn{display:none;}
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <a href="web.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+    
+    <div class="wallet-header">
+      <div class="profile-photo" id="profilePhoto">?</div>
+      <div class="profile-info">
+        <span class="profile-name" id="profileName">@username</span>
+        <span class="profile-id" id="profileId">ID: ---</span>
+      </div>
+    </div>
+    
+    <div class="balance-section">
+      <div class="balance-label">💰 TOKEN BALANCE</div>
+      <div class="balance-grid">
+        <div class="balance-card">
+          <div class="balance-card-header">
+            <div class="balance-card-icon chicken">🍗</div>
+            <span class="balance-card-name">Chicken</span>
+          </div>
+          <span class="balance-card-amount chicken" id="balChicken">0</span>
+        </div>
+        <div class="balance-card">
+          <div class="balance-card-header">
+            <div class="balance-card-icon lion">🦁</div>
+            <span class="balance-card-name">Lion</span>
+          </div>
+          <span class="balance-card-amount lion" id="balLion">0</span>
+        </div>
+        <div class="balance-card">
+          <div class="balance-card-header">
+            <div class="balance-card-icon fish">🐟</div>
+            <span class="balance-card-name">Fish</span>
+          </div>
+          <span class="balance-card-amount fish" id="balFish">0</span>
+        </div>
+        <div class="balance-card">
+          <div class="balance-card-header">
+            <div class="balance-card-icon bike">🏍️</div>
+            <span class="balance-card-name">Bike</span>
+          </div>
+          <span class="balance-card-amount bike" id="balBike">0</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="action-tabs">
+      <div class="action-tab active" id="depositTab" onclick="switchAction('deposit')">
+        <i class="fas fa-plus-circle"></i> Deposit
+      </div>
+      <div class="action-tab" id="withdrawTab" onclick="switchAction('withdraw')">
+        <i class="fas fa-arrow-down"></i> Withdraw
+      </div>
+    </div>
+    
+    <div class="content-area">
+      <!-- Deposit Section -->
+      <div class="deposit-section visible" id="depositSection">
+        <div class="token-buy-card">
+          <div class="token-buy-info">
+            <div class="token-buy-icon" style="background:rgba(245,158,11,0.2)">🍗</div>
+            <div class="token-buy-details">
+              <span class="token-buy-name">Chicken Token</span>
+              <span class="token-buy-price">$1.00 per token</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="quantity-selector">
+              <button class="qty-btn" onclick="changeQty('chicken', -1)">−</button>
+              <span class="qty-num" id="qtyChicken">1</span>
+              <button class="qty-btn" onclick="changeQty('chicken', 1)">+</button>
+            </div>
+            <button class="buy-btn" onclick="buyTokens('chicken')">Buy</button>
+          </div>
+        </div>
+        <div class="token-buy-card">
+          <div class="token-buy-info">
+            <div class="token-buy-icon" style="background:rgba(239,68,68,0.2)">🦁</div>
+            <div class="token-buy-details">
+              <span class="token-buy-name">Lion Token</span>
+              <span class="token-buy-price">$2.00 per token</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="quantity-selector">
+              <button class="qty-btn" onclick="changeQty('lion', -1)">−</button>
+              <span class="qty-num" id="qtyLion">1</span>
+              <button class="qty-btn" onclick="changeQty('lion', 1)">+</button>
+            </div>
+            <button class="buy-btn" onclick="buyTokens('lion')">Buy</button>
+          </div>
+        </div>
+        <div class="token-buy-card">
+          <div class="token-buy-info">
+            <div class="token-buy-icon" style="background:rgba(59,130,246,0.2)">🐟</div>
+            <div class="token-buy-details">
+              <span class="token-buy-name">Fish Token</span>
+              <span class="token-buy-price">$0.50 per token</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="quantity-selector">
+              <button class="qty-btn" onclick="changeQty('fish', -1)">−</button>
+              <span class="qty-num" id="qtyFish">1</span>
+              <button class="qty-btn" onclick="changeQty('fish', 1)">+</button>
+            </div>
+            <button class="buy-btn" onclick="buyTokens('fish')">Buy</button>
+          </div>
+        </div>
+        <div class="token-buy-card">
+          <div class="token-buy-info">
+            <div class="token-buy-icon" style="background:rgba(168,85,247,0.2)">🏍️</div>
+            <div class="token-buy-details">
+              <span class="token-buy-name">Bike Token</span>
+              <span class="token-buy-price">$3.00 per token</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="quantity-selector">
+              <button class="qty-btn" onclick="changeQty('bike', -1)">−</button>
+              <span class="qty-num" id="qtyBike">1</span>
+              <button class="qty-btn" onclick="changeQty('bike', 1)">+</button>
+            </div>
+            <button class="buy-btn" onclick="buyTokens('bike')">Buy</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Withdraw Section -->
+      <div class="withdraw-section" id="withdrawSection">
+        <div class="withdraw-card">
+          <div class="token-buy-info">
+            <div class="token-buy-icon" style="background:rgba(245,158,11,0.2)">🍗</div>
+            <div class="token-buy-details">
+              <span class="token-buy-name">Chicken Token</span>
+              <span class="cash-value">💵 $0.80 each</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <input type="number" class="withdraw-input" id="wdChicken" value="0" min="0" max="0" onchange="updateWithdrawValue('chicken')">
+            <button class="withdraw-method" onclick="withdrawTokens('chicken')">Cash Out</button>
+          </div>
+        </div>
+        <div class="withdraw-card">
+          <div class="token-buy-info">
+            <div class="token-buy-icon" style="background:rgba(239,68,68,0.2)">🦁</div>
+            <div class="token-buy-details">
+              <span class="token-buy-name">Lion Token</span>
+              <span class="cash-value">💵 $1.60 each</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <input type="number" class="withdraw-input" id="wdLion" value="0" min="0" max="0" onchange="updateWithdrawValue('lion')">
+            <button class="withdraw-method" onclick="withdrawTokens('lion')">Cash Out</button>
+          </div>
+        </div>
+        <div class="withdraw-card">
+          <div class="token-buy-info">
+            <div class="token-buy-icon" style="background:rgba(59,130,246,0.2)">🐟</div>
+            <div class="token-buy-details">
+              <span class="token-buy-name">Fish Token</span>
+              <span class="cash-value">💵 $0.40 each</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <input type="number" class="withdraw-input" id="wdFish" value="0" min="0" max="0" onchange="updateWithdrawValue('fish')">
+            <button class="withdraw-method" onclick="withdrawTokens('fish')">Cash Out</button>
+          </div>
+        </div>
+        <div class="withdraw-card">
+          <div class="token-buy-info">
+            <div class="token-buy-icon" style="background:rgba(168,85,247,0.2)">🏍️</div>
+            <div class="token-buy-details">
+              <span class="token-buy-name">Bike Token</span>
+              <span class="cash-value">💵 $2.40 each</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <input type="number" class="withdraw-input" id="wdBike" value="0" min="0" max="0" onchange="updateWithdrawValue('bike')">
+            <button class="withdraw-method" onclick="withdrawTokens('bike')">Cash Out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="history-tabs">
+      <div class="history-tab active" id="tabTransactions" onclick="switchHistory('transactions')">
+        <i class="fas fa-exchange-alt"></i> Transactions
+      </div>
+      <div class="history-tab" id="tabDeposits" onclick="switchHistory('deposits')">
+        <i class="fas fa-plus-circle"></i> Deposits
+      </div>
+      <div class="history-tab" id="tabWithdrawals" onclick="switchHistory('withdrawals')">
+        <i class="fas fa-arrow-down"></i> Withdrawals
+      </div>
+      <div class="history-tab" id="tabHistory" onclick="switchHistory('history')">
+        <i class="fas fa-history"></i> History
+      </div>
+    </div>
+    
+    <div class="history-content" id="historyContent">
+      <div class="history-list visible" id="listTransactions"></div>
+      <div class="history-list" id="listDeposits"></div>
+      <div class="history-list" id="listWithdrawals"></div>
+      <div class="history-list" id="listHistory"></div>
+    </div>
+    
+    <div class="page-bottom-spacer"></div>
+  </div>
+  <script>
+    if (!localStorage.getItem("uid")) { window.location.replace("login.html"); }
+  </script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc, getDocs, serverTimestamp, query, orderBy, limit, where } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    
+    const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
+    const db = getFirestore(app);
+    
+    const uid = localStorage.getItem('uid');
+    const currentUser = localStorage.getItem('currentUser') || '@anonymous';
+    
+    document.getElementById('profileName').textContent = currentUser;
+    document.getElementById('profileId').textContent = 'ID: ' + uid.substring(0, 12) + '...';
+    document.getElementById('profilePhoto').textContent = currentUser.charAt(0).toUpperCase();
+    
+    let tokenBalances = { chicken: 0, lion: 0, fish: 0, bike: 0 };
+    let buyQuantities = { chicken: 1, lion: 1, fish: 1, bike: 1 };
+    const tokenPrices = { chicken: 1.00, lion: 2.00, fish: 0.50, bike: 3.00 };
+    const withdrawRates = { chicken: 0.80, lion: 1.60, fish: 0.40, bike: 2.40 };
+    
+    async function loadWallet() {
+      try {
+        const docSnap = await getDoc(doc(db, 'wallets', uid));
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          tokenBalances.chicken = data.chicken || 0;
+          tokenBalances.lion = data.lion || 0;
+          tokenBalances.fish = data.fish || 0;
+          tokenBalances.bike = data.bike || 0;
+        } else {
+          await setDoc(doc(db, 'wallets', uid), {
+            userId: uid, username: currentUser,
+            chicken: 10, lion: 5, fish: 8, bike: 3,
+            createdAt: serverTimestamp()
+          });
+          tokenBalances = { chicken: 10, lion: 5, fish: 8, bike: 3 };
+        }
+        updateBalanceDisplay();
+      } catch(e) { console.error(e); }
+    }
+    
+    function updateBalanceDisplay() {
+      document.getElementById('balChicken').textContent = tokenBalances.chicken;
+      document.getElementById('balLion').textContent = tokenBalances.lion;
+      document.getElementById('balFish').textContent = tokenBalances.fish;
+      document.getElementById('balBike').textContent = tokenBalances.bike;
+      
+      document.getElementById('wdChicken').max = tokenBalances.chicken;
+      document.getElementById('wdLion').max = tokenBalances.lion;
+      document.getElementById('wdFish').max = tokenBalances.fish;
+      document.getElementById('wdBike').max = tokenBalances.bike;
+    }
+    
+    window.changeQty = function(token, delta) {
+      const key = 'qty' + token.charAt(0).toUpperCase() + token.slice(1);
+      buyQuantities[token] = Math.max(1, (buyQuantities[token] || 1) + delta);
+      document.getElementById(key).textContent = buyQuantities[token];
+    };
+    
+    window.buyTokens = async function(token) {
+      const qty = buyQuantities[token];
+      const price = tokenPrices[token] * qty;
+      
+      if (confirm(`Buy ${qty} ${token} tokens for $${price.toFixed(2)}?`)) {
+        tokenBalances[token] += qty;
+        updateBalanceDisplay();
+        
+        await updateDoc(doc(db, 'wallets', uid), { [token]: tokenBalances[token] });
+        
+        await addDoc(collection(db, 'transactions'), {
+          userId: uid, type: 'deposit', token: token, amount: qty,
+          cashValue: price, timestamp: serverTimestamp()
+        });
+        
+        loadHistory('deposits');
+        loadHistory('transactions');
+      }
+    };
+    
+    window.withdrawTokens = async function(token) {
+      const inputEl = document.getElementById('wd' + token.charAt(0).toUpperCase() + token.slice(1));
+      const amount = parseInt(inputEl.value) || 0;
+      
+      if (amount <= 0) return alert('Enter valid amount');
+      if (amount > tokenBalances[token]) return alert('Insufficient balance');
+      
+      const cashValue = withdrawRates[token] * amount;
+      
+      if (confirm(`Withdraw ${amount} ${token} tokens for $${cashValue.toFixed(2)}?`)) {
+        tokenBalances[token] -= amount;
+        updateBalanceDisplay();
+        
+        await updateDoc(doc(db, 'wallets', uid), { [token]: tokenBalances[token] });
+        
+        await addDoc(collection(db, 'transactions'), {
+          userId: uid, type: 'withdrawal', token: token, amount: amount,
+          cashValue: cashValue, timestamp: serverTimestamp()
+        });
+        
+        loadHistory('withdrawals');
+        loadHistory('transactions');
+      }
+    };
+    
+    window.updateWithdrawValue = function(token) {};
+    
+    window.switchAction = function(action) {
+      document.getElementById('depositTab').classList.toggle('active', action === 'deposit');
+      document.getElementById('withdrawTab').classList.toggle('active', action === 'withdraw');
+      document.getElementById('depositSection').classList.toggle('visible', action === 'deposit');
+      document.getElementById('withdrawSection').classList.toggle('visible', action === 'withdraw');
+    };
+    
+    window.switchHistory = function(type) {
+      ['transactions', 'deposits', 'withdrawals', 'history'].forEach(t => {
+        document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === type);
+        document.getElementById('list' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('visible', t === type);
+      });
+      loadHistory(type);
+    };
+    
+    async function loadHistory(type) {
+      const listEl = document.getElementById('list' + type.charAt(0).toUpperCase() + type.slice(1));
+      
+      if (type === 'transactions') {
+        const q = query(collection(db, 'transactions'), where('userId', '==', uid), orderBy('timestamp', 'desc'), limit(20));
+        const snap = await getDocs(q);
+        
+        if (snap.empty) {
+          listEl.innerHTML = '<div class="empty-state">No transactions yet</div>';
+          return;
+        }
+        
+        listEl.innerHTML = '';
+        snap.forEach(doc => {
+          const d = doc.data();
+          const isDeposit = d.type === 'deposit';
+          listEl.innerHTML += `
+            <div class="history-item">
+              <div class="history-item-left">
+                <div class="history-icon ${isDeposit ? 'deposit' : 'withdraw'}">
+                  <i class="fas fa-${isDeposit ? 'plus' : 'minus'}"></i>
+                </div>
+                <div class="history-details">
+                  <span class="history-title">${isDeposit ? 'Purchased' : 'Cashed Out'} ${d.token}</span>
+                  <span class="history-subtitle">${d.timestamp?.toDate?.()?.toLocaleDateString() || 'Just now'}</span>
+                </div>
+              </div>
+              <span class="history-amount ${isDeposit ? 'positive' : 'negative'}">
+                ${isDeposit ? '+' : '-'}${d.amount} ${d.token}
+              </span>
+            </div>`;
+        });
+      }
+      else if (type === 'deposits') {
+        const q = query(collection(db, 'transactions'), where('userId', '==', uid), where('type', '==', 'deposit'), orderBy('timestamp', 'desc'), limit(20));
+        const snap = await getDocs(q);
+        renderTransactionList(listEl, snap, 'deposit');
+      }
+      else if (type === 'withdrawals') {
+        const q = query(collection(db, 'transactions'), where('userId', '==', uid), where('type', '==', 'withdrawal'), orderBy('timestamp', 'desc'), limit(20));
+        const snap = await getDocs(q);
+        renderTransactionList(listEl, snap, 'withdrawal');
+      }
+      else if (type === 'history') {
+        const q1 = query(collection(db, 'token_transfers'), where('senderUid', '==', uid), orderBy('timestamp', 'desc'), limit(20));
+        const q2 = query(collection(db, 'token_transfers'), where('receiverUid', '==', uid), orderBy('timestamp', 'desc'), limit(20));
+        
+        const [sentSnap, receivedSnap] = await Promise.all([getDocs(q1), getDocs(q2)]);
+        
+        let allTransfers = [];
+        sentSnap.forEach(d => allTransfers.push({...d.data(), direction: 'sent'}));
+        receivedSnap.forEach(d => allTransfers.push({...d.data(), direction: 'received'}));
+        
+        allTransfers.sort((a, b) => (b.timestamp?.toDate?.() || 0) - (a.timestamp?.toDate?.() || 0));
+        
+        if (allTransfers.length === 0) {
+          listEl.innerHTML = '<div class="empty-state">No transfer history yet</div>';
+          return;
+        }
+        
+        listEl.innerHTML = '';
+        allTransfers.forEach(d => {
+          const isReceived = d.direction === 'received';
+          listEl.innerHTML += `
+            <div class="history-item">
+              <div class="history-item-left">
+                <div class="history-icon ${isReceived ? 'received' : 'sent'}">
+                  <i class="fas fa-${isReceived ? 'arrow-down' : 'arrow-up'}"></i>
+                </div>
+                <div class="history-details">
+                  <span class="history-title">${isReceived ? 'From' : 'To'}: ${isReceived ? (d.senderUsername || 'Unknown') : (d.receiverUsername || 'Unknown')}</span>
+                  <span class="history-subtitle">${d.timestamp?.toDate?.()?.toLocaleDateString() || 'Just now'}</span>
+                </div>
+              </div>
+              <span class="history-amount ${isReceived ? 'positive' : 'negative'}">
+                ${isReceived ? '+' : '-'}${d.amount || 1} ${d.tokenType}
+              </span>
+            </div>`;
+        });
+      }
+    }
+    
+    function renderTransactionList(listEl, snap, type) {
+      if (snap.empty) {
+        listEl.innerHTML = `<div class="empty-state">No ${type}s yet</div>`;
+        return;
+      }
+      
+      listEl.innerHTML = '';
+      snap.forEach(doc => {
+        const d = doc.data();
+        listEl.innerHTML += `
+          <div class="history-item">
+            <div class="history-item-left">
+              <div class="history-icon ${type === 'deposit' ? 'deposit' : 'withdraw'}">
+                <i class="fas fa-${type === 'deposit' ? 'plus' : 'minus'}"></i>
+              </div>
+              <div class="history-details">
+                <span class="history-title">${d.token} - $${d.cashValue?.toFixed(2) || '0.00'}</span>
+                <span class="history-subtitle">${d.timestamp?.toDate?.()?.toLocaleDateString() || 'Just now'}</span>
+              </div>
+            </div>
+            <span class="history-amount ${type === 'deposit' ? 'positive' : 'negative'}">
+              ${type === 'deposit' ? '+' : '-'}${d.amount}
+            </span>
+          </div>`;
+      });
+    }
+    
+    window.recordTokenTransfer = async function(senderUid, receiverUid, tokenType, amount, senderUsername, receiverUsername) {
+      await addDoc(collection(db, 'token_transfers'), {
+        senderUid, receiverUid, tokenType, amount: amount || 1,
+        senderUsername, receiverUsername,
+        timestamp: serverTimestamp()
+      });
+    };
+    
+    loadWallet();
+    loadHistory('transactions');
+  </script>
+</body>
+</html>

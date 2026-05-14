@@ -47,53 +47,65 @@
     }
     .top-right-icon:hover { background:rgba(74,222,128,0.2); border-color: rgba(74,222,128,0.5); }
     
-    /* Main content area - responsive padding */
+    /* Main content area - uses flex to fill available space */
     .main-content {
-      flex:1;display:flex;flex-direction:column;
-      padding: 3.5rem 1rem 5.5rem 1rem;
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      padding: 3.5rem 1rem 0.5rem 1rem;
       position:relative;
       gap:8px;
       overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
+      overflow-x: hidden;
+      min-height: 0;
     }
     
     /* Glass Labels */
     .section-label {
-      font-size:13px;font-weight:600;color:rgba(255,255,255,0.5);
+      font-size:0.75rem;
+      font-weight:600;
+      color:rgba(255,255,255,0.5);
       letter-spacing:1.2px;
       background: rgba(255,255,255,0.05);
       backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-      padding: 4px 12px;
+      padding: 3px 10px;
       border-radius: 20px;
       display: inline-block;
       margin-bottom: 2px;
       border: 1px solid rgba(255,255,255,0.1);
     }
     
-    /* Camera area wrapper */
+    /* Camera area wrapper - flex: 1 to take available space */
     .camera-area {
-      display:flex;gap:8px;align-items:flex-start;
       flex: 1;
+      display:flex;
+      gap:8px;
+      align-items:flex-start;
       min-height: 0;
     }
     
     /* Glass Camera Containers */
     .stranger-section {
-      width:60%;display:flex;flex-direction:column;gap:4px;
-      flex: 1;
+      flex: 3;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      height: 100%;
     }
     .stranger-camera {
-      width:100%;
       flex: 1;
       background: rgba(20, 20, 20, 0.4);
       backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
       border:1.5px solid rgba(255, 255, 255, 0.15);
       border-radius:20px;
-      position:relative;overflow:hidden;
-      display:flex;align-items:center;justify-content:center;
+      position:relative;
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
       box-shadow: 0 15px 35px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.4);
       transition: border-color 0.3s ease, box-shadow 0.3s ease;
-      min-height: 250px;
+      min-height: 0;
     }
     .stranger-camera.connected { border-color:rgba(74,222,128,0.6); box-shadow: 0 0 25px rgba(74,222,128,0.2); }
     .stranger-camera.live-active { border-color:#ef4444; animation:livePulse 2s infinite; }
@@ -118,26 +130,34 @@
       position: relative;
       z-index: 2;
     }
-    .stranger-placeholder i { font-size:2.5rem; }
-    .stranger-placeholder span { font-size:0.8rem; font-weight: 500; }
+    .stranger-placeholder i { font-size:2rem; }
+    .stranger-placeholder span { font-size:0.75rem; font-weight: 500; }
     .stranger-placeholder.searching-text { color:#fbbf24; background: rgba(251,191,36,0.1); }
     
     /* You camera glass */
     .you-section {
-      width:35%;display:flex;flex-direction:column;gap:4px;align-items:flex-end;
+      flex: 2;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      align-items:flex-end;
+      height: 100%;
     }
     .my-camera {
-      width:100%;
-      height: 28vh;
-      min-height: 150px;
+      width: 100%;
+      flex: 1;
       background: rgba(20, 20, 20, 0.4);
       backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
       border:1.5px solid rgba(255, 255, 255, 0.2);
       border-radius:20px;
-      position:relative;overflow:hidden;
-      display:flex;align-items:center;justify-content:center;
+      position:relative;
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
       box-shadow: 0 15px 35px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.4);
       transition: border-color 0.3s ease;
+      min-height: 0;
     }
     .my-camera.active { border-color:rgba(239,68,68,0.7); box-shadow: 0 0 25px rgba(239,68,68,0.2); }
     
@@ -158,24 +178,41 @@
       backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
       padding: 8px 18px;
       border-radius: 30px;
-      font-size:0.65rem;
+      font-size:0.6rem;
       position: relative;
       z-index: 2;
     }
-    .my-placeholder i { font-size:1.2rem; }
+    .my-placeholder i { font-size:1.1rem; }
     
-    /* Glass Token buttons - MOBILE: vertical stack */
+    /* Token buttons - flexible row */
     .token-stack {
-      display:flex;flex-direction:column;gap:8px;align-items:flex-end;margin-top:6px;
+      display:flex;
+      flex-direction:row;
+      gap:6px;
+      align-items:center;
+      margin-top:6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      flex-shrink: 0;
     }
     .token-btn {
-      width:80px;height:30px;border-radius:20px;
+      height:28px;
+      border-radius:16px;
       border:1px solid rgba(255, 255, 255, 0.15);
       background: rgba(0, 0, 0, 0.35);
       backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-      cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;
-      font-size:0.65rem;font-weight:600;transition:all 0.25s;color:#fff;padding:0 8px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:4px;
+      font-size:0.65rem;
+      font-weight:600;
+      transition:all 0.25s;
+      color:#fff;
+      padding:0 8px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      flex-shrink: 0;
     }
     .token-btn:active { transform:scale(0.9); background: rgba(255,255,255,0.15); }
     .token-btn .token-emoji { font-size:0.8rem;line-height:1; filter: drop-shadow(0 2px 3px black); }
@@ -191,34 +228,87 @@
     
     .gift-float { position:absolute;font-size:2rem;pointer-events:none;animation:giftFloat 1.5s ease-out forwards;z-index:50; filter: drop-shadow(0 0 8px white); }
     
-    /* Glass Control buttons */
+    /* Control buttons - fixed position above navbar */
     .control-row {
-      display:flex;gap:10px;align-items:center; 
-      padding: 4px 0;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      justify-content: center;
       flex-shrink: 0;
+      padding: 6px 0;
+      margin-bottom: 0;
     }
     .ctrl-btn {
-      width:75px;height:34px;border-radius:22px;
-      display:inline-flex;align-items:center;justify-content:center;gap:4px;
-      cursor:pointer;border:1px solid rgba(255, 255, 255, 0.2);
+      height:32px;
+      border-radius:16px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:4px;
+      cursor:pointer;
+      border:1px solid rgba(255, 255, 255, 0.2);
       outline:none;
-      font-size:0.65rem;font-weight:600;padding:0;color:#fff;
+      font-size:0.65rem;
+      font-weight:600;
+      padding:0 12px;
+      color:#fff;
       background: rgba(0, 0, 0, 0.4);
       backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-      transition:all 0.3s; -webkit-tap-highlight-color:transparent;
-      touch-action:manipulation;user-select:none;-webkit-user-select:none;
+      transition:all 0.3s;
+      -webkit-tap-highlight-color:transparent;
+      touch-action:manipulation;
+      user-select:none;
+      -webkit-user-select:none;
       box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+      flex-shrink: 0;
     }
     .ctrl-btn:active { transform:scale(0.95); background: rgba(255,255,255,0.1); }
-    .live-btn { border-color:rgba(74,222,128,0.4); color:#4ade80; }
+    .live-btn { border-color:rgba(74,222,128,0.4); color:#4ade80; min-width: 70px; }
     .live-btn.active { border-color:rgba(239,68,68,0.6); color:#ef4444; animation:livePulse 2s infinite; background: rgba(239,68,68,0.15); }
-    .start-btn { border-color:rgba(74,222,128,0.4); color:#4ade80; }
+    .start-btn { border-color:rgba(74,222,128,0.4); color:#4ade80; min-width: 70px; }
     .start-btn.stop-state { border-color:rgba(239,68,68,0.5); color:#ef4444; background: rgba(239,68,68,0.15); }
     
-    .next-btn { display:none;width:55px;height:34px;border-radius:22px; background:rgba(255,255,255,0.05); border-color:rgba(255,255,255,0.2); color:#ccc; backdrop-filter: blur(14px); }
-    .next-btn.visible { display:inline-flex;align-items:center;justify-content:center;gap:3px;cursor:pointer;border:1px solid rgba(255,255,255,0.2);outline:none;font-size:0.65rem;font-weight:600; }
-    .mic-btn { display:none;width:34px;height:34px;border-radius:50%; background:rgba(255,255,255,0.05); border-color:rgba(255,255,255,0.2); color:#4ade80; backdrop-filter: blur(14px); }
-    .mic-btn.visible { display:inline-flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid rgba(255,255,255,0.2);outline:none;font-size:0.75rem; }
+    .next-btn { 
+      display:none;
+      height:32px;
+      border-radius:16px;
+      background:rgba(255,255,255,0.05);
+      border-color:rgba(255,255,255,0.2);
+      color:#ccc;
+      backdrop-filter: blur(14px);
+      min-width: 55px;
+    }
+    .next-btn.visible { 
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:4px;
+      cursor:pointer;
+      border:1px solid rgba(255,255,255,0.2);
+      outline:none;
+      font-size:0.65rem;
+      font-weight:600;
+      padding:0 10px;
+    }
+    .mic-btn { 
+      display:none;
+      width:32px;
+      height:32px;
+      border-radius:50%;
+      background:rgba(255,255,255,0.05);
+      border-color:rgba(255,255,255,0.2);
+      color:#4ade80;
+      backdrop-filter: blur(14px);
+    }
+    .mic-btn.visible { 
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      border:1px solid rgba(255,255,255,0.2);
+      outline:none;
+      font-size:0.75rem;
+    }
     .mic-btn.muted { color:#ef4444; background:rgba(239,68,68,0.2); border-color:rgba(239,68,68,0.5); }
 
     .https-warning { display:none;background:rgba(239,68,68,0.8); backdrop-filter: blur(10px); color:#fff;text-align:center;padding:4px;font-size:0.55rem;font-weight:600;z-index:200;width:100%; }
@@ -229,20 +319,40 @@
 
     /* Glass Navbar - UNCHANGED */
     .floating-nav { 
-      position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));
-      left:50%;transform:translateX(-50%);width:92%;max-width:500px;
+      position:fixed;
+      bottom:max(0.8rem,env(safe-area-inset-bottom,0.8rem));
+      left:50%;
+      transform:translateX(-50%);
+      width:92%;
+      max-width:500px;
       background: rgba(10, 10, 10, 0.25);
-      backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-      border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;
-      border:1px solid rgba(255, 255, 255, 0.1);z-index:100;
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border-radius:2.5rem;
+      padding:0.6rem 1.2rem;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:1px solid rgba(255, 255, 255, 0.1);
+      z-index:100;
       box-shadow:0 10px 30px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.08);
       transition:all 0.3s ease;
+      flex-shrink: 0;
     }
     .floating-nav:hover { background:rgba(10,10,10,0.35); }
-    .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
+    .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.2rem; }
     .nav-center a { 
-      color:rgba(255,255,255,0.7);font-size:1.3rem;display:flex;align-items:center;justify-content:center;
-      width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);text-decoration:none;position:relative;
+      color:rgba(255,255,255,0.7);
+      font-size:1.2rem;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:2.2rem;
+      height:2.2rem;
+      border-radius:50%;
+      transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+      text-decoration:none;
+      position:relative;
       background: transparent;
     }
     .nav-center a:hover { color:#fff; background:rgba(255,255,255,0.2); backdrop-filter: blur(8px); transform:translateY(-2px); }
@@ -251,196 +361,124 @@
     .nav-center a.active { color:#fff; background:rgba(255,255,255,0.25); backdrop-filter: blur(10px); box-shadow:0 0 20px rgba(255,255,255,0.2); }
     .nav-upload,.nav-search { display:none !important; }
 
-    /* 📱 SMALL MOBILE (320px - 374px) */
-    @media (max-width: 374px) {
+    /* 📱 Small phones (iPhone SE, etc.) */
+    @media (max-height: 700px) {
       .main-content {
-        padding: 3rem 0.6rem 5rem 0.6rem;
+        padding: 3rem 0.8rem 0.3rem 0.8rem;
         gap: 4px;
       }
-      
-      .camera-area {
-        gap: 4px;
+      .section-label {
+        font-size: 0.65rem;
+        padding: 2px 8px;
       }
-      
-      .stranger-camera {
-        min-height: 180px;
-        border-radius: 14px;
-      }
-      
-      .my-camera {
-        height: 22vh;
-        min-height: 120px;
-        border-radius: 14px;
-      }
-      
-      .token-stack {
-        gap: 4px;
-        margin-top: 4px;
-      }
-      
       .token-btn {
-        width: 60px;
-        height: 26px;
-        font-size: 0.55rem;
-        gap: 3px;
+        height: 24px;
+        font-size: 0.6rem;
         padding: 0 6px;
+        gap: 3px;
       }
-      
       .token-btn .token-emoji { font-size: 0.7rem; }
       .token-btn .token-label { font-size: 0.5rem; }
-      
-      .control-row {
+      .ctrl-btn {
+        height: 28px;
+        font-size: 0.6rem;
+        min-width: 60px;
+        padding: 0 10px;
+      }
+      .next-btn { height: 28px; min-width: 50px; }
+      .mic-btn { width: 28px; height: 28px; }
+      .control-row { gap: 6px; padding: 4px 0; }
+      .token-stack { gap: 4px; margin-top: 4px; }
+      .floating-nav {
+        padding: 0.5rem 0.8rem;
+        bottom: max(0.5rem,env(safe-area-inset-bottom,0.5rem));
+      }
+      .nav-center a {
+        font-size: 1rem;
+        width: 1.8rem;
+        height: 1.8rem;
+      }
+      .top-left-icon, .top-right-icon {
+        width: 1.8rem;
+        height: 1.8rem;
+        font-size: 0.8rem;
+      }
+    }
+
+    /* 📱 Medium phones */
+    @media (min-height: 701px) and (max-height: 850px) {
+      .main-content {
+        padding: 3.2rem 1rem 0.4rem 1rem;
         gap: 6px;
       }
-      
-      .ctrl-btn {
-        width: 60px;
-        height: 30px;
-        font-size: 0.6rem;
-        gap: 3px;
-      }
-      
-      .next-btn {
-        width: 48px;
-        height: 30px;
-        font-size: 0.6rem;
-      }
-      
-      .mic-btn {
-        width: 30px;
-        height: 30px;
+      .section-label {
         font-size: 0.7rem;
       }
-      
-      .section-label {
-        font-size: 10px;
-        padding: 3px 8px;
+      .token-btn {
+        height: 26px;
+        font-size: 0.63rem;
       }
-      
+      .token-btn .token-emoji { font-size: 0.75rem; }
+      .token-btn .token-label { font-size: 0.53rem; }
+      .ctrl-btn {
+        height: 30px;
+        font-size: 0.63rem;
+      }
+      .next-btn { height: 30px; }
+      .mic-btn { width: 30px; height: 30px; }
+      .control-row { gap: 7px; }
+      .token-stack { gap: 5px; }
       .floating-nav {
-        width: 94%;
-        padding: 0.5rem 0.8rem;
-        bottom: max(0.6rem, env(safe-area-inset-bottom, 0.6rem));
+        padding: 0.55rem 1rem;
       }
-      
       .nav-center a {
         font-size: 1.1rem;
         width: 2rem;
         height: 2rem;
       }
-      
-      .top-left-icon, .top-right-icon {
-        width: 2rem;
-        height: 2rem;
-        font-size: 0.85rem;
-      }
     }
 
-    /* 📱 MEDIUM MOBILE (375px - 414px) */
-    @media (min-width: 375px) and (max-width: 414px) {
+    /* 📱 Large phones */
+    @media (min-height: 851px) {
       .main-content {
-        padding: 3.2rem 0.8rem 5.2rem 0.8rem;
+        padding: 3.8rem 1.2rem 0.6rem 1.2rem;
+        gap: 10px;
       }
-      
-      .stranger-camera {
-        min-height: 220px;
+      .section-label {
+        font-size: 0.8rem;
       }
-      
-      .my-camera {
-        height: 26vh;
-        min-height: 140px;
-      }
-      
       .token-btn {
-        width: 70px;
-        height: 28px;
-      }
-    }
-
-    /* 📱 LARGE MOBILE (415px - 767px) */
-    @media (min-width: 415px) and (max-width: 767px) {
-      .main-content {
-        padding: 3.5rem 1rem 5.5rem 1rem;
-      }
-      
-      .stranger-camera {
-        min-height: 280px;
-      }
-      
-      .my-camera {
-        height: 30vh;
-        min-height: 170px;
-      }
-      
-      .token-btn {
-        width: 85px;
-        height: 32px;
+        height: 30px;
         font-size: 0.7rem;
+        padding: 0 10px;
       }
-      
       .token-btn .token-emoji { font-size: 0.85rem; }
       .token-btn .token-label { font-size: 0.6rem; }
-      
       .ctrl-btn {
-        width: 80px;
-        height: 36px;
+        height: 34px;
         font-size: 0.7rem;
+      }
+      .next-btn { height: 34px; }
+      .mic-btn { width: 34px; height: 34px; }
+      .control-row { gap: 10px; }
+      .token-stack { gap: 8px; margin-top: 8px; }
+      .floating-nav {
+        padding: 0.7rem 1.5rem;
+      }
+      .nav-center a {
+        font-size: 1.3rem;
+        width: 2.4rem;
+        height: 2.4rem;
+      }
+      .top-left-icon, .top-right-icon {
+        width: 2.4rem;
+        height: 2.4rem;
+        font-size: 1rem;
       }
     }
 
-    /* 📱 TABLET (768px - 1023px) */
-    @media (min-width: 768px) and (max-width: 1023px) {
-      .main-content {
-        padding: 4rem 1.5rem 6rem 1.5rem;
-        max-width: 700px;
-        margin: 0 auto;
-      }
-      
-      .camera-area {
-        gap: 12px;
-      }
-      
-      .stranger-camera {
-        min-height: 350px;
-      }
-      
-      .my-camera {
-        height: 35vh;
-        min-height: 200px;
-      }
-      
-      .token-btn {
-        width: 95px;
-        height: 34px;
-        font-size: 0.75rem;
-      }
-      
-      .token-btn .token-emoji { font-size: 0.9rem; }
-      .token-btn .token-label { font-size: 0.65rem; }
-      
-      .ctrl-btn {
-        width: 90px;
-        height: 38px;
-        font-size: 0.75rem;
-      }
-      
-      .next-btn {
-        width: 65px;
-        height: 38px;
-      }
-      
-      .mic-btn {
-        width: 38px;
-        height: 38px;
-      }
-      
-      .section-label {
-        font-size: 14px;
-      }
-    }
-    
-    /* 💻 DESKTOP STYLES (1024px+) */
-    @media (min-width: 1024px) {
+    /* 💻 DESKTOP STYLES */
+    @media (min-width:1024px) {
       .nav-upload,.nav-search { display:flex !important; }
       .top-left-icon,.top-right-icon { display:none !important; }
       
@@ -462,8 +500,7 @@
         max-width:1200px;
         margin:0 auto;
         width:100%;
-        padding: 3.5rem 2rem 2rem 2rem;
-        overflow-y: visible;
+        padding: 2rem 2rem 1rem 2rem;
       }
       
       .camera-area {
@@ -472,94 +509,57 @@
       }
       
       .stranger-section {
-        width: 45%;
+        flex: 1;
       }
       
       .stranger-camera {
-        height: 50vh;
-        min-height: 400px;
+        height: 55vh;
+        flex: none;
       }
       
       .you-section {
-        width: 45%;
+        flex: 1;
         align-items: flex-start;
       }
       
       .my-camera {
-        height: 50vh;
-        min-height: 400px;
+        height: 55vh;
+        flex: none;
       }
       
       .token-stack {
         flex-direction: row;
         gap: 12px;
-        align-items: center;
         margin-top: 12px;
-        flex-wrap: wrap;
         justify-content: flex-start;
       }
       
       .token-btn {
-        width: auto;
+        height: 34px;
         min-width: 90px;
         padding: 0 14px;
+        font-size: 0.7rem;
       }
+      .token-btn .token-emoji { font-size: 0.9rem; }
+      .token-btn .token-label { font-size: 0.65rem; }
       
       .control-row {
-        margin-top: 16px;
+        margin-top: 12px;
         justify-content: center;
         gap: 16px;
       }
       
       .ctrl-btn {
-        width: 100px;
         height: 38px;
         font-size: 0.75rem;
+        min-width: 90px;
       }
       
-      .next-btn {
-        width: 70px;
-      }
-      
-      .mic-btn {
-        width: 38px;
-        height: 38px;
-      }
+      .next-btn { height: 38px; }
+      .mic-btn { width: 38px; height: 38px; }
       
       .section-label {
-        font-size: 14px;
-      }
-    }
-    
-    /* 📱 LANDSCAPE MODE */
-    @media (max-height: 500px) and (orientation: landscape) {
-      .main-content {
-        padding: 2.5rem 0.8rem 4.5rem 0.8rem;
-      }
-      
-      .stranger-camera {
-        min-height: 150px;
-      }
-      
-      .my-camera {
-        height: 40vh;
-        min-height: 120px;
-      }
-      
-      .token-stack {
-        gap: 4px;
-      }
-      
-      .token-btn {
-        width: 60px;
-        height: 24px;
-        font-size: 0.55rem;
-      }
-      
-      .ctrl-btn {
-        width: 65px;
-        height: 30px;
-        font-size: 0.6rem;
+        font-size: 0.85rem;
       }
     }
   </style>

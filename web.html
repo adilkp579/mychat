@@ -71,7 +71,7 @@
       display:flex;gap:8px;align-items:flex-start;
     }
     
-    /* Glass Camera Containers - FIXED */
+    /* Glass Camera Containers */
     .stranger-section {
       width:60%;display:flex;flex-direction:column;gap:4px;
     }
@@ -89,7 +89,6 @@
     .stranger-camera.connected { border-color:rgba(74,222,128,0.6); box-shadow: 0 0 25px rgba(74,222,128,0.2); }
     .stranger-camera.live-active { border-color:#ef4444; animation:livePulse 2s infinite; }
     
-    /* FIXED: Video element should fill the container completely */
     #strangerFeed { 
       width:100%;height:100%;object-fit:cover;
       display:none;background:#000;
@@ -131,7 +130,6 @@
     }
     .my-camera.active { border-color:rgba(239,68,68,0.7); box-shadow: 0 0 25px rgba(239,68,68,0.2); }
     
-    /* FIXED: My video should also fill container */
     #myFeed { 
       width:100%;height:100%;object-fit:cover;
       display:none;background:#000;
@@ -155,7 +153,7 @@
     }
     .my-placeholder i { font-size:1.2rem; }
     
-    /* Glass Token buttons */
+    /* Glass Token buttons - MOBILE: vertical stack */
     .token-stack {
       display:flex;flex-direction:column;gap:10px;align-items:flex-end;margin-top:4px;
     }
@@ -240,16 +238,104 @@
     .nav-center a.active { color:#fff; background:rgba(255,255,255,0.25); backdrop-filter: blur(10px); box-shadow:0 0 20px rgba(255,255,255,0.2); }
     .nav-upload,.nav-search { display:none !important; }
 
+    /* 📱 MOBILE STYLES - NO CHANGE */
+    @media (max-width:1023px) {
+      /* Keep all mobile styles exactly as they were */
+    }
+    
+    /* 💻 DESKTOP STYLES - ADJUSTED */
     @media (min-width:1024px) {
       .nav-upload,.nav-search { display:flex !important; }
       .top-left-icon,.top-right-icon { display:none !important; }
-      .floating-nav{position:fixed;top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column;background:rgba(10,10,10,0.25);backdrop-filter:blur(25px);}
-      .nav-center{flex-direction:column;gap:1.2rem;max-width:none}.nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
-      .nav-center a::before{bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0)}.nav-center a.active::before{transform:translateY(-50%) scale(1)}
-      .page{padding-left:5rem}
-      .main-content{max-width:800px;margin:0 auto;width:100%;padding-bottom:1rem;}
-      .stranger-camera{height:55vh}.my-camera{height:28vh}
+      
+      /* Side navbar */
+      .floating-nav {
+        position:fixed;top:50%;left:1.5rem;bottom:auto;
+        transform:translateY(-50%);width:3.8rem;height:auto;
+        max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;
+        flex-direction:column;
+        background:rgba(10,10,10,0.25);
+        backdrop-filter:blur(25px);
+      }
+      .nav-center { flex-direction:column;gap:1.2rem;max-width:none; }
+      .nav-center a { font-size:1.4rem;width:2.6rem;height:2.6rem; }
+      .nav-center a::before { bottom:auto;right:-4px;left:auto;top:50%;transform:translateY(-50%) scale(0); }
+      .nav-center a.active::before { transform:translateY(-50%) scale(1); }
+      
+      .page { padding-left:5rem; }
+      .main-content {
+        max-width:1200px;
+        margin:0 auto;
+        width:100%;
+        padding: 3.5rem 2rem 1rem 2rem;
+      }
+      
+      /* ✅ DESKTOP: Camera area - stranger and you SAME SIZE */
+      .camera-area {
+        gap: 20px;
+        justify-content: center;
+      }
+      
+      .stranger-section {
+        width: 45%;
+      }
+      
+      .stranger-camera {
+        height: 50vh;
+      }
+      
+      .you-section {
+        width: 45%;
+        align-items: flex-start;
+      }
+      
+      .my-camera {
+        height: 50vh;
+      }
+      
+      /* ✅ DESKTOP: Token buttons in a ROW below You camera */
+      .token-stack {
+        flex-direction: row;
+        gap: 12px;
+        align-items: center;
+        margin-top: 12px;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+      }
+      
+      .token-btn {
+        width: auto;
+        min-width: 90px;
+        padding: 0 14px;
+      }
+      
+      /* ✅ DESKTOP: Control row with Live, Start, Next, Mic in same line as token buttons */
+      .control-row {
+        margin-top: 16px;
+        justify-content: center;
+        gap: 16px;
+      }
+      
+      .ctrl-btn {
+        width: 100px;
+        height: 38px;
+        font-size: 0.75rem;
+      }
+      
+      .next-btn {
+        width: 70px;
+      }
+      
+      .mic-btn {
+        width: 38px;
+        height: 38px;
+      }
+      
+      .section-label {
+        font-size: 14px;
+      }
     }
+    
     @media (max-width:380px) {
       .token-btn{width:75px;height:28px;font-size:0.6rem;}
       .token-btn .token-emoji{font-size:0.75rem;}.token-btn .token-label{font-size:0.55rem;}

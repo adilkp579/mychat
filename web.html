@@ -65,6 +65,18 @@
       display: inline-block;
       margin-bottom: 2px;
       border: 1px solid rgba(255,255,255,0.1);
+      transition: all 0.3s ease;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    /* Connected stranger label style */
+    .section-label.connected-label {
+      color: #4ade80;
+      background: rgba(74, 222, 128, 0.1);
+      border-color: rgba(74, 222, 128, 0.3);
     }
     
     .camera-area {
@@ -235,7 +247,6 @@
     .nav-center a.active { color:#fff; background:rgba(255,255,255,0.25); backdrop-filter: blur(10px); box-shadow:0 0 20px rgba(255,255,255,0.2); }
     .nav-upload,.nav-search { display:none !important; }
 
-    /* 📱 SMALL PHONES (320px - 374px) */
     @media (max-width: 374px) {
       .main-content { padding: 2.5rem 0.5rem 0.5rem 0.5rem; gap: 4px; }
       .section-label { font-size: 10px; padding: 2px 8px; }
@@ -256,7 +267,6 @@
       .top-left-icon, .top-right-icon { width: 1.8rem; height: 1.8rem; font-size: 0.8rem; }
     }
 
-    /* 📱 MEDIUM PHONES (375px - 429px) */
     @media (min-width: 375px) and (max-width: 429px) {
       .main-content { padding: 2.8rem 0.6rem 0.6rem 0.6rem; }
       .stranger-camera { height: 46vh; }
@@ -267,7 +277,6 @@
       .nav-center a { font-size: 1.05rem; width: 1.9rem; height: 1.9rem; }
     }
 
-    /* 📱 LARGE PHONES (430px+) */
     @media (min-width: 430px) and (max-width: 767px) {
       .main-content { padding: 3.2rem 1rem 0.8rem 1rem; gap: 8px; }
       .section-label { font-size: 12px; }
@@ -285,7 +294,6 @@
       .top-left-icon, .top-right-icon { width: 2.3rem; height: 2.3rem; font-size: 0.95rem; }
     }
 
-    /* 📱 TABLETS (768px - 1023px) */
     @media (min-width: 768px) and (max-width: 1023px) {
       .main-content { padding: 3.5rem 1.5rem 1rem 1.5rem; gap: 10px; max-width: 700px; margin: 0 auto; }
       .section-label { font-size: 13px; }
@@ -305,7 +313,6 @@
       .top-left-icon, .top-right-icon { width: 2.4rem; height: 2.4rem; font-size: 1rem; }
     }
     
-    /* 💻 DESKTOP */
     @media (min-width: 1024px) {
       .nav-upload,.nav-search { display:flex !important; }
       .top-left-icon,.top-right-icon { display:none !important; }
@@ -405,7 +412,7 @@
     <div class="main-content">
       <div class="camera-area">
         <div class="stranger-section">
-          <span class="section-label">Stranger</span>
+          <span class="section-label" id="strangerLabel">Stranger</span>
           <div class="stranger-camera" id="strangerCamera">
             <video id="strangerFeed" autoplay playsinline></video>
             <div class="stranger-placeholder" id="strangerPlaceholder"><i class="fas fa-user-secret"></i><span>???</span></div>
@@ -476,30 +483,77 @@
     function startWebChat() {
       const myFeed=document.getElementById('myFeed'),myPlaceholder=document.getElementById('myPlaceholder'),myCameraEl=document.getElementById('myCamera');
       const strangerFeed=document.getElementById('strangerFeed'),strangerPlaceholder=document.getElementById('strangerPlaceholder'),strangerCamera=document.getElementById('strangerCamera');
+      const strangerLabel=document.getElementById('strangerLabel');
       const startStopBtn=document.getElementById('startStopBtn'),nextBtn=document.getElementById('nextBtn'),micBtn=document.getElementById('micBtn'),liveBtn=document.getElementById('liveBtn');
       const myId=crypto.randomUUID?crypto.randomUUID():'id_'+Date.now()+'_'+Math.random().toString(36).substr(2,9);
       const currentUser=localStorage.getItem('currentUser')||'@anonymous',liveUserId=currentUser.replace('@','');
       let localStream,pc,roomId,unsubs=[],isMuted=false,isLive=false,strangerStream=null,liveViewers={},liveUnsub=null;
+      let strangerUsername = null;
       const servers={iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:"stun:stun1.l.google.com:19302"}]};
+      
+      // Function to update stranger label
+      function updateStrangerLabel(username) {
+        if (username) {
+          strangerLabel.textContent = '@' + username;
+          strangerLabel.classList.add('connected-label');
+        } else {
+          strangerLabel.textContent = 'Stranger';
+          strangerLabel.classList.remove('connected-label');
+        }
+      }
       
       liveBtn.onclick=toggleLive;startStopBtn.onclick=handleStartStop;nextBtn.onclick=()=>{stopChat();setTimeout(()=>startChat(),500);};micBtn.onclick=toggleMute;
       function setButtonState(state){startStopBtn.classList.remove('stop-state');if(state==='start'){startStopBtn.innerHTML='<i class="fas fa-play"></i><span>Start</span>';}else{startStopBtn.classList.add('stop-state');startStopBtn.innerHTML='<i class="fas fa-stop"></i><span>Stop</span>';}}
       function handleStartStop(){if(startStopBtn.classList.contains('stop-state')){stopChat();}else{startChat();}}
       function updateLiveButton(){if(isLive){liveBtn.innerHTML='<i class="fas fa-stop-circle"></i><span>End</span>';liveBtn.classList.add('active');}else{liveBtn.innerHTML='<i class="fas fa-circle"></i><span>Live</span>';liveBtn.classList.remove('active');}}
-      async function startLive(){if(!localStream)return;isLive=true;updateLiveButton();try{await setDoc(doc(db,'live',liveUserId),{userId:currentUser,active:true,startedAt:serverTimestamp(),viewers:0});strangerCamera.classList.add('live-active');liveUnsub=onSnapshot(collection(db,'live_viewers'),(snap)=>{snap.docChanges().forEach(async(c)=>{const vd=c.doc.data();if(c.type==='added'&&vd.liveUser===currentUser&&vd.offer)await handleNewViewer(c.doc.id,vd);if(c.type==='modified'&&vd.streamEnded)cleanupViewer(c.doc.id);});});}catch(e){isLive=false;updateLiveButton();}}
+      async function startLive(){if(!localStream)return;isLive=true;updateLiveButton();try{await setDoc(doc(db,'live',liveUserId),{userId:currentUser,active:true,startedAt:serverTimestamp(),viewers:0});strangerCamera.classList.add('live-active');updateStrangerLabel('Live Viewers');liveUnsub=onSnapshot(collection(db,'live_viewers'),(snap)=>{snap.docChanges().forEach(async(c)=>{const vd=c.doc.data();if(c.type==='added'&&vd.liveUser===currentUser&&vd.offer)await handleNewViewer(c.doc.id,vd);if(c.type==='modified'&&vd.streamEnded)cleanupViewer(c.doc.id);});});}catch(e){isLive=false;updateLiveButton();}}
       async function handleNewViewer(vid,vd){try{const vpc=new RTCPeerConnection(servers);if(localStream)localStream.getTracks().forEach(t=>vpc.addTrack(t,localStream));vpc.onicecandidate=async(e)=>{if(e.candidate){const s=await getDoc(doc(db,'live_viewers',vid));const ex=s.data()?.hostCandidates||[];ex.push(e.candidate.toJSON());await setDoc(doc(db,'live_viewers',vid),{hostCandidates:ex},{merge:true});}};await vpc.setRemoteDescription(new RTCSessionDescription(vd.offer));const a=await vpc.createAnswer();await vpc.setLocalDescription(a);await setDoc(doc(db,'live_viewers',vid),{answer:{type:a.type,sdp:a.sdp}},{merge:true});liveViewers[vid]=vpc;}catch(e){}}
       function cleanupViewer(vid){if(liveViewers[vid]){liveViewers[vid].close();delete liveViewers[vid];}}
-      async function endLive(){isLive=false;updateLiveButton();Object.keys(liveViewers).forEach(id=>{if(liveViewers[id])liveViewers[id].close();});liveViewers={};await deleteDoc(doc(db,'live',liveUserId)).catch(()=>{});if(liveUnsub){liveUnsub();liveUnsub=null;}strangerCamera.classList.remove('live-active');}
+      async function endLive(){isLive=false;updateLiveButton();Object.keys(liveViewers).forEach(id=>{if(liveViewers[id])liveViewers[id].close();});liveViewers={};await deleteDoc(doc(db,'live',liveUserId)).catch(()=>{});if(liveUnsub){liveUnsub();liveUnsub=null;}strangerCamera.classList.remove('live-active');updateStrangerLabel(null);}
       async function toggleLive(){if(isLive){await endLive();}else{if(!localStream){if(!await startCamera())return;}await startLive();}}
       async function startCamera(){try{if(localStream)localStream.getTracks().forEach(t=>t.stop());localStream=await navigator.mediaDevices.getUserMedia({video:{width:480,height:640,facingMode:'user'},audio:{echoCancellation:true,noiseSuppression:true}});myFeed.srcObject=localStream;await myFeed.play();myFeed.style.display='block';myPlaceholder.style.display='none';myCameraEl.classList.add('active');return true;}catch(e){return false;}}
       function stopCamera(){if(localStream){localStream.getTracks().forEach(t=>t.stop());localStream=null;}myFeed.style.display='none';myFeed.srcObject=null;myPlaceholder.style.display='';myCameraEl.classList.remove('active');}
-      function resetStranger(){strangerStream=null;strangerFeed.style.display='none';strangerFeed.srcObject=null;strangerPlaceholder.innerHTML='<i class="fas fa-user-secret"></i><span>???</span>';strangerPlaceholder.classList.remove('searching-text');strangerCamera.classList.remove('connected','live-active');}
+      function resetStranger(){strangerStream=null;strangerUsername=null;strangerFeed.style.display='none';strangerFeed.srcObject=null;strangerPlaceholder.innerHTML='<i class="fas fa-user-secret"></i><span>???</span>';strangerPlaceholder.classList.remove('searching-text');strangerCamera.classList.remove('connected','live-active');updateStrangerLabel(null);}
       function showConnected(){setButtonState('stop');nextBtn.classList.add('visible');micBtn.classList.add('visible');}
       function showDisconnected(){setButtonState('start');nextBtn.classList.remove('visible');micBtn.classList.remove('visible');}
       function toggleMute(){if(!localStream)return;const t=localStream.getAudioTracks();if(t.length>0){isMuted=!isMuted;t.forEach(t=>t.enabled=!isMuted);micBtn.classList.toggle('muted',isMuted);micBtn.querySelector('i').className=isMuted?'fas fa-microphone-slash':'fas fa-microphone';}}
-      async function createRoom(oId,isCaller){roomId=[myId,oId].sort().join('_');showConnected();if(pc){pc.close();pc=null;}unsubs.forEach(u=>u());unsubs=[];pc=new RTCPeerConnection(servers);localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));pc.ontrack=(e)=>{if(e.streams[0]){strangerStream=e.streams[0];strangerFeed.srcObject=e.streams[0];strangerFeed.style.display='block';strangerPlaceholder.innerHTML='';strangerCamera.classList.add('connected');}};pc.onicecandidate=async(e)=>{if(e.candidate)await addDoc(collection(doc(db,'rooms',roomId),'ice'),{sender:myId,candidate:e.candidate.toJSON()});};unsubs.push(onSnapshot(collection(doc(db,'rooms',roomId),'ice'),(snap)=>{snap.docChanges().forEach(async(c)=>{if(c.type==='added'&&c.doc.data().sender!==myId&&pc)try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate));}catch(e){}});}));if(isCaller){const offer=await pc.createOffer({offerToReceiveVideo:true,offerToReceiveAudio:true});await pc.setLocalDescription(offer);await setDoc(doc(db,'invites',oId),{from:myId,offer:{type:offer.type,sdp:offer.sdp}});unsubs.push(onSnapshot(doc(db,'invites',oId),async(snap)=>{const d=snap.data();if(d?.answer&&!pc.currentRemoteDescription)await pc.setRemoteDescription(new RTCSessionDescription(d.answer));}));}}
-      function listenForInvites(){unsubs.push(onSnapshot(doc(db,'invites',myId),async(snap)=>{if(!snap.exists())return;const d=snap.data();await deleteDoc(doc(db,'waiting',myId)).catch(()=>{});roomId=[myId,d.from].sort().join('_');showConnected();if(pc){pc.close();pc=null;}unsubs.forEach(u=>u());unsubs=[];pc=new RTCPeerConnection(servers);localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));pc.ontrack=(e)=>{if(e.streams[0]){strangerStream=e.streams[0];strangerFeed.srcObject=e.streams[0];strangerFeed.style.display='block';strangerPlaceholder.innerHTML='';strangerCamera.classList.add('connected');}};pc.onicecandidate=async(e)=>{if(e.candidate)await addDoc(collection(doc(db,'rooms',roomId),'ice'),{sender:myId,candidate:e.candidate.toJSON()});};if(d.offer&&pc.signalingState!=='closed'){await pc.setRemoteDescription(new RTCSessionDescription(d.offer));const answer=await pc.createAnswer();await pc.setLocalDescription(answer);await setDoc(doc(db,'invites',myId),{answer:{type:answer.type,sdp:answer.sdp}},{merge:true});}unsubs.push(onSnapshot(collection(doc(db,'rooms',roomId),'ice'),(snap)=>{snap.docChanges().forEach(async(c)=>{if(c.type==='added'&&c.doc.data().sender!==myId&&pc)try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate));}catch(e){}});}));}));}
-      async function startChat(){if(isLive){alert('Please END first.');return;}setButtonState('stop');strangerPlaceholder.innerHTML='<i class="fas fa-spinner fa-spin"></i><span style="color:#fbbf24;">Searching...</span>';strangerPlaceholder.classList.add('searching-text');if(!(await startCamera())){stopChat();return;}const snap=await getDocs(collection(db,'waiting'));let found=null;snap.forEach(d=>{if(d.data().userId!==myId&&!found)found=d.data().userId;});if(found){await deleteDoc(doc(db,'waiting',myId)).catch(()=>{});await deleteDoc(doc(db,'waiting',found)).catch(()=>{});await createRoom(found,true);}else{await setDoc(doc(db,'waiting',myId),{userId:myId});listenForInvites();}}
+      
+      async function createRoom(oId,isCaller){roomId=[myId,oId].sort().join('_');showConnected();if(pc){pc.close();pc=null;}unsubs.forEach(u=>u());unsubs=[];pc=new RTCPeerConnection(servers);localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));pc.ontrack=(e)=>{if(e.streams[0]){strangerStream=e.streams[0];strangerFeed.srcObject=e.streams[0];strangerFeed.style.display='block';strangerPlaceholder.innerHTML='';strangerCamera.classList.add('connected');}};pc.onicecandidate=async(e)=>{if(e.candidate)await addDoc(collection(doc(db,'rooms',roomId),'ice'),{sender:myId,candidate:e.candidate.toJSON()});};unsubs.push(onSnapshot(collection(doc(db,'rooms',roomId),'ice'),(snap)=>{snap.docChanges().forEach(async(c)=>{if(c.type==='added'&&c.doc.data().sender!==myId&&pc)try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate));}catch(e){}});}));
+        
+        // Get stranger's username
+        try {
+          const strangerDoc = await getDoc(doc(db, 'users', oId));
+          if (strangerDoc.exists()) {
+            strangerUsername = strangerDoc.data().username || oId;
+            updateStrangerLabel(strangerUsername);
+          } else {
+            updateStrangerLabel(oId);
+          }
+        } catch(e) {
+          updateStrangerLabel(oId);
+        }
+        
+        if(isCaller){const offer=await pc.createOffer({offerToReceiveVideo:true,offerToReceiveAudio:true});await pc.setLocalDescription(offer);await setDoc(doc(db,'invites',oId),{from:myId,offer:{type:offer.type,sdp:offer.sdp},callerUsername:currentUser});unsubs.push(onSnapshot(doc(db,'invites',oId),async(snap)=>{const d=snap.data();if(d?.answer&&!pc.currentRemoteDescription)await pc.setRemoteDescription(new RTCSessionDescription(d.answer));}));}}
+      
+      function listenForInvites(){unsubs.push(onSnapshot(doc(db,'invites',myId),async(snap)=>{if(!snap.exists())return;const d=snap.data();await deleteDoc(doc(db,'waiting',myId)).catch(()=>{});roomId=[myId,d.from].sort().join('_');showConnected();
+        
+        // Get stranger's username from invite data or user doc
+        try {
+          const strangerDoc = await getDoc(doc(db, 'users', d.from));
+          if (strangerDoc.exists()) {
+            strangerUsername = strangerDoc.data().username || d.callerUsername || d.from;
+          } else {
+            strangerUsername = d.callerUsername || d.from;
+          }
+          updateStrangerLabel(strangerUsername);
+        } catch(e) {
+          strangerUsername = d.from;
+          updateStrangerLabel(strangerUsername);
+        }
+        
+        if(pc){pc.close();pc=null;}unsubs.forEach(u=>u());unsubs=[];pc=new RTCPeerConnection(servers);localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));pc.ontrack=(e)=>{if(e.streams[0]){strangerStream=e.streams[0];strangerFeed.srcObject=e.streams[0];strangerFeed.style.display='block';strangerPlaceholder.innerHTML='';strangerCamera.classList.add('connected');}};pc.onicecandidate=async(e)=>{if(e.candidate)await addDoc(collection(doc(db,'rooms',roomId),'ice'),{sender:myId,candidate:e.candidate.toJSON()});};if(d.offer&&pc.signalingState!=='closed'){await pc.setRemoteDescription(new RTCSessionDescription(d.offer));const answer=await pc.createAnswer();await pc.setLocalDescription(answer);await setDoc(doc(db,'invites',myId),{answer:{type:answer.type,sdp:answer.sdp}},{merge:true});}unsubs.push(onSnapshot(collection(doc(db,'rooms',roomId),'ice'),(snap)=>{snap.docChanges().forEach(async(c)=>{if(c.type==='added'&&c.doc.data().sender!==myId&&pc)try{await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate));}catch(e){}});}));}));}
+      
+      async function startChat(){if(isLive){alert('Please END first.');return;}setButtonState('stop');strangerPlaceholder.innerHTML='<i class="fas fa-spinner fa-spin"></i><span style="color:#fbbf24;">Searching...</span>';strangerPlaceholder.classList.add('searching-text');updateStrangerLabel(null);if(!(await startCamera())){stopChat();return;}const snap=await getDocs(collection(db,'waiting'));let found=null;snap.forEach(d=>{if(d.data().userId!==myId&&!found)found=d.data().userId;});if(found){await deleteDoc(doc(db,'waiting',myId)).catch(()=>{});await deleteDoc(doc(db,'waiting',found)).catch(()=>{});await createRoom(found,true);}else{await setDoc(doc(db,'waiting',myId),{userId:myId,username:currentUser});listenForInvites();}}
       function stopChat(){if(pc){pc.close();pc=null;}unsubs.forEach(u=>u());unsubs=[];if(roomId){deleteDoc(doc(db,'rooms',roomId)).catch(()=>{});roomId=null;}deleteDoc(doc(db,'waiting',myId)).catch(()=>{});deleteDoc(doc(db,'invites',myId)).catch(()=>{});if(isLive)endLive();resetStranger();stopCamera();showDisconnected();}
       window.addEventListener('beforeunload',()=>{if(isLive)endLive().catch(()=>{});if(pc)pc.close();if(localStream)localStream.getTracks().forEach(t=>t.stop());});
     }

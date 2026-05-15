@@ -13,7 +13,6 @@
     @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     
-    /* Main Wallet Page */
     .wallet-main {
       flex: 1; display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden;
     }
@@ -108,15 +107,18 @@
     }
     .history-icon.received { background: rgba(74,222,128,0.2); color: #4ade80; }
     .history-icon.sent { background: rgba(239,68,68,0.2); color: #ef4444; }
-    .history-details { display: flex; flex-direction: column; gap: 2px; }
+    .history-icon.deposit { background: rgba(59,130,246,0.2); color: #3b82f6; }
+    .history-icon.withdraw { background: rgba(245,158,11,0.2); color: #f59e0b; }
+    .history-details { display: flex; flex-direction: column; gap: 2px; flex: 1; }
     .history-title { font-size: 13px; font-weight: 600; color: #fff; }
     .history-subtitle { font-size: 10px; color: #888; }
-    .history-amount { font-size: 14px; font-weight: 700; }
+    .history-amount { font-size: 14px; font-weight: 700; text-align: right; }
     .history-amount.positive { color: #4ade80; }
     .history-amount.negative { color: #ef4444; }
+    .history-token-icon { font-size: 14px; margin-right: 2px; }
     .empty-state { text-align: center; color: #666; padding: 30px; font-size: 13px; }
     
-    /* Sub Pages (Deposit & Withdraw) */
+    /* Sub Pages */
     .sub-page {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       background: #000; z-index: 50;
@@ -226,10 +228,8 @@
 </head>
 <body>
   <div class="page">
-    <!-- Main back button - hidden on sub-pages -->
     <a href="web.html" class="back-btn" id="mainBackBtn"><i class="fas fa-arrow-left"></i></a>
     
-    <!-- Main Wallet Page -->
     <div class="wallet-main" id="walletMain">
       <div class="wallet-header">
         <div class="profile-photo" id="profilePhoto">?</div>
@@ -470,6 +470,7 @@
     let buyQuantities = { chicken: 1, lion: 1, fish: 1, bike: 1 };
     const tokenPrices = { chicken: 1.00, lion: 2.00, fish: 0.50, bike: 3.00 };
     const withdrawRates = { chicken: 0.80, lion: 1.60, fish: 0.40, bike: 2.40 };
+    const tokenEmojis = { chicken: '🍗', lion: '🦁', fish: '🐟', bike: '🏍️' };
     
     async function loadWallet() {
       try {
@@ -512,6 +513,22 @@
       document.getElementById('wdInputLion').max = tokenBalances.lion;
       document.getElementById('wdInputFish').max = tokenBalances.fish;
       document.getElementById('wdInputBike').max = tokenBalances.bike;
+    }
+    
+    function formatDateTime(timestamp) {
+      if (!timestamp) return 'Just now';
+      const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+      const now = new Date();
+      const diff = now - date;
+      
+      if (diff < 60000) return 'Just now';
+      if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+      if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+      
+      return date.toLocaleDateString('en-US', { 
+        month: 'short', day: 'numeric', 
+        hour: '2-digit', minute: '2-digit' 
+      });
     }
     
     window.changeQty = function(token, delta) {
@@ -569,9 +586,7 @@
     };
     
     window.openSubPage = function(type) {
-      // Hide main back button
       document.getElementById('mainBackBtn').classList.add('hidden');
-      
       if (type === 'deposit') {
         document.getElementById('depositPage').classList.add('visible');
       } else {
@@ -580,13 +595,12 @@
     };
     
     window.closeSubPage = function() {
-      // Show main back button
       document.getElementById('mainBackBtn').classList.remove('hidden');
-      
       document.getElementById('depositPage').classList.remove('visible');
       document.getElementById('withdrawPage').classList.remove('visible');
       updateAllDisplays();
       loadHistory('transactions');
+      loadHistory('history');
     };
     
     window.switchHistory = function(type) {
@@ -613,43 +627,44 @@
         snap.forEach(doc => {
           const d = doc.data();
           const isDeposit = d.type === 'deposit';
+          const emoji = tokenEmojis[d.token] || '';
           listEl.innerHTML += `
             <div class="history-item">
               <div class="history-item-left">
-                <div class="history-icon ${isDeposit ? 'received' : 'sent'}">
+                <div class="history-icon ${isDeposit ? 'deposit' : 'withdraw'}">
                   <i class="fas fa-${isDeposit ? 'plus' : 'minus'}"></i>
                 </div>
                 <div class="history-details">
-                  <span class="history-title">${isDeposit ? 'Purchased' : 'Cashed Out'} ${d.token}</span>
-                  <span class="history-subtitle">${d.timestamp?.toDate?.()?.toLocaleDateString() || 'Just now'}</span>
+                  <span class="history-title">${isDeposit ? 'Purchased' : 'Cashed Out'} ${emoji} ${d.token}</span>
+                  <span class="history-subtitle">${formatDateTime(d.timestamp)}</span>
                 </div>
               </div>
               <span class="history-amount ${isDeposit ? 'positive' : 'negative'}">
-                ${isDeposit ? '+' : '-'}${d.amount} ${d.token}
+                ${isDeposit ? '+' : '-'}${d.amount}
               </span>
             </div>`;
         });
       }
       else if (type === 'history') {
-        const q1 = query(collection(db, 'token_transfers'), where('senderUid', '==', uid), orderBy('timestamp', 'desc'), limit(20));
-        const q2 = query(collection(db, 'token_transfers'), where('receiverUid', '==', uid), orderBy('timestamp', 'desc'), limit(20));
+        // Listen to token_transfers collection for real-time updates
+        const q = query(collection(db, 'token_transfers'), 
+          where('participants', 'array-contains', uid),
+          orderBy('timestamp', 'desc'), limit(30));
         
-        const [sentSnap, receivedSnap] = await Promise.all([getDocs(q1), getDocs(q2)]);
+        const snap = await getDocs(q);
         
-        let allTransfers = [];
-        sentSnap.forEach(d => allTransfers.push({...d.data(), direction: 'sent'}));
-        receivedSnap.forEach(d => allTransfers.push({...d.data(), direction: 'received'}));
-        
-        allTransfers.sort((a, b) => (b.timestamp?.toDate?.() || 0) - (a.timestamp?.toDate?.() || 0));
-        
-        if (allTransfers.length === 0) {
+        if (snap.empty) {
           listEl.innerHTML = '<div class="empty-state">No transfer history yet</div>';
           return;
         }
         
         listEl.innerHTML = '';
-        allTransfers.forEach(d => {
-          const isReceived = d.direction === 'received';
+        snap.forEach(doc => {
+          const d = doc.data();
+          const isReceived = d.receiverUid === uid;
+          const otherUser = isReceived ? (d.senderUsername || 'Unknown') : (d.receiverUsername || 'Unknown');
+          const emoji = tokenEmojis[d.tokenType] || '';
+          
           listEl.innerHTML += `
             <div class="history-item">
               <div class="history-item-left">
@@ -657,20 +672,73 @@
                   <i class="fas fa-${isReceived ? 'arrow-down' : 'arrow-up'}"></i>
                 </div>
                 <div class="history-details">
-                  <span class="history-title">${isReceived ? 'From' : 'To'}: ${isReceived ? (d.senderUsername || 'Unknown') : (d.receiverUsername || 'Unknown')}</span>
-                  <span class="history-subtitle">${d.timestamp?.toDate?.()?.toLocaleDateString() || 'Just now'}</span>
+                  <span class="history-title">${isReceived ? 'From' : 'To'}: ${otherUser}</span>
+                  <span class="history-subtitle">${emoji} ${d.tokenType} • ${formatDateTime(d.timestamp)}</span>
                 </div>
               </div>
               <span class="history-amount ${isReceived ? 'positive' : 'negative'}">
-                ${isReceived ? '+' : '-'}${d.amount || 1} ${d.tokenType}
+                ${isReceived ? '+' : '-'}${d.amount || 1}
               </span>
             </div>`;
         });
       }
     }
     
+    // Also set up real-time listener for history
+    function setupHistoryListener() {
+      const q = query(collection(db, 'token_transfers'), 
+        where('participants', 'array-contains', uid),
+        orderBy('timestamp', 'desc'), limit(30));
+      
+      onSnapshot(q, (snapshot) => {
+        const listEl = document.getElementById('listHistory');
+        if (!listEl.classList.contains('visible')) return;
+        
+        if (snapshot.empty) {
+          listEl.innerHTML = '<div class="empty-state">No transfer history yet</div>';
+          return;
+        }
+        
+        listEl.innerHTML = '';
+        snapshot.forEach(doc => {
+          const d = doc.data();
+          const isReceived = d.receiverUid === uid;
+          const otherUser = isReceived ? (d.senderUsername || 'Unknown') : (d.receiverUsername || 'Unknown');
+          const emoji = tokenEmojis[d.tokenType] || '';
+          
+          listEl.innerHTML += `
+            <div class="history-item">
+              <div class="history-item-left">
+                <div class="history-icon ${isReceived ? 'received' : 'sent'}">
+                  <i class="fas fa-${isReceived ? 'arrow-down' : 'arrow-up'}"></i>
+                </div>
+                <div class="history-details">
+                  <span class="history-title">${isReceived ? 'From' : 'To'}: ${otherUser}</span>
+                  <span class="history-subtitle">${emoji} ${d.tokenType} • ${formatDateTime(d.timestamp)}</span>
+                </div>
+              </div>
+              <span class="history-amount ${isReceived ? 'positive' : 'negative'}">
+                ${isReceived ? '+' : '-'}${d.amount || 1}
+              </span>
+            </div>`;
+        });
+      });
+    }
+    
+    // Export function for web.html to record transfers
+    window.recordTokenTransfer = async function(senderUid, receiverUid, tokenType, amount, senderUsername, receiverUsername) {
+      const participants = [senderUid, receiverUid];
+      await addDoc(collection(db, 'token_transfers'), {
+        senderUid, receiverUid, tokenType, amount: amount || 1,
+        senderUsername, receiverUsername, participants,
+        timestamp: serverTimestamp()
+      });
+    };
+    
     loadWallet();
     loadHistory('transactions');
+    loadHistory('history');
+    setupHistoryListener();
   </script>
 </body>
 </html>

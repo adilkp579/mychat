@@ -401,7 +401,6 @@
     async function loadMessageRequests(){try{const snap=await getDocs(collection(db,'message_requests'));messageRequests=[];snap.forEach(doc=>{const d=doc.data();if(d.to===currentUserId||d.to===currentUser||d.to===currentUser.replace('@','')){messageRequests.push({id:doc.id,...d});}});updateRequestBadge();}catch(e){}}
     function updateRequestBadge(){const badge=document.getElementById('requestBadge');if(messageRequests.length>0){badge.style.display='flex';badge.textContent=messageRequests.length;}else{badge.style.display='none';}}
     
-    // ✅ Load users - newest accounts at top
     async function loadAllUsers(){
       allUsersList=[];userProfiles={};
       try{
@@ -431,6 +430,8 @@
     function avatarHTML(u){const p=userProfiles[u];if(p&&p.avatar&&p.avatar!=='null'&&p.avatar!=='undefined'){return`<img src="${p.avatar}" alt="" onerror="this.style.display='none';this.parentElement.innerHTML='${cleanName(u).charAt(0).toUpperCase()}';"/>`;}return cleanName(u).charAt(0).toUpperCase();}
     function dispName(u){const p=userProfiles[u];return p?p.name:cleanName(u);}
     
+    window.goToUserProfile=function(username){closeNewChatModal();window.location.href='profile.html?user='+encodeURIComponent(username);};
+    
     window.showNewChatModal=function(){
       document.getElementById('newChatOverlay').classList.add('show');
       document.getElementById('newChatSearchInput').value='';
@@ -455,7 +456,6 @@
       else{renderNewChatRequests(messageRequests.filter(r=>(r.fromName||r.from||'').toLowerCase().includes(s)));}
     };
     
-    // ✅ Check if user is new (created within last 7 days)
     function isNewUser(user){
       if(!user.createdAt||user.createdAt.getTime()===0)return false;
       const now=new Date();
@@ -463,7 +463,6 @@
       return diff<7*24*60*60*1000;
     }
     
-    // ✅ Render Users with NEW badge for recent accounts
     function renderNewChatUsers(users){
       const l=document.getElementById('newChatList');
       if(users.length===0){l.innerHTML='<div style="text-align:center;color:#555;padding:2rem;font-size:0.75rem;">No users found</div>';return;}
@@ -477,20 +476,25 @@
         let actionBtn='';
         if(alreadyChatting){actionBtn=`<button class="new-chat-action chat" onclick="event.stopPropagation();closeNewChatModal();openChat('${u.username}')">💬 Chat</button>`;}
         else if(alreadyRequested){actionBtn=`<span class="requested-label">⏳ Requested</span>`;}
-        else{actionBtn=`<button class="new-chat-action request-btn" onclick="event.stopPropagation();sendChatRequest('${u.username}')">📩 Request</button>`;}
-        return`<div class="new-chat-item"><div class="new-chat-avatar">${avatarHTML(u.username)}</div><div class="new-chat-info"><div class="new-chat-name">${u.displayName}${newBadge}</div><div class="new-chat-sub">${alreadyChatting?'Already in chats':alreadyRequested?'Request sent':'Send chat request'}</div></div><div class="new-chat-actions">${actionBtn}</div></div>`;
+        else{actionBtn=`<button class="new-chat-action request-btn" onclick="event.stopPropagation();sendChatRequest('${u.username}', this)">📩 Request</button>`;}
+        return`<div class="new-chat-item" onclick="goToUserProfile('${u.username}')"><div class="new-chat-avatar">${avatarHTML(u.username)}</div><div class="new-chat-info"><div class="new-chat-name">${u.displayName}${newBadge}</div><div class="new-chat-sub">${alreadyChatting?'Already in chats':alreadyRequested?'Request sent':'Tap to view profile'}</div></div><div class="new-chat-actions">${actionBtn}</div></div>`;
       }).join('');
     }
     
-    window.sendChatRequest=async function(username){
+    window.sendChatRequest=async function(username,btnElement){
       try{
         const profile=JSON.parse(localStorage.getItem('userProfile')||'{}');
         const fromName=(profile.username||currentUser).replace('@','');
         const existing=messageRequests.find(r=>(r.fromId===currentUserId||r.from===currentUser)&&(r.to===username||r.to===username.replace('@','')));
         if(existing){alert('Request already sent!');return;}
+        if(btnElement){
+          const parentDiv=btnElement.closest('.new-chat-actions');
+          if(parentDiv){parentDiv.innerHTML='<span class="requested-label">⏳ Requested</span>';}
+          const itemDiv=btnElement.closest('.new-chat-item');
+          if(itemDiv){const subEl=itemDiv.querySelector('.new-chat-sub');if(subEl)subEl.textContent='Request sent';}
+        }
         await addDoc(collection(db,'message_requests'),{from:currentUser,fromName:fromName,fromAvatar:profile.avatar||null,fromId:currentUserId,to:username.replace('@',''),toName:username.replace('@',''),lastMessage:'👋 Wants to chat with you',createdAt:serverTimestamp(),status:'pending'});
         await loadMessageRequests();
-        renderNewChatUsers(allUsersList);
         const toast=document.createElement('div');
         toast.style.cssText='position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#4ade80;color:#000;padding:0.5rem 1.5rem;border-radius:2rem;font-size:0.75rem;font-weight:600;z-index:500;';
         toast.textContent='✅ Request sent!';document.body.appendChild(toast);
@@ -504,28 +508,42 @@
       l.innerHTML=requests.map(r=>{
         const userName=r.fromName||r.from||'Unknown';
         const avatarUrl=r.fromAvatar;
-        return`<div class="new-chat-item"><div class="new-chat-avatar">${avatarUrl&&avatarUrl!=='null'&&avatarUrl!=='undefined'?`<img src="${avatarUrl}" alt="">`:userName.charAt(0).toUpperCase()}</div><div class="new-chat-info"><div class="new-chat-name">${userName.replace('@','')}</div><div class="new-chat-sub">${r.lastMessage||'Wants to chat'}</div></div><div class="new-chat-actions"><button class="new-chat-action accept" onclick="event.stopPropagation();acceptRequest('${r.id}','${r.from}','${r.fromName}')">✓ Accept</button><button class="new-chat-action decline" onclick="event.stopPropagation();declineRequest('${r.id}')">✕</button></div></div>`;
+        return`<div class="new-chat-item" onclick="goToUserProfile('${r.from||r.fromName}')"><div class="new-chat-avatar">${avatarUrl&&avatarUrl!=='null'&&avatarUrl!=='undefined'?`<img src="${avatarUrl}" alt="">`:userName.charAt(0).toUpperCase()}</div><div class="new-chat-info"><div class="new-chat-name">${userName.replace('@','')}</div><div class="new-chat-sub">${r.lastMessage||'Wants to chat'}</div></div><div class="new-chat-actions"><button class="new-chat-action accept" onclick="event.stopPropagation();acceptRequest('${r.id}','${r.from}','${r.fromName}')">✓ Accept</button><button class="new-chat-action decline" onclick="event.stopPropagation();declineRequest('${r.id}')">✕</button></div></div>`;
       }).join('');
     }
     
+    // ✅ Accept request - removes from requests, shows in users with Chat button
     window.acceptRequest=async function(requestId,fromUser,fromName){
       try{
         const partnerUsername=fromUser||('@'+(fromName||'').replace('@',''));
         const cid=[currentUserId,partnerUsername.replace('@','')].sort().join('_');
         await setDoc(doc(db,'chats',cid),{users:[currentUserId,partnerUsername.replace('@','')],lastMessage:'👋 Chat started!',lastType:'text',lastTime:serverTimestamp(),['unread_'+currentUserId]:0,['unread_'+partnerUsername.replace('@','')]:1});
         await addDoc(collection(db,'chats',cid,'messages'),{text:'👋 Chat started! Say hello!',sender:currentUserId,createdAt:serverTimestamp(),seen:false});
+        
+        // ✅ Delete request from Firestore
+        await deleteDoc(doc(db,'message_requests',requestId));
+        
+        // ✅ Remove from local array
+        messageRequests=messageRequests.filter(r=>r.id!==requestId);
+        
+        // ✅ Update badge and refresh both lists
+        updateRequestBadge();
+        renderNewChatRequests(messageRequests);
+        renderNewChatUsers(allUsersList);
+        
+        closeNewChatModal();
+        openChat(partnerUsername);
+      }catch(e){console.error('Accept error:',e);}
+    };
+    
+    // ✅ Decline request - removes from requests list
+    window.declineRequest=async function(requestId){
+      try{
         await deleteDoc(doc(db,'message_requests',requestId));
         messageRequests=messageRequests.filter(r=>r.id!==requestId);
         updateRequestBadge();
         renderNewChatRequests(messageRequests);
-        renderNewChatUsers(allUsersList);
-        closeNewChatModal();
-        openChat(partnerUsername);
-      }catch(e){}
-    };
-    
-    window.declineRequest=async function(requestId){
-      try{await deleteDoc(doc(db,'message_requests',requestId));messageRequests=messageRequests.filter(r=>r.id!==requestId);updateRequestBadge();renderNewChatRequests(messageRequests);}catch(e){}
+      }catch(e){console.error('Decline error:',e);}
     };
     
     document.getElementById('newChatOverlay').addEventListener('click',function(e){if(e.target===this)closeNewChatModal();});

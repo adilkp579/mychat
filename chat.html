@@ -21,28 +21,22 @@
     .scrollable-page::-webkit-scrollbar { width:0;height:0; }
     .scrollable-page { scrollbar-width:none;-ms-overflow-style:none; }
 
-    /* ✅ Same position as index.html top-icons-row */
-    .top-icons-row {
-      display:flex;align-items:center;justify-content:space-between;
-      padding:0.8rem 1rem 0.3rem 1rem;padding-top:max(0.8rem,env(safe-area-inset-top,0.8rem));
-      flex-shrink:0;position:relative;
-    }
-    .hart-btn {
-      width:2.4rem;height:2.4rem;min-width:2.4rem;
-      background:#1a1a1a;border-radius:50%;color:#fff;font-size:1rem;
-      display:flex;align-items:center;justify-content:center;
-      text-decoration:none;border:1px solid #333;cursor:pointer;
-    }
-    .chats-title {
-      font-size:1.1rem;font-weight:700;color:#fff;
-      letter-spacing:1px;text-align:center;
-      position:absolute;left:50%;transform:translateX(-50%);
+    /* ✅ EXACT same as index.html top-icons */
+    .top-icons {
+      width:100%;max-width:500px;display:flex;align-items:center;justify-content:space-between;
+      padding:0.8rem 0.8rem 0.3rem 0.8rem;flex-shrink:0;position:relative;background:#000;
+      margin:0 auto;
     }
     .corner-btn {
-      width:2.4rem;height:2.4rem;min-width:2.4rem;
-      background:#1a1a1a;border-radius:50%;color:#fff;font-size:1rem;
-      display:flex;align-items:center;justify-content:center;
-      border:1px solid #333;cursor:pointer;transition:all 0.3s;
+      width:2.4rem;height:2.4rem;background:#1a1a1a;border-radius:50%;color:#fff;
+      font-size:1rem;display:flex;align-items:center;justify-content:center;
+      text-decoration:none;border:1px solid #333;cursor:pointer;transition:all 0.3s;
+    }
+    .top-brand {
+      font-size:2rem;font-weight:700;color:#fff;letter-spacing:3px;
+      font-family:'Segoe Script','Brush Script MT','Apple Chancery','Comic Sans MS',cursive;
+      position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;
+      line-height:1;font-style:italic;
     }
 
     .chat-header {
@@ -169,7 +163,7 @@
     .nav-upload,.nav-search {display:none !important;}
 
     @media (min-width:1024px) {
-      .top-icons-row{display:none}
+      .top-icons {display:none;}
       .nav-upload,.nav-search{display:flex!important}
       .floating-nav{position:fixed;top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column;background:rgba(10,10,10,0.1);backdrop-filter:blur(20px);}
       .floating-nav.hidden{display:flex!important}
@@ -187,10 +181,10 @@
   <div class="loading-screen" id="loadingScreen"><i class="fas fa-spinner"></i><span>Loading...</span></div>
   <div class="page" id="mainPage" style="display:none;">
     <div class="scrollable-page" id="scrollablePage">
-      <!-- ✅ Same position as index.html: Upload(left) - Choicho(center) - Search(right) -->
-      <div class="top-icons-row">
-        <a href="hart.html" class="hart-btn" title="Likes"><i class="fas fa-heart"></i></a>
-        <span class="chats-title">Chats</span>
+      <!-- ✅ EXACT same position as index.html: Upload(left) - Choicho(center) - Search(right) -->
+      <div class="top-icons">
+        <a href="hart.html" class="corner-btn" title="Likes"><i class="fas fa-heart"></i></a>
+        <span class="top-brand">Choicho</span>
         <button class="corner-btn" id="newChatBtn" onclick="showNewChatModal()"><i class="fas fa-plus"></i></button>
       </div>
 
@@ -289,8 +283,8 @@
     function renderChatList(cu){const l=document.getElementById('userList'),cnt=document.getElementById('chatCount');const tu=cu.reduce((s,c)=>s+c.unreadCount,0);cnt.textContent=cu.length>0?'('+cu.length+')':'';if(cu.length===0){l.innerHTML='<div style="text-align:center;color:#555;padding:3rem;font-size:0.8rem;">No messages yet</div>';return;}l.innerHTML=cu.map(c=>{const ts=c.lastTime.getTime()>0?fmtTime(c.lastTime):'';const dn=dispName(c.username);return`<div class="user-list-item ${chatPartner===c.username?'active':''}" onclick="openChat('${c.username}')"><div class="user-avatar" onclick="event.stopPropagation();window.location.href='profile.html?user=${encodeURIComponent(c.username)}'">${avatarHTML(c.username)}</div><div class="user-info"><div class="user-name-row"><span class="user-name" onclick="event.stopPropagation();window.location.href='profile.html?user=${encodeURIComponent(c.username)}'">${dn}</span><span class="user-time">${ts}</span></div><div class="user-msg-row"><span class="user-last-msg ${c.unreadCount>0?'unread-msg':''}">${c.lastMsg||'No messages'}</span>${c.unreadCount>0?`<span class="unread-count">${c.unreadCount}</span>`:''}</div></div></div>`;}).join('');}
     function fmtTime(d){if(!d||d.getTime()===0)return'';const n=new Date(),df=n-d;if(df<60000)return'Now';if(df<3600000)return Math.floor(df/60000)+'m';if(d.toDateString()===n.toDateString())return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});if(n-d<604800000)return['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];return d.toLocaleDateString([],{month:'short',day:'numeric'});}
     
-    window.openChat=function(u){chatPartner=u;chatId=[currentUserId,u.replace('@','')].sort().join('_');document.getElementById('chatListFull').classList.add('hidden');document.getElementById('chatView').classList.add('show');document.getElementById('backBtn').classList.add('show');document.getElementById('newChatBtn').style.display='none';document.getElementById('searchBarContainer').style.display='none';document.querySelector('.chats-title').style.display='none';document.getElementById('callBtns').classList.add('show');document.getElementById('partnerName').textContent=dispName(u);document.getElementById('partnerStatus').innerHTML='<span class="dot"></span> online';document.getElementById('chatInputArea').classList.add('show');document.getElementById('floatingNav').classList.add('hidden');const c=document.getElementById('messagesContainer');c.querySelectorAll('.message-wrapper').forEach(el=>el.remove());document.getElementById('emptyChat').style.display='flex';listenToMessages();listenToTyping();scrollToBottom();};
-    window.goBack=function(){chatPartner=null;chatId=null;if(unsubMessages){unsubMessages();unsubMessages=null;}stopVoice(true);document.getElementById('chatListFull').classList.remove('hidden');document.getElementById('chatView').classList.remove('show');document.getElementById('backBtn').classList.remove('show');document.getElementById('newChatBtn').style.display='flex';document.querySelector('.chats-title').style.display='block';document.getElementById('searchBarContainer').style.display='block';document.getElementById('callBtns').classList.remove('show');document.getElementById('partnerName').textContent='';document.getElementById('partnerStatus').textContent='';document.getElementById('chatInputArea').classList.remove('show');document.getElementById('floatingNav').classList.remove('hidden');setupRealtimeChatList();};
+    window.openChat=function(u){chatPartner=u;chatId=[currentUserId,u.replace('@','')].sort().join('_');document.getElementById('chatListFull').classList.add('hidden');document.getElementById('chatView').classList.add('show');document.getElementById('backBtn').classList.add('show');document.getElementById('searchBarContainer').style.display='none';document.getElementById('callBtns').classList.add('show');document.getElementById('partnerName').textContent=dispName(u);document.getElementById('partnerStatus').innerHTML='<span class="dot"></span> online';document.getElementById('chatInputArea').classList.add('show');document.getElementById('floatingNav').classList.add('hidden');const c=document.getElementById('messagesContainer');c.querySelectorAll('.message-wrapper').forEach(el=>el.remove());document.getElementById('emptyChat').style.display='flex';listenToMessages();listenToTyping();scrollToBottom();};
+    window.goBack=function(){chatPartner=null;chatId=null;if(unsubMessages){unsubMessages();unsubMessages=null;}stopVoice(true);document.getElementById('chatListFull').classList.remove('hidden');document.getElementById('chatView').classList.remove('show');document.getElementById('backBtn').classList.remove('show');document.getElementById('searchBarContainer').style.display='block';document.getElementById('callBtns').classList.remove('show');document.getElementById('partnerName').textContent='';document.getElementById('partnerStatus').textContent='';document.getElementById('chatInputArea').classList.remove('show');document.getElementById('floatingNav').classList.remove('hidden');setupRealtimeChatList();};
     
     window.toggleVoice=function(){if(isRecording){window.sendVoice();}else{startVoice();}};
     async function startVoice(){if(!chatId)return;try{const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,sampleRate:44100}});const opts={audioBitsPerSecond:128000};if(MediaRecorder.isTypeSupported('audio/webm;codecs=opus'))opts.mimeType='audio/webm;codecs=opus';else opts.mimeType='audio/webm';mediaRecorder=new MediaRecorder(stream,opts);audioChunks=[];mediaRecorder.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data);};mediaRecorder.onstop=()=>{stream.getTracks().forEach(t=>t.stop());};mediaRecorder.start(100);isRecording=true;voiceSeconds=0;document.getElementById('recordingBar').classList.add('show');document.getElementById('micBtn').style.display='none';document.getElementById('sendBtn').style.display='none';document.getElementById('chatInput').style.display='none';document.getElementById('recTime').textContent='00:00';voiceTimer=setInterval(()=>{voiceSeconds++;document.getElementById('recTime').textContent=formatDuration(voiceSeconds);},1000);}catch(e){}}

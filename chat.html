@@ -249,7 +249,7 @@
   </div>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, getDoc, getDocs, updateDoc, increment } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, getDoc, getDocs, updateDoc, increment, where } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
     if(!localStorage.getItem("uid")){window.location.replace("login.html");}
@@ -276,10 +276,11 @@
     window.startNewChat=function(u){closeNewChatModal();openChat(u);};
     document.getElementById('newChatModal').addEventListener('click',function(e){if(e.target===this)closeNewChatModal();});
     
-    // ✅ STEP 3: OPTIMIZED chat list - reads ONLY chat summary docs
+    // ✅ FIXED: Chat list with proper query for current user's chats
     function setupRealtimeChatList(){
       if(unsubChatList)unsubChatList();
       
+      // Query all chats and filter client-side for ones containing current user
       const q = query(
         collection(db,'chats'),
         orderBy('lastTime','desc')
@@ -292,16 +293,19 @@
           const data = docSnap.data();
           const ids = docSnap.id.split('_');
           
+          // Only show chats where current user is a participant
           if(ids.includes(currentUserId)){
             const partnerId = ids.find(i=>i!==currentUserId);
-            chats.push({
-              username:'@'+partnerId,
-              lastMsg: data.lastType==='image'?'📷 Photo':
-                       data.lastType==='audio'?'🎤 Voice':
-                       data.lastMessage || '',
-              lastTime: data.lastTime?.toDate() || new Date(0),
-              unreadCount: data['unread_'+currentUserId] || 0
-            });
+            if(partnerId && data.lastMessage !== undefined){
+              chats.push({
+                username:'@'+partnerId,
+                lastMsg: data.lastType==='image'?'📷 Photo':
+                         data.lastType==='audio'?'🎤 Voice':
+                         data.lastMessage || '',
+                lastTime: data.lastTime?.toDate() || new Date(0),
+                unreadCount: data['unread_'+currentUserId] || 0
+              });
+            }
           }
         });
         
@@ -361,7 +365,23 @@
     function stopVoice(c){if(mediaRecorder&&isRecording){if(c)audioChunks=[];if(mediaRecorder.state==='recording')mediaRecorder.stop();isRecording=false;clearInterval(voiceTimer);document.getElementById('recordingBar').classList.remove('show');document.getElementById('micBtn').style.display='flex';document.getElementById('sendBtn').style.display='flex';document.getElementById('chatInput').style.display='block';}}
     window.cancelVoice=function(){stopVoice(true);};
     
-    // ✅ STEP 2: sendVoice with chat doc update
+    // ✅ FIXED: Creates chat doc if doesn't exist, then updates
+    async function ensureChatDoc(){
+      const chatRef = doc(db,'chats',chatId);
+      const chatSnap = await getDoc(chatRef);
+      if(!chatSnap.exists()){
+        // Create chat document with both users
+        await setDoc(chatRef,{
+          users: [currentUserId, chatPartner.replace('@','')],
+          unread_adil: 0,
+          unread_rahul: 0,
+          lastMessage: '',
+          lastType: 'text',
+          lastTime: serverTimestamp()
+        });
+      }
+    }
+    
     window.sendVoice=async function(){
       if(!mediaRecorder||!isRecording)return;
       if(voiceSeconds<1){stopVoice(true);return;}
@@ -371,6 +391,8 @@
         const reader=new FileReader();
         reader.onload=async function(e){
           try{
+            await ensureChatDoc();
+            
             await addDoc(collection(db,'chats',chatId,'messages'),{
               audioUrl:e.target.result,
               audioDuration:voiceSeconds,
@@ -380,14 +402,13 @@
               seen:false
             });
             
-            // ✅ Update chat summary doc
             await updateDoc(doc(db,'chats',chatId),{
               lastMessage:'🎤 Voice message',
               lastType:'audio',
               lastTime:serverTimestamp(),
               ['unread_'+chatPartner.replace('@','')]: increment(1)
             });
-          }catch(err){}
+          }catch(err){console.error('Send voice error:',err);}
         };
         reader.readAsDataURL(blob);
       };
@@ -406,13 +427,15 @@
     function renderMsg(id,msg){const c=document.getElementById('messagesContainer');const tb=document.getElementById('typingBubble');const isSent=msg.sender===currentUserId;if(document.getElementById('msg-'+id))return;const w=document.createElement('div');w.className='message-wrapper '+(isSent?'sent':'received');w.id='msg-'+id;let time='';if(msg.createdAt){try{time=new Date(msg.createdAt.toDate()).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}catch(e){}}if(msg.imageUrl){w.innerHTML=`<div class="message-bubble"><img src="${msg.imageUrl}" class="message-image" onclick="window.open('${msg.imageUrl}')" loading="lazy"><div class="message-time">${time}</div></div>`;}else if(msg.audioUrl){const dur=msg.audioDuration||0;w.innerHTML=`<div class="message-bubble voice-msg" data-audio="${msg.audioUrl}" data-duration="${dur}" onclick="playVoice(this)"><button class="voice-play-btn"><i class="fas fa-play"></i></button><div class="voice-wave-container">${genBars(18)}</div><span class="voice-duration">0:00 / ${formatDuration(dur)}</span><div class="message-time">${time}</div></div>`;}else{w.innerHTML=`<div class="message-bubble">${msg.text||''}<div class="message-time">${time}</div></div>`;}c.insertBefore(w,tb);if(!isSent&&!msg.seen){setDoc(doc(db,'chats',chatId,'messages',id),{seen:true},{merge:true}).catch(()=>{});}}
     function genBars(n){let h='';for(let i=0;i<n;i++){h+=`<div class="voice-wave-bar" style="height:${Math.floor(Math.random()*22)+4}px;"></div>`;}return h;}
     
-    // ✅ STEP 2: sendImage with chat doc update
+    // ✅ FIXED: Creates chat doc if doesn't exist
     window.sendImage=async function(e){
       const file=e.target.files[0];
       if(!file||!chatId)return;
       const r=new FileReader();
       r.onload=async function(ev){
         try{
+          await ensureChatDoc();
+          
           await addDoc(collection(db,'chats',chatId,'messages'),{
             imageUrl:ev.target.result,
             sender:currentUserId,
@@ -420,26 +443,27 @@
             seen:false
           });
           
-          // ✅ Update chat summary doc
           await updateDoc(doc(db,'chats',chatId),{
             lastMessage:'📷 Photo',
             lastType:'image',
             lastTime:serverTimestamp(),
             ['unread_'+chatPartner.replace('@','')]: increment(1)
           });
-        }catch(err){}
+        }catch(err){console.error('Send image error:',err);}
       };
       r.readAsDataURL(file);
       e.target.value='';
     };
     
-    // ✅ STEP 2: sendMessage with chat doc update
+    // ✅ FIXED: Creates chat doc if doesn't exist
     window.sendMessage=async function(){
       const input=document.getElementById('chatInput');
       const text=input.value.trim();
       if(!text||!chatId)return;
       input.value='';
       try{
+        await ensureChatDoc();
+        
         await addDoc(collection(db,'chats',chatId,'messages'),{
           text,
           sender:currentUserId,
@@ -447,14 +471,13 @@
           seen:false
         });
         
-        // ✅ Update chat summary doc
         await updateDoc(doc(db,'chats',chatId),{
           lastMessage:text,
           lastType:'text',
           lastTime:serverTimestamp(),
           ['unread_'+chatPartner.replace('@','')]: increment(1)
         });
-      }catch(e){}
+      }catch(e){console.error('Send message error:',e);}
     };
     
     function listenToTyping(){const pid=chatPartner.replace('@','');onSnapshot(doc(db,'chats',chatId,'typing',pid),snap=>{const d=snap.data();const st=document.getElementById('partnerStatus');const tb=document.getElementById('typingBubble');if(d&&d.typing){st.innerHTML='<span class="dot"></span> typing...';tb.classList.add('show');}else{st.innerHTML='<span class="dot"></span> online';tb.classList.remove('show');}});}

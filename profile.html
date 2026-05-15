@@ -20,7 +20,6 @@
     .scrollable-content::-webkit-scrollbar { width:0;height:0; }
     .scrollable-content { scrollbar-width:none;-ms-overflow-style:none; }
 
-    /* ✅ EXACT same as index.html top-icons */
     .top-icons {
       width:100%;max-width:500px;display:flex;align-items:center;justify-content:space-between;
       padding:0.8rem 0.8rem 0.3rem 0.8rem;flex-shrink:0;position:relative;background:#000;
@@ -121,7 +120,6 @@
     .edit-avatar-btns button { padding:0.35rem 0.7rem;border-radius:0.4rem;border:none;font-size:0.65rem;cursor:pointer;background:#333;color:#fff; }
     .edit-avatar-btns .remove-btn { background:rgba(239,68,68,0.2);color:#ef4444; }
     
-    /* ✅ Crop Modal Styles */
     .crop-overlay {
       position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:350;
       display:none;flex-direction:column;align-items:center;justify-content:center;
@@ -169,7 +167,6 @@
     .loading-screen { position:fixed;top:0;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:500; }
     .loading-screen i { font-size:2rem;color:#3897f0;animation:spin 1s infinite; }
 
-    /* Navbar */
     .floating-nav { 
       position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));
       left:50%;transform:translateX(-50%);width:92%;max-width:500px;
@@ -209,7 +206,6 @@
 
   <div class="page" id="mainPage" style="display:none;">
     <div class="scrollable-content" id="mainContent">
-      <!-- ✅ Header -->
       <div class="top-icons">
         <button class="back-btn" id="backBtn" onclick="window.history.back()"><i class="fas fa-arrow-left"></i></button>
         <button class="corner-btn" id="settingsBtn" onclick="window.location.href='settings.html'" title="Settings"><i class="fas fa-cog"></i></button>
@@ -247,7 +243,6 @@
       </div>
     </div>
 
-    <!-- ✅ Crop Overlay for image resizing -->
     <div class="crop-overlay" id="cropOverlay">
       <div class="crop-container" id="cropContainer">
         <img id="cropImage" src="" alt="crop">
@@ -322,7 +317,6 @@
     let currentPostIndex = 0, currentPostList = [];
     let tempEditAvatar = null;
     
-    // ✅ Crop variables
     let cropImageFile = null;
     let cropZoom = 1;
     let cropPosX = 0, cropPosY = 0;
@@ -331,7 +325,6 @@
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('mainPage').style.display = 'flex';
 
-    // ✅ Setup top row based on profile type
     if (isOwnProfile) {
       document.getElementById('backBtn').style.display = 'none';
       document.getElementById('settingsBtn').style.display = 'flex';
@@ -347,18 +340,15 @@
 
     if (isOwnProfile) loadOwnProfile();
 
-    // ✅ ========== IMAGE CROP FUNCTIONS ==========
+    // ========== IMAGE CROP FUNCTIONS ==========
     window.handleAvatarSelect = function(e) {
       const file = e.target.files[0];
       if (!file) return;
-      
-      // Check file size (max 10MB)
       if (file.size > 10 * 1024 * 1024) {
         showToast('Image too large! Max 10MB');
         e.target.value = '';
         return;
       }
-      
       cropImageFile = file;
       openCropOverlay(file);
       e.target.value = '';
@@ -370,29 +360,22 @@
         const cropImg = document.getElementById('cropImage');
         cropImg.src = ev.target.result;
         cropImg.onload = function() {
-          // Reset position and zoom
           cropZoom = 1;
           cropPosX = 0;
           cropPosY = 0;
           document.getElementById('cropZoom').value = 1;
-          
-          // Center the image
           const container = document.getElementById('cropContainer');
           const imgW = cropImg.naturalWidth;
           const imgH = cropImg.naturalHeight;
           const containerSize = container.offsetWidth;
-          
-          // Scale to fit container
           const scale = Math.max(containerSize / imgW, containerSize / imgH);
           const newW = imgW * scale;
           const newH = imgH * scale;
-          
           cropImg.style.width = newW + 'px';
           cropImg.style.height = newH + 'px';
           cropImg.style.left = ((containerSize - newW) / 2) + 'px';
           cropImg.style.top = ((containerSize - newH) / 2) + 'px';
         };
-        
         document.getElementById('cropOverlay').classList.add('show');
       };
       reader.readAsDataURL(file);
@@ -407,21 +390,16 @@
       const img = document.getElementById('cropImage');
       const container = document.getElementById('cropContainer');
       const containerSize = container.offsetWidth;
-      
       const imgW = img.naturalWidth;
       const imgH = img.naturalHeight;
       const scale = Math.max(containerSize / imgW, containerSize / imgH) * cropZoom;
-      
       img.style.width = (imgW * scale) + 'px';
       img.style.height = (imgH * scale) + 'px';
       img.style.left = cropPosX + 'px';
       img.style.top = cropPosY + 'px';
     }
 
-    // Touch/Mouse drag for crop positioning
     const cropContainer = document.getElementById('cropContainer');
-    const cropImg = document.getElementById('cropImage');
-
     cropContainer.addEventListener('mousedown', startDrag);
     cropContainer.addEventListener('touchstart', startDrag, { passive: false });
     window.addEventListener('mousemove', dragMove);
@@ -454,44 +432,30 @@
       const img = document.getElementById('cropImage');
       const container = document.getElementById('cropContainer');
       const containerSize = container.offsetWidth;
-      
-      // Create canvas for cropping
       const canvas = document.createElement('canvas');
       canvas.width = 300;
       canvas.height = 300;
       const ctx = canvas.getContext('2d');
-      
-      // Calculate crop area (center of container)
       const imgRect = img.getBoundingClientRect();
       const containerRect = container.getBoundingClientRect();
-      
       const offsetX = containerRect.left - imgRect.left;
       const offsetY = containerRect.top - imgRect.top;
-      
       const scaleX = img.naturalWidth / imgRect.width;
       const scaleY = img.naturalHeight / imgRect.height;
-      
       const sx = offsetX * scaleX;
       const sy = offsetY * scaleY;
       const sw = containerRect.width * scaleX;
       const sh = containerRect.height * scaleY;
-      
-      // Draw cropped circle
       ctx.beginPath();
       ctx.arc(150, 150, 150, 0, Math.PI * 2);
       ctx.clip();
       ctx.drawImage(img, sx, sy, sw, sh, 0, 0, 300, 300);
-      
-      // Compress to reasonable size (max 200KB)
       let quality = 0.8;
       let dataUrl = canvas.toDataURL('image/jpeg', quality);
-      
-      // Reduce quality if too large
       while (dataUrl.length > 200 * 1024 && quality > 0.3) {
         quality -= 0.1;
         dataUrl = canvas.toDataURL('image/jpeg', quality);
       }
-      
       tempEditAvatar = dataUrl;
       updateEditPreview();
       document.getElementById('cropOverlay').classList.remove('show');
@@ -506,7 +470,7 @@
     document.getElementById('cropOverlay').addEventListener('click', function(e) {
       if (e.target === this) cancelCrop();
     });
-    // ✅ ========== END CROP FUNCTIONS ==========
+    // ========== END CROP FUNCTIONS ==========
 
     window.savePostToUser = async function(postDataUrl, caption, type) {
       const newPost = { type: type, src: postDataUrl, caption: caption || '', likes: 0, liked: false, createdAt: new Date().toISOString() };
@@ -514,13 +478,96 @@
       const profile = JSON.parse(localStorage.getItem('userProfile') || '{}'); if (!profile.posts) profile.posts = []; profile.posts.unshift(newPost); localStorage.setItem('userProfile', JSON.stringify(profile)); updateProfileCache(currentUserId, profile); return newPost;
     };
 
-    function updateProfileCache(userId, profileData) { const key = 'profile_' + userId.replace('@',''); const existing = JSON.parse(localStorage.getItem(key) || '{}'); const updated = { ...existing, ...profileData, username: profileData.username || existing.username || currentUser }; localStorage.setItem(key, JSON.stringify(updated)); const friends = profileData.friends || []; friends.forEach(f => { const friendKey = 'profile_' + f.name.replace('@',''); const friendCache = JSON.parse(localStorage.getItem(friendKey) || '{}'); if (friendCache.friends) { const me = friendCache.friends.find(x => x.name === currentUser); if (me) me.avatar = profileData.avatar || null; localStorage.setItem(friendKey, JSON.stringify(friendCache)); } }); }
+    function updateProfileCache(userId, profileData) { 
+      const key = 'profile_' + userId.replace('@',''); 
+      const existing = JSON.parse(localStorage.getItem(key) || '{}'); 
+      const updated = { ...existing, ...profileData, username: profileData.username || existing.username || currentUser }; 
+      localStorage.setItem(key, JSON.stringify(updated)); 
+      const besties = profileData.besties || []; 
+      besties.forEach(f => { 
+        const friendKey = 'profile_' + f.name.replace('@',''); 
+        const friendCache = JSON.parse(localStorage.getItem(friendKey) || '{}'); 
+        if (friendCache.friends) { 
+          const me = friendCache.friends.find(x => x.name === currentUser); 
+          if (me) me.avatar = profileData.avatar || null; 
+          localStorage.setItem(friendKey, JSON.stringify(friendCache)); 
+        } 
+      }); 
+    }
 
-    async function saveToFirestore() { if (!isOwnProfile) return; const p = window._profile; if (!p) return; try { await setDoc(doc(db, 'users', currentUserId), { username: p.username || currentUser, name: p.name || '', bio: p.bio || '', website: p.website || '', avatar: p.avatar || null, friends: p.friends || [], besties: p.besties || [], posts: p.posts || [], updatedAt: serverTimestamp() }, { merge: true }); localStorage.setItem('userProfile', JSON.stringify(p)); updateProfileCache(currentUserId, p); } catch(e) {} }
+    async function saveToFirestore() { 
+      if (!isOwnProfile) return; 
+      const p = window._profile; 
+      if (!p) return; 
+      try { 
+        await setDoc(doc(db, 'users', currentUserId), { 
+          username: p.username || currentUser, 
+          name: p.name || '', 
+          bio: p.bio || '', 
+          website: p.website || '', 
+          avatar: p.avatar || null, 
+          friends: p.friends || [], 
+          besties: p.besties || [], 
+          posts: p.posts || [], 
+          updatedAt: serverTimestamp() 
+        }, { merge: true }); 
+        localStorage.setItem('userProfile', JSON.stringify(p)); 
+        updateProfileCache(currentUserId, p); 
+      } catch(e) {} 
+    }
 
-    async function addFollower(targetUsername, followerUsername) { const myProfile = JSON.parse(localStorage.getItem('userProfile') || '{}'); const myAvatar = myProfile.avatar || null; try { const q = query(collection(db, 'users'), where('username', '==', targetUsername)); const snap = await getDocs(q); if (!snap.empty) { let friends = snap.docs[0].data().friends || []; if (!friends.find(f => f.name === followerUsername)) { friends.push({ name: followerUsername, avatar: myAvatar }); await setDoc(doc(db, 'users', targetUsername.replace('@','')), { friends: friends }, { merge: true }); } } else { await setDoc(doc(db, 'users', targetUsername.replace('@','')), { username: targetUsername, friends: [{ name: followerUsername, avatar: myAvatar }], besties: [], posts: [], name: targetUsername.replace('@',''), bio: '', avatar: null, updatedAt: serverTimestamp() }); } const cacheKey = 'profile_' + targetUsername.replace('@',''); const cached = JSON.parse(localStorage.getItem(cacheKey) || '{}'); let f = cached.friends || []; if (!f.find(x => x.name === followerUsername)) { f.push({ name: followerUsername, avatar: myAvatar }); } cached.friends = f; cached.username = targetUsername; localStorage.setItem(cacheKey, JSON.stringify(cached)); } catch(e) {} }
+    // ✅ addFollower: Adds followerUsername to targetUsername's FRIENDS list
+    async function addFollower(targetUsername, followerUsername) { 
+      const myProfile = JSON.parse(localStorage.getItem('userProfile') || '{}'); 
+      const myAvatar = myProfile.avatar || null; 
+      try { 
+        const q = query(collection(db, 'users'), where('username', '==', targetUsername)); 
+        const snap = await getDocs(q); 
+        if (!snap.empty) { 
+          let friends = snap.docs[0].data().friends || []; 
+          if (!friends.find(f => f.name === followerUsername)) { 
+            friends.push({ name: followerUsername, avatar: myAvatar }); 
+            await setDoc(doc(db, 'users', targetUsername.replace('@','')), { friends: friends }, { merge: true }); 
+          } 
+        } else { 
+          await setDoc(doc(db, 'users', targetUsername.replace('@','')), { 
+            username: targetUsername, 
+            friends: [{ name: followerUsername, avatar: myAvatar }], 
+            besties: [], 
+            posts: [], 
+            name: targetUsername.replace('@',''), 
+            bio: '', 
+            avatar: null, 
+            updatedAt: serverTimestamp() 
+          }); 
+        } 
+        const cacheKey = 'profile_' + targetUsername.replace('@',''); 
+        const cached = JSON.parse(localStorage.getItem(cacheKey) || '{}'); 
+        let f = cached.friends || []; 
+        if (!f.find(x => x.name === followerUsername)) { 
+          f.push({ name: followerUsername, avatar: myAvatar }); 
+        } 
+        cached.friends = f; 
+        cached.username = targetUsername; 
+        localStorage.setItem(cacheKey, JSON.stringify(cached)); 
+      } catch(e) {} 
+    }
 
-    async function removeFollower(targetUsername, followerUsername) { try { const q = query(collection(db, 'users'), where('username', '==', targetUsername)); const snap = await getDocs(q); if (!snap.empty) { let friends = (snap.docs[0].data().friends || []).filter(f => f.name !== followerUsername); await setDoc(doc(db, 'users', targetUsername.replace('@','')), { friends: friends }, { merge: true }); } const cacheKey = 'profile_' + targetUsername.replace('@',''); const cached = JSON.parse(localStorage.getItem(cacheKey) || '{}'); cached.friends = (cached.friends || []).filter(f => f.name !== followerUsername); localStorage.setItem(cacheKey, JSON.stringify(cached)); } catch(e) {} }
+    // ✅ removeFollower: Removes followerUsername from targetUsername's FRIENDS list
+    async function removeFollower(targetUsername, followerUsername) { 
+      try { 
+        const q = query(collection(db, 'users'), where('username', '==', targetUsername)); 
+        const snap = await getDocs(q); 
+        if (!snap.empty) { 
+          let friends = (snap.docs[0].data().friends || []).filter(f => f.name !== followerUsername); 
+          await setDoc(doc(db, 'users', targetUsername.replace('@','')), { friends: friends }, { merge: true }); 
+        } 
+        const cacheKey = 'profile_' + targetUsername.replace('@',''); 
+        const cached = JSON.parse(localStorage.getItem(cacheKey) || '{}'); 
+        cached.friends = (cached.friends || []).filter(f => f.name !== followerUsername); 
+        localStorage.setItem(cacheKey, JSON.stringify(cached)); 
+      } catch(e) {} 
+    }
 
     async function loadOtherUserProfile(username) {
       const cname = (username || '').replace(/^@/, '');
@@ -545,14 +592,27 @@
       }
       document.getElementById('actionsRow').innerHTML = `<button class="action-btn primary" onclick="window.location.href='chat.html'">💬 Message</button><button class="action-btn" id="followBtn" onclick="toggleFollowUser('${username}')">Follow</button>`;
       const mp = JSON.parse(localStorage.getItem('userProfile') || '{}');
-      if ((mp.friends || []).some(f => f.name === username)) {
+      // ✅ Check if already following (in besties list)
+      if ((mp.besties || []).some(f => f.name === username)) {
         const fb = document.getElementById('followBtn');
         if (fb) { fb.textContent = 'Following'; fb.classList.add('following'); }
       }
     }
 
     async function loadOwnProfile() {
-      try { const snap = await getDoc(doc(db, 'users', currentUserId)); if (snap.exists()) { window._profile = snap.data(); if (!window._profile.friends) window._profile.friends = []; if (!window._profile.besties) window._profile.besties = []; if (!window._profile.posts) window._profile.posts = []; localStorage.setItem('userProfile', JSON.stringify(window._profile)); updateProfileCache(currentUserId, window._profile); updateUI(); return; } } catch(e) {}
+      try { 
+        const snap = await getDoc(doc(db, 'users', currentUserId)); 
+        if (snap.exists()) { 
+          window._profile = snap.data(); 
+          if (!window._profile.friends) window._profile.friends = [];
+          if (!window._profile.besties) window._profile.besties = [];
+          if (!window._profile.posts) window._profile.posts = []; 
+          localStorage.setItem('userProfile', JSON.stringify(window._profile)); 
+          updateProfileCache(currentUserId, window._profile); 
+          updateUI(); 
+          return; 
+        } 
+      } catch(e) {}
       const dp = { username: currentUser, name: '', bio: '', website: '', avatar: null, friends: [], besties: [], posts: [] };
       let profile = JSON.parse(localStorage.getItem('userProfile')) || dp;
       if (!profile.username || profile.username !== currentUser) { profile = dp; localStorage.setItem('userProfile', JSON.stringify(profile)); }
@@ -579,7 +639,38 @@
       renderContent();
     }
 
-    function renderContent() { const p = window._viewProfile || window._profile; if (!p) return; const pg = document.getElementById('postsGrid'), rg = document.getElementById('reelsGrid'), et = document.getElementById('emptyText'); const activeTab = document.querySelector('.tab.active'); const isReels = activeTab && activeTab.textContent.includes('Reels'); const imagePosts = (p.posts || []).filter(x => x.type === 'image'); const videoPosts = (p.posts || []).filter(x => x.type === 'video'); if (isReels) { pg.style.display = 'none'; if (videoPosts.length === 0) { rg.style.display = 'none'; et.style.display = 'block'; et.textContent = 'No reels yet'; } else { rg.style.display = 'grid'; et.style.display = 'none'; rg.innerHTML = videoPosts.map(x => `<div class="reel-item"><video src="${x.src}" muted loop playsinline></video></div>`).join(''); } } else { rg.style.display = 'none'; if (imagePosts.length === 0) { pg.style.display = 'none'; et.style.display = 'block'; et.textContent = 'No posts yet'; } else { pg.style.display = 'grid'; et.style.display = 'none'; pg.innerHTML = imagePosts.map((x, i) => `<div class="post-item" onclick="openPostViewer(${i})"><img src="${x.src}" alt="post"></div>`).join(''); } } }
+    function renderContent() { 
+      const p = window._viewProfile || window._profile; 
+      if (!p) return; 
+      const pg = document.getElementById('postsGrid'), rg = document.getElementById('reelsGrid'), et = document.getElementById('emptyText'); 
+      const activeTab = document.querySelector('.tab.active'); 
+      const isReels = activeTab && activeTab.textContent.includes('Reels'); 
+      const imagePosts = (p.posts || []).filter(x => x.type === 'image'); 
+      const videoPosts = (p.posts || []).filter(x => x.type === 'video'); 
+      if (isReels) { 
+        pg.style.display = 'none'; 
+        if (videoPosts.length === 0) { 
+          rg.style.display = 'none'; 
+          et.style.display = 'block'; 
+          et.textContent = 'No reels yet'; 
+        } else { 
+          rg.style.display = 'grid'; 
+          et.style.display = 'none'; 
+          rg.innerHTML = videoPosts.map(x => `<div class="reel-item"><video src="${x.src}" muted loop playsinline></video></div>`).join(''); 
+        } 
+      } else { 
+        rg.style.display = 'none'; 
+        if (imagePosts.length === 0) { 
+          pg.style.display = 'none'; 
+          et.style.display = 'block'; 
+          et.textContent = 'No posts yet'; 
+        } else { 
+          pg.style.display = 'grid'; 
+          et.style.display = 'none'; 
+          pg.innerHTML = imagePosts.map((x, i) => `<div class="post-item" onclick="openPostViewer(${i})"><img src="${x.src}" alt="post"></div>`).join(''); 
+        } 
+      } 
+    }
 
     window.openPostViewer = function(index) { const p = window._viewProfile || window._profile; if (!p) return; const ip = (p.posts || []).filter(x => x.type === 'image'); if (ip.length === 0) return; currentPostList = ip; currentPostIndex = index; showPost(index); document.getElementById('postViewer').classList.add('show'); updateNavButtons(); };
     function showPost(index) { if (index < 0 || index >= currentPostList.length) return; const post = currentPostList[index]; const p = window._viewProfile || window._profile; document.getElementById('postViewerImage').src = post.src; document.getElementById('postViewerAvatar').innerHTML = (p.avatar && p.avatar !== 'null' && p.avatar !== 'undefined') ? `<img src="${p.avatar}" alt="">` : '<i class="fas fa-user"></i>'; document.getElementById('postViewerUsername').textContent = (p.username || '').replace('@',''); document.getElementById('postViewerLikes').textContent = (post.likes || 0) + ' likes'; document.getElementById('postViewerCaptionUser').textContent = (p.username || '').replace('@',''); document.getElementById('postViewerCaptionText').textContent = post.caption || ''; const lb = document.getElementById('postViewerLike'); if (post.liked) { lb.classList.add('liked'); lb.innerHTML = '<i class="fas fa-heart"></i>'; } else { lb.classList.remove('liked'); lb.innerHTML = '<i class="far fa-heart"></i>'; } currentPostIndex = index; updateNavButtons(); }
@@ -593,14 +684,54 @@
     document.getElementById('postViewer').addEventListener('click', function(e) { if (e.target === this) closePostViewer(); });
     document.addEventListener('keydown', function(e) { if (document.getElementById('postViewer').classList.contains('show')) { if (e.key === 'ArrowLeft') navigatePost(-1); if (e.key === 'ArrowRight') navigatePost(1); if (e.key === 'Escape') closePostViewer(); } });
 
-    window.toggleFollowUser = async function(username) { const mp = JSON.parse(localStorage.getItem('userProfile') || '{}'); let myFriends = mp.friends || []; const ei = myFriends.findIndex(f => f.name === username); const btn = document.getElementById('followBtn'); const vd = window._viewProfile || {}; if (ei >= 0) { myFriends.splice(ei, 1); if (btn) { btn.textContent = 'Follow'; btn.classList.remove('following'); } await removeFollower(username, currentUser); } else { myFriends.push({ name: username, avatar: vd.avatar || null }); if (btn) { btn.textContent = 'Following'; btn.classList.add('following'); } if (vd && vd.username) { localStorage.setItem('profile_' + username.replace('@',''), JSON.stringify(vd)); } await addFollower(username, currentUser); } mp.friends = myFriends; localStorage.setItem('userProfile', JSON.stringify(mp)); try { await setDoc(doc(db, 'users', currentUserId), { friends: myFriends, besties: mp.besties || [] }, { merge: true }); } catch(e) {} document.getElementById('friendsCount').textContent = myFriends.length; document.getElementById('bestiesCount').textContent = (mp.besties || []).length; if (!isOwnProfile) { setTimeout(async () => { await loadOtherUserProfile(username); }, 800); } };
+    // ✅ UPDATED: Follow = Add to MY besties, Add to THEIR friends
+    window.toggleFollowUser = async function(username) {
+      const mp = JSON.parse(localStorage.getItem('userProfile') || '{}');
+      let myBesties = mp.besties || [];
+      const ei = myBesties.findIndex(f => f.name === username);
+      const btn = document.getElementById('followBtn');
+      const vd = window._viewProfile || {};
+      
+      if (ei >= 0) {
+        // ✅ UNFOLLOW: Remove from my besties, Remove from their friends
+        myBesties.splice(ei, 1);
+        if (btn) { btn.textContent = 'Follow'; btn.classList.remove('following'); }
+        await removeFollower(username, currentUser);
+      } else {
+        // ✅ FOLLOW: Add to my besties, Add to their friends
+        myBesties.push({ name: username, avatar: vd.avatar || null });
+        if (btn) { btn.textContent = 'Following'; btn.classList.add('following'); }
+        if (vd && vd.username) {
+          localStorage.setItem('profile_' + username.replace('@',''), JSON.stringify(vd));
+        }
+        await addFollower(username, currentUser);
+      }
+      
+      mp.besties = myBesties;
+      localStorage.setItem('userProfile', JSON.stringify(mp));
+      
+      try {
+        await setDoc(doc(db, 'users', currentUserId), { 
+          besties: myBesties,
+          friends: mp.friends || [] 
+        }, { merge: true });
+      } catch(e) {}
+      
+      // ✅ Update counts - show besties count for current user
+      document.getElementById('bestiesCount').textContent = myBesties.length;
+      document.getElementById('friendsCount').textContent = (mp.friends || []).length;
+      
+      if (!isOwnProfile) {
+        setTimeout(async () => {
+          await loadOtherUserProfile(username);
+        }, 800);
+      }
+    };
 
     window.openEditProfile = function() { if (!isOwnProfile) return; const p = window._profile; document.getElementById('editUsername').value = (p.username || '').replace('@',''); document.getElementById('editBio').value = p.bio || ''; document.getElementById('editWebsite').value = p.website || ''; tempEditAvatar = p.avatar; updateEditPreview(); document.getElementById('editModal').classList.add('show'); };
     window.closeEditProfile = function() { document.getElementById('editModal').classList.remove('show'); tempEditAvatar = null; };
     function updateEditPreview() { const preview = document.getElementById('editAvatarPreview'); if (tempEditAvatar && tempEditAvatar !== 'null' && tempEditAvatar !== 'undefined') { preview.innerHTML = `<img src="${tempEditAvatar}" alt="avatar">`; } else { preview.innerHTML = '<i class="fas fa-user"></i>'; } }
     window.removeEditAvatar = function() { tempEditAvatar = null; updateEditPreview(); };
-    
-    // ✅ Removed old updateEditAvatar - now uses handleAvatarSelect with crop
     
     window.saveProfile = function() {
       if (!isOwnProfile) return;
@@ -619,7 +750,13 @@
       showToast('Profile saved! ✅');
     };
     window.switchTab = function(el) { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); renderContent(); };
-    window.showList = function(type) { const p = window._viewProfile || window._profile; document.getElementById('listTitle').textContent = type === 'friends' ? '👥 Friends (Following)' : '⭐ Besties'; const list = type === 'friends' ? (p.friends || []) : (p.besties || []); document.getElementById('listContent').innerHTML = list.length === 0 ? '<div style="text-align:center;color:#555;padding:1rem;">No one yet</div>' : list.map(u => `<div class="list-item" onclick="window.location.href='profile.html?user=${encodeURIComponent(u.name)}'"><div class="mini-avatar">${u.avatar && u.avatar !== 'null' && u.avatar !== 'undefined' ? `<img src="${u.avatar}" alt="">` : '<i class="fas fa-user"></i>'}</div><div><div class="name">${(u.name||'').replace('@','')}</div><div class="sub">Tap to view profile</div></div></div>`).join(''); document.getElementById('listModal').classList.add('show'); };
+    window.showList = function(type) { 
+      const p = window._viewProfile || window._profile; 
+      document.getElementById('listTitle').textContent = type === 'friends' ? '👥 Friends (Followers)' : '⭐ Besties (Following)'; 
+      const list = type === 'friends' ? (p.friends || []) : (p.besties || []); 
+      document.getElementById('listContent').innerHTML = list.length === 0 ? '<div style="text-align:center;color:#555;padding:1rem;">No one yet</div>' : list.map(u => `<div class="list-item" onclick="window.location.href='profile.html?user=${encodeURIComponent(u.name)}'"><div class="mini-avatar">${u.avatar && u.avatar !== 'null' && u.avatar !== 'undefined' ? `<img src="${u.avatar}" alt="">` : '<i class="fas fa-user"></i>'}</div><div><div class="name">${(u.name||'').replace('@','')}</div><div class="sub">Tap to view profile</div></div></div>`).join(''); 
+      document.getElementById('listModal').classList.add('show'); 
+    };
     window.closeList = function() { document.getElementById('listModal').classList.remove('show'); };
     window.shareProfile = function() { const url = window.location.href.split('?')[0]; if (navigator.share) navigator.share({ title: window._profile?.username || currentUser, url: url }); else { navigator.clipboard.writeText(url); showToast('Link copied! 📋'); } };
 

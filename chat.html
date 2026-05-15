@@ -129,7 +129,7 @@
 
     .empty-chat {flex:1;display:flex;align-items:center;justify-content:center;color:#333;font-size:0.8rem;}
 
-    /* New Chat Modal with Tabs */
+    /* New Chat Modal */
     .new-chat-overlay {position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:400;display:none;align-items:center;justify-content:center;padding:1rem;}
     .new-chat-overlay.show {display:flex;}
     .new-chat-modal {background:#111;border-radius:1.2rem;padding:0;width:100%;max-width:400px;max-height:75vh;display:flex;flex-direction:column;border:1px solid rgba(255,255,255,0.1);overflow:hidden;}
@@ -182,6 +182,10 @@
       font-size:0.75rem;border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0;
     }
     .requested-label {color:#f59e0b;font-size:0.6rem;font-weight:500;}
+    .new-badge {
+      background:#4ade80;color:#000;font-size:0.5rem;padding:1px 5px;
+      border-radius:4px;margin-left:6px;font-weight:700;display:inline-block;
+    }
 
     /* Call Overlay */
     .call-overlay {
@@ -271,7 +275,7 @@
     <div class="scrollable-page" id="scrollablePage">
       <div class="top-icons" id="topIcons">
         <a href="hart.html" class="corner-btn" title="Likes"><i class="fas fa-heart"></i></a>
-        <span class="top-brand">Chats</span>
+        <span class="top-brand">Choicho</span>
         <button class="corner-btn" id="newChatBtn" onclick="showNewChatModal()"><i class="fas fa-plus"></i></button>
       </div>
 
@@ -397,11 +401,36 @@
     async function loadMessageRequests(){try{const snap=await getDocs(collection(db,'message_requests'));messageRequests=[];snap.forEach(doc=>{const d=doc.data();if(d.to===currentUserId||d.to===currentUser||d.to===currentUser.replace('@','')){messageRequests.push({id:doc.id,...d});}});updateRequestBadge();}catch(e){}}
     function updateRequestBadge(){const badge=document.getElementById('requestBadge');if(messageRequests.length>0){badge.style.display='flex';badge.textContent=messageRequests.length;}else{badge.style.display='none';}}
     
-    async function loadAllUsers(){allUsersList=[];userProfiles={};try{const snap=await getDocs(collection(db,'users'));snap.forEach(doc=>{const d=doc.data();if(d.username!==currentUser){const c=cleanName(d.username);allUsersList.push({username:d.username,displayName:c,avatar:d.avatar||null});userProfiles[d.username]={name:c,avatar:d.avatar||null};}});}catch(e){}const profile=JSON.parse(localStorage.getItem('userProfile')||'{}');[...(profile.friends||[]),...(profile.besties||[])].forEach(f=>{const u=f.name;if(u&&u!==currentUser){if(!allUsersList.find(x=>x.username===u)){allUsersList.push({username:u,displayName:cleanName(u),avatar:f.avatar||null});}if(!userProfiles[u])userProfiles[u]={name:cleanName(u),avatar:null};if(f.avatar)userProfiles[u].avatar=f.avatar;}});}
+    // ✅ Load users - newest accounts at top
+    async function loadAllUsers(){
+      allUsersList=[];userProfiles={};
+      try{
+        const q=query(collection(db,'users'),orderBy('createdAt','desc'));
+        const snap=await getDocs(q);
+        snap.forEach(doc=>{
+          const d=doc.data();
+          if(d.username!==currentUser){
+            const c=cleanName(d.username);
+            allUsersList.push({username:d.username,displayName:c,avatar:d.avatar||null,createdAt:d.createdAt?.toDate?.()||d.updatedAt?.toDate?.()||new Date(0)});
+            userProfiles[d.username]={name:c,avatar:d.avatar||null};
+          }
+        });
+      }catch(e){}
+      const profile=JSON.parse(localStorage.getItem('userProfile')||'{}');
+      [...(profile.friends||[]),...(profile.besties||[])].forEach(f=>{
+        const u=f.name;
+        if(u&&u!==currentUser){
+          if(!allUsersList.find(x=>x.username===u)){allUsersList.push({username:u,displayName:cleanName(u),avatar:f.avatar||null,createdAt:new Date(0)});}
+          if(!userProfiles[u])userProfiles[u]={name:cleanName(u),avatar:null};
+          if(f.avatar)userProfiles[u].avatar=f.avatar;
+        }
+      });
+      allUsersList.sort((a,b)=>{const aT=a.createdAt?.getTime?.()||0;const bT=b.createdAt?.getTime?.()||0;if(aT!==bT)return bT-aT;return a.displayName.localeCompare(b.displayName);});
+    }
+    
     function avatarHTML(u){const p=userProfiles[u];if(p&&p.avatar&&p.avatar!=='null'&&p.avatar!=='undefined'){return`<img src="${p.avatar}" alt="" onerror="this.style.display='none';this.parentElement.innerHTML='${cleanName(u).charAt(0).toUpperCase()}';"/>`;}return cleanName(u).charAt(0).toUpperCase();}
     function dispName(u){const p=userProfiles[u];return p?p.name:cleanName(u);}
     
-    // ✅ Show new chat modal
     window.showNewChatModal=function(){
       document.getElementById('newChatOverlay').classList.add('show');
       document.getElementById('newChatSearchInput').value='';
@@ -410,16 +439,14 @@
     };
     window.closeNewChatModal=function(){document.getElementById('newChatOverlay').classList.remove('show');};
     
-    // ✅ Switch tabs
     window.switchNewChatTab=function(tab,el){
       newChatActiveTab=tab;
       document.querySelectorAll('.new-chat-tab').forEach(t=>t.classList.remove('active'));
       el.classList.add('active');
-      const searchBox=document.getElementById('newChatSearchBox');
-      const searchInput=document.getElementById('newChatSearchInput');
-      searchBox.style.display='block';
-      if(tab==='users'){searchInput.placeholder='🔍 Search users...';renderNewChatUsers(allUsersList);}
-      else{searchInput.placeholder='🔍 Search requests...';renderNewChatRequests(messageRequests);}
+      const si=document.getElementById('newChatSearchInput');
+      document.getElementById('newChatSearchBox').style.display='block';
+      if(tab==='users'){si.placeholder='🔍 Search users...';renderNewChatUsers(allUsersList);}
+      else{si.placeholder='🔍 Search requests...';renderNewChatRequests(messageRequests);}
     };
     
     window.filterNewChatList=function(){
@@ -428,7 +455,15 @@
       else{renderNewChatRequests(messageRequests.filter(r=>(r.fromName||r.from||'').toLowerCase().includes(s)));}
     };
     
-    // ✅ Render Users with Request button
+    // ✅ Check if user is new (created within last 7 days)
+    function isNewUser(user){
+      if(!user.createdAt||user.createdAt.getTime()===0)return false;
+      const now=new Date();
+      const diff=now-user.createdAt;
+      return diff<7*24*60*60*1000;
+    }
+    
+    // ✅ Render Users with NEW badge for recent accounts
     function renderNewChatUsers(users){
       const l=document.getElementById('newChatList');
       if(users.length===0){l.innerHTML='<div style="text-align:center;color:#555;padding:2rem;font-size:0.75rem;">No users found</div>';return;}
@@ -438,15 +473,15 @@
       l.innerHTML=users.map(u=>{
         const alreadyChatting=existingChats.includes(u.username);
         const alreadyRequested=mySentRequests.includes(u.username.replace('@',''))||mySentRequests.includes(u.username);
+        const newBadge=isNewUser(u)?'<span class="new-badge">NEW</span>':'';
         let actionBtn='';
         if(alreadyChatting){actionBtn=`<button class="new-chat-action chat" onclick="event.stopPropagation();closeNewChatModal();openChat('${u.username}')">💬 Chat</button>`;}
         else if(alreadyRequested){actionBtn=`<span class="requested-label">⏳ Requested</span>`;}
         else{actionBtn=`<button class="new-chat-action request-btn" onclick="event.stopPropagation();sendChatRequest('${u.username}')">📩 Request</button>`;}
-        return`<div class="new-chat-item"><div class="new-chat-avatar">${avatarHTML(u.username)}</div><div class="new-chat-info"><div class="new-chat-name">${u.displayName}</div><div class="new-chat-sub">${alreadyChatting?'Already in chats':alreadyRequested?'Request sent':'Send chat request'}</div></div><div class="new-chat-actions">${actionBtn}</div></div>`;
+        return`<div class="new-chat-item"><div class="new-chat-avatar">${avatarHTML(u.username)}</div><div class="new-chat-info"><div class="new-chat-name">${u.displayName}${newBadge}</div><div class="new-chat-sub">${alreadyChatting?'Already in chats':alreadyRequested?'Request sent':'Send chat request'}</div></div><div class="new-chat-actions">${actionBtn}</div></div>`;
       }).join('');
     }
     
-    // ✅ Send request
     window.sendChatRequest=async function(username){
       try{
         const profile=JSON.parse(localStorage.getItem('userProfile')||'{}');
@@ -460,10 +495,9 @@
         toast.style.cssText='position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#4ade80;color:#000;padding:0.5rem 1.5rem;border-radius:2rem;font-size:0.75rem;font-weight:600;z-index:500;';
         toast.textContent='✅ Request sent!';document.body.appendChild(toast);
         setTimeout(()=>toast.remove(),2000);
-      }catch(e){console.error('Send request error:',e);}
+      }catch(e){}
     };
     
-    // ✅ Render Requests with Accept/Decline
     function renderNewChatRequests(requests){
       const l=document.getElementById('newChatList');
       if(requests.length===0){l.innerHTML='<div style="text-align:center;color:#555;padding:2rem;font-size:0.75rem;">No pending requests ✨</div>';return;}
@@ -474,7 +508,6 @@
       }).join('');
     }
     
-    // ✅ Accept request
     window.acceptRequest=async function(requestId,fromUser,fromName){
       try{
         const partnerUsername=fromUser||('@'+(fromName||'').replace('@',''));
@@ -488,17 +521,11 @@
         renderNewChatUsers(allUsersList);
         closeNewChatModal();
         openChat(partnerUsername);
-      }catch(e){console.error('Accept error:',e);}
+      }catch(e){}
     };
     
-    // ✅ Decline request
     window.declineRequest=async function(requestId){
-      try{
-        await deleteDoc(doc(db,'message_requests',requestId));
-        messageRequests=messageRequests.filter(r=>r.id!==requestId);
-        updateRequestBadge();
-        renderNewChatRequests(messageRequests);
-      }catch(e){console.error('Decline error:',e);}
+      try{await deleteDoc(doc(db,'message_requests',requestId));messageRequests=messageRequests.filter(r=>r.id!==requestId);updateRequestBadge();renderNewChatRequests(messageRequests);}catch(e){}
     };
     
     document.getElementById('newChatOverlay').addEventListener('click',function(e){if(e.target===this)closeNewChatModal();});
@@ -513,13 +540,11 @@
           const ids=docSnap.id.split('_');
           if(ids.includes(currentUserId)){
             const partnerId=ids.find(i=>i!==currentUserId);
-            if(partnerId&&data.lastMessage!==undefined){
-              chats.push({username:'@'+partnerId,lastMsg:data.lastType==='image'?'📷 Photo':data.lastType==='audio'?'🎤 Voice':data.lastMessage||'',lastTime:data.lastTime?.toDate()||new Date(0),unreadCount:data['unread_'+currentUserId]||0});
-            }
+            if(partnerId&&data.lastMessage!==undefined){chats.push({username:'@'+partnerId,lastMsg:data.lastType==='image'?'📷 Photo':data.lastType==='audio'?'🎤 Voice':data.lastMessage||'',lastTime:data.lastTime?.toDate()||new Date(0),unreadCount:data['unread_'+currentUserId]||0});}
           }
         });
         chatListData=chats;renderChatList(chats);
-      },(error)=>{console.error('Chat list error:',error);});
+      },(error)=>{});
     }
     
     function renderChatList(cu){const l=document.getElementById('userList'),cnt=document.getElementById('chatCount');const tu=cu.reduce((s,c)=>s+c.unreadCount,0);cnt.textContent=cu.length>0?'('+cu.length+')':'';if(cu.length===0){l.innerHTML='<div style="text-align:center;color:#555;padding:3rem;font-size:0.8rem;">No messages yet</div>';return;}l.innerHTML=cu.map(c=>{const ts=c.lastTime.getTime()>0?fmtTime(c.lastTime):'';const dn=dispName(c.username);return`<div class="user-list-item ${chatPartner===c.username?'active':''}" onclick="openChat('${c.username}')"><div class="user-avatar" onclick="event.stopPropagation();window.location.href='profile.html?user=${encodeURIComponent(c.username)}'">${avatarHTML(c.username)}</div><div class="user-info"><div class="user-name-row"><span class="user-name" onclick="event.stopPropagation();window.location.href='profile.html?user=${encodeURIComponent(c.username)}'">${dn}</span><span class="user-time">${ts}</span></div><div class="user-msg-row"><span class="user-last-msg ${c.unreadCount>0?'unread-msg':''}">${c.lastMsg||'No messages'}</span>${c.unreadCount>0?`<span class="unread-count">${c.unreadCount}</span>`:''}</div></div></div>`;}).join('');}
@@ -560,11 +585,11 @@
     };
     
     // ========== CALLS ==========
-    window.startCall=async function(type){if(!chatPartner||isCallActive)return;callType=type;isCaller=true;try{localStream=await navigator.mediaDevices.getUserMedia({audio:true,video:type==='video'});document.getElementById('callLocalVideo').srcObject=localStream;document.getElementById('callLocalVideo').style.display=type==='video'?'block':'none';document.getElementById('callOverlay').classList.add('show');document.getElementById('callStatus').textContent='Calling...';document.getElementById('callVideoBtn').style.display=type==='video'?'flex':'none';const callId=[currentUserId,chatPartner.replace('@','')].sort().join('_')+'_'+Date.now();callDocRef=doc(db,'calls',callId);await setDoc(callDocRef,{caller:currentUserId,callee:chatPartner.replace('@',''),type:type,status:'ringing',createdAt:serverTimestamp()});callUnsub=onSnapshot(callDocRef,async(snap)=>{const data=snap.data();if(!data)return;if(data.status==='rejected'){endCall();return;}if(data.status==='accepted'&&data.answer){document.getElementById('callStatus').textContent='Connected';await createPeerConnection();await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));localStream.getTracks().forEach(track=>{peerConnection.addTrack(track,localStream);});const offer=await peerConnection.createOffer();await peerConnection.setLocalDescription(offer);await updateDoc(callDocRef,{offer:{type:offer.type,sdp:offer.sdp}});}if(data.calleeCandidates){for(const cand of data.calleeCandidates){if(peerConnection){await peerConnection.addIceCandidate(new RTCIceCandidate(cand));}}}});isCallActive=true;}catch(e){console.error('Call error:',e);alert('Camera/microphone needed!');endCall();}};
+    window.startCall=async function(type){if(!chatPartner||isCallActive)return;callType=type;isCaller=true;try{localStream=await navigator.mediaDevices.getUserMedia({audio:true,video:type==='video'});document.getElementById('callLocalVideo').srcObject=localStream;document.getElementById('callLocalVideo').style.display=type==='video'?'block':'none';document.getElementById('callOverlay').classList.add('show');document.getElementById('callStatus').textContent='Calling...';document.getElementById('callVideoBtn').style.display=type==='video'?'flex':'none';const callId=[currentUserId,chatPartner.replace('@','')].sort().join('_')+'_'+Date.now();callDocRef=doc(db,'calls',callId);await setDoc(callDocRef,{caller:currentUserId,callee:chatPartner.replace('@',''),type:type,status:'ringing',createdAt:serverTimestamp()});callUnsub=onSnapshot(callDocRef,async(snap)=>{const data=snap.data();if(!data)return;if(data.status==='rejected'){endCall();return;}if(data.status==='accepted'&&data.answer){document.getElementById('callStatus').textContent='Connected';await createPeerConnection();await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));localStream.getTracks().forEach(track=>{peerConnection.addTrack(track,localStream);});const offer=await peerConnection.createOffer();await peerConnection.setLocalDescription(offer);await updateDoc(callDocRef,{offer:{type:offer.type,sdp:offer.sdp}});}if(data.calleeCandidates){for(const cand of data.calleeCandidates){if(peerConnection){await peerConnection.addIceCandidate(new RTCIceCandidate(cand));}}}});isCallActive=true;}catch(e){alert('Camera/microphone needed!');endCall();}};
     async function createPeerConnection(){if(peerConnection){peerConnection.close();}peerConnection=new RTCPeerConnection(servers);peerConnection.ontrack=(event)=>{document.getElementById('callRemoteVideo').srcObject=event.streams[0];};peerConnection.onicecandidate=async(event)=>{if(event.candidate&&callDocRef){if(isCaller){const snap=await getDoc(callDocRef);const existing=snap.data()?.callerCandidates||[];existing.push(event.candidate.toJSON());await updateDoc(callDocRef,{callerCandidates:existing});}else{const snap=await getDoc(callDocRef);const existing=snap.data()?.calleeCandidates||[];existing.push(event.candidate.toJSON());await updateDoc(callDocRef,{calleeCandidates:existing});}}};peerConnection.onconnectionstatechange=()=>{if(peerConnection.connectionState==='disconnected'||peerConnection.connectionState==='failed'){endCall();}};}
     function listenForIncomingCalls(){onSnapshot(collection(db,'calls'),(snap)=>{snap.docChanges().forEach(async(change)=>{if(change.type==='added'){const data=change.doc.data();if(data.callee===currentUserId&&data.status==='ringing'){callDocRef=change.doc.ref;showIncomingCall(data);}}});});}
     function showIncomingCall(data){callType=data.type;isCaller=false;document.getElementById('incomingName').textContent=dispName('@'+data.caller);document.getElementById('incomingType').textContent=`Incoming ${data.type} call...`;document.getElementById('incomingAvatar').innerHTML=avatarHTML('@'+data.caller);document.getElementById('incomingCallOverlay').classList.add('show');}
-    window.acceptCall=async function(){document.getElementById('incomingCallOverlay').classList.remove('show');try{localStream=await navigator.mediaDevices.getUserMedia({audio:true,video:callType==='video'});document.getElementById('callLocalVideo').srcObject=localStream;document.getElementById('callLocalVideo').style.display=callType==='video'?'block':'none';document.getElementById('callOverlay').classList.add('show');document.getElementById('callStatus').textContent='Connected';document.getElementById('callVideoBtn').style.display=callType==='video'?'flex':'none';await updateDoc(callDocRef,{status:'accepted'});await createPeerConnection();localStream.getTracks().forEach(track=>{peerConnection.addTrack(track,localStream);});callUnsub=onSnapshot(callDocRef,async(snap)=>{const d=snap.data();if(!d)return;if(d.offer&&!peerConnection.currentRemoteDescription){await peerConnection.setRemoteDescription(new RTCSessionDescription(d.offer));const answer=await peerConnection.createAnswer();await peerConnection.setLocalDescription(answer);await updateDoc(callDocRef,{answer:{type:answer.type,sdp:answer.sdp}});}if(d.callerCandidates){for(const cand of d.callerCandidates){if(peerConnection){await peerConnection.addIceCandidate(new RTCIceCandidate(cand));}}}});isCallActive=true;}catch(e){console.error('Accept error:',e);endCall();}};
+    window.acceptCall=async function(){document.getElementById('incomingCallOverlay').classList.remove('show');try{localStream=await navigator.mediaDevices.getUserMedia({audio:true,video:callType==='video'});document.getElementById('callLocalVideo').srcObject=localStream;document.getElementById('callLocalVideo').style.display=callType==='video'?'block':'none';document.getElementById('callOverlay').classList.add('show');document.getElementById('callStatus').textContent='Connected';document.getElementById('callVideoBtn').style.display=callType==='video'?'flex':'none';await updateDoc(callDocRef,{status:'accepted'});await createPeerConnection();localStream.getTracks().forEach(track=>{peerConnection.addTrack(track,localStream);});callUnsub=onSnapshot(callDocRef,async(snap)=>{const d=snap.data();if(!d)return;if(d.offer&&!peerConnection.currentRemoteDescription){await peerConnection.setRemoteDescription(new RTCSessionDescription(d.offer));const answer=await peerConnection.createAnswer();await peerConnection.setLocalDescription(answer);await updateDoc(callDocRef,{answer:{type:answer.type,sdp:answer.sdp}});}if(d.callerCandidates){for(const cand of d.callerCandidates){if(peerConnection){await peerConnection.addIceCandidate(new RTCIceCandidate(cand));}}}});isCallActive=true;}catch(e){endCall();}};
     window.rejectCall=function(){if(callDocRef){updateDoc(callDocRef,{status:'rejected'}).catch(()=>{});}document.getElementById('incomingCallOverlay').classList.remove('show');callDocRef=null;};
     window.endCall=function(){if(localStream){localStream.getTracks().forEach(t=>t.stop());localStream=null;}if(peerConnection){peerConnection.close();peerConnection=null;}if(callUnsub){callUnsub();callUnsub=null;}if(callDocRef&&isCaller){deleteDoc(callDocRef).catch(()=>{});}document.getElementById('callOverlay').classList.remove('show');document.getElementById('incomingCallOverlay').classList.remove('show');document.getElementById('callRemoteVideo').srcObject=null;document.getElementById('callLocalVideo').srcObject=null;document.getElementById('callStatus').textContent='Connecting...';isCallActive=false;isCaller=false;callDocRef=null;isMuted=false;isVideoOff=false;document.getElementById('callMuteBtn').classList.remove('muted');document.getElementById('callVideoBtn').classList.remove('off');};
     window.toggleCallMute=function(){if(!localStream)return;isMuted=!isMuted;localStream.getAudioTracks().forEach(t=>t.enabled=!isMuted);document.getElementById('callMuteBtn').classList.toggle('muted',isMuted);};

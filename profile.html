@@ -174,11 +174,11 @@
 
   <div class="page" id="mainPage" style="display:none;">
     <div class="scrollable-content" id="mainContent">
-      <!-- ✅ Header: Shows "Choicho" for own profile, username for other profiles -->
+      <!-- ✅ Header: Shows username for both own and other profiles -->
       <div class="top-icons">
         <button class="back-btn" id="backBtn" onclick="window.history.back()"><i class="fas fa-arrow-left"></i></button>
         <button class="corner-btn" id="settingsBtn" onclick="window.location.href='settings.html'" title="Settings"><i class="fas fa-cog"></i></button>
-        <span class="top-brand" id="topBrand">Choicho</span>
+        <span class="top-brand" id="topBrand">Profile</span>
         <a href="login.html" class="corner-btn" id="logoutBtn" title="Logout"><i class="fas fa-sign-out-alt"></i></a>
       </div>
 
@@ -280,12 +280,13 @@
       document.getElementById('backBtn').style.display = 'none';
       document.getElementById('settingsBtn').style.display = 'flex';
       document.getElementById('logoutBtn').style.display = 'flex';
-      document.getElementById('topBrand').textContent = 'Choicho';
+      // ✅ Show own username
+      document.getElementById('topBrand').textContent = currentUser.replace('@','');
     } else {
       document.getElementById('backBtn').classList.add('show');
       document.getElementById('settingsBtn').style.display = 'none';
       document.getElementById('logoutBtn').style.display = 'none';
-      // ✅ Show viewed user's username in header
+      // ✅ Show viewed user's username
       document.getElementById('topBrand').textContent = (viewUser || '').replace('@','');
       loadOtherUserProfile(viewUser);
     }
@@ -360,8 +361,8 @@
       document.getElementById('friendsCount').textContent = (p.friends || []).length;
       document.getElementById('bestiesCount').textContent = (p.besties || []).length;
       document.getElementById('postCount').textContent = (p.posts || []).filter(x => x.type === 'image').length;
-      // ✅ Always show "Choicho" for own profile
-      document.getElementById('topBrand').textContent = 'Choicho';
+      // ✅ Show own username in header
+      document.getElementById('topBrand').textContent = (p.username || currentUser).replace('@','');
       renderContent();
     }
 

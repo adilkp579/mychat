@@ -129,16 +129,56 @@
 
     .empty-chat {flex:1;display:flex;align-items:center;justify-content:center;color:#333;font-size:0.8rem;}
 
-    .contacts-overlay {position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:400;display:none;align-items:center;justify-content:center;padding:1rem;}
-    .contacts-overlay.show {display:flex;}
-    .contacts-modal {background:#111;border-radius:1rem;padding:1.2rem;width:100%;max-width:360px;max-height:70vh;overflow-y:auto;border:1px solid rgba(255,255,255,0.1);}
-    .contacts-modal h3 {font-size:0.9rem;color:#fff;margin-bottom:0.8rem;text-align:center;}
-    .contacts-modal input {width:100%;padding:0.6rem 0.8rem;border-radius:0.5rem;border:1px solid #222;background:#0a0a0a;color:#fff;font-size:0.8rem;margin-bottom:0.6rem;outline:none;}
-    .contact-item {display:flex;align-items:center;gap:0.6rem;padding:0.6rem;border-radius:0.5rem;cursor:pointer;color:#fff;font-size:0.8rem;}
-    .contact-avatar {width:32px;height:32px;border-radius:50%;background:#1a1a1a;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:0.7rem;flex-shrink:0;}
-    .contact-avatar img {width:100%;height:100%;object-fit:cover;}
-    .contact-name {flex:1;}
-    .contact-close {text-align:center;margin-top:0.6rem;color:#ef4444;cursor:pointer;font-size:0.75rem;padding:0.4rem;}
+    /* ✅ New Chat Modal with Tabs */
+    .new-chat-overlay {position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:400;display:none;align-items:center;justify-content:center;padding:1rem;}
+    .new-chat-overlay.show {display:flex;}
+    .new-chat-modal {background:#111;border-radius:1.2rem;padding:0;width:100%;max-width:400px;max-height:75vh;display:flex;flex-direction:column;border:1px solid rgba(255,255,255,0.1);overflow:hidden;}
+    .new-chat-tabs {display:flex;border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0;}
+    .new-chat-tab {
+      flex:1;text-align:center;padding:0.8rem;color:#666;font-size:0.8rem;font-weight:600;
+      cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;
+      position:relative;
+    }
+    .new-chat-tab.active {color:#fff;border-bottom-color:#FFFC00;}
+    .new-chat-tab .tab-badge {
+      position:absolute;top:0.3rem;right:0.5rem;background:#ef4444;color:#fff;
+      font-size:0.55rem;min-width:16px;height:16px;border-radius:8px;
+      display:flex;align-items:center;justify-content:center;font-weight:700;
+    }
+    .new-chat-search {padding:0.6rem 1rem;flex-shrink:0;}
+    .new-chat-search input {
+      width:100%;padding:0.55rem 0.8rem;border-radius:0.5rem;border:1px solid #222;
+      background:#0a0a0a;color:#fff;font-size:0.8rem;outline:none;
+    }
+    .new-chat-list {flex:1;overflow-y:auto;padding:0.3rem 0;}
+    .new-chat-list::-webkit-scrollbar {width:3px;}
+    .new-chat-list::-webkit-scrollbar-thumb {background:rgba(255,255,255,0.1);border-radius:3px;}
+    .new-chat-item {
+      display:flex;align-items:center;gap:0.6rem;padding:0.7rem 1rem;
+      cursor:pointer;transition:all 0.15s;
+    }
+    .new-chat-item:active {background:rgba(255,255,255,0.03);}
+    .new-chat-avatar {
+      width:40px;height:40px;border-radius:50%;background:#1a1a1a;
+      overflow:hidden;display:flex;align-items:center;justify-content:center;
+      color:#fff;font-weight:700;font-size:0.9rem;flex-shrink:0;
+    }
+    .new-chat-avatar img {width:100%;height:100%;object-fit:cover;}
+    .new-chat-info {flex:1;min-width:0;}
+    .new-chat-name {font-size:0.8rem;color:#fff;font-weight:500;}
+    .new-chat-sub {font-size:0.6rem;color:#666;margin-top:2px;}
+    .new-chat-actions {display:flex;gap:0.4rem;flex-shrink:0;}
+    .new-chat-action {
+      padding:0.35rem 0.8rem;border-radius:1rem;border:none;
+      font-size:0.65rem;font-weight:600;cursor:pointer;transition:all 0.15s;
+    }
+    .new-chat-action.accept {background:#4ade80;color:#000;}
+    .new-chat-action.decline {background:rgba(239,68,68,0.2);color:#ef4444;}
+    .new-chat-action.chat {background:#FFFC00;color:#000;}
+    .new-chat-close {
+      text-align:center;padding:0.6rem;color:#ef4444;cursor:pointer;
+      font-size:0.75rem;border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0;
+    }
 
     /* Call Overlay */
     .call-overlay {
@@ -226,14 +266,12 @@
   <div class="loading-screen" id="loadingScreen"><i class="fas fa-spinner"></i><span>Loading...</span></div>
   <div class="page" id="mainPage" style="display:none;">
     <div class="scrollable-page" id="scrollablePage">
-      <!-- Top bar - visible only in chat list -->
       <div class="top-icons" id="topIcons">
         <a href="hart.html" class="corner-btn" title="Likes"><i class="fas fa-heart"></i></a>
         <span class="top-brand">Choicho</span>
         <button class="corner-btn" id="newChatBtn" onclick="showNewChatModal()"><i class="fas fa-plus"></i></button>
       </div>
 
-      <!-- Chat header - visible only in chat view -->
       <div class="chat-header" id="chatHeader">
         <button class="chat-back" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
         <div class="chat-partner-info" onclick="goToPartnerProfile()">
@@ -274,6 +312,24 @@
       <button class="send-btn" id="sendBtn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
     </div>
 
+    <!-- ✅ New Chat Modal with Tabs -->
+    <div class="new-chat-overlay" id="newChatOverlay">
+      <div class="new-chat-modal">
+        <div class="new-chat-tabs">
+          <div class="new-chat-tab active" onclick="switchNewChatTab('users', this)">👥 Users</div>
+          <div class="new-chat-tab" onclick="switchNewChatTab('requests', this)">
+            📩 Requests
+            <span class="tab-badge" id="requestBadge" style="display:none;">0</span>
+          </div>
+        </div>
+        <div class="new-chat-search" id="newChatSearchBox">
+          <input type="text" id="newChatSearchInput" placeholder="🔍 Search users..." oninput="filterNewChatList()">
+        </div>
+        <div class="new-chat-list" id="newChatList"></div>
+        <div class="new-chat-close" onclick="closeNewChatModal()">Close ✕</div>
+      </div>
+    </div>
+
     <!-- Call Overlay -->
     <div class="call-overlay" id="callOverlay">
       <div class="call-video-container">
@@ -298,15 +354,6 @@
         <button class="incoming-accept" onclick="acceptCall()"><i class="fas fa-phone"></i></button>
       </div>
     </div>
-
-    <div class="contacts-overlay" id="newChatModal">
-      <div class="contacts-modal">
-        <h3>👥 New Chat</h3>
-        <input type="text" id="contactSearch" placeholder="Search users..." oninput="filterContacts()">
-        <div id="contactList"></div>
-        <div class="contact-close" onclick="closeNewChatModal()">Close ✕</div>
-      </div>
-    </div>
     
     <nav class="floating-nav" id="floatingNav">
       <div class="nav-center">
@@ -322,7 +369,7 @@
   </div>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, getDoc, getDocs, updateDoc, increment, deleteDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, getDoc, getDocs, updateDoc, increment, deleteDoc, where } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
     if(!localStorage.getItem("uid")){window.location.replace("login.html");}
@@ -334,27 +381,187 @@
     let callUnsub = null, callDocRef = null;
     let isCallActive = false, isCaller = false, callType = 'audio';
     let isMuted = false, isVideoOff = false;
+    let newChatActiveTab = 'users';
+    let messageRequests = [];
     
     const servers = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "stun:stun1.l.google.com:19302" }] };
     
     document.getElementById('loadingScreen').style.display='none';document.getElementById('mainPage').style.display='flex';
-    loadAllUsers();setupRealtimeChatList();listenForIncomingCalls();
+    loadAllUsers();setupRealtimeChatList();listenForIncomingCalls();loadMessageRequests();
     
     function cleanName(u){return(u||'').replace(/^@/,'');}
     function formatDuration(s){const m=Math.floor(s/60);const sec=Math.floor(s%60);return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');}
     window.goToPartnerProfile=function(){if(chatPartner)window.location.href='profile.html?user='+encodeURIComponent(chatPartner);};
     window.filterChatList=function(){const s=document.getElementById('chatSearchInput').value.toLowerCase();renderChatList(s?chatListData.filter(c=>dispName(c.username).toLowerCase().includes(s)||(c.lastMsg&&c.lastMsg.toLowerCase().includes(s))):chatListData);};
     
+    // ✅ Load message requests from Firestore
+    async function loadMessageRequests() {
+      try {
+        const snap = await getDocs(collection(db, 'message_requests'));
+        messageRequests = [];
+        snap.forEach(doc => {
+          const d = doc.data();
+          if (d.to === currentUserId || d.to === currentUser) {
+            messageRequests.push({ id: doc.id, ...d });
+          }
+        });
+        updateRequestBadge();
+      } catch(e) {}
+    }
+    
+    function updateRequestBadge() {
+      const badge = document.getElementById('requestBadge');
+      if (messageRequests.length > 0) {
+        badge.style.display = 'flex';
+        badge.textContent = messageRequests.length;
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+    
     async function loadAllUsers(){allUsersList=[];userProfiles={};try{const snap=await getDocs(collection(db,'users'));snap.forEach(doc=>{const d=doc.data();if(d.username!==currentUser){const c=cleanName(d.username);allUsersList.push({username:d.username,displayName:c,avatar:d.avatar||null});userProfiles[d.username]={name:c,avatar:d.avatar||null};}});}catch(e){}const profile=JSON.parse(localStorage.getItem('userProfile')||'{}');[...(profile.friends||[]),...(profile.besties||[])].forEach(f=>{const u=f.name;if(u&&u!==currentUser){if(!allUsersList.find(x=>x.username===u)){allUsersList.push({username:u,displayName:cleanName(u),avatar:f.avatar||null});}if(!userProfiles[u])userProfiles[u]={name:cleanName(u),avatar:null};if(f.avatar)userProfiles[u].avatar=f.avatar;}});}
     function avatarHTML(u){const p=userProfiles[u];if(p&&p.avatar&&p.avatar!=='null'&&p.avatar!=='undefined'){return`<img src="${p.avatar}" alt="" onerror="this.style.display='none';this.parentElement.innerHTML='${cleanName(u).charAt(0).toUpperCase()}';"/>`;}return cleanName(u).charAt(0).toUpperCase();}
     function dispName(u){const p=userProfiles[u];return p?p.name:cleanName(u);}
     
-    window.showNewChatModal=function(){document.getElementById('newChatModal').classList.add('show');document.getElementById('contactSearch').value='';renderContactList(allUsersList);};
-    window.closeNewChatModal=function(){document.getElementById('newChatModal').classList.remove('show');};
-    window.filterContacts=function(){const s=document.getElementById('contactSearch').value.toLowerCase();renderContactList(allUsersList.filter(u=>u.displayName.toLowerCase().includes(s)));};
-    function renderContactList(users){const l=document.getElementById('contactList');if(users.length===0){l.innerHTML='<p style="color:#666;text-align:center;padding:1rem;font-size:0.75rem;">No users found</p>';return;}l.innerHTML=users.map(u=>`<div class="contact-item" onclick="startNewChat('${u.username}')"><div class="contact-avatar">${avatarHTML(u.username)}</div><span class="contact-name">${u.displayName}</span><i class="fas fa-comment" style="color:#FFFC00;font-size:0.7rem;"></i></div>`).join('');}
-    window.startNewChat=function(u){closeNewChatModal();openChat(u);};
-    document.getElementById('newChatModal').addEventListener('click',function(e){if(e.target===this)closeNewChatModal();});
+    // ✅ Show new chat modal with tabs
+    window.showNewChatModal = function() {
+      document.getElementById('newChatOverlay').classList.add('show');
+      document.getElementById('newChatSearchInput').value = '';
+      // Reset to users tab
+      switchNewChatTab('users', document.querySelector('.new-chat-tab'));
+      renderNewChatUsers(allUsersList);
+    };
+    
+    window.closeNewChatModal = function() {
+      document.getElementById('newChatOverlay').classList.remove('show');
+    };
+    
+    // ✅ Switch between Users and Requests tabs
+    window.switchNewChatTab = function(tab, el) {
+      newChatActiveTab = tab;
+      document.querySelectorAll('.new-chat-tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      
+      const searchBox = document.getElementById('newChatSearchBox');
+      const searchInput = document.getElementById('newChatSearchInput');
+      
+      if (tab === 'users') {
+        searchBox.style.display = 'block';
+        searchInput.placeholder = '🔍 Search users...';
+        renderNewChatUsers(allUsersList);
+      } else {
+        searchBox.style.display = 'block';
+        searchInput.placeholder = '🔍 Search requests...';
+        renderNewChatRequests(messageRequests);
+      }
+    };
+    
+    // ✅ Filter users or requests based on active tab
+    window.filterNewChatList = function() {
+      const s = document.getElementById('newChatSearchInput').value.toLowerCase();
+      if (newChatActiveTab === 'users') {
+        renderNewChatUsers(allUsersList.filter(u => u.displayName.toLowerCase().includes(s)));
+      } else {
+        renderNewChatRequests(messageRequests.filter(r => 
+          (r.fromName || r.from || '').toLowerCase().includes(s)
+        ));
+      }
+    };
+    
+    // ✅ Render users list
+    function renderNewChatUsers(users) {
+      const l = document.getElementById('newChatList');
+      if (users.length === 0) {
+        l.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;font-size:0.75rem;">No users found</div>';
+        return;
+      }
+      l.innerHTML = users.map(u => `
+        <div class="new-chat-item" onclick="startNewChat('${u.username}')">
+          <div class="new-chat-avatar">${avatarHTML(u.username)}</div>
+          <div class="new-chat-info">
+            <div class="new-chat-name">${u.displayName}</div>
+            <div class="new-chat-sub">Tap to chat</div>
+          </div>
+          <div class="new-chat-actions">
+            <button class="new-chat-action chat">💬 Chat</button>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    // ✅ Render requests list
+    function renderNewChatRequests(requests) {
+      const l = document.getElementById('newChatList');
+      if (requests.length === 0) {
+        l.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;font-size:0.75rem;">No pending requests</div>';
+        return;
+      }
+      l.innerHTML = requests.map(r => `
+        <div class="new-chat-item">
+          <div class="new-chat-avatar">${r.fromAvatar && r.fromAvatar !== 'null' && r.fromAvatar !== 'undefined' ? `<img src="${r.fromAvatar}" alt="">` : (r.fromName || r.from || '?').charAt(0).toUpperCase()}</div>
+          <div class="new-chat-info">
+            <div class="new-chat-name">${r.fromName || r.from || 'Unknown'}</div>
+            <div class="new-chat-sub">${r.lastMessage || 'Wants to chat'}</div>
+          </div>
+          <div class="new-chat-actions">
+            <button class="new-chat-action accept" onclick="event.stopPropagation();acceptRequest('${r.id}','${r.from}')">✓ Accept</button>
+            <button class="new-chat-action decline" onclick="event.stopPropagation();declineRequest('${r.id}')">✕</button>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    // ✅ Accept request - move to regular chat
+    window.acceptRequest = async function(requestId, fromUser) {
+      try {
+        await deleteDoc(doc(db, 'message_requests', requestId));
+        messageRequests = messageRequests.filter(r => r.id !== requestId);
+        updateRequestBadge();
+        renderNewChatRequests(messageRequests);
+        // Start chat with this user
+        closeNewChatModal();
+        openChat(fromUser);
+      } catch(e) {}
+    };
+    
+    // ✅ Decline request
+    window.declineRequest = async function(requestId) {
+      try {
+        await deleteDoc(doc(db, 'message_requests', requestId));
+        messageRequests = messageRequests.filter(r => r.id !== requestId);
+        updateRequestBadge();
+        renderNewChatRequests(messageRequests);
+      } catch(e) {}
+    };
+    
+    window.startNewChat = function(u) {
+      closeNewChatModal();
+      openChat(u);
+    };
+    
+    document.getElementById('newChatOverlay').addEventListener('click', function(e) {
+      if (e.target === this) closeNewChatModal();
+    });
+    
+    // ✅ When sending first message to someone not in chats, create request
+    async function createMessageRequestIfNew() {
+      const chatRef = doc(db, 'chats', chatId);
+      const chatSnap = await getDoc(chatRef);
+      if (!chatSnap.exists()) {
+        // This is a new chat - create a request entry
+        const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+        await addDoc(collection(db, 'message_requests'), {
+          from: currentUser,
+          fromName: (profile.username || currentUser).replace('@',''),
+          fromAvatar: profile.avatar || null,
+          to: chatPartner.replace('@',''),
+          toName: chatPartner.replace('@',''),
+          lastMessage: 'Started a conversation',
+          createdAt: serverTimestamp(),
+          status: 'pending'
+        });
+      }
+    }
     
     function setupRealtimeChatList(){
       if(unsubChatList)unsubChatList();
@@ -389,7 +596,6 @@
       chatId=[currentUserId,u.replace('@','')].sort().join('_');
       updateDoc(doc(db,'chats',chatId),{['unread_'+currentUserId]:0}).catch(()=>{});
       
-      // ✅ Hide top icons bar, show chat header
       document.getElementById('topIcons').classList.add('hidden');
       document.getElementById('chatHeader').classList.add('show');
       document.getElementById('chatListFull').classList.add('hidden');
@@ -413,7 +619,6 @@
       if(unsubMessages){unsubMessages();unsubMessages=null;}
       stopVoice(true);
       
-      // ✅ Show top icons bar, hide chat header
       document.getElementById('topIcons').classList.remove('hidden');
       document.getElementById('chatHeader').classList.remove('show');
       document.getElementById('chatListFull').classList.remove('hidden');
@@ -589,6 +794,7 @@
       const chatSnap = await getDoc(chatRef);
       if(!chatSnap.exists()){
         await setDoc(chatRef,{users: [currentUserId, chatPartner.replace('@','')], lastMessage: '', lastType: 'text', lastTime: serverTimestamp()});
+        await createMessageRequestIfNew();
       }
     }
     

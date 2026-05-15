@@ -401,6 +401,7 @@
     async function loadMessageRequests(){try{const snap=await getDocs(collection(db,'message_requests'));messageRequests=[];snap.forEach(doc=>{const d=doc.data();if(d.to===currentUserId||d.to===currentUser||d.to===currentUser.replace('@','')){messageRequests.push({id:doc.id,...d});}});updateRequestBadge();}catch(e){}}
     function updateRequestBadge(){const badge=document.getElementById('requestBadge');if(messageRequests.length>0){badge.style.display='flex';badge.textContent=messageRequests.length;}else{badge.style.display='none';}}
     
+    // ✅ Load ALL users with avatars - newest first
     async function loadAllUsers(){
       allUsersList=[];userProfiles={};
       try{
@@ -414,20 +415,31 @@
             userProfiles[d.username]={name:c,avatar:d.avatar||null};
           }
         });
-      }catch(e){}
+      }catch(e){console.error('Load users error:',e);}
+      // Add friends/besties from local profile
       const profile=JSON.parse(localStorage.getItem('userProfile')||'{}');
       [...(profile.friends||[]),...(profile.besties||[])].forEach(f=>{
         const u=f.name;
         if(u&&u!==currentUser){
           if(!allUsersList.find(x=>x.username===u)){allUsersList.push({username:u,displayName:cleanName(u),avatar:f.avatar||null,createdAt:new Date(0)});}
-          if(!userProfiles[u])userProfiles[u]={name:cleanName(u),avatar:null};
+          if(!userProfiles[u])userProfiles[u]={name:cleanName(u),avatar:f.avatar||null};
           if(f.avatar)userProfiles[u].avatar=f.avatar;
         }
       });
+      // Sort newest first
       allUsersList.sort((a,b)=>{const aT=a.createdAt?.getTime?.()||0;const bT=b.createdAt?.getTime?.()||0;if(aT!==bT)return bT-aT;return a.displayName.localeCompare(b.displayName);});
+      // Also cache current user's own profile
+      if(profile.avatar){userProfiles[currentUser]={name:cleanName(currentUser),avatar:profile.avatar};}
     }
     
-    function avatarHTML(u){const p=userProfiles[u];if(p&&p.avatar&&p.avatar!=='null'&&p.avatar!=='undefined'){return`<img src="${p.avatar}" alt="" onerror="this.style.display='none';this.parentElement.innerHTML='${cleanName(u).charAt(0).toUpperCase()}';"/>`;}return cleanName(u).charAt(0).toUpperCase();}
+    // ✅ Avatar HTML - shows image or fallback letter
+    function avatarHTML(u){
+      const p=userProfiles[u];
+      if(p&&p.avatar&&p.avatar!=='null'&&p.avatar!=='undefined'){
+        return`<img src="${p.avatar}" alt="" onerror="this.style.display='none';this.parentElement.innerHTML='${cleanName(u).charAt(0).toUpperCase()}';" style="width:100%;height:100%;object-fit:cover;"/>`;
+      }
+      return cleanName(u).charAt(0).toUpperCase();
+    }
     function dispName(u){const p=userProfiles[u];return p?p.name:cleanName(u);}
     
     window.goToUserProfile=function(username){closeNewChatModal();window.location.href='profile.html?user='+encodeURIComponent(username);};
@@ -463,6 +475,7 @@
       return diff<7*24*60*60*1000;
     }
     
+    // ✅ Render users list with profile photos
     function renderNewChatUsers(users){
       const l=document.getElementById('newChatList');
       if(users.length===0){l.innerHTML='<div style="text-align:center;color:#555;padding:2rem;font-size:0.75rem;">No users found</div>';return;}
@@ -499,51 +512,39 @@
         toast.style.cssText='position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#4ade80;color:#000;padding:0.5rem 1.5rem;border-radius:2rem;font-size:0.75rem;font-weight:600;z-index:500;';
         toast.textContent='✅ Request sent!';document.body.appendChild(toast);
         setTimeout(()=>toast.remove(),2000);
-      }catch(e){}
+      }catch(e){console.error('Send request error:',e);}
     };
     
+    // ✅ Render requests with sender's profile photo
     function renderNewChatRequests(requests){
       const l=document.getElementById('newChatList');
       if(requests.length===0){l.innerHTML='<div style="text-align:center;color:#555;padding:2rem;font-size:0.75rem;">No pending requests ✨</div>';return;}
       l.innerHTML=requests.map(r=>{
         const userName=r.fromName||r.from||'Unknown';
         const avatarUrl=r.fromAvatar;
-        return`<div class="new-chat-item" onclick="goToUserProfile('${r.from||r.fromName}')"><div class="new-chat-avatar">${avatarUrl&&avatarUrl!=='null'&&avatarUrl!=='undefined'?`<img src="${avatarUrl}" alt="">`:userName.charAt(0).toUpperCase()}</div><div class="new-chat-info"><div class="new-chat-name">${userName.replace('@','')}</div><div class="new-chat-sub">${r.lastMessage||'Wants to chat'}</div></div><div class="new-chat-actions"><button class="new-chat-action accept" onclick="event.stopPropagation();acceptRequest('${r.id}','${r.from}','${r.fromName}')">✓ Accept</button><button class="new-chat-action decline" onclick="event.stopPropagation();declineRequest('${r.id}')">✕</button></div></div>`;
+        const senderUsername=r.from||('@'+(r.fromName||''));
+        return`<div class="new-chat-item" onclick="goToUserProfile('${senderUsername}')"><div class="new-chat-avatar">${avatarUrl&&avatarUrl!=='null'&&avatarUrl!=='undefined'?`<img src="${avatarUrl}" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.parentElement.innerHTML='${userName.charAt(0).toUpperCase()}';"/>`:userName.charAt(0).toUpperCase()}</div><div class="new-chat-info"><div class="new-chat-name">${userName.replace('@','')}</div><div class="new-chat-sub">${r.lastMessage||'Wants to chat'}</div></div><div class="new-chat-actions"><button class="new-chat-action accept" onclick="event.stopPropagation();acceptRequest('${r.id}','${r.from}','${r.fromName}')">✓ Accept</button><button class="new-chat-action decline" onclick="event.stopPropagation();declineRequest('${r.id}')">✕</button></div></div>`;
       }).join('');
     }
     
-    // ✅ Accept request - removes from requests, shows in users with Chat button
     window.acceptRequest=async function(requestId,fromUser,fromName){
       try{
         const partnerUsername=fromUser||('@'+(fromName||'').replace('@',''));
         const cid=[currentUserId,partnerUsername.replace('@','')].sort().join('_');
         await setDoc(doc(db,'chats',cid),{users:[currentUserId,partnerUsername.replace('@','')],lastMessage:'👋 Chat started!',lastType:'text',lastTime:serverTimestamp(),['unread_'+currentUserId]:0,['unread_'+partnerUsername.replace('@','')]:1});
         await addDoc(collection(db,'chats',cid,'messages'),{text:'👋 Chat started! Say hello!',sender:currentUserId,createdAt:serverTimestamp(),seen:false});
-        
-        // ✅ Delete request from Firestore
         await deleteDoc(doc(db,'message_requests',requestId));
-        
-        // ✅ Remove from local array
         messageRequests=messageRequests.filter(r=>r.id!==requestId);
-        
-        // ✅ Update badge and refresh both lists
         updateRequestBadge();
         renderNewChatRequests(messageRequests);
         renderNewChatUsers(allUsersList);
-        
         closeNewChatModal();
         openChat(partnerUsername);
       }catch(e){console.error('Accept error:',e);}
     };
     
-    // ✅ Decline request - removes from requests list
     window.declineRequest=async function(requestId){
-      try{
-        await deleteDoc(doc(db,'message_requests',requestId));
-        messageRequests=messageRequests.filter(r=>r.id!==requestId);
-        updateRequestBadge();
-        renderNewChatRequests(messageRequests);
-      }catch(e){console.error('Decline error:',e);}
+      try{await deleteDoc(doc(db,'message_requests',requestId));messageRequests=messageRequests.filter(r=>r.id!==requestId);updateRequestBadge();renderNewChatRequests(messageRequests);}catch(e){console.error('Decline error:',e);}
     };
     
     document.getElementById('newChatOverlay').addEventListener('click',function(e){if(e.target===this)closeNewChatModal();});
@@ -565,6 +566,7 @@
       },(error)=>{});
     }
     
+    // ✅ Render chat list with profile photos
     function renderChatList(cu){const l=document.getElementById('userList'),cnt=document.getElementById('chatCount');const tu=cu.reduce((s,c)=>s+c.unreadCount,0);cnt.textContent=cu.length>0?'('+cu.length+')':'';if(cu.length===0){l.innerHTML='<div style="text-align:center;color:#555;padding:3rem;font-size:0.8rem;">No messages yet</div>';return;}l.innerHTML=cu.map(c=>{const ts=c.lastTime.getTime()>0?fmtTime(c.lastTime):'';const dn=dispName(c.username);return`<div class="user-list-item ${chatPartner===c.username?'active':''}" onclick="openChat('${c.username}')"><div class="user-avatar" onclick="event.stopPropagation();window.location.href='profile.html?user=${encodeURIComponent(c.username)}'">${avatarHTML(c.username)}</div><div class="user-info"><div class="user-name-row"><span class="user-name" onclick="event.stopPropagation();window.location.href='profile.html?user=${encodeURIComponent(c.username)}'">${dn}</span><span class="user-time">${ts}</span></div><div class="user-msg-row"><span class="user-last-msg ${c.unreadCount>0?'unread-msg':''}">${c.lastMsg||'No messages'}</span>${c.unreadCount>0?`<span class="unread-count">${c.unreadCount}</span>`:''}</div></div></div>`;}).join('');}
     function fmtTime(d){if(!d||d.getTime()===0)return'';const n=new Date(),df=n-d;if(df<60000)return'Now';if(df<3600000)return Math.floor(df/60000)+'m';if(d.toDateString()===n.toDateString())return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});if(n-d<604800000)return['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];return d.toLocaleDateString([],{month:'short',day:'numeric'});}
     

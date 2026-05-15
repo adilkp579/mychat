@@ -134,79 +134,39 @@
     .new-chat-overlay.show {display:flex;}
     .new-chat-modal {background:#111;border-radius:1.2rem;padding:0;width:100%;max-width:400px;max-height:75vh;display:flex;flex-direction:column;border:1px solid rgba(255,255,255,0.1);overflow:hidden;}
     .new-chat-tabs {display:flex;border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0;}
-    .new-chat-tab {
-      flex:1;text-align:center;padding:0.8rem;color:#666;font-size:0.8rem;font-weight:600;
-      cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;position:relative;
-    }
+    .new-chat-tab {flex:1;text-align:center;padding:0.8rem;color:#666;font-size:0.8rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;position:relative;}
     .new-chat-tab.active {color:#fff;border-bottom-color:#FFFC00;}
-    .new-chat-tab .tab-badge {
-      position:absolute;top:0.3rem;right:0.5rem;background:#ef4444;color:#fff;
-      font-size:0.55rem;min-width:16px;height:16px;border-radius:8px;
-      display:flex;align-items:center;justify-content:center;font-weight:700;
-    }
+    .new-chat-tab .tab-badge {position:absolute;top:0.3rem;right:0.5rem;background:#ef4444;color:#fff;font-size:0.55rem;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;}
     .new-chat-search {padding:0.6rem 1rem;flex-shrink:0;}
-    .new-chat-search input {
-      width:100%;padding:0.55rem 0.8rem;border-radius:0.5rem;border:1px solid #222;
-      background:#0a0a0a;color:#fff;font-size:0.8rem;outline:none;
-    }
+    .new-chat-search input {width:100%;padding:0.55rem 0.8rem;border-radius:0.5rem;border:1px solid #222;background:#0a0a0a;color:#fff;font-size:0.8rem;outline:none;}
     .new-chat-list {flex:1;overflow-y:auto;padding:0.3rem 0;}
     .new-chat-list::-webkit-scrollbar {width:3px;}
     .new-chat-list::-webkit-scrollbar-thumb {background:rgba(255,255,255,0.1);border-radius:3px;}
-    .new-chat-item {
-      display:flex;align-items:center;gap:0.6rem;padding:0.7rem 1rem;
-      cursor:pointer;transition:all 0.15s;
-    }
+    .new-chat-item {display:flex;align-items:center;gap:0.6rem;padding:0.7rem 1rem;cursor:pointer;transition:all 0.15s;}
     .new-chat-item:active {background:rgba(255,255,255,0.03);}
-    .new-chat-avatar {
-      width:40px;height:40px;border-radius:50%;background:#1a1a1a;
-      overflow:hidden;display:flex;align-items:center;justify-content:center;
-      color:#fff;font-weight:700;font-size:0.9rem;flex-shrink:0;
-    }
+    .new-chat-avatar {width:40px;height:40px;border-radius:50%;background:#1a1a1a;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:0.9rem;flex-shrink:0;}
     .new-chat-avatar img {width:100%;height:100%;object-fit:cover;}
     .new-chat-info {flex:1;min-width:0;}
     .new-chat-name {font-size:0.8rem;color:#fff;font-weight:500;}
     .new-chat-sub {font-size:0.6rem;color:#666;margin-top:2px;}
     .new-chat-actions {display:flex;gap:0.4rem;flex-shrink:0;}
-    .new-chat-action {
-      padding:0.35rem 0.8rem;border-radius:1rem;border:none;
-      font-size:0.65rem;font-weight:600;cursor:pointer;transition:all 0.15s;
-    }
+    .new-chat-action {padding:0.35rem 0.8rem;border-radius:1rem;border:none;font-size:0.65rem;font-weight:600;cursor:pointer;transition:all 0.15s;}
     .new-chat-action.accept {background:#4ade80;color:#000;}
     .new-chat-action.decline {background:rgba(239,68,68,0.2);color:#ef4444;}
     .new-chat-action.chat {background:#FFFC00;color:#000;}
-    .new-chat-action.request-btn {
-      background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;border:none;
-    }
-    .new-chat-close {
-      text-align:center;padding:0.6rem;color:#ef4444;cursor:pointer;
-      font-size:0.75rem;border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0;
-    }
+    .new-chat-action.request-btn {background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;border:none;}
+    .new-chat-close {text-align:center;padding:0.6rem;color:#ef4444;cursor:pointer;font-size:0.75rem;border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0;}
     .requested-label {color:#f59e0b;font-size:0.6rem;font-weight:500;}
-    .new-badge {
-      background:#4ade80;color:#000;font-size:0.5rem;padding:1px 5px;
-      border-radius:4px;margin-left:6px;font-weight:700;display:inline-block;
-    }
+    .new-badge {background:#4ade80;color:#000;font-size:0.5rem;padding:1px 5px;border-radius:4px;margin-left:6px;font-weight:700;display:inline-block;}
 
     /* Call Overlay */
-    .call-overlay {
-      position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.97);z-index:600;
-      display:none;flex-direction:column;align-items:center;justify-content:center;
-    }
+    .call-overlay {position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.97);z-index:600;display:none;flex-direction:column;align-items:center;justify-content:center;}
     .call-overlay.show {display:flex;}
-    .call-video-container {
-      width:100%;max-width:500px;aspect-ratio:3/4;position:relative;background:#111;
-      border-radius:1rem;overflow:hidden;
-    }
+    .call-video-container {width:100%;max-width:500px;aspect-ratio:3/4;position:relative;background:#111;border-radius:1rem;overflow:hidden;}
     .call-remote-video {width:100%;height:100%;object-fit:cover;background:#000;}
-    .call-local-video {
-      position:absolute;top:1rem;right:1rem;width:100px;height:140px;
-      border-radius:0.8rem;object-fit:cover;background:#222;border:2px solid rgba(255,255,255,0.2);
-    }
+    .call-local-video {position:absolute;top:1rem;right:1rem;width:100px;height:140px;border-radius:0.8rem;object-fit:cover;background:#222;border:2px solid rgba(255,255,255,0.2);}
     .call-controls {display:flex;gap:1.5rem;margin-top:2rem;align-items:center;}
-    .call-ctrl-btn {
-      width:50px;height:50px;border-radius:50%;border:none;cursor:pointer;
-      display:flex;align-items:center;justify-content:center;font-size:1.2rem;transition:all 0.2s;
-    }
+    .call-ctrl-btn {width:50px;height:50px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.2rem;transition:all 0.2s;}
     .call-mute-btn {background:rgba(255,255,255,0.15);color:#fff;}
     .call-mute-btn.muted {background:#ef4444;color:#fff;}
     .call-video-toggle {background:rgba(255,255,255,0.15);color:#fff;}
@@ -215,15 +175,9 @@
     .call-end-btn i {transform:rotate(135deg);}
     .call-status {color:#fff;font-size:0.9rem;margin-top:1rem;text-align:center;}
     
-    .incoming-call-overlay {
-      position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:700;
-      display:none;flex-direction:column;align-items:center;justify-content:center;
-    }
+    .incoming-call-overlay {position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:700;display:none;flex-direction:column;align-items:center;justify-content:center;}
     .incoming-call-overlay.show {display:flex;}
-    .incoming-avatar {
-      width:80px;height:80px;border-radius:50%;background:#333;margin-bottom:1rem;
-      display:flex;align-items:center;justify-content:center;font-size:2rem;color:#fff;overflow:hidden;
-    }
+    .incoming-avatar {width:80px;height:80px;border-radius:50%;background:#333;margin-bottom:1rem;display:flex;align-items:center;justify-content:center;font-size:2rem;color:#fff;overflow:hidden;}
     .incoming-avatar img {width:100%;height:100%;object-fit:cover;}
     .incoming-name {color:#fff;font-size:1.2rem;font-weight:600;margin-bottom:0.3rem;}
     .incoming-type {color:#aaa;font-size:0.8rem;margin-bottom:2rem;}
@@ -235,14 +189,7 @@
     .loading-screen i {font-size:2rem;color:#3897f0;animation:spin 1s infinite;}
     .loading-screen span {font-size:0.75rem;color:#888;}
 
-    .floating-nav { 
-      position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));
-      left:50%;transform:translateX(-50%);width:92%;max-width:500px;
-      background:rgba(10,10,10,0.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-      border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;
-      border:1px solid rgba(255,255,255,0.05);z-index:100;
-      box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.03);transition:all 0.3s ease;
-    }
+    .floating-nav {position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(10,10,10,0.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.05);z-index:100;box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.03);transition:all 0.3s ease;}
     .floating-nav:hover {background:rgba(10,10,10,0.15);}
     .floating-nav.hidden {display:none;}
     .nav-center {display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem;}
@@ -292,10 +239,7 @@
       </div>
 
       <div class="search-bar-container" id="searchBarContainer">
-        <div class="search-bar">
-          <i class="fas fa-search"></i>
-          <input type="text" id="chatSearchInput" placeholder="Search messages..." oninput="filterChatList()">
-        </div>
+        <div class="search-bar"><i class="fas fa-search"></i><input type="text" id="chatSearchInput" placeholder="Search messages..." oninput="filterChatList()"></div>
       </div>
 
       <div class="chat-list-full" id="chatListFull">
@@ -319,25 +263,18 @@
       <button class="send-btn" id="sendBtn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
     </div>
 
-    <!-- New Chat Modal -->
     <div class="new-chat-overlay" id="newChatOverlay">
       <div class="new-chat-modal">
         <div class="new-chat-tabs">
           <div class="new-chat-tab active" onclick="switchNewChatTab('users', this)">👥 Users</div>
-          <div class="new-chat-tab" onclick="switchNewChatTab('requests', this)">
-            📩 Requests
-            <span class="tab-badge" id="requestBadge" style="display:none;">0</span>
-          </div>
+          <div class="new-chat-tab" onclick="switchNewChatTab('requests', this)">📩 Requests <span class="tab-badge" id="requestBadge" style="display:none;">0</span></div>
         </div>
-        <div class="new-chat-search" id="newChatSearchBox">
-          <input type="text" id="newChatSearchInput" placeholder="🔍 Search users..." oninput="filterNewChatList()">
-        </div>
+        <div class="new-chat-search" id="newChatSearchBox"><input type="text" id="newChatSearchInput" placeholder="🔍 Search users..." oninput="filterNewChatList()"></div>
         <div class="new-chat-list" id="newChatList"></div>
         <div class="new-chat-close" onclick="closeNewChatModal()">Close ✕</div>
       </div>
     </div>
 
-    <!-- Call Overlay -->
     <div class="call-overlay" id="callOverlay">
       <div class="call-video-container">
         <video id="callRemoteVideo" class="call-remote-video" autoplay playsinline></video>
@@ -351,7 +288,6 @@
       </div>
     </div>
 
-    <!-- Incoming Call Overlay -->
     <div class="incoming-call-overlay" id="incomingCallOverlay">
       <div class="incoming-avatar" id="incomingAvatar"><i class="fas fa-user"></i></div>
       <div class="incoming-name" id="incomingName">Caller</div>
@@ -383,11 +319,9 @@
     const currentUser=localStorage.getItem('currentUser')||'@anonymous',currentUserId=currentUser.replace('@','');
     let chatPartner=null,chatId=null,unsubMessages=null,unsubChatList=null,allUsersList=[],chatListData=[],userProfiles={};
     let mediaRecorder=null,audioChunks=[],voiceTimer=null,voiceSeconds=0,isRecording=false;
-    
     let localStream=null,peerConnection=null,callUnsub=null,callDocRef=null;
     let isCallActive=false,isCaller=false,callType='audio',isMuted=false,isVideoOff=false;
     let newChatActiveTab='users',messageRequests=[];
-    
     const servers={iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:"stun:stun1.l.google.com:19302"}]};
     
     document.getElementById('loadingScreen').style.display='none';document.getElementById('mainPage').style.display='flex';
@@ -401,217 +335,51 @@
     async function loadMessageRequests(){try{const snap=await getDocs(collection(db,'message_requests'));messageRequests=[];snap.forEach(doc=>{const d=doc.data();if(d.to===currentUserId||d.to===currentUser||d.to===currentUser.replace('@','')){messageRequests.push({id:doc.id,...d});}});updateRequestBadge();}catch(e){}}
     function updateRequestBadge(){const badge=document.getElementById('requestBadge');if(messageRequests.length>0){badge.style.display='flex';badge.textContent=messageRequests.length;}else{badge.style.display='none';}}
     
-    // ✅ Load ALL users with avatars - newest first
-    async function loadAllUsers(){
-      allUsersList=[];userProfiles={};
-      try{
-        const q=query(collection(db,'users'),orderBy('createdAt','desc'));
-        const snap=await getDocs(q);
-        snap.forEach(doc=>{
-          const d=doc.data();
-          if(d.username!==currentUser){
-            const c=cleanName(d.username);
-            allUsersList.push({username:d.username,displayName:c,avatar:d.avatar||null,createdAt:d.createdAt?.toDate?.()||d.updatedAt?.toDate?.()||new Date(0)});
-            userProfiles[d.username]={name:c,avatar:d.avatar||null};
-          }
-        });
-      }catch(e){console.error('Load users error:',e);}
-      // Add friends/besties from local profile
-      const profile=JSON.parse(localStorage.getItem('userProfile')||'{}');
-      [...(profile.friends||[]),...(profile.besties||[])].forEach(f=>{
-        const u=f.name;
-        if(u&&u!==currentUser){
-          if(!allUsersList.find(x=>x.username===u)){allUsersList.push({username:u,displayName:cleanName(u),avatar:f.avatar||null,createdAt:new Date(0)});}
-          if(!userProfiles[u])userProfiles[u]={name:cleanName(u),avatar:f.avatar||null};
-          if(f.avatar)userProfiles[u].avatar=f.avatar;
-        }
-      });
-      // Sort newest first
-      allUsersList.sort((a,b)=>{const aT=a.createdAt?.getTime?.()||0;const bT=b.createdAt?.getTime?.()||0;if(aT!==bT)return bT-aT;return a.displayName.localeCompare(b.displayName);});
-      // Also cache current user's own profile
-      if(profile.avatar){userProfiles[currentUser]={name:cleanName(currentUser),avatar:profile.avatar};}
-    }
-    
-    // ✅ Avatar HTML - shows image or fallback letter
-    function avatarHTML(u){
-      const p=userProfiles[u];
-      if(p&&p.avatar&&p.avatar!=='null'&&p.avatar!=='undefined'){
-        return`<img src="${p.avatar}" alt="" onerror="this.style.display='none';this.parentElement.innerHTML='${cleanName(u).charAt(0).toUpperCase()}';" style="width:100%;height:100%;object-fit:cover;"/>`;
-      }
-      return cleanName(u).charAt(0).toUpperCase();
-    }
+    async function loadAllUsers(){allUsersList=[];userProfiles={};try{const q=query(collection(db,'users'),orderBy('createdAt','desc'));const snap=await getDocs(q);snap.forEach(doc=>{const d=doc.data();if(d.username!==currentUser){const c=cleanName(d.username);allUsersList.push({username:d.username,displayName:c,avatar:d.avatar||null,createdAt:d.createdAt?.toDate?.()||d.updatedAt?.toDate?.()||new Date(0)});userProfiles[d.username]={name:c,avatar:d.avatar||null};}});}catch(e){}const profile=JSON.parse(localStorage.getItem('userProfile')||'{}');[...(profile.friends||[]),...(profile.besties||[])].forEach(f=>{const u=f.name;if(u&&u!==currentUser){if(!allUsersList.find(x=>x.username===u)){allUsersList.push({username:u,displayName:cleanName(u),avatar:f.avatar||null,createdAt:new Date(0)});}if(!userProfiles[u])userProfiles[u]={name:cleanName(u),avatar:f.avatar||null};if(f.avatar)userProfiles[u].avatar=f.avatar;}});allUsersList.sort((a,b)=>{const aT=a.createdAt?.getTime?.()||0;const bT=b.createdAt?.getTime?.()||0;if(aT!==bT)return bT-aT;return a.displayName.localeCompare(b.displayName);});if(profile.avatar){userProfiles[currentUser]={name:cleanName(currentUser),avatar:profile.avatar};}}
+    function avatarHTML(u){const p=userProfiles[u];if(p&&p.avatar&&p.avatar!=='null'&&p.avatar!=='undefined'){return`<img src="${p.avatar}" alt="" onerror="this.style.display='none';this.parentElement.innerHTML='${cleanName(u).charAt(0).toUpperCase()}';" style="width:100%;height:100%;object-fit:cover;"/>`;}return cleanName(u).charAt(0).toUpperCase();}
     function dispName(u){const p=userProfiles[u];return p?p.name:cleanName(u);}
     
     window.goToUserProfile=function(username){closeNewChatModal();window.location.href='profile.html?user='+encodeURIComponent(username);};
-    
-    window.showNewChatModal=function(){
-      document.getElementById('newChatOverlay').classList.add('show');
-      document.getElementById('newChatSearchInput').value='';
-      switchNewChatTab('users',document.querySelector('.new-chat-tab'));
-      renderNewChatUsers(allUsersList);
-    };
+    window.showNewChatModal=function(){document.getElementById('newChatOverlay').classList.add('show');document.getElementById('newChatSearchInput').value='';switchNewChatTab('users',document.querySelector('.new-chat-tab'));renderNewChatUsers(allUsersList);};
     window.closeNewChatModal=function(){document.getElementById('newChatOverlay').classList.remove('show');};
+    window.switchNewChatTab=function(tab,el){newChatActiveTab=tab;document.querySelectorAll('.new-chat-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');const si=document.getElementById('newChatSearchInput');document.getElementById('newChatSearchBox').style.display='block';if(tab==='users'){si.placeholder='🔍 Search users...';renderNewChatUsers(allUsersList);}else{si.placeholder='🔍 Search requests...';renderNewChatRequests(messageRequests);}};
+    window.filterNewChatList=function(){const s=document.getElementById('newChatSearchInput').value.toLowerCase();if(newChatActiveTab==='users'){renderNewChatUsers(allUsersList.filter(u=>u.displayName.toLowerCase().includes(s)));}else{renderNewChatRequests(messageRequests.filter(r=>(r.fromName||r.from||'').toLowerCase().includes(s)));}};
+    function isNewUser(user){if(!user.createdAt||user.createdAt.getTime()===0)return false;const now=new Date();const diff=now-user.createdAt;return diff<7*24*60*60*1000;}
     
-    window.switchNewChatTab=function(tab,el){
-      newChatActiveTab=tab;
-      document.querySelectorAll('.new-chat-tab').forEach(t=>t.classList.remove('active'));
-      el.classList.add('active');
-      const si=document.getElementById('newChatSearchInput');
-      document.getElementById('newChatSearchBox').style.display='block';
-      if(tab==='users'){si.placeholder='🔍 Search users...';renderNewChatUsers(allUsersList);}
-      else{si.placeholder='🔍 Search requests...';renderNewChatRequests(messageRequests);}
-    };
+    function renderNewChatUsers(users){const l=document.getElementById('newChatList');if(users.length===0){l.innerHTML='<div style="text-align:center;color:#555;padding:2rem;font-size:0.75rem;">No users found</div>';return;}const existingChats=chatListData.map(c=>c.username);const mySentRequests=messageRequests.filter(r=>r.fromId===currentUserId||r.from===currentUser).map(r=>r.to||r.toName);l.innerHTML=users.map(u=>{const alreadyChatting=existingChats.includes(u.username);const alreadyRequested=mySentRequests.includes(u.username.replace('@',''))||mySentRequests.includes(u.username);const newBadge=isNewUser(u)?'<span class="new-badge">NEW</span>':'';let actionBtn='';if(alreadyChatting){actionBtn=`<button class="new-chat-action chat" onclick="event.stopPropagation();closeNewChatModal();openChat('${u.username}')">💬 Chat</button>`;}else if(alreadyRequested){actionBtn=`<span class="requested-label">⏳ Requested</span>`;}else{actionBtn=`<button class="new-chat-action request-btn" onclick="event.stopPropagation();sendChatRequest('${u.username}', this)">📩 Request</button>`;}return`<div class="new-chat-item" onclick="goToUserProfile('${u.username}')"><div class="new-chat-avatar">${avatarHTML(u.username)}</div><div class="new-chat-info"><div class="new-chat-name">${u.displayName}${newBadge}</div><div class="new-chat-sub">${alreadyChatting?'Already in chats':alreadyRequested?'Request sent':'Tap to view profile'}</div></div><div class="new-chat-actions">${actionBtn}</div></div>`;}).join('');}
     
-    window.filterNewChatList=function(){
-      const s=document.getElementById('newChatSearchInput').value.toLowerCase();
-      if(newChatActiveTab==='users'){renderNewChatUsers(allUsersList.filter(u=>u.displayName.toLowerCase().includes(s)));}
-      else{renderNewChatRequests(messageRequests.filter(r=>(r.fromName||r.from||'').toLowerCase().includes(s)));}
-    };
+    window.sendChatRequest=async function(username,btnElement){try{const profile=JSON.parse(localStorage.getItem('userProfile')||'{}');const fromName=(profile.username||currentUser).replace('@','');const existing=messageRequests.find(r=>(r.fromId===currentUserId||r.from===currentUser)&&(r.to===username||r.to===username.replace('@','')));if(existing){alert('Request already sent!');return;}if(btnElement){const parentDiv=btnElement.closest('.new-chat-actions');if(parentDiv){parentDiv.innerHTML='<span class="requested-label">⏳ Requested</span>';}const itemDiv=btnElement.closest('.new-chat-item');if(itemDiv){const subEl=itemDiv.querySelector('.new-chat-sub');if(subEl)subEl.textContent='Request sent';}}await addDoc(collection(db,'message_requests'),{from:currentUser,fromName:fromName,fromAvatar:profile.avatar||null,fromId:currentUserId,to:username.replace('@',''),toName:username.replace('@',''),lastMessage:'👋 Wants to chat with you',createdAt:serverTimestamp(),status:'pending'});await loadMessageRequests();const toast=document.createElement('div');toast.style.cssText='position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#4ade80;color:#000;padding:0.5rem 1.5rem;border-radius:2rem;font-size:0.75rem;font-weight:600;z-index:500;';toast.textContent='✅ Request sent!';document.body.appendChild(toast);setTimeout(()=>toast.remove(),2000);}catch(e){};};
     
-    function isNewUser(user){
-      if(!user.createdAt||user.createdAt.getTime()===0)return false;
-      const now=new Date();
-      const diff=now-user.createdAt;
-      return diff<7*24*60*60*1000;
-    }
+    function renderNewChatRequests(requests){const l=document.getElementById('newChatList');if(requests.length===0){l.innerHTML='<div style="text-align:center;color:#555;padding:2rem;font-size:0.75rem;">No pending requests ✨</div>';return;}l.innerHTML=requests.map(r=>{const userName=r.fromName||r.from||'Unknown';const avatarUrl=r.fromAvatar;const senderUsername=r.from||('@'+(r.fromName||''));return`<div class="new-chat-item" onclick="goToUserProfile('${senderUsername}')"><div class="new-chat-avatar">${avatarUrl&&avatarUrl!=='null'&&avatarUrl!=='undefined'?`<img src="${avatarUrl}" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.parentElement.innerHTML='${userName.charAt(0).toUpperCase()}';"/>`:userName.charAt(0).toUpperCase()}</div><div class="new-chat-info"><div class="new-chat-name">${userName.replace('@','')}</div><div class="new-chat-sub">${r.lastMessage||'Wants to chat'}</div></div><div class="new-chat-actions"><button class="new-chat-action accept" onclick="event.stopPropagation();acceptRequest('${r.id}','${r.from}','${r.fromName}')">✓ Accept</button><button class="new-chat-action decline" onclick="event.stopPropagation();declineRequest('${r.id}')">✕</button></div></div>`;}).join('');}
     
-    // ✅ Render users list with profile photos
-    function renderNewChatUsers(users){
-      const l=document.getElementById('newChatList');
-      if(users.length===0){l.innerHTML='<div style="text-align:center;color:#555;padding:2rem;font-size:0.75rem;">No users found</div>';return;}
-      const existingChats=chatListData.map(c=>c.username);
-      const mySentRequests=messageRequests.filter(r=>r.fromId===currentUserId||r.from===currentUser).map(r=>r.to||r.toName);
-      
-      l.innerHTML=users.map(u=>{
-        const alreadyChatting=existingChats.includes(u.username);
-        const alreadyRequested=mySentRequests.includes(u.username.replace('@',''))||mySentRequests.includes(u.username);
-        const newBadge=isNewUser(u)?'<span class="new-badge">NEW</span>':'';
-        let actionBtn='';
-        if(alreadyChatting){actionBtn=`<button class="new-chat-action chat" onclick="event.stopPropagation();closeNewChatModal();openChat('${u.username}')">💬 Chat</button>`;}
-        else if(alreadyRequested){actionBtn=`<span class="requested-label">⏳ Requested</span>`;}
-        else{actionBtn=`<button class="new-chat-action request-btn" onclick="event.stopPropagation();sendChatRequest('${u.username}', this)">📩 Request</button>`;}
-        return`<div class="new-chat-item" onclick="goToUserProfile('${u.username}')"><div class="new-chat-avatar">${avatarHTML(u.username)}</div><div class="new-chat-info"><div class="new-chat-name">${u.displayName}${newBadge}</div><div class="new-chat-sub">${alreadyChatting?'Already in chats':alreadyRequested?'Request sent':'Tap to view profile'}</div></div><div class="new-chat-actions">${actionBtn}</div></div>`;
-      }).join('');
-    }
-    
-    window.sendChatRequest=async function(username,btnElement){
-      try{
-        const profile=JSON.parse(localStorage.getItem('userProfile')||'{}');
-        const fromName=(profile.username||currentUser).replace('@','');
-        const existing=messageRequests.find(r=>(r.fromId===currentUserId||r.from===currentUser)&&(r.to===username||r.to===username.replace('@','')));
-        if(existing){alert('Request already sent!');return;}
-        if(btnElement){
-          const parentDiv=btnElement.closest('.new-chat-actions');
-          if(parentDiv){parentDiv.innerHTML='<span class="requested-label">⏳ Requested</span>';}
-          const itemDiv=btnElement.closest('.new-chat-item');
-          if(itemDiv){const subEl=itemDiv.querySelector('.new-chat-sub');if(subEl)subEl.textContent='Request sent';}
-        }
-        await addDoc(collection(db,'message_requests'),{from:currentUser,fromName:fromName,fromAvatar:profile.avatar||null,fromId:currentUserId,to:username.replace('@',''),toName:username.replace('@',''),lastMessage:'👋 Wants to chat with you',createdAt:serverTimestamp(),status:'pending'});
-        await loadMessageRequests();
-        const toast=document.createElement('div');
-        toast.style.cssText='position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#4ade80;color:#000;padding:0.5rem 1.5rem;border-radius:2rem;font-size:0.75rem;font-weight:600;z-index:500;';
-        toast.textContent='✅ Request sent!';document.body.appendChild(toast);
-        setTimeout(()=>toast.remove(),2000);
-      }catch(e){console.error('Send request error:',e);}
-    };
-    
-    // ✅ Render requests with sender's profile photo
-    function renderNewChatRequests(requests){
-      const l=document.getElementById('newChatList');
-      if(requests.length===0){l.innerHTML='<div style="text-align:center;color:#555;padding:2rem;font-size:0.75rem;">No pending requests ✨</div>';return;}
-      l.innerHTML=requests.map(r=>{
-        const userName=r.fromName||r.from||'Unknown';
-        const avatarUrl=r.fromAvatar;
-        const senderUsername=r.from||('@'+(r.fromName||''));
-        return`<div class="new-chat-item" onclick="goToUserProfile('${senderUsername}')"><div class="new-chat-avatar">${avatarUrl&&avatarUrl!=='null'&&avatarUrl!=='undefined'?`<img src="${avatarUrl}" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.parentElement.innerHTML='${userName.charAt(0).toUpperCase()}';"/>`:userName.charAt(0).toUpperCase()}</div><div class="new-chat-info"><div class="new-chat-name">${userName.replace('@','')}</div><div class="new-chat-sub">${r.lastMessage||'Wants to chat'}</div></div><div class="new-chat-actions"><button class="new-chat-action accept" onclick="event.stopPropagation();acceptRequest('${r.id}','${r.from}','${r.fromName}')">✓ Accept</button><button class="new-chat-action decline" onclick="event.stopPropagation();declineRequest('${r.id}')">✕</button></div></div>`;
-      }).join('');
-    }
-    
-    window.acceptRequest=async function(requestId,fromUser,fromName){
-      try{
-        const partnerUsername=fromUser||('@'+(fromName||'').replace('@',''));
-        const cid=[currentUserId,partnerUsername.replace('@','')].sort().join('_');
-        await setDoc(doc(db,'chats',cid),{users:[currentUserId,partnerUsername.replace('@','')],lastMessage:'👋 Chat started!',lastType:'text',lastTime:serverTimestamp(),['unread_'+currentUserId]:0,['unread_'+partnerUsername.replace('@','')]:1});
-        await addDoc(collection(db,'chats',cid,'messages'),{text:'👋 Chat started! Say hello!',sender:currentUserId,createdAt:serverTimestamp(),seen:false});
-        await deleteDoc(doc(db,'message_requests',requestId));
-        messageRequests=messageRequests.filter(r=>r.id!==requestId);
-        updateRequestBadge();
-        renderNewChatRequests(messageRequests);
-        renderNewChatUsers(allUsersList);
-        closeNewChatModal();
-        openChat(partnerUsername);
-      }catch(e){console.error('Accept error:',e);}
-    };
-    
-    window.declineRequest=async function(requestId){
-      try{await deleteDoc(doc(db,'message_requests',requestId));messageRequests=messageRequests.filter(r=>r.id!==requestId);updateRequestBadge();renderNewChatRequests(messageRequests);}catch(e){console.error('Decline error:',e);}
-    };
-    
+    window.acceptRequest=async function(requestId,fromUser,fromName){try{const partnerUsername=fromUser||('@'+(fromName||'').replace('@',''));const cid=[currentUserId,partnerUsername.replace('@','')].sort().join('_');await setDoc(doc(db,'chats',cid),{users:[currentUserId,partnerUsername.replace('@','')],lastMessage:'👋 Chat started!',lastType:'text',lastTime:serverTimestamp(),['unread_'+currentUserId]:0,['unread_'+partnerUsername.replace('@','')]:1});await addDoc(collection(db,'chats',cid,'messages'),{text:'👋 Chat started! Say hello!',sender:currentUserId,createdAt:serverTimestamp(),seen:false});await deleteDoc(doc(db,'message_requests',requestId));messageRequests=messageRequests.filter(r=>r.id!==requestId);updateRequestBadge();renderNewChatRequests(messageRequests);renderNewChatUsers(allUsersList);closeNewChatModal();openChat(partnerUsername);}catch(e){};};
+    window.declineRequest=async function(requestId){try{await deleteDoc(doc(db,'message_requests',requestId));messageRequests=messageRequests.filter(r=>r.id!==requestId);updateRequestBadge();renderNewChatRequests(messageRequests);}catch(e){};};
     document.getElementById('newChatOverlay').addEventListener('click',function(e){if(e.target===this)closeNewChatModal();});
     
-    function setupRealtimeChatList(){
-      if(unsubChatList)unsubChatList();
-      const q=query(collection(db,'chats'),orderBy('lastTime','desc'));
-      unsubChatList=onSnapshot(q,(snap)=>{
-        const chats=[];
-        snap.forEach(docSnap=>{
-          const data=docSnap.data();
-          const ids=docSnap.id.split('_');
-          if(ids.includes(currentUserId)){
-            const partnerId=ids.find(i=>i!==currentUserId);
-            if(partnerId&&data.lastMessage!==undefined){chats.push({username:'@'+partnerId,lastMsg:data.lastType==='image'?'📷 Photo':data.lastType==='audio'?'🎤 Voice':data.lastMessage||'',lastTime:data.lastTime?.toDate()||new Date(0),unreadCount:data['unread_'+currentUserId]||0});}
-          }
-        });
-        chatListData=chats;renderChatList(chats);
-      },(error)=>{});
-    }
+    function setupRealtimeChatList(){if(unsubChatList)unsubChatList();const q=query(collection(db,'chats'),orderBy('lastTime','desc'));unsubChatList=onSnapshot(q,(snap)=>{const chats=[];snap.forEach(docSnap=>{const data=docSnap.data();const ids=docSnap.id.split('_');if(ids.includes(currentUserId)){const partnerId=ids.find(i=>i!==currentUserId);if(partnerId&&data.lastMessage!==undefined){chats.push({username:'@'+partnerId,lastMsg:data.lastType==='image'?'📷 Photo':data.lastType==='audio'?'🎤 Voice':data.lastMessage||'',lastTime:data.lastTime?.toDate()||new Date(0),unreadCount:data['unread_'+currentUserId]||0});}}});chatListData=chats;renderChatList(chats);},(error)=>{});}
     
-    // ✅ Render chat list with profile photos
     function renderChatList(cu){const l=document.getElementById('userList'),cnt=document.getElementById('chatCount');const tu=cu.reduce((s,c)=>s+c.unreadCount,0);cnt.textContent=cu.length>0?'('+cu.length+')':'';if(cu.length===0){l.innerHTML='<div style="text-align:center;color:#555;padding:3rem;font-size:0.8rem;">No messages yet</div>';return;}l.innerHTML=cu.map(c=>{const ts=c.lastTime.getTime()>0?fmtTime(c.lastTime):'';const dn=dispName(c.username);return`<div class="user-list-item ${chatPartner===c.username?'active':''}" onclick="openChat('${c.username}')"><div class="user-avatar" onclick="event.stopPropagation();window.location.href='profile.html?user=${encodeURIComponent(c.username)}'">${avatarHTML(c.username)}</div><div class="user-info"><div class="user-name-row"><span class="user-name" onclick="event.stopPropagation();window.location.href='profile.html?user=${encodeURIComponent(c.username)}'">${dn}</span><span class="user-time">${ts}</span></div><div class="user-msg-row"><span class="user-last-msg ${c.unreadCount>0?'unread-msg':''}">${c.lastMsg||'No messages'}</span>${c.unreadCount>0?`<span class="unread-count">${c.unreadCount}</span>`:''}</div></div></div>`;}).join('');}
     function fmtTime(d){if(!d||d.getTime()===0)return'';const n=new Date(),df=n-d;if(df<60000)return'Now';if(df<3600000)return Math.floor(df/60000)+'m';if(d.toDateString()===n.toDateString())return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});if(n-d<604800000)return['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];return d.toLocaleDateString([],{month:'short',day:'numeric'});}
     
-    window.openChat=function(u){
-      chatPartner=u;chatId=[currentUserId,u.replace('@','')].sort().join('_');
-      updateDoc(doc(db,'chats',chatId),{['unread_'+currentUserId]:0}).catch(()=>{});
-      document.getElementById('topIcons').classList.add('hidden');
-      document.getElementById('chatHeader').classList.add('show');
-      document.getElementById('chatListFull').classList.add('hidden');
-      document.getElementById('chatView').classList.add('show');
-      document.getElementById('searchBarContainer').classList.add('hidden');
-      document.getElementById('partnerName').textContent=dispName(u);
-      document.getElementById('partnerStatus').innerHTML='<span class="dot"></span> online';
-      document.getElementById('chatInputArea').classList.add('show');
-      document.getElementById('floatingNav').classList.add('hidden');
-      const c=document.getElementById('messagesContainer');
-      c.querySelectorAll('.message-wrapper').forEach(el=>el.remove());
-      document.getElementById('emptyChat').style.display='flex';
-      listenToMessages();listenToTyping();scrollToBottom();
-    };
+    window.openChat=function(u){chatPartner=u;chatId=[currentUserId,u.replace('@','')].sort().join('_');updateDoc(doc(db,'chats',chatId),{['unread_'+currentUserId]:0}).catch(()=>{});document.getElementById('topIcons').classList.add('hidden');document.getElementById('chatHeader').classList.add('show');document.getElementById('chatListFull').classList.add('hidden');document.getElementById('chatView').classList.add('show');document.getElementById('searchBarContainer').classList.add('hidden');document.getElementById('partnerName').textContent=dispName(u);document.getElementById('partnerStatus').innerHTML='<span class="dot"></span> online';document.getElementById('chatInputArea').classList.add('show');document.getElementById('floatingNav').classList.add('hidden');const c=document.getElementById('messagesContainer');c.querySelectorAll('.message-wrapper').forEach(el=>el.remove());document.getElementById('emptyChat').style.display='flex';listenToMessages();listenToTyping();scrollToBottom();};
     
-    window.goBack=function(){
-      if(isCallActive){endCall();}
-      chatPartner=null;chatId=null;
-      if(unsubMessages){unsubMessages();unsubMessages=null;}
-      stopVoice(true);
-      document.getElementById('topIcons').classList.remove('hidden');
-      document.getElementById('chatHeader').classList.remove('show');
-      document.getElementById('chatListFull').classList.remove('hidden');
-      document.getElementById('chatView').classList.remove('show');
-      document.getElementById('searchBarContainer').classList.remove('hidden');
-      document.getElementById('partnerName').textContent='';
-      document.getElementById('partnerStatus').textContent='';
-      document.getElementById('chatInputArea').classList.remove('show');
-      document.getElementById('floatingNav').classList.remove('hidden');
-    };
+    window.goBack=function(){if(isCallActive){endCall();}chatPartner=null;chatId=null;if(unsubMessages){unsubMessages();unsubMessages=null;}stopVoice(true);document.getElementById('topIcons').classList.remove('hidden');document.getElementById('chatHeader').classList.remove('show');document.getElementById('chatListFull').classList.remove('hidden');document.getElementById('chatView').classList.remove('show');document.getElementById('searchBarContainer').classList.remove('hidden');document.getElementById('partnerName').textContent='';document.getElementById('partnerStatus').textContent='';document.getElementById('chatInputArea').classList.remove('show');document.getElementById('floatingNav').classList.remove('hidden');};
     
-    // ========== CALLS ==========
-    window.startCall=async function(type){if(!chatPartner||isCallActive)return;callType=type;isCaller=true;try{localStream=await navigator.mediaDevices.getUserMedia({audio:true,video:type==='video'});document.getElementById('callLocalVideo').srcObject=localStream;document.getElementById('callLocalVideo').style.display=type==='video'?'block':'none';document.getElementById('callOverlay').classList.add('show');document.getElementById('callStatus').textContent='Calling...';document.getElementById('callVideoBtn').style.display=type==='video'?'flex':'none';const callId=[currentUserId,chatPartner.replace('@','')].sort().join('_')+'_'+Date.now();callDocRef=doc(db,'calls',callId);await setDoc(callDocRef,{caller:currentUserId,callee:chatPartner.replace('@',''),type:type,status:'ringing',createdAt:serverTimestamp()});callUnsub=onSnapshot(callDocRef,async(snap)=>{const data=snap.data();if(!data)return;if(data.status==='rejected'){endCall();return;}if(data.status==='accepted'&&data.answer){document.getElementById('callStatus').textContent='Connected';await createPeerConnection();await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));localStream.getTracks().forEach(track=>{peerConnection.addTrack(track,localStream);});const offer=await peerConnection.createOffer();await peerConnection.setLocalDescription(offer);await updateDoc(callDocRef,{offer:{type:offer.type,sdp:offer.sdp}});}if(data.calleeCandidates){for(const cand of data.calleeCandidates){if(peerConnection){await peerConnection.addIceCandidate(new RTCIceCandidate(cand));}}}});isCallActive=true;}catch(e){alert('Camera/microphone needed!');endCall();}};
-    async function createPeerConnection(){if(peerConnection){peerConnection.close();}peerConnection=new RTCPeerConnection(servers);peerConnection.ontrack=(event)=>{document.getElementById('callRemoteVideo').srcObject=event.streams[0];};peerConnection.onicecandidate=async(event)=>{if(event.candidate&&callDocRef){if(isCaller){const snap=await getDoc(callDocRef);const existing=snap.data()?.callerCandidates||[];existing.push(event.candidate.toJSON());await updateDoc(callDocRef,{callerCandidates:existing});}else{const snap=await getDoc(callDocRef);const existing=snap.data()?.calleeCandidates||[];existing.push(event.candidate.toJSON());await updateDoc(callDocRef,{calleeCandidates:existing});}}};peerConnection.onconnectionstatechange=()=>{if(peerConnection.connectionState==='disconnected'||peerConnection.connectionState==='failed'){endCall();}};}
-    function listenForIncomingCalls(){onSnapshot(collection(db,'calls'),(snap)=>{snap.docChanges().forEach(async(change)=>{if(change.type==='added'){const data=change.doc.data();if(data.callee===currentUserId&&data.status==='ringing'){callDocRef=change.doc.ref;showIncomingCall(data);}}});});}
-    function showIncomingCall(data){callType=data.type;isCaller=false;document.getElementById('incomingName').textContent=dispName('@'+data.caller);document.getElementById('incomingType').textContent=`Incoming ${data.type} call...`;document.getElementById('incomingAvatar').innerHTML=avatarHTML('@'+data.caller);document.getElementById('incomingCallOverlay').classList.add('show');}
-    window.acceptCall=async function(){document.getElementById('incomingCallOverlay').classList.remove('show');try{localStream=await navigator.mediaDevices.getUserMedia({audio:true,video:callType==='video'});document.getElementById('callLocalVideo').srcObject=localStream;document.getElementById('callLocalVideo').style.display=callType==='video'?'block':'none';document.getElementById('callOverlay').classList.add('show');document.getElementById('callStatus').textContent='Connected';document.getElementById('callVideoBtn').style.display=callType==='video'?'flex':'none';await updateDoc(callDocRef,{status:'accepted'});await createPeerConnection();localStream.getTracks().forEach(track=>{peerConnection.addTrack(track,localStream);});callUnsub=onSnapshot(callDocRef,async(snap)=>{const d=snap.data();if(!d)return;if(d.offer&&!peerConnection.currentRemoteDescription){await peerConnection.setRemoteDescription(new RTCSessionDescription(d.offer));const answer=await peerConnection.createAnswer();await peerConnection.setLocalDescription(answer);await updateDoc(callDocRef,{answer:{type:answer.type,sdp:answer.sdp}});}if(d.callerCandidates){for(const cand of d.callerCandidates){if(peerConnection){await peerConnection.addIceCandidate(new RTCIceCandidate(cand));}}}});isCallActive=true;}catch(e){endCall();}};
+    // ========== CALLS (FIXED) ==========
+    window.startCall=async function(type){if(!chatPartner||isCallActive)return;callType=type;isCaller=true;try{localStream=await navigator.mediaDevices.getUserMedia({audio:true,video:type==='video'});document.getElementById('callLocalVideo').srcObject=localStream;document.getElementById('callLocalVideo').style.display=type==='video'?'block':'none';document.getElementById('callOverlay').classList.add('show');document.getElementById('callStatus').textContent='Calling...';document.getElementById('callVideoBtn').style.display=type==='video'?'flex':'none';const callId=[currentUserId,chatPartner.replace('@','')].sort().join('_')+'_'+Date.now();callDocRef=doc(db,'calls',callId);await createPeerConnection();localStream.getTracks().forEach(track=>{peerConnection.addTrack(track,localStream);});const offer=await peerConnection.createOffer();await peerConnection.setLocalDescription(offer);await setDoc(callDocRef,{caller:currentUserId,callee:chatPartner.replace('@',''),type:type,status:'ringing',offer:{type:offer.type,sdp:offer.sdp},createdAt:serverTimestamp()});callUnsub=onSnapshot(callDocRef,async(snap)=>{const data=snap.data();if(!data)return;if(data.status==='rejected'){endCall();return;}if(data.status==='accepted'&&data.answer){if(!peerConnection.currentRemoteDescription){document.getElementById('callStatus').textContent='Connected';await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));}}});isCallActive=true;}catch(e){console.error('Call error:',e);alert('Camera/microphone access needed!');endCall();}};
+    
+    async function createPeerConnection(){if(peerConnection){peerConnection.close();}peerConnection=new RTCPeerConnection(servers);peerConnection.ontrack=(event)=>{if(event.streams[0]){document.getElementById('callRemoteVideo').srcObject=event.streams[0];}};peerConnection.onicecandidate=async(event)=>{if(event.candidate&&callDocRef){const snap=await getDoc(callDocRef);const data=snap.data();if(data){const candidates=isCaller?(data.callerCandidates||[]):(data.calleeCandidates||[]);candidates.push(event.candidate.toJSON());await updateDoc(callDocRef,{[isCaller?'callerCandidates':'calleeCandidates']:candidates});}}};peerConnection.onconnectionstatechange=()=>{if(peerConnection.connectionState==='disconnected'||peerConnection.connectionState==='failed'){endCall();}};peerConnection.oniceconnectionstatechange=()=>{if(peerConnection.iceConnectionState==='disconnected'){endCall();}};}
+    
+    function listenForIncomingCalls(){const q=query(collection(db,'calls'),orderBy('createdAt','desc'));onSnapshot(q,(snap)=>{snap.docChanges().forEach(async(change)=>{if(change.type==='added'){const data=change.doc.data();const docId=change.doc.id;if(data.callee===currentUserId&&data.status==='ringing'&&!isCallActive){callDocRef=doc(db,'calls',docId);showIncomingCall(data);}}if(change.type==='modified'&&callDocRef&&change.doc.id===callDocRef.id){const data=change.doc.data();if(data.status==='rejected'){endCall();}}});});}
+    
+    function showIncomingCall(data){callType=data.type||'audio';isCaller=false;document.getElementById('incomingName').textContent=dispName('@'+data.caller);document.getElementById('incomingType').textContent=`Incoming ${callType} call...`;document.getElementById('incomingAvatar').innerHTML=avatarHTML('@'+data.caller);document.getElementById('incomingCallOverlay').classList.add('show');}
+    
+    window.acceptCall=async function(){document.getElementById('incomingCallOverlay').classList.remove('show');try{localStream=await navigator.mediaDevices.getUserMedia({audio:true,video:callType==='video'});document.getElementById('callLocalVideo').srcObject=localStream;document.getElementById('callLocalVideo').style.display=callType==='video'?'block':'none';document.getElementById('callOverlay').classList.add('show');document.getElementById('callStatus').textContent='Connecting...';document.getElementById('callVideoBtn').style.display=callType==='video'?'flex':'none';await createPeerConnection();localStream.getTracks().forEach(track=>{peerConnection.addTrack(track,localStream);});const snap=await getDoc(callDocRef);const data=snap.data();if(data&&data.offer){await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));const answer=await peerConnection.createAnswer();await peerConnection.setLocalDescription(answer);await updateDoc(callDocRef,{answer:{type:answer.type,sdp:answer.sdp},status:'accepted'});}callUnsub=onSnapshot(callDocRef,async(snap)=>{const d=snap.data();if(!d)return;if(d.callerCandidates&&peerConnection){const existingLength=peerConnection.getRemoteDescription()?(peerConnection._addedCandidates||0):0;for(let i=existingLength;i<d.callerCandidates.length;i++){try{await peerConnection.addIceCandidate(new RTCIceCandidate(d.callerCandidates[i]));peerConnection._addedCandidates=i+1;}catch(e){console.log('ICE candidate error:',e);}}}});document.getElementById('callStatus').textContent='Connected';isCallActive=true;}catch(e){console.error('Accept call error:',e);endCall();}};
+    
     window.rejectCall=function(){if(callDocRef){updateDoc(callDocRef,{status:'rejected'}).catch(()=>{});}document.getElementById('incomingCallOverlay').classList.remove('show');callDocRef=null;};
-    window.endCall=function(){if(localStream){localStream.getTracks().forEach(t=>t.stop());localStream=null;}if(peerConnection){peerConnection.close();peerConnection=null;}if(callUnsub){callUnsub();callUnsub=null;}if(callDocRef&&isCaller){deleteDoc(callDocRef).catch(()=>{});}document.getElementById('callOverlay').classList.remove('show');document.getElementById('incomingCallOverlay').classList.remove('show');document.getElementById('callRemoteVideo').srcObject=null;document.getElementById('callLocalVideo').srcObject=null;document.getElementById('callStatus').textContent='Connecting...';isCallActive=false;isCaller=false;callDocRef=null;isMuted=false;isVideoOff=false;document.getElementById('callMuteBtn').classList.remove('muted');document.getElementById('callVideoBtn').classList.remove('off');};
+    
+    window.endCall=function(){if(localStream){localStream.getTracks().forEach(t=>t.stop());localStream=null;}if(peerConnection){peerConnection._addedCandidates=0;peerConnection.close();peerConnection=null;}if(callUnsub){callUnsub();callUnsub=null;}if(callDocRef&&isCaller){updateDoc(callDocRef,{status:'ended'}).then(()=>{deleteDoc(callDocRef).catch(()=>{});}).catch(()=>{});}document.getElementById('callOverlay').classList.remove('show');document.getElementById('incomingCallOverlay').classList.remove('show');document.getElementById('callRemoteVideo').srcObject=null;document.getElementById('callLocalVideo').srcObject=null;document.getElementById('callStatus').textContent='Connecting...';isCallActive=false;isCaller=false;callDocRef=null;isMuted=false;isVideoOff=false;document.getElementById('callMuteBtn').classList.remove('muted');document.getElementById('callVideoBtn').classList.remove('off');};
+    
     window.toggleCallMute=function(){if(!localStream)return;isMuted=!isMuted;localStream.getAudioTracks().forEach(t=>t.enabled=!isMuted);document.getElementById('callMuteBtn').classList.toggle('muted',isMuted);};
     window.toggleCallVideo=function(){if(!localStream)return;isVideoOff=!isVideoOff;localStream.getVideoTracks().forEach(t=>t.enabled=!isVideoOff);document.getElementById('callVideoBtn').classList.toggle('off',isVideoOff);document.getElementById('callLocalVideo').style.display=isVideoOff?'none':'block';};
     // ========== END CALLS ==========

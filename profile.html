@@ -120,6 +120,40 @@
     .edit-avatar-btns { display:flex;flex-direction:column;gap:0.3rem; }
     .edit-avatar-btns button { padding:0.35rem 0.7rem;border-radius:0.4rem;border:none;font-size:0.65rem;cursor:pointer;background:#333;color:#fff; }
     .edit-avatar-btns .remove-btn { background:rgba(239,68,68,0.2);color:#ef4444; }
+    
+    /* ✅ Crop Modal Styles */
+    .crop-overlay {
+      position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:350;
+      display:none;flex-direction:column;align-items:center;justify-content:center;
+    }
+    .crop-overlay.show { display:flex; }
+    .crop-container {
+      width:300px;height:300px;border-radius:50%;overflow:hidden;
+      border:3px solid rgba(255,255,255,0.3);position:relative;background:#111;
+    }
+    .crop-container img {
+      position:absolute;max-width:none;max-height:none;
+      cursor:move;user-select:none;-webkit-user-drag:none;
+    }
+    .crop-controls {
+      margin-top:1rem;display:flex;gap:1rem;align-items:center;
+    }
+    .crop-controls button {
+      padding:0.6rem 1.5rem;border-radius:1.5rem;border:none;font-size:0.8rem;
+      font-weight:600;cursor:pointer;
+    }
+    .crop-save-btn { background:#FFFC00;color:#000; }
+    .crop-cancel-btn { background:rgba(255,255,255,0.15);color:#fff; }
+    .crop-zoom-slider {
+      width:200px;margin:0.5rem 0;
+    }
+    .crop-zoom-slider input {
+      width:100%;accent-color:#FFFC00;
+    }
+    .crop-hint {
+      color:#888;font-size:0.65rem;text-align:center;margin-top:0.5rem;
+    }
+
     .list-modal-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:300;display:none;align-items:center;justify-content:center;padding:1rem; }
     .list-modal-overlay.show { display:flex; }
     .list-modal { background:#1a1a1a;border-radius:1rem;padding:1.2rem;width:100%;max-width:380px;max-height:60vh;overflow-y:auto; }
@@ -156,6 +190,7 @@
     @media (max-width:380px) {
       .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:max(0.8rem,env(safe-area-inset-bottom,0.8rem));background:rgba(10,10,10,0.1);}
       .nav-center a{font-size:1.1rem;width:2rem;height:2rem}
+      .crop-container { width:260px;height:260px; }
     }
     @media (min-width:1024px) {
       .top-icons{display:none}
@@ -174,7 +209,7 @@
 
   <div class="page" id="mainPage" style="display:none;">
     <div class="scrollable-content" id="mainContent">
-      <!-- ✅ Header: Shows username for both own and other profiles -->
+      <!-- ✅ Header -->
       <div class="top-icons">
         <button class="back-btn" id="backBtn" onclick="window.history.back()"><i class="fas fa-arrow-left"></i></button>
         <button class="corner-btn" id="settingsBtn" onclick="window.location.href='settings.html'" title="Settings"><i class="fas fa-cog"></i></button>
@@ -212,6 +247,21 @@
       </div>
     </div>
 
+    <!-- ✅ Crop Overlay for image resizing -->
+    <div class="crop-overlay" id="cropOverlay">
+      <div class="crop-container" id="cropContainer">
+        <img id="cropImage" src="" alt="crop">
+      </div>
+      <div class="crop-zoom-slider">
+        <input type="range" id="cropZoom" min="1" max="3" step="0.01" value="1" oninput="updateCropZoom()">
+      </div>
+      <div class="crop-hint">🖐️ Drag to position • Pinch or use slider to zoom</div>
+      <div class="crop-controls">
+        <button class="crop-cancel-btn" onclick="cancelCrop()">Cancel</button>
+        <button class="crop-save-btn" onclick="saveCroppedImage()">✅ Use Photo</button>
+      </div>
+    </div>
+
     <div class="post-viewer-overlay" id="postViewer">
       <button class="post-viewer-close" onclick="closePostViewer()">✕</button>
       <button class="post-viewer-nav prev" id="postViewerPrev" onclick="navigatePost(-1)"><i class="fas fa-chevron-left"></i></button>
@@ -231,7 +281,7 @@
       <div class="modal">
         <h3>Edit Profile</h3>
         <label>Profile Picture</label>
-        <div class="edit-avatar-section"><div class="edit-avatar-preview" id="editAvatarPreview"><i class="fas fa-user"></i></div><div class="edit-avatar-btns"><button onclick="document.getElementById('editAvatarInput').click()"><i class="fas fa-camera"></i> Change Photo</button><button class="remove-btn" onclick="removeEditAvatar()"><i class="fas fa-trash"></i> Remove</button></div><input type="file" id="editAvatarInput" accept="image/*" style="display:none" onchange="updateEditAvatar(event)"></div>
+        <div class="edit-avatar-section"><div class="edit-avatar-preview" id="editAvatarPreview"><i class="fas fa-user"></i></div><div class="edit-avatar-btns"><button onclick="document.getElementById('editAvatarInput').click()"><i class="fas fa-camera"></i> Change Photo</button><button class="remove-btn" onclick="removeEditAvatar()"><i class="fas fa-trash"></i> Remove</button></div><input type="file" id="editAvatarInput" accept="image/*" style="display:none" onchange="handleAvatarSelect(event)"></div>
         <label>Username</label><input type="text" id="editUsername">
         <label>Bio</label><textarea id="editBio"></textarea>
         <label>Website</label><input type="text" id="editWebsite">
@@ -271,6 +321,12 @@
     const isOwnProfile = !viewUser || viewUser === currentUser;
     let currentPostIndex = 0, currentPostList = [];
     let tempEditAvatar = null;
+    
+    // ✅ Crop variables
+    let cropImageFile = null;
+    let cropZoom = 1;
+    let cropPosX = 0, cropPosY = 0;
+    let isDragging = false, dragStartX = 0, dragStartY = 0;
 
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('mainPage').style.display = 'flex';
@@ -280,18 +336,177 @@
       document.getElementById('backBtn').style.display = 'none';
       document.getElementById('settingsBtn').style.display = 'flex';
       document.getElementById('logoutBtn').style.display = 'flex';
-      // ✅ Show own username
       document.getElementById('topBrand').textContent = currentUser.replace('@','');
     } else {
       document.getElementById('backBtn').classList.add('show');
       document.getElementById('settingsBtn').style.display = 'none';
       document.getElementById('logoutBtn').style.display = 'none';
-      // ✅ Show viewed user's username
       document.getElementById('topBrand').textContent = (viewUser || '').replace('@','');
       loadOtherUserProfile(viewUser);
     }
 
     if (isOwnProfile) loadOwnProfile();
+
+    // ✅ ========== IMAGE CROP FUNCTIONS ==========
+    window.handleAvatarSelect = function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      // Check file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        showToast('Image too large! Max 10MB');
+        e.target.value = '';
+        return;
+      }
+      
+      cropImageFile = file;
+      openCropOverlay(file);
+      e.target.value = '';
+    };
+
+    function openCropOverlay(file) {
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        const cropImg = document.getElementById('cropImage');
+        cropImg.src = ev.target.result;
+        cropImg.onload = function() {
+          // Reset position and zoom
+          cropZoom = 1;
+          cropPosX = 0;
+          cropPosY = 0;
+          document.getElementById('cropZoom').value = 1;
+          
+          // Center the image
+          const container = document.getElementById('cropContainer');
+          const imgW = cropImg.naturalWidth;
+          const imgH = cropImg.naturalHeight;
+          const containerSize = container.offsetWidth;
+          
+          // Scale to fit container
+          const scale = Math.max(containerSize / imgW, containerSize / imgH);
+          const newW = imgW * scale;
+          const newH = imgH * scale;
+          
+          cropImg.style.width = newW + 'px';
+          cropImg.style.height = newH + 'px';
+          cropImg.style.left = ((containerSize - newW) / 2) + 'px';
+          cropImg.style.top = ((containerSize - newH) / 2) + 'px';
+        };
+        
+        document.getElementById('cropOverlay').classList.add('show');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    window.updateCropZoom = function() {
+      cropZoom = parseFloat(document.getElementById('cropZoom').value);
+      applyCropTransform();
+    };
+
+    function applyCropTransform() {
+      const img = document.getElementById('cropImage');
+      const container = document.getElementById('cropContainer');
+      const containerSize = container.offsetWidth;
+      
+      const imgW = img.naturalWidth;
+      const imgH = img.naturalHeight;
+      const scale = Math.max(containerSize / imgW, containerSize / imgH) * cropZoom;
+      
+      img.style.width = (imgW * scale) + 'px';
+      img.style.height = (imgH * scale) + 'px';
+      img.style.left = cropPosX + 'px';
+      img.style.top = cropPosY + 'px';
+    }
+
+    // Touch/Mouse drag for crop positioning
+    const cropContainer = document.getElementById('cropContainer');
+    const cropImg = document.getElementById('cropImage');
+
+    cropContainer.addEventListener('mousedown', startDrag);
+    cropContainer.addEventListener('touchstart', startDrag, { passive: false });
+    window.addEventListener('mousemove', dragMove);
+    window.addEventListener('touchmove', dragMove, { passive: false });
+    window.addEventListener('mouseup', endDrag);
+    window.addEventListener('touchend', endDrag);
+
+    function startDrag(e) {
+      e.preventDefault();
+      isDragging = true;
+      const point = e.touches ? e.touches[0] : e;
+      dragStartX = point.clientX - cropPosX;
+      dragStartY = point.clientY - cropPosY;
+    }
+
+    function dragMove(e) {
+      if (!isDragging) return;
+      e.preventDefault();
+      const point = e.touches ? e.touches[0] : e;
+      cropPosX = point.clientX - dragStartX;
+      cropPosY = point.clientY - dragStartY;
+      applyCropTransform();
+    }
+
+    function endDrag() {
+      isDragging = false;
+    }
+
+    window.saveCroppedImage = function() {
+      const img = document.getElementById('cropImage');
+      const container = document.getElementById('cropContainer');
+      const containerSize = container.offsetWidth;
+      
+      // Create canvas for cropping
+      const canvas = document.createElement('canvas');
+      canvas.width = 300;
+      canvas.height = 300;
+      const ctx = canvas.getContext('2d');
+      
+      // Calculate crop area (center of container)
+      const imgRect = img.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      
+      const offsetX = containerRect.left - imgRect.left;
+      const offsetY = containerRect.top - imgRect.top;
+      
+      const scaleX = img.naturalWidth / imgRect.width;
+      const scaleY = img.naturalHeight / imgRect.height;
+      
+      const sx = offsetX * scaleX;
+      const sy = offsetY * scaleY;
+      const sw = containerRect.width * scaleX;
+      const sh = containerRect.height * scaleY;
+      
+      // Draw cropped circle
+      ctx.beginPath();
+      ctx.arc(150, 150, 150, 0, Math.PI * 2);
+      ctx.clip();
+      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, 300, 300);
+      
+      // Compress to reasonable size (max 200KB)
+      let quality = 0.8;
+      let dataUrl = canvas.toDataURL('image/jpeg', quality);
+      
+      // Reduce quality if too large
+      while (dataUrl.length > 200 * 1024 && quality > 0.3) {
+        quality -= 0.1;
+        dataUrl = canvas.toDataURL('image/jpeg', quality);
+      }
+      
+      tempEditAvatar = dataUrl;
+      updateEditPreview();
+      document.getElementById('cropOverlay').classList.remove('show');
+      showToast('Photo cropped & compressed! ✅');
+    };
+
+    window.cancelCrop = function() {
+      document.getElementById('cropOverlay').classList.remove('show');
+      cropImageFile = null;
+    };
+
+    document.getElementById('cropOverlay').addEventListener('click', function(e) {
+      if (e.target === this) cancelCrop();
+    });
+    // ✅ ========== END CROP FUNCTIONS ==========
 
     window.savePostToUser = async function(postDataUrl, caption, type) {
       const newPost = { type: type, src: postDataUrl, caption: caption || '', likes: 0, liked: false, createdAt: new Date().toISOString() };
@@ -310,7 +525,6 @@
     async function loadOtherUserProfile(username) {
       const cname = (username || '').replace(/^@/, '');
       document.getElementById('displayName').textContent = cname;
-      // ✅ Update header to show viewed user's username
       document.getElementById('topBrand').textContent = cname;
       
       let userData = null;
@@ -361,7 +575,6 @@
       document.getElementById('friendsCount').textContent = (p.friends || []).length;
       document.getElementById('bestiesCount').textContent = (p.besties || []).length;
       document.getElementById('postCount').textContent = (p.posts || []).filter(x => x.type === 'image').length;
-      // ✅ Show own username in header
       document.getElementById('topBrand').textContent = (p.username || currentUser).replace('@','');
       renderContent();
     }
@@ -385,8 +598,10 @@
     window.openEditProfile = function() { if (!isOwnProfile) return; const p = window._profile; document.getElementById('editUsername').value = (p.username || '').replace('@',''); document.getElementById('editBio').value = p.bio || ''; document.getElementById('editWebsite').value = p.website || ''; tempEditAvatar = p.avatar; updateEditPreview(); document.getElementById('editModal').classList.add('show'); };
     window.closeEditProfile = function() { document.getElementById('editModal').classList.remove('show'); tempEditAvatar = null; };
     function updateEditPreview() { const preview = document.getElementById('editAvatarPreview'); if (tempEditAvatar && tempEditAvatar !== 'null' && tempEditAvatar !== 'undefined') { preview.innerHTML = `<img src="${tempEditAvatar}" alt="avatar">`; } else { preview.innerHTML = '<i class="fas fa-user"></i>'; } }
-    window.updateEditAvatar = function(e) { const file = e.target.files[0]; if (file) { const r = new FileReader(); r.onload = function(ev) { tempEditAvatar = ev.target.result; updateEditPreview(); }; r.readAsDataURL(file); } };
     window.removeEditAvatar = function() { tempEditAvatar = null; updateEditPreview(); };
+    
+    // ✅ Removed old updateEditAvatar - now uses handleAvatarSelect with crop
+    
     window.saveProfile = function() {
       if (!isOwnProfile) return;
       const p = window._profile;

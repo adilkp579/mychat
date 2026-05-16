@@ -28,11 +28,6 @@
     .error { color:#ef4444; }
     .toast { position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#4ade80;color:#000;padding:0.5rem 1.2rem;border-radius:2rem;font-size:0.75rem;z-index:400;opacity:0;transition:all 0.3s;font-weight:600; }
     .toast.show { opacity:1; }
-    
-    .loading-screen { position:fixed;top:0;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:1rem; }
-    .loading-screen i { font-size:2.5rem;color:#3897f0;animation:spin 1s infinite; }
-    .loading-screen span { color:#888;font-size:0.85rem; }
-    @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 
     /* 🌟 ULTRA TRANSPARENT GLASSMORPHISM NAVBAR */
     .floating-nav {
@@ -194,12 +189,7 @@
   </style>
 </head>
 <body>
-  <div class="loading-screen" id="loadingScreen">
-    <i class="fas fa-spinner"></i>
-    <span>Checking authentication...</span>
-  </div>
-
-  <div class="page" id="mainPage" style="display:none;">
+  <div class="page" id="mainPage">
     <div class="content" id="mainContent">
       <h2 style="font-weight:500;">Create</h2>
       <p style="font-size:0.7rem;color:#888;margin-bottom:0.5rem;">Logged in as: <span id="currentUserLabel" style="color:#4ade80;"></span></p>
@@ -230,6 +220,10 @@
     </nav>
   </div>
 
+  <script>
+    if (!localStorage.getItem("uid")) { window.location.replace("login.html"); }
+  </script>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getFirestore, collection, addDoc, serverTimestamp, setDoc, doc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
@@ -241,43 +235,14 @@
     });
     const db = getFirestore(app);
 
-    let currentUsername = '';
-
-    async function checkAuth() {
-      const currentUser = localStorage.getItem('currentUser');
-      
-      if (!currentUser) {
-        window.location.href = 'login.html';
-        return false;
-      }
-
-      try {
-        const q = query(collection(db, 'users'), where('username', '==', currentUser));
-        const snap = await getDocs(q);
-        
-        if (snap.empty) {
-          localStorage.removeItem('currentUser');
-          localStorage.removeItem('userProfile');
-          window.location.href = 'login.html';
-          return false;
-        }
-        
-        // Store the username
-        currentUsername = currentUser;
-        console.log('✅ Authenticated as:', currentUsername);
-        return true;
-        
-      } catch (e) {
-        console.error('Auth check error:', e);
-        currentUsername = currentUser;
-        return !!currentUser;
-      }
-    }
-
+    let currentUsername = localStorage.getItem('currentUser') || '@anonymous';
     let selectedType = null, fileData = null;
 
+    // Display username immediately - no loading screen
+    document.getElementById('currentUserLabel').textContent = currentUsername.replace('@','');
+
     window.selectType = function(type) {
-      if (!currentUsername) {
+      if (!currentUsername || currentUsername === '@anonymous') {
         showToast('Please login first! 🔐');
         setTimeout(() => window.location.href = 'login.html', 1500);
         return;
@@ -296,7 +261,7 @@
         fileData = e.target.result;
         document.getElementById('mainContent').style.display='none';
         document.getElementById('previewContent').style.display='flex';
-        document.getElementById('fileSizeText').textContent = `Size: ${(file.size/1024).toFixed(1)}KB • By: ${currentUsername}`;
+        document.getElementById('fileSizeText').textContent = `Size: ${(file.size/1024).toFixed(1)}KB • By: ${currentUsername.replace('@','')}`;
         if(selectedType==='post'){
           document.getElementById('previewTitle').textContent='Photo Preview';
           document.getElementById('previewImg').src=fileData;
@@ -324,9 +289,8 @@
       btn.disabled = true; btn.textContent = 'Saving...'; status.textContent = '';
       
       try {
-        // Save to Firestore with username
         const postData = {
-          userId: currentUsername, // Use actual username
+          userId: currentUsername,
           username: currentUsername,
           type: selectedType,
           data: fileData,
@@ -340,7 +304,6 @@
         const docRef = await addDoc(collection(db, 'posts'), postData);
         console.log('✅ Saved with ID:', docRef.id);
         
-        // Save to localStorage profile
         const profile = JSON.parse(localStorage.getItem('userProfile')||'{}');
         if(!profile.posts) profile.posts = [];
         if(!profile.username) profile.username = currentUsername;
@@ -379,20 +342,6 @@
       t.textContent=msg; t.classList.add('show');
       clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2000);
     }
-
-    async function init() {
-      const isAuthenticated = await checkAuth();
-      
-      if (!isAuthenticated) return;
-      
-      // Display current username
-      document.getElementById('currentUserLabel').textContent = currentUsername;
-      
-      document.getElementById('loadingScreen').style.display = 'none';
-      document.getElementById('mainPage').style.display = 'flex';
-    }
-
-    init();
   </script>
 </body>
 </html>

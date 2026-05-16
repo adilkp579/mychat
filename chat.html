@@ -129,23 +129,23 @@
 
     .empty-chat {flex:1;display:flex;align-items:center;justify-content:center;color:#333;font-size:0.8rem;}
 
-    /* ✅ New Chat Modal - Glass Effect */
-    .new-chat-overlay {position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:400;display:none;align-items:center;justify-content:center;padding:1rem;}
+    /* ✅ New Chat Modal - 100% Transparent Glass Effect */
+    .new-chat-overlay {position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.3);z-index:400;display:none;align-items:center;justify-content:center;padding:1rem;}
     .new-chat-overlay.show {display:flex;}
     .new-chat-modal {
-      background:rgba(255,255,255,0.08);
-      backdrop-filter:blur(30px);
-      -webkit-backdrop-filter:blur(30px);
+      background:transparent;
+      backdrop-filter:blur(40px);
+      -webkit-backdrop-filter:blur(40px);
       border-radius:1.2rem;padding:0;width:100%;max-width:400px;max-height:75vh;
       display:flex;flex-direction:column;
-      border:1px solid rgba(255,255,255,0.2);
-      box-shadow:0 25px 60px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.1);
+      border:1px solid rgba(255,255,255,0.15);
+      box-shadow:0 25px 60px rgba(0,0,0,0.4);
       overflow:hidden;
     }
     .new-chat-tabs {display:flex;border-bottom:1px solid rgba(255,255,255,0.1);flex-shrink:0;
-      background:rgba(255,255,255,0.03);
-      backdrop-filter:blur(20px);
-      -webkit-backdrop-filter:blur(20px);
+      background:transparent;
+      backdrop-filter:blur(40px);
+      -webkit-backdrop-filter:blur(40px);
     }
     .new-chat-tab {
       flex:1;text-align:center;padding:0.8rem;color:rgba(255,255,255,0.5);font-size:0.8rem;font-weight:600;
@@ -157,31 +157,32 @@
       font-size:0.55rem;min-width:16px;height:16px;border-radius:8px;
       display:flex;align-items:center;justify-content:center;font-weight:700;
     }
-    .new-chat-search {padding:0.6rem 1rem;flex-shrink:0;background:rgba(255,255,255,0.02);}
+    .new-chat-search {padding:0.6rem 1rem;flex-shrink:0;background:transparent;}
     .new-chat-search input {
       width:100%;padding:0.55rem 0.8rem;border-radius:0.5rem;
       border:1px solid rgba(255,255,255,0.15);
-      background:rgba(255,255,255,0.06);
-      backdrop-filter:blur(10px);
-      -webkit-backdrop-filter:blur(10px);
+      background:transparent;
+      backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px);
       color:#fff;font-size:0.8rem;outline:none;
     }
     .new-chat-search input::placeholder {color:rgba(255,255,255,0.3);}
-    .new-chat-list {flex:1;overflow-y:auto;padding:0.3rem 0;background:rgba(0,0,0,0.1);}
+    .new-chat-search input:focus {border-color:rgba(255,255,255,0.4);}
+    .new-chat-list {flex:1;overflow-y:auto;padding:0.3rem 0;background:transparent;}
     .new-chat-list::-webkit-scrollbar {width:3px;}
-    .new-chat-list::-webkit-scrollbar-thumb {background:rgba(255,255,255,0.15);border-radius:3px;}
+    .new-chat-list::-webkit-scrollbar-thumb {background:rgba(255,255,255,0.2);border-radius:3px;}
     .new-chat-item {
       display:flex;align-items:center;gap:0.6rem;padding:0.7rem 1rem;
       cursor:pointer;transition:all 0.15s;background:transparent;
     }
     .new-chat-item:hover {background:rgba(255,255,255,0.05);}
-    .new-chat-item:active {background:rgba(255,255,255,0.08);}
+    .new-chat-item:active {background:rgba(255,255,255,0.1);}
     .new-chat-avatar {
       width:40px;height:40px;border-radius:50%;
-      background:rgba(255,255,255,0.1);
+      background:transparent;
       overflow:hidden;display:flex;align-items:center;justify-content:center;
       color:#fff;font-weight:700;font-size:0.9rem;flex-shrink:0;
-      border:1px solid rgba(255,255,255,0.15);
+      border:1px solid rgba(255,255,255,0.2);
     }
     .new-chat-avatar img {width:100%;height:100%;object-fit:cover;}
     .new-chat-info {flex:1;min-width:0;}
@@ -189,26 +190,31 @@
     .new-chat-sub {font-size:0.6rem;color:rgba(255,255,255,0.5);margin-top:2px;}
     .new-chat-actions {display:flex;gap:0.4rem;flex-shrink:0;}
     .new-chat-action {
-      padding:0.35rem 0.8rem;border-radius:1rem;border:none;
+      padding:0.35rem 0.8rem;border-radius:1rem;
       font-size:0.65rem;font-weight:600;cursor:pointer;transition:all 0.15s;
+      background:transparent;
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
     }
-    .new-chat-action.accept {background:rgba(74,222,128,0.3);color:#4ade80;border:1px solid rgba(74,222,128,0.4);}
-    .new-chat-action.decline {background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.25);}
-    .new-chat-action.chat {background:rgba(255,252,0,0.2);color:#FFFC00;border:1px solid rgba(255,252,0,0.3);}
-    .new-chat-action.request-btn {
-      background:rgba(139,92,246,0.2);color:#a78bfa;border:1px solid rgba(139,92,246,0.3);
-    }
+    .new-chat-action.accept {color:#4ade80;border:1px solid rgba(74,222,128,0.5);}
+    .new-chat-action.accept:hover {background:rgba(74,222,128,0.2);}
+    .new-chat-action.decline {color:#ef4444;border:1px solid rgba(239,68,68,0.4);}
+    .new-chat-action.decline:hover {background:rgba(239,68,68,0.15);}
+    .new-chat-action.chat {color:#FFFC00;border:1px solid rgba(255,252,0,0.4);}
+    .new-chat-action.chat:hover {background:rgba(255,252,0,0.15);}
+    .new-chat-action.request-btn {color:#a78bfa;border:1px solid rgba(139,92,246,0.4);}
+    .new-chat-action.request-btn:hover {background:rgba(139,92,246,0.15);}
     .new-chat-close {
-      text-align:center;padding:0.6rem;color:rgba(239,68,68,0.7);cursor:pointer;
+      text-align:center;padding:0.6rem;color:rgba(255,255,255,0.5);cursor:pointer;
       font-size:0.75rem;border-top:1px solid rgba(255,255,255,0.08);
-      background:rgba(255,255,255,0.02);flex-shrink:0;
+      background:transparent;flex-shrink:0;
     }
     .new-chat-close:hover {color:#ef4444;}
     .requested-label {color:#f59e0b;font-size:0.6rem;font-weight:500;}
     .new-badge {
-      background:rgba(74,222,128,0.25);color:#4ade80;font-size:0.5rem;padding:1px 5px;
+      background:transparent;color:#4ade80;font-size:0.5rem;padding:1px 5px;
       border-radius:4px;margin-left:6px;font-weight:700;display:inline-block;
-      border:1px solid rgba(74,222,128,0.3);
+      border:1px solid rgba(74,222,128,0.4);
     }
 
     /* Call Overlay */
@@ -315,7 +321,7 @@
       <button class="send-btn" id="sendBtn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
     </div>
 
-    <!-- ✅ Glass Effect New Chat Modal -->
+    <!-- ✅ 100% Transparent Glass Modal -->
     <div class="new-chat-overlay" id="newChatOverlay">
       <div class="new-chat-modal">
         <div class="new-chat-tabs">

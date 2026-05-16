@@ -23,11 +23,97 @@
     .btn-green:hover { background:#22c55e; }
     .btn-gray { background:#333;color:#fff; }
     .btn-gray:hover { background:#444; }
+    .btn-outline { background:transparent;border:1px solid rgba(255,255,255,0.3);color:#fff; }
+    .btn-outline:hover { background:rgba(255,255,255,0.1); }
     .btn:disabled { opacity:0.5;cursor:not-allowed; }
     .status { font-size:0.7rem;color:#4ade80;min-height:1rem; }
     .error { color:#ef4444; }
     .toast { position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#4ade80;color:#000;padding:0.5rem 1.2rem;border-radius:2rem;font-size:0.75rem;z-index:400;opacity:0;transition:all 0.3s;font-weight:600; }
     .toast.show { opacity:1; }
+
+    /* 🌟 CROP OVERLAY - Instagram Style */
+    .crop-overlay {
+      position:fixed;top:0;left:0;right:0;bottom:0;
+      background:rgba(0,0,0,0.98);z-index:350;
+      display:none;flex-direction:column;
+    }
+    .crop-overlay.show { display:flex; }
+    
+    .crop-topbar {
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0.8rem 1rem;flex-shrink:0;
+      background:rgba(0,0,0,0.5);
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+      z-index:10;
+    }
+    .crop-topbar button {
+      background:none;border:none;color:#fff;
+      font-size:0.85rem;font-weight:600;cursor:pointer;padding:0.4rem 0.8rem;
+    }
+    .crop-topbar .crop-next-btn {
+      color:#3897f0;font-weight:700;
+    }
+    .crop-topbar .crop-title {
+      font-size:0.85rem;color:#fff;font-weight:600;
+    }
+    
+    .crop-area {
+      flex:1;display:flex;align-items:center;justify-content:center;
+      position:relative;overflow:hidden;
+      background:#000;
+    }
+    .crop-image-container {
+      position:relative;max-width:100%;max-height:100%;
+      cursor:move;user-select:none;-webkit-user-drag:none;
+    }
+    .crop-image-container img {
+      max-width:100%;max-height:70vh;
+      display:block;
+    }
+    .crop-grid {
+      position:absolute;top:0;left:0;right:0;bottom:0;
+      pointer-events:none;
+    }
+    .crop-grid::before, .crop-grid::after {
+      content:'';position:absolute;
+      background:rgba(255,255,255,0.5);
+    }
+    .crop-grid::before {
+      top:33.33%;left:0;right:0;height:1px;
+    }
+    .crop-grid::after {
+      top:66.66%;left:0;right:0;height:1px;
+    }
+    .crop-grid .crop-grid-v {
+      position:absolute;top:0;bottom:0;width:1px;
+      background:rgba(255,255,255,0.5);
+    }
+    .crop-grid .crop-grid-v:nth-child(1) { left:33.33%; }
+    .crop-grid .crop-grid-v:nth-child(2) { left:66.66%; }
+    
+    .crop-bottombar {
+      display:flex;align-items:center;justify-content:center;gap:1.5rem;
+      padding:1rem;flex-shrink:0;
+      background:rgba(0,0,0,0.5);
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+    }
+    .crop-ratio-btn {
+      background:none;border:none;color:rgba(255,255,255,0.5);
+      font-size:0.7rem;cursor:pointer;padding:0.3rem 0.6rem;
+      transition:all 0.2s;
+    }
+    .crop-ratio-btn.active {
+      color:#3897f0;font-weight:700;
+    }
+    .crop-zoom-slider {
+      width:120px;display:flex;align-items:center;gap:0.5rem;
+    }
+    .crop-zoom-slider i { font-size:0.8rem;color:#aaa; }
+    .crop-zoom-slider input {
+      flex:1;accent-color:#3897f0;
+    }
 
     /* 🌟 ULTRA TRANSPARENT GLASSMORPHISM NAVBAR */
     .floating-nav {
@@ -37,29 +123,20 @@
       transform: translateX(-50%);
       width: 92%;
       max-width: 500px;
-      
-      /* Completely transparent background */
       background: transparent;
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
-      
       border-radius: 2.5rem;
       padding: 0.7rem 1.5rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      
-      /* Almost invisible border */
       border: 1px solid rgba(255, 255, 255, 0.04);
-      
-      /* No shadow - maximum visibility */
       box-shadow: none;
-      
       z-index: 100;
       transition: all 0.3s ease;
       pointer-events: auto;
     }
-    
     .floating-nav:hover {
       background: rgba(255, 255, 255, 0.02);
       backdrop-filter: blur(12px);
@@ -67,7 +144,6 @@
       border-color: rgba(255, 255, 255, 0.08);
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
-    
     .nav-center {
       display: flex;
       align-items: center;
@@ -76,7 +152,6 @@
       max-width: 380px;
       gap: 0.3rem;
     }
-    
     .nav-center a {
       color: rgba(255, 255, 255, 0.7);
       font-size: 1.3rem;
@@ -90,17 +165,14 @@
       text-decoration: none;
       position: relative;
       background: transparent;
-      /* Strong text shadow for visibility on any background */
       text-shadow: 0 0 8px rgba(0, 0, 0, 0.8), 0 0 12px rgba(0, 0, 0, 0.6);
     }
-    
     .nav-center a:hover {
       color: #fff;
       background: rgba(255, 255, 255, 0.08);
       transform: translateY(-2px);
       text-shadow: 0 0 12px rgba(0, 0, 0, 0.9), 0 0 20px rgba(0, 0, 0, 0.7);
     }
-    
     .nav-center a::before {
       content: '';
       position: absolute;
@@ -113,78 +185,27 @@
       background: #fff;
       transition: all 0.3s;
     }
-    
     .nav-center a.active {
       color: #fff;
       background: rgba(255, 255, 255, 0.12);
       box-shadow: 0 0 15px rgba(255, 255, 255, 0.08);
       text-shadow: 0 0 14px rgba(0, 0, 0, 0.9), 0 0 24px rgba(0, 0, 0, 0.8);
     }
-    
     .nav-center a.active::before {
       transform: translateX(-50%) scale(1);
     }
 
     @media (max-width: 380px) {
-      .floating-nav {
-        width: 94%;
-        padding: 0.5rem 0.8rem;
-        bottom: max(0.8rem, env(safe-area-inset-bottom, 0.8rem));
-      }
-      .nav-center a {
-        font-size: 1.1rem;
-        width: 2rem;
-        height: 2rem;
-      }
+      .floating-nav { width: 94%; padding: 0.5rem 0.8rem; bottom: max(0.8rem, env(safe-area-inset-bottom, 0.8rem)); }
+      .nav-center a { font-size: 1.1rem; width: 2rem; height: 2rem; }
     }
-
     @media (min-width: 1024px) {
-      .floating-nav {
-        position: fixed;
-        top: 50%;
-        left: 1.5rem;
-        bottom: auto;
-        transform: translateY(-50%);
-        width: 3.8rem;
-        height: auto;
-        max-width: none;
-        border-radius: 2.5rem;
-        padding: 1rem 0.6rem;
-        flex-direction: column;
-        
-        /* Same ultra-transparent glass for desktop */
-        background: transparent;
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-      }
-      
-      .nav-center {
-        flex-direction: column;
-        gap: 1.2rem;
-        max-width: none;
-      }
-      
-      .nav-center a {
-        font-size: 1.4rem;
-        width: 2.6rem;
-        height: 2.6rem;
-      }
-      
-      .nav-center a::before {
-        bottom: auto;
-        right: -4px;
-        left: auto;
-        top: 50%;
-        transform: translateY(-50%) scale(0);
-      }
-      
-      .nav-center a.active::before {
-        transform: translateY(-50%) scale(1);
-      }
-      
-      .content {
-        padding: 3rem 2rem 3rem 6rem;
-      }
+      .floating-nav { position: fixed; top: 50%; left: 1.5rem; bottom: auto; transform: translateY(-50%); width: 3.8rem; height: auto; max-width: none; border-radius: 2.5rem; padding: 1rem 0.6rem; flex-direction: column; background: transparent; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+      .nav-center { flex-direction: column; gap: 1.2rem; max-width: none; }
+      .nav-center a { font-size: 1.4rem; width: 2.6rem; height: 2.6rem; }
+      .nav-center a::before { bottom: auto; right: -4px; left: auto; top: 50%; transform: translateY(-50%) scale(0); }
+      .nav-center a.active::before { transform: translateY(-50%) scale(1); }
+      .content { padding: 3rem 2rem 3rem 6rem; }
     }
   </style>
 </head>
@@ -201,12 +222,42 @@
       <img id="previewImg" class="preview-img" style="display:none;">
       <video id="previewVideo" class="preview-video" controls style="display:none;"></video>
       <p class="status" id="fileSizeText"></p>
+      <button class="btn btn-outline" id="cropBtn" style="display:none;" onclick="openCropOverlay()"><i class="fas fa-crop-alt"></i> Crop Photo</button>
       <button class="btn btn-green" id="saveBtn" onclick="saveToCloud()">Save to Cloud ☁️</button>
       <p class="status" id="saveStatus"></p>
       <button class="btn btn-gray" onclick="goBack()">Cancel</button>
     </div>
     <input type="file" id="fileInput" accept="image/*,video/*" style="display:none" onchange="handleFile(event)">
     <div class="toast" id="toast"></div>
+    
+    <!-- 🌟 CROP OVERLAY -->
+    <div class="crop-overlay" id="cropOverlay">
+      <div class="crop-topbar">
+        <button onclick="cancelCrop()"><i class="fas fa-times"></i></button>
+        <span class="crop-title">Crop Photo</span>
+        <button class="crop-next-btn" onclick="applyCrop()">Done ✓</button>
+      </div>
+      <div class="crop-area" id="cropArea">
+        <div class="crop-image-container" id="cropImageContainer">
+          <img id="cropImage" src="" alt="crop">
+          <div class="crop-grid">
+            <div class="crop-grid-v"></div>
+            <div class="crop-grid-v"></div>
+          </div>
+        </div>
+      </div>
+      <div class="crop-bottombar">
+        <button class="crop-ratio-btn active" onclick="setCropRatio(this, 1)">1:1</button>
+        <button class="crop-ratio-btn" onclick="setCropRatio(this, 4/3)">4:3</button>
+        <button class="crop-ratio-btn" onclick="setCropRatio(this, 16/9)">16:9</button>
+        <button class="crop-ratio-btn" onclick="setCropRatio(this, 3/4)">3:4</button>
+        <div class="crop-zoom-slider">
+          <i class="fas fa-search-minus"></i>
+          <input type="range" id="cropZoomSlider" min="1" max="3" step="0.01" value="1" oninput="updateCropZoom()">
+          <i class="fas fa-search-plus"></i>
+        </div>
+      </div>
+    </div>
     
     <!-- 🌟 Ultra Transparent Glassmorphism Navbar -->
     <nav class="floating-nav">
@@ -226,7 +277,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp, setDoc, doc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     const app = initializeApp({
       apiKey: "AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",
@@ -236,9 +287,16 @@
     const db = getFirestore(app);
 
     let currentUsername = localStorage.getItem('currentUser') || '@anonymous';
-    let selectedType = null, fileData = null;
+    let selectedType = null, fileData = null, originalFileData = null;
+    
+    // Crop state
+    let cropRatio = 1; // 1:1 default
+    let cropZoom = 1;
+    let cropPosX = 0, cropPosY = 0;
+    let isDragging = false, dragStartX = 0, dragStartY = 0;
+    let cropCanvasWidth = 300, cropCanvasHeight = 300;
 
-    // Display username immediately - no loading screen
+    // Display username immediately
     document.getElementById('currentUserLabel').textContent = currentUsername.replace('@','');
 
     window.selectType = function(type) {
@@ -258,24 +316,186 @@
       if(file.size > 5*1024*1024){ showToast('File too large! Max 5MB'); return; }
       const reader = new FileReader();
       reader.onload = function(e) {
+        originalFileData = e.target.result;
         fileData = e.target.result;
         document.getElementById('mainContent').style.display='none';
         document.getElementById('previewContent').style.display='flex';
         document.getElementById('fileSizeText').textContent = `Size: ${(file.size/1024).toFixed(1)}KB • By: ${currentUsername.replace('@','')}`;
+        
         if(selectedType==='post'){
           document.getElementById('previewTitle').textContent='Photo Preview';
           document.getElementById('previewImg').src=fileData;
           document.getElementById('previewImg').style.display='block';
           document.getElementById('previewVideo').style.display='none';
+          document.getElementById('cropBtn').style.display='block';
         } else {
           document.getElementById('previewTitle').textContent='Video Preview';
           document.getElementById('previewVideo').src=fileData;
           document.getElementById('previewVideo').style.display='block';
           document.getElementById('previewImg').style.display='none';
+          document.getElementById('cropBtn').style.display='none';
         }
       };
       reader.readAsDataURL(file);
     };
+
+    // ========== CROP FUNCTIONS ==========
+    window.openCropOverlay = function() {
+      if (!originalFileData) return;
+      
+      cropRatio = 1;
+      cropZoom = 1;
+      cropPosX = 0;
+      cropPosY = 0;
+      document.getElementById('cropZoomSlider').value = 1;
+      
+      // Reset ratio buttons
+      document.querySelectorAll('.crop-ratio-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector('.crop-ratio-btn[onclick*="1)"]').classList.add('active');
+      
+      const cropImg = document.getElementById('cropImage');
+      cropImg.src = originalFileData;
+      cropImg.onload = function() {
+        cropCanvasWidth = cropImg.naturalWidth;
+        cropCanvasHeight = cropImg.naturalHeight;
+        resetCropPosition();
+        document.getElementById('cropOverlay').classList.add('show');
+      };
+    };
+
+    function resetCropPosition() {
+      const img = document.getElementById('cropImage');
+      const container = document.getElementById('cropImageContainer');
+      const containerW = container.parentElement.clientWidth;
+      const containerH = container.parentElement.clientHeight * 0.7;
+      
+      const imgRatio = img.naturalWidth / img.naturalHeight;
+      const cropH = img.naturalWidth / cropRatio;
+      
+      let displayW, displayH;
+      if (containerW / (containerW / cropRatio) > imgRatio) {
+        displayW = containerW * 0.9;
+        displayH = displayW / cropRatio;
+      } else {
+        displayH = containerH * 0.8;
+        displayW = displayH * cropRatio;
+      }
+      
+      img.style.width = displayW + 'px';
+      img.style.height = displayH + 'px';
+      cropPosX = 0;
+      cropPosY = 0;
+      applyCropTransform();
+    }
+
+    window.setCropRatio = function(btn, ratio) {
+      document.querySelectorAll('.crop-ratio-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      cropRatio = ratio;
+      cropZoom = 1;
+      document.getElementById('cropZoomSlider').value = 1;
+      resetCropPosition();
+    };
+
+    window.updateCropZoom = function() {
+      cropZoom = parseFloat(document.getElementById('cropZoomSlider').value);
+      applyCropTransform();
+    };
+
+    function applyCropTransform() {
+      const img = document.getElementById('cropImage');
+      const currentW = parseFloat(img.style.width) || img.naturalWidth;
+      const currentH = parseFloat(img.style.height) || img.naturalHeight;
+      const baseW = currentW / cropZoom;
+      const baseH = currentH / cropZoom;
+      const newW = baseW * cropZoom;
+      const newH = baseH * cropZoom;
+      img.style.width = newW + 'px';
+      img.style.height = newH + 'px';
+      img.style.transform = `translate(${cropPosX}px, ${cropPosY}px)`;
+    }
+
+    // Drag events
+    const cropImageContainer = document.getElementById('cropImageContainer');
+    
+    cropImageContainer.addEventListener('mousedown', startCropDrag);
+    cropImageContainer.addEventListener('touchstart', startCropDrag, { passive: false });
+    window.addEventListener('mousemove', cropDragMove);
+    window.addEventListener('touchmove', cropDragMove, { passive: false });
+    window.addEventListener('mouseup', endCropDrag);
+    window.addEventListener('touchend', endCropDrag);
+
+    function startCropDrag(e) {
+      e.preventDefault();
+      isDragging = true;
+      const point = e.touches ? e.touches[0] : e;
+      dragStartX = point.clientX - cropPosX;
+      dragStartY = point.clientY - cropPosY;
+    }
+
+    function cropDragMove(e) {
+      if (!isDragging) return;
+      e.preventDefault();
+      const point = e.touches ? e.touches[0] : e;
+      cropPosX = point.clientX - dragStartX;
+      cropPosY = point.clientY - dragStartY;
+      applyCropTransform();
+    }
+
+    function endCropDrag() {
+      isDragging = false;
+    }
+
+    window.applyCrop = function() {
+      const img = document.getElementById('cropImage');
+      const container = document.getElementById('cropImageContainer');
+      const containerRect = container.getBoundingClientRect();
+      const imgRect = img.getBoundingClientRect();
+      
+      const canvas = document.createElement('canvas');
+      
+      // Set canvas size based on ratio
+      let outputW = 1080;
+      let outputH = Math.round(outputW / cropRatio);
+      
+      canvas.width = outputW;
+      canvas.height = outputH;
+      const ctx = canvas.getContext('2d');
+      
+      // Calculate crop area relative to original image
+      const scaleX = img.naturalWidth / imgRect.width;
+      const scaleY = img.naturalHeight / imgRect.height;
+      
+      const sx = (containerRect.left - imgRect.left) * scaleX;
+      const sy = (containerRect.top - imgRect.top) * scaleY;
+      const sw = containerRect.width * scaleX;
+      const sh = containerRect.height * scaleY;
+      
+      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, outputW, outputH);
+      
+      // Compress
+      let quality = 0.85;
+      let croppedDataUrl = canvas.toDataURL('image/jpeg', quality);
+      
+      while (croppedDataUrl.length > 300 * 1024 && quality > 0.3) {
+        quality -= 0.1;
+        croppedDataUrl = canvas.toDataURL('image/jpeg', quality);
+      }
+      
+      fileData = croppedDataUrl;
+      document.getElementById('previewImg').src = croppedDataUrl;
+      document.getElementById('cropOverlay').classList.remove('show');
+      showToast('Photo cropped! ✅');
+    };
+
+    window.cancelCrop = function() {
+      document.getElementById('cropOverlay').classList.remove('show');
+    };
+
+    document.getElementById('cropOverlay').addEventListener('click', function(e) {
+      if (e.target === this) cancelCrop();
+    });
+    // ========== END CROP FUNCTIONS ==========
 
     window.saveToCloud = async function() {
       if(!fileData || !currentUsername) {
@@ -330,11 +550,12 @@
     };
 
     window.goBack = function() {
-      fileData=null; selectedType=null;
+      fileData=null; originalFileData=null; selectedType=null;
       document.getElementById('fileInput').value='';
       document.getElementById('mainContent').style.display='flex';
       document.getElementById('previewContent').style.display='none';
       document.getElementById('saveStatus').textContent='';
+      document.getElementById('cropBtn').style.display='none';
     };
 
     function showToast(msg) {

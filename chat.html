@@ -247,29 +247,111 @@
     .loading-screen i {font-size:2rem;color:#3897f0;animation:spin 1s infinite;}
     .loading-screen span {font-size:0.75rem;color:#888;}
 
-    .floating-nav {position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:rgba(10,10,10,0.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:2.5rem;padding:0.7rem 1.5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.05);z-index:100;box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.03);transition:all 0.3s ease;}
-    .floating-nav:hover {background:rgba(10,10,10,0.15);}
-    .floating-nav.hidden {display:none;}
-    .nav-center {display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem;}
-    .nav-center a {color:rgba(255,255,255,0.8);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;position:relative;background:transparent;}
-    .nav-center a:hover {color:#fff;background:rgba(255,255,255,0.15);transform:translateY(-2px);}
-    .nav-center a::before {content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:4px;height:4px;border-radius:50%;background:#fff;transition:all 0.3s;}
-    .nav-center a.active {color:#fff;background:rgba(255,255,255,0.2);box-shadow:0 0 20px rgba(255,255,255,0.15);}
-    .nav-center a.active::before {transform:translateX(-50%) scale(1);}
-    .nav-upload,.nav-search {display:none !important;}
+    /* 🌟 100% Transparent Glass Floating Navbar */
+    .floating-nav {
+      position:fixed;
+      bottom:max(1rem,env(safe-area-inset-bottom,1rem));
+      left:50%;
+      transform:translateX(-50%);
+      width:92%;
+      max-width:500px;
+      background: transparent; /* 100% transparent base */
+      backdrop-filter: blur(25px); /* Strong glass blur */
+      -webkit-backdrop-filter: blur(25px);
+      border-radius: 2.5rem;
+      padding: 0.7rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 255, 255, 0.15); /* Subtle border for glass definition */
+      z-index: 100;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1);
+      transition: all 0.3s ease;
+    }
+    .floating-nav:hover {
+      background: transparent; /* stays transparent */
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      border-color: rgba(255,255,255,0.25);
+    }
+    .floating-nav.hidden { display:none; }
+    .nav-center {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      width:100%;
+      max-width:380px;
+      gap:0.3rem;
+    }
+    .nav-center a {
+      color: rgba(255,255,255,0.85);
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      transition: all 0.3s;
+      text-decoration: none;
+      position: relative;
+      background: transparent;
+    }
+    .nav-center a:hover {
+      color: #fff;
+      background: rgba(255,255,255,0.1);
+      transform: translateY(-2px);
+    }
+    .nav-center a::before {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      transform: translateX(-50%) scale(0);
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #fff;
+      transition: all 0.3s;
+    }
+    .nav-center a.active {
+      color: #fff;
+      background: rgba(255,255,255,0.15);
+      box-shadow: 0 0 20px rgba(255,255,255,0.1);
+    }
+    .nav-center a.active::before {
+      transform: translateX(-50%) scale(1);
+    }
+    .nav-upload,.nav-search { display:none !important; }
 
     @media (min-width:1024px) {
       .top-icons{display:none;}
       .chat-header.show{padding-top:1rem;}
       .nav-upload,.nav-search{display:flex!important}
-      .floating-nav{position:fixed;top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column;background:rgba(10,10,10,0.1);backdrop-filter:blur(20px);}
+      .floating-nav{
+        position:fixed;
+        top:50%;
+        left:1.5rem;
+        bottom:auto;
+        transform:translateY(-50%);
+        width:3.8rem;
+        height:auto;
+        max-width:none;
+        border-radius:2.5rem;
+        padding:1rem 0.6rem;
+        flex-direction:column;
+        background: transparent;
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+      }
       .floating-nav.hidden{display:flex!important}
-      .nav-center{flex-direction:column;gap:1.2rem;max-width:none}.nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
+      .nav-center{flex-direction:column;gap:1.2rem;max-width:none}
+      .nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
       .page{padding:0 0 0 5.5rem}
       .scrollable-page{max-width:550px;margin:0 auto;width:100%}
     }
     @media (max-width:380px) {
-      .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:max(0.8rem,env(safe-area-inset-bottom,0.8rem));background:rgba(10,10,10,0.1);}
+      .floating-nav{width:94%;padding:0.5rem 0.8rem;bottom:max(0.8rem,env(safe-area-inset-bottom,0.8rem));}
       .nav-center a{font-size:1.1rem;width:2rem;height:2rem}
     }
   </style>
@@ -357,6 +439,7 @@
       </div>
     </div>
     
+    <!-- 🌟 100% Transparent Glass Navbar -->
     <nav class="floating-nav" id="floatingNav">
       <div class="nav-center">
         <a href="index.html"><i class="fas fa-home"></i></a>

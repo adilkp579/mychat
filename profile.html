@@ -67,9 +67,28 @@
     .action-btn {
       flex:1;padding:0.45rem;border-radius:0.4rem;border:1px solid rgba(255,255,255,0.15);
       background:rgba(255,255,255,0.04);color:#fff;font-size:0.7rem;font-weight:600;cursor:pointer;text-align:center;
+      transition: all 0.2s;
+    }
+    .action-btn:hover {
+      background:rgba(255,255,255,0.08);
     }
     .action-btn.primary { background:#3897f0;border:none; }
+    .action-btn.primary:hover { background:#2b7dd8; }
     .action-btn.following { background:#1a3a5c;border-color:#3897f0;color:#3897f0; }
+    .action-btn.request-btn {
+      background: rgba(139, 92, 246, 0.15);
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      color: #a78bfa;
+    }
+    .action-btn.request-btn:hover {
+      background: rgba(139, 92, 246, 0.25);
+    }
+    .action-btn.requested {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #f59e0b;
+      cursor: default;
+    }
     .tabs { display:flex;width:100%;max-width:400px;border-top:1px solid rgba(255,255,255,0.08);margin-top:0.2rem; }
     .tab { flex:1;text-align:center;padding:0.5rem 0;color:#666;font-size:0.7rem;cursor:pointer;border-bottom:1px solid transparent; }
     .tab.active { color:#fff;border-bottom-color:#fff; }
@@ -294,7 +313,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs, doc, getDoc, setDoc, serverTimestamp, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, collection, query, where, getDocs, doc, getDoc, setDoc, serverTimestamp, onSnapshot, orderBy, addDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
@@ -311,6 +330,8 @@
     let cropImageFile = null, cropZoom = 1, cropPosX = 0, cropPosY = 0;
     let isDragging = false, dragStartX = 0, dragStartY = 0;
     let postsUnsub = null;
+    let existingChatsMap = {}; // Track which users already have chats
+    let sentRequestsMap = {}; // Track which users have pending requests
 
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('mainPage').style.display = 'flex';
@@ -325,12 +346,45 @@
       document.getElementById('settingsBtn').style.display = 'none';
       document.getElementById('logoutBtn').style.display = 'none';
       document.getElementById('topBrand').textContent = (viewUser || '').replace('@','');
+      loadExistingChats(); // Check if chat exists with this user
+      loadSentRequests(); // Check if request already sent
       loadOtherUserProfile(viewUser);
     }
 
     if (isOwnProfile) {
       loadOwnProfile();
       listenForNewPosts();
+    }
+
+    // Load existing chats to determine button text
+    async function loadExistingChats() {
+      try {
+        const q = query(collection(db, 'chats'), orderBy('lastTime', 'desc'));
+        const snap = await getDocs(q);
+        snap.forEach(docSnap => {
+          const data = docSnap.data();
+          const ids = docSnap.id.split('_');
+          if (ids.includes(currentUserId)) {
+            const partnerId = ids.find(i => i !== currentUserId);
+            if (partnerId) {
+              existingChatsMap['@' + partnerId] = true;
+            }
+          }
+        });
+      } catch(e) {}
+    }
+
+    // Load sent requests
+    async function loadSentRequests() {
+      try {
+        const snap = await getDocs(collection(db, 'message_requests'));
+        snap.forEach(docSnap => {
+          const d = docSnap.data();
+          if ((d.fromId === currentUserId || d.from === currentUser) && d.status === 'pending') {
+            sentRequestsMap['@' + (d.to || d.toName || '').replace('@','')] = true;
+          }
+        });
+      } catch(e) {}
     }
 
     // ✅ REAL-TIME LISTENER: Auto-add new posts from Firestore
@@ -510,13 +564,64 @@
         window._viewProfile = userData;
         renderContent();
       }
-      document.getElementById('actionsRow').innerHTML = `<button class="action-btn primary" onclick="window.location.href='chat.html'">💬 Message</button><button class="action-btn" id="followBtn" onclick="toggleFollowUser('${username}')">Follow</button>`;
+      
+      // Determine button based on chat/request status
+      updateActionButtons(username);
+    }
+
+    function updateActionButtons(username) {
+      const isAlreadyChatting = existingChatsMap[username];
+      const isRequested = sentRequestsMap[username];
+      const cleanName = (username || '').replace('@','');
+      
+      let messageBtnHTML = '';
+      if (isAlreadyChatting) {
+        // Already chatting - show "Message"
+        messageBtnHTML = `<button class="action-btn primary" onclick="window.location.href='chat.html'"><i class="fas fa-comment-dots"></i> Message</button>`;
+      } else if (isRequested) {
+        // Request already sent - show "Requested"
+        messageBtnHTML = `<button class="action-btn requested" disabled><i class="fas fa-clock"></i> Requested</button>`;
+      } else {
+        // Need to request - show "Request"
+        messageBtnHTML = `<button class="action-btn request-btn" onclick="sendChatRequestFromProfile('${username}')"><i class="fas fa-paper-plane"></i> Request</button>`;
+      }
+      
+      const followBtnHTML = `<button class="action-btn" id="followBtn" onclick="toggleFollowUser('${username}')">Follow</button>`;
+      
+      document.getElementById('actionsRow').innerHTML = messageBtnHTML + followBtnHTML;
+      
       const mp = JSON.parse(localStorage.getItem('userProfile') || '{}');
       if ((mp.besties || []).some(f => f.name === username)) {
         const fb = document.getElementById('followBtn');
         if (fb) { fb.textContent = 'Following'; fb.classList.add('following'); }
       }
     }
+
+    // Send chat request from profile
+    window.sendChatRequestFromProfile = async function(username) {
+      try {
+        const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+        const fromName = (profile.username || currentUser).replace('@','');
+        
+        await addDoc(collection(db, 'message_requests'), {
+          from: currentUser,
+          fromName: fromName,
+          fromAvatar: profile.avatar || null,
+          fromId: currentUserId,
+          to: username.replace('@',''),
+          toName: username.replace('@',''),
+          lastMessage: '👋 Wants to chat with you',
+          createdAt: serverTimestamp(),
+          status: 'pending'
+        });
+        
+        sentRequestsMap[username] = true;
+        updateActionButtons(username);
+        showToast('✅ Request sent!');
+      } catch(e) {
+        showToast('Error sending request');
+      }
+    };
 
     async function loadOwnProfile() {
       try { 

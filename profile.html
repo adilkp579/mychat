@@ -67,7 +67,7 @@
     .action-btn {
       flex:1;padding:0.45rem;border-radius:0.4rem;border:1px solid rgba(255,255,255,0.15);
       background:rgba(255,255,255,0.04);color:#fff;font-size:0.7rem;font-weight:600;cursor:pointer;text-align:center;
-      transition: all 0.2s;
+      transition: all 0.2s;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:0.3rem;
     }
     .action-btn:hover {
       background:rgba(255,255,255,0.08);
@@ -545,6 +545,13 @@
       } catch(e) {} 
     }
 
+    // Function to open chat with a specific user
+    window.openChatWithUser = function(username) {
+      // Store the target user in sessionStorage so chat.html can pick it up
+      sessionStorage.setItem('openChatWith', username);
+      window.location.href = 'chat.html';
+    };
+
     async function loadOtherUserProfile(username) {
       const cname = (username || '').replace(/^@/, '');
       document.getElementById('displayName').textContent = cname;
@@ -572,17 +579,16 @@
     function updateActionButtons(username) {
       const isAlreadyChatting = existingChatsMap[username];
       const isRequested = sentRequestsMap[username];
-      const cleanName = (username || '').replace('@','');
       
       let messageBtnHTML = '';
       if (isAlreadyChatting) {
-        // Already chatting - show "Message"
-        messageBtnHTML = `<button class="action-btn primary" onclick="window.location.href='chat.html'"><i class="fas fa-comment-dots"></i> Message</button>`;
+        // Already chatting - clicking opens chat with this user
+        messageBtnHTML = `<button class="action-btn primary" onclick="openChatWithUser('${username}')"><i class="fas fa-comment-dots"></i> Message</button>`;
       } else if (isRequested) {
-        // Request already sent - show "Requested"
+        // Request already sent
         messageBtnHTML = `<button class="action-btn requested" disabled><i class="fas fa-clock"></i> Requested</button>`;
       } else {
-        // Need to request - show "Request"
+        // Need to request
         messageBtnHTML = `<button class="action-btn request-btn" onclick="sendChatRequestFromProfile('${username}')"><i class="fas fa-paper-plane"></i> Request</button>`;
       }
       

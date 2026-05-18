@@ -10,7 +10,6 @@
     body { background:#000;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center; }
     .page { width:100%;height:100vh;height:100dvh;background:#000;display:flex;flex-direction:column;position:relative;overflow:hidden; }
 
-    @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
     @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
     @keyframes popIn { 0%{transform:scale(0.8);opacity:0} 100%{transform:scale(1);opacity:1} }
     @keyframes dotPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.3)} }
@@ -47,7 +46,6 @@
       padding:0.5rem 1.2rem 2rem 1.2rem;gap:1.5rem;width:100%;max-width:400px;margin:0 auto;
     }
 
-    /* Create New Lock Button */
     .create-btn {
       width:100%;padding:0.8rem;border-radius:1rem;
       border:2px dashed rgba(255,255,255,0.2);background:rgba(255,255,255,0.03);
@@ -56,35 +54,17 @@
     }
     .create-btn:hover { border-color:#FFFC00;color:#FFFC00;background:rgba(255,252,0,0.05); }
 
-    /* Number Pad Section */
-    .numpad-section {
-      width:100%;display:flex;flex-direction:column;align-items:center;gap:1rem;
-    }
-    
-    .numpad-label {
-      font-size:0.75rem;color:#888;text-align:center;
-    }
-    
-    .pin-dots {
-      display:flex;gap:1rem;margin:0.3rem 0;
-    }
+    .numpad-section { width:100%;display:flex;flex-direction:column;align-items:center;gap:1rem; }
+    .numpad-label { font-size:0.75rem;color:#888;text-align:center; }
+    .pin-dots { display:flex;gap:1rem;margin:0.3rem 0; }
     .pin-dot {
       width:14px;height:14px;border-radius:50%;
-      border:2px solid rgba(255,255,255,0.3);
-      transition:all 0.2s;
+      border:2px solid rgba(255,255,255,0.3);transition:all 0.2s;
     }
-    .pin-dot.filled {
-      background:#FFFC00;border-color:#FFFC00;
-      animation:dotPulse 0.3s ease;
-    }
-    .pin-dot.error {
-      background:#ef4444;border-color:#ef4444;
-    }
+    .pin-dot.filled { background:#FFFC00;border-color:#FFFC00;animation:dotPulse 0.3s ease; }
+    .pin-dot.error { background:#ef4444;border-color:#ef4444; }
     
-    .numpad-grid {
-      display:grid;grid-template-columns:repeat(3,1fr);
-      gap:0.6rem;width:100%;max-width:260px;
-    }
+    .numpad-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:0.6rem;width:100%;max-width:260px; }
     .numpad-key {
       aspect-ratio:1;border-radius:50%;
       background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
@@ -95,18 +75,10 @@
     .numpad-key:active { background:rgba(255,255,255,0.2);transform:scale(0.92); }
     .numpad-key.empty { background:transparent;border:none;cursor:default; }
     .numpad-key.empty:active { background:transparent;transform:none; }
-    .numpad-key.delete-btn { 
-      background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.2);
-      color:#ef4444;font-size:0.8rem;
-    }
+    .numpad-key.delete-btn { background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.2);color:#ef4444;font-size:0.8rem; }
     .numpad-key.delete-btn:active { background:rgba(239,68,68,0.3); }
-    
-    .error-msg {
-      color:#ef4444;font-size:0.7rem;text-align:center;
-      min-height:1rem;transition:all 0.3s;
-    }
+    .error-msg { color:#ef4444;font-size:0.7rem;text-align:center;min-height:1rem;transition:all 0.3s; }
 
-    /* Create Lock Modal */
     .modal-overlay {
       position:fixed;top:0;left:0;right:0;bottom:0;
       background:rgba(0,0,0,0.9);z-index:300;
@@ -121,7 +93,6 @@
     }
     .modal h3 { font-size:0.9rem;color:#fff;text-align:center; }
     .modal p { font-size:0.65rem;color:#888;text-align:center; }
-    .modal .pin-dots { margin:0.5rem 0; }
     .modal .numpad-grid { max-width:220px; }
     .modal .numpad-key { font-size:1.1rem; }
     .modal .btn-row { display:flex;gap:0.5rem;width:100%; }
@@ -130,12 +101,9 @@
       font-size:0.75rem;font-weight:600;cursor:pointer;transition:all 0.2s;
     }
     .btn-cancel { background:rgba(255,255,255,0.1);color:#fff; }
-    .btn-cancel:hover { background:rgba(255,255,255,0.2); }
     .btn-save { background:#FFFC00;color:#000; }
-    .btn-save:hover { background:#e6e300; }
     .btn-save:disabled { opacity:0.4;cursor:not-allowed; }
 
-    /* Users List */
     .users-list { width:100%;display:flex;flex-direction:column;gap:0.3rem; }
     .user-item {
       display:flex;align-items:center;gap:0.6rem;padding:0.6rem 0.8rem;
@@ -163,17 +131,13 @@
     }
     .add-user-btn:hover { border-color:#4ade80;color:#4ade80;background:rgba(74,222,128,0.05); }
 
-    .back-header {
-      display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0;width:100%;
-    }
+    .back-header { display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0;width:100%; }
     .back-btn-small {
       width:2rem;height:2rem;border-radius:50%;background:#1a1a1a;
       border:1px solid #333;color:#fff;font-size:0.8rem;cursor:pointer;
       display:flex;align-items:center;justify-content:center;
     }
-    .back-btn-small:hover { background:#2a2a2a; }
     .page-title { font-size:0.85rem;font-weight:600;color:#fff; }
-
     .shake { animation:shake 0.4s ease; }
     .toast {
       position:fixed;bottom:50px;left:50%;transform:translateX(-50%);
@@ -183,13 +147,55 @@
     }
     .toast.show { opacity:1; }
     .toast.error { background:rgba(239,68,68,0.9); }
-
     .btn-delete {
       width:100%;padding:0.5rem;border-radius:0.8rem;margin-top:0.5rem;
       border:none;font-size:0.7rem;cursor:pointer;
-      background:rgba(239,68,68,0.15);color:#ef4444;transition:all 0.2s;
+      background:rgba(239,68,68,0.15);color:#ef4444;
     }
-    .btn-delete:hover { background:rgba(239,68,68,0.3); }
+
+    /* Lock Chat */
+    .lock-chat-view { display:none;flex-direction:column;flex:1;width:100%; }
+    .lock-chat-view.show { display:flex; }
+    .lock-chat-messages {
+      flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:0.2rem;
+      padding:0.5rem 0;max-height:50vh;
+    }
+    .lock-chat-messages::-webkit-scrollbar { width:0; }
+    .lock-msg-wrapper { display:flex;max-width:85%;animation:popIn 0.2s ease; }
+    .lock-msg-wrapper.sent { align-self:flex-end;flex-direction:row-reverse; }
+    .lock-msg-wrapper.received { align-self:flex-start; }
+    .lock-msg-bubble {
+      padding:0.5rem 0.7rem;border-radius:1rem;font-size:0.75rem;line-height:1.3;
+      word-break:break-word;
+    }
+    .sent .lock-msg-bubble { background:#FFFC00;color:#000;border-bottom-right-radius:0.2rem; }
+    .received .lock-msg-bubble { background:#1a1a1a;color:#fff;border-bottom-left-radius:0.2rem; }
+    .lock-msg-time { font-size:0.5rem;opacity:0.5;margin-top:0.1rem; }
+    .lock-msg-label {
+      font-size:0.5rem;color:#a78bfa;margin-top:0.1rem;
+      display:flex;align-items:center;gap:0.2rem;
+    }
+    
+    .lock-chat-input-area { display:flex;align-items:center;gap:0.4rem;padding:0.5rem 0;width:100%; }
+    .lock-chat-input {
+      flex:1;padding:0.5rem 0.8rem;border-radius:1.2rem;
+      border:1px solid rgba(255,255,255,0.12);background:#0a0a0a;
+      color:#fff;font-size:0.75rem;outline:none;
+    }
+    .lock-chat-input:focus { border-color:#a78bfa; }
+    .lock-send-btn {
+      width:32px;height:32px;border-radius:50%;background:#a78bfa;
+      border:none;color:#fff;font-size:0.7rem;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    }
+    
+    .lock-info-bar {
+      display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.8rem;
+      background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);
+      border-radius:0.8rem;width:100%;margin-bottom:0.5rem;
+    }
+    .lock-info-bar .icon { color:#a78bfa;font-size:0.9rem; }
+    .lock-info-bar .text { font-size:0.65rem;color:#a78bfa; }
 
     /* Add Users Bottom Sheet */
     .add-users-overlay {
@@ -198,7 +204,6 @@
       display:none;align-items:flex-end;justify-content:center;
     }
     .add-users-overlay.show { display:flex; }
-    
     .add-users-sheet {
       background:#1a1a1a;border-radius:1.5rem 1.5rem 0 0;
       width:100%;max-width:450px;max-height:70vh;
@@ -206,11 +211,9 @@
       animation:slideUp 0.3s ease;
       padding-bottom:env(safe-area-inset-bottom,1rem);
     }
-    
     .sheet-header {
       display:flex;align-items:center;justify-content:space-between;
-      padding:1rem 1.2rem;border-bottom:1px solid rgba(255,255,255,0.08);
-      flex-shrink:0;
+      padding:1rem 1.2rem;border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0;
     }
     .sheet-header h3 { font-size:0.85rem;color:#fff; }
     .sheet-close {
@@ -218,28 +221,19 @@
       border:none;color:#fff;font-size:0.8rem;cursor:pointer;
       display:flex;align-items:center;justify-content:center;
     }
-    
-    .sheet-tabs {
-      display:flex;border-bottom:1px solid rgba(255,255,255,0.08);
-      flex-shrink:0;
-    }
+    .sheet-tabs { display:flex;border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0; }
     .sheet-tab {
       flex:1;text-align:center;padding:0.7rem;color:#888;font-size:0.7rem;
       cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;
     }
-    .sheet-tab.active { color:#fff;border-bottom-color:#FFFC00; }
-    
-    .sheet-list {
-      flex:1;overflow-y:auto;padding:0.5rem 0;
-    }
+    .sheet-tab.active { color:#fff;border-bottom-color:#a78bfa; }
+    .sheet-list { flex:1;overflow-y:auto;padding:0.5rem 0; }
     .sheet-list::-webkit-scrollbar { width:0; }
-    
     .sheet-user-item {
       display:flex;align-items:center;gap:0.7rem;padding:0.7rem 1.2rem;
       cursor:pointer;transition:all 0.2s;
     }
     .sheet-user-item:hover { background:rgba(255,255,255,0.03); }
-    .sheet-user-item:active { background:rgba(255,255,255,0.06); }
     .sheet-user-item .avatar {
       width:40px;height:40px;border-radius:50%;background:#333;
       display:flex;align-items:center;justify-content:center;
@@ -251,22 +245,14 @@
     .sheet-user-item .sub { font-size:0.6rem;color:#888; }
     .sheet-user-item .add-icon {
       width:30px;height:30px;border-radius:50%;
-      background:rgba(74,222,128,0.15);border:none;
-      color:#4ade80;font-size:0.7rem;cursor:pointer;
+      background:rgba(139,92,246,0.15);border:none;
+      color:#a78bfa;font-size:0.7rem;cursor:pointer;
       display:flex;align-items:center;justify-content:center;flex-shrink:0;
       transition:all 0.2s;
     }
-    .sheet-user-item .add-icon:hover { background:rgba(74,222,128,0.3); }
-    .sheet-user-item .add-icon.added {
-      background:rgba(255,252,0,0.2);color:#FFFC00;
-    }
-    .sheet-user-item .check-icon {
-      color:#4ade80;font-size:0.8rem;flex-shrink:0;
-    }
-    
-    .sheet-search {
-      padding:0.5rem 1.2rem;flex-shrink:0;
-    }
+    .sheet-user-item .add-icon:hover { background:rgba(139,92,246,0.3); }
+    .sheet-user-item .check-icon { color:#4ade80;font-size:0.8rem;flex-shrink:0; }
+    .sheet-search { padding:0.5rem 1.2rem;flex-shrink:0; }
     .sheet-search input {
       width:100%;padding:0.5rem 0.8rem;border-radius:0.8rem;
       border:1px solid rgba(255,255,255,0.1);background:#111;
@@ -274,16 +260,7 @@
     }
     .sheet-search input:focus { border-color:rgba(255,255,255,0.3); }
     .sheet-search input::placeholder { color:#555; }
-
-    .empty-list {
-      text-align:center;color:#555;padding:2rem;font-size:0.7rem;
-    }
-
-    @media (max-width:380px) {
-      .numpad-key { font-size:1.1rem; }
-      .pin-dots { gap:0.8rem; }
-      .pin-dot { width:12px;height:12px; }
-    }
+    .empty-list { text-align:center;color:#555;padding:2rem;font-size:0.7rem; }
   </style>
 </head>
 <body>
@@ -295,29 +272,18 @@
         <div style="width:2.4rem;"></div>
       </div>
 
-      <!-- Main View -->
       <div class="content" id="mainView">
-        <!-- Create New Lock Button -->
         <button class="create-btn" onclick="showCreateLockModal()">
           <i class="fas fa-plus-circle"></i> Create New Lock
         </button>
 
-        <!-- Number Pad to access existing locks -->
         <div class="numpad-section" id="numpadSection">
           <div class="numpad-label">🔐 Enter PIN to access lock</div>
-          
-          <!-- PIN dots -->
           <div class="pin-dots" id="pinDots">
-            <div class="pin-dot"></div>
-            <div class="pin-dot"></div>
-            <div class="pin-dot"></div>
-            <div class="pin-dot"></div>
+            <div class="pin-dot"></div><div class="pin-dot"></div>
+            <div class="pin-dot"></div><div class="pin-dot"></div>
           </div>
-          
-          <!-- Error message -->
           <div class="error-msg" id="errorMsg"></div>
-          
-          <!-- Number pad -->
           <div class="numpad-grid">
             <button class="numpad-key" onclick="numpadPress('1')">1</button>
             <button class="numpad-key" onclick="numpadPress('2')">2</button>
@@ -335,37 +301,50 @@
         </div>
       </div>
 
-      <!-- Lock Detail View (after correct PIN) -->
       <div class="content" id="lockDetailView" style="display:none;">
         <div class="back-header">
           <button class="back-btn-small" onclick="goBackToMain()"><i class="fas fa-arrow-left"></i></button>
           <span class="page-title" id="lockDetailTitle">Lock Users</span>
         </div>
+        
+        <div class="lock-info-bar">
+          <span class="icon"><i class="fas fa-shield-halved"></i></span>
+          <span class="text">🔒 Private chat - Hidden from main Chats</span>
+        </div>
+        
         <div class="users-list" id="lockUsersList"></div>
         <button class="add-user-btn" onclick="showAddUsersSheet()">
-          <i class="fas fa-user-plus"></i> Add Users to Chat
+          <i class="fas fa-user-plus"></i> Add Users to Lock
         </button>
         <button class="btn-delete" onclick="deleteCurrentLock()">
           <i class="fas fa-trash"></i> Delete This Lock
         </button>
+        
+        <div class="lock-chat-view" id="lockChatView">
+          <div class="back-header">
+            <button class="back-btn-small" onclick="closeLockChat()"><i class="fas fa-arrow-left"></i></button>
+            <span class="page-title" id="lockChatPartnerName">Chat</span>
+          </div>
+          <div class="lock-chat-messages" id="lockChatMessages">
+            <div style="text-align:center;color:#555;padding:1rem;font-size:0.7rem;">Send a message!</div>
+          </div>
+          <div class="lock-chat-input-area">
+            <input type="text" class="lock-chat-input" id="lockChatInput" placeholder="Message (sent from Settings)...">
+            <button class="lock-send-btn" onclick="sendLockMessage()"><i class="fas fa-paper-plane"></i></button>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Create Lock Modal -->
     <div class="modal-overlay" id="createLockModal">
       <div class="modal" id="createLockModalContent">
         <h3 id="createLockTitle">🔐 Create New Lock</h3>
         <p id="createLockSubtitle">Enter a 4-digit PIN</p>
-        
         <div class="pin-dots" id="createPinDots">
-          <div class="pin-dot"></div>
-          <div class="pin-dot"></div>
-          <div class="pin-dot"></div>
-          <div class="pin-dot"></div>
+          <div class="pin-dot"></div><div class="pin-dot"></div>
+          <div class="pin-dot"></div><div class="pin-dot"></div>
         </div>
-        
         <p style="color:#ef4444;font-size:0.65rem;min-height:1rem;" id="createErrorMsg"></p>
-        
         <div class="numpad-grid">
           <button class="numpad-key" onclick="createNumpadPress('1')">1</button>
           <button class="numpad-key" onclick="createNumpadPress('2')">2</button>
@@ -380,7 +359,6 @@
           <button class="numpad-key" onclick="createNumpadPress('0')">0</button>
           <button class="numpad-key delete-btn" onclick="createNumpadDelete()"><i class="fas fa-delete-left"></i></button>
         </div>
-        
         <div class="btn-row">
           <button class="btn-cancel" onclick="closeCreateLockModal()">Cancel</button>
           <button class="btn-save" id="createLockConfirm" disabled onclick="confirmCreateLock()">Create</button>
@@ -388,27 +366,20 @@
       </div>
     </div>
 
-    <!-- Add Users Bottom Sheet -->
     <div class="add-users-overlay" id="addUsersOverlay">
       <div class="add-users-sheet">
         <div class="sheet-header">
           <h3>👥 Add Users</h3>
           <button class="sheet-close" onclick="closeAddUsersSheet()"><i class="fas fa-times"></i></button>
         </div>
-        
-        <!-- Search -->
         <div class="sheet-search">
           <input type="text" id="userSearchInput" placeholder="🔍 Search users..." oninput="filterUserList()">
         </div>
-        
-        <!-- Tabs -->
         <div class="sheet-tabs">
           <div class="sheet-tab active" onclick="switchUserTab('besties', this)">⭐ Besties</div>
           <div class="sheet-tab" onclick="switchUserTab('friends', this)">👥 Friends</div>
-          <div class="sheet-tab" onclick="switchUserTab('all', this)">🌐 All Users</div>
+          <div class="sheet-tab" onclick="switchUserTab('all', this)">🌐 All</div>
         </div>
-        
-        <!-- List -->
         <div class="sheet-list" id="usersSheetList"></div>
       </div>
     </div>
@@ -416,7 +387,13 @@
     <div class="toast" id="toast"></div>
   </div>
 
-  <script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, getDoc, getDocs, updateDoc, increment } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+    const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
+    const db = getFirestore(app);
+
     if (!localStorage.getItem("uid")) { window.location.replace("login.html"); }
 
     const currentUser = localStorage.getItem('currentUser') || '@anonymous';
@@ -432,462 +409,198 @@
     let allUsersList = [];
     let friendsList = [];
     let bestiesList = [];
+    let lockChatPartner = null;
+    let lockChatId = null;
+    let unsubLockMessages = null;
 
-    // Load locks
     function loadLocks() {
       const saved = localStorage.getItem('chat_locks_' + currentUserId);
-      if (saved) {
-        try { locks = JSON.parse(saved); } catch(e) { locks = []; }
-      } else {
-        locks = [];
-      }
+      if (saved) { try { locks = JSON.parse(saved); } catch(e) { locks = []; } }
+      else { locks = []; }
     }
-
-    function saveLocks() {
-      localStorage.setItem('chat_locks_' + currentUserId, JSON.stringify(locks));
-    }
-
-    // Load user lists from profile
+    function saveLocks() { localStorage.setItem('chat_locks_' + currentUserId, JSON.stringify(locks)); }
     function loadUserLists() {
       const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
-      bestiesList = (profile.besties || []).map(f => ({
-        name: (f.name || '').replace('@',''),
-        username: f.name || '',
-        avatar: f.avatar || null,
-        type: 'bestie'
-      }));
-      friendsList = (profile.friends || []).map(f => ({
-        name: (f.name || '').replace('@',''),
-        username: f.name || '',
-        avatar: f.avatar || null,
-        type: 'friend'
-      }));
-      
-      // Combine and deduplicate for "All" tab
+      bestiesList = (profile.besties || []).map(f => ({ name: (f.name || '').replace('@',''), username: f.name || '', avatar: f.avatar || null, type: 'bestie' }));
+      friendsList = (profile.friends || []).map(f => ({ name: (f.name || '').replace('@',''), username: f.name || '', avatar: f.avatar || null, type: 'friend' }));
       const allMap = {};
-      [...bestiesList, ...friendsList].forEach(u => {
-        if (!allMap[u.username]) {
-          allMap[u.username] = u;
-        }
-      });
+      [...bestiesList, ...friendsList].forEach(u => { if (!allMap[u.username]) allMap[u.username] = u; });
       allUsersList = Object.values(allMap);
     }
 
-    // ========== MAIN PAGE NUMBER PAD ==========
-    
     window.numpadPress = function(num) {
-      if (accessPin.length < 4) {
-        accessPin += num;
-        updateAccessPinDots();
-        
-        if (accessPin.length === 4) {
-          setTimeout(() => checkAccessPin(), 400);
-        }
-      }
+      if (accessPin.length < 4) { accessPin += num; updateAccessPinDots(); if (accessPin.length === 4) setTimeout(() => checkAccessPin(), 400); }
     };
-
-    window.numpadDelete = function() {
-      accessPin = accessPin.slice(0, -1);
-      document.getElementById('errorMsg').textContent = '';
-      resetPinDotsError();
-      updateAccessPinDots();
-    };
-
-    function updateAccessPinDots() {
-      const dots = document.querySelectorAll('#pinDots .pin-dot');
-      dots.forEach((dot, i) => {
-        dot.classList.remove('filled', 'error');
-        if (i < accessPin.length) {
-          dot.classList.add('filled');
-        }
-      });
-    }
-
-    function resetPinDotsError() {
-      const dots = document.querySelectorAll('#pinDots .pin-dot');
-      dots.forEach(dot => dot.classList.remove('error'));
-    }
-
+    window.numpadDelete = function() { accessPin = accessPin.slice(0, -1); document.getElementById('errorMsg').textContent = ''; resetPinDotsError(); updateAccessPinDots(); };
+    function updateAccessPinDots() { const dots = document.querySelectorAll('#pinDots .pin-dot'); dots.forEach((dot, i) => { dot.classList.remove('filled', 'error'); if (i < accessPin.length) dot.classList.add('filled'); }); }
+    function resetPinDotsError() { document.querySelectorAll('#pinDots .pin-dot').forEach(dot => dot.classList.remove('error')); }
     function checkAccessPin() {
       const foundIndex = locks.findIndex(lock => lock.pin === accessPin);
-      
-      if (foundIndex >= 0) {
-        currentLockIndex = foundIndex;
-        document.getElementById('errorMsg').textContent = '';
-        accessPin = '';
-        updateAccessPinDots();
-        openLockDetail(foundIndex);
-      } else {
-        document.getElementById('errorMsg').textContent = '❌ Wrong PIN! Try again';
-        
-        const dots = document.querySelectorAll('#pinDots .pin-dot');
-        dots.forEach(dot => dot.classList.add('error'));
-        
-        const numpadSection = document.getElementById('numpadSection');
-        numpadSection.classList.add('shake');
-        setTimeout(() => numpadSection.classList.remove('shake'), 400);
-        
-        setTimeout(() => {
-          accessPin = '';
-          updateAccessPinDots();
-          resetPinDotsError();
-          document.getElementById('errorMsg').textContent = '';
-        }, 1200);
+      if (foundIndex >= 0) { currentLockIndex = foundIndex; document.getElementById('errorMsg').textContent = ''; accessPin = ''; updateAccessPinDots(); openLockDetail(foundIndex); }
+      else {
+        document.getElementById('errorMsg').textContent = '❌ Wrong PIN!'; 
+        document.querySelectorAll('#pinDots .pin-dot').forEach(dot => dot.classList.add('error'));
+        document.getElementById('numpadSection').classList.add('shake');
+        setTimeout(() => { document.getElementById('numpadSection').classList.remove('shake'); accessPin = ''; updateAccessPinDots(); resetPinDotsError(); document.getElementById('errorMsg').textContent = ''; }, 1200);
       }
     }
 
-    // ========== CREATE LOCK MODAL ==========
-    
     window.showCreateLockModal = function() {
-      createPin = '';
-      createConfirmPin = '';
-      isCreateConfirmStep = false;
+      createPin = ''; createConfirmPin = ''; isCreateConfirmStep = false;
       document.getElementById('createLockTitle').textContent = '🔐 Create New Lock';
       document.getElementById('createLockSubtitle').textContent = 'Enter a 4-digit PIN';
       document.getElementById('createLockConfirm').textContent = 'Create';
       document.getElementById('createLockConfirm').disabled = true;
       document.getElementById('createErrorMsg').textContent = '';
-      updateCreatePinDots();
-      document.getElementById('createLockModal').classList.add('show');
+      updateCreatePinDots(); document.getElementById('createLockModal').classList.add('show');
     };
-
-    window.closeCreateLockModal = function() {
-      document.getElementById('createLockModal').classList.remove('show');
-      createPin = '';
-      createConfirmPin = '';
-      isCreateConfirmStep = false;
-    };
-
+    window.closeCreateLockModal = function() { document.getElementById('createLockModal').classList.remove('show'); };
     window.createNumpadPress = function(num) {
-      if (isCreateConfirmStep) {
-        if (createConfirmPin.length < 4) {
-          createConfirmPin += num;
-          updateCreatePinDots();
-          if (createConfirmPin.length === 4) {
-            document.getElementById('createLockConfirm').disabled = false;
-          }
-        }
-      } else {
-        if (createPin.length < 4) {
-          createPin += num;
-          updateCreatePinDots();
-          if (createPin.length === 4) {
-            setTimeout(() => {
-              isCreateConfirmStep = true;
-              document.getElementById('createLockTitle').textContent = '🔐 Confirm PIN';
-              document.getElementById('createLockSubtitle').textContent = 'Re-enter your 4-digit code';
-              document.getElementById('createLockConfirm').textContent = 'Create Lock';
-              document.getElementById('createLockConfirm').disabled = true;
-              document.getElementById('createErrorMsg').textContent = '';
-              updateCreatePinDots();
-            }, 300);
-          }
-        }
-      }
+      if (isCreateConfirmStep) { if (createConfirmPin.length < 4) { createConfirmPin += num; updateCreatePinDots(); if (createConfirmPin.length === 4) document.getElementById('createLockConfirm').disabled = false; } }
+      else { if (createPin.length < 4) { createPin += num; updateCreatePinDots(); if (createPin.length === 4) setTimeout(() => { isCreateConfirmStep = true; document.getElementById('createLockTitle').textContent = '🔐 Confirm PIN'; document.getElementById('createLockSubtitle').textContent = 'Re-enter code'; document.getElementById('createLockConfirm').textContent = 'Create Lock'; document.getElementById('createLockConfirm').disabled = true; updateCreatePinDots(); }, 300); } }
     };
-
-    window.createNumpadDelete = function() {
-      if (isCreateConfirmStep) {
-        createConfirmPin = createConfirmPin.slice(0, -1);
-      } else {
-        createPin = createPin.slice(0, -1);
-      }
-      document.getElementById('createLockConfirm').disabled = true;
-      document.getElementById('createErrorMsg').textContent = '';
-      updateCreatePinDots();
-    };
-
-    function updateCreatePinDots() {
-      const dots = document.querySelectorAll('#createPinDots .pin-dot');
-      const currentPin = isCreateConfirmStep ? createConfirmPin : createPin;
-      
-      dots.forEach((dot, i) => {
-        dot.classList.remove('filled', 'error');
-        if (i < currentPin.length) {
-          dot.classList.add('filled');
-        }
-      });
-    }
-
+    window.createNumpadDelete = function() { if (isCreateConfirmStep) createConfirmPin = createConfirmPin.slice(0, -1); else createPin = createPin.slice(0, -1); document.getElementById('createLockConfirm').disabled = true; updateCreatePinDots(); };
+    function updateCreatePinDots() { const dots = document.querySelectorAll('#createPinDots .pin-dot'); const cp = isCreateConfirmStep ? createConfirmPin : createPin; dots.forEach((dot, i) => { dot.classList.remove('filled', 'error'); if (i < cp.length) dot.classList.add('filled'); }); }
     window.confirmCreateLock = function() {
-      if (createPin.length === 4 && createConfirmPin.length === 4) {
-        if (createPin === createConfirmPin) {
-          if (locks.some(lock => lock.pin === createPin)) {
-            document.getElementById('createErrorMsg').textContent = '❌ This PIN already exists!';
-            const modalContent = document.getElementById('createLockModalContent');
-            modalContent.classList.add('shake');
-            setTimeout(() => modalContent.classList.remove('shake'), 400);
-            
-            isCreateConfirmStep = false;
-            createPin = '';
-            createConfirmPin = '';
-            document.getElementById('createLockTitle').textContent = '🔐 Create New Lock';
-            document.getElementById('createLockSubtitle').textContent = 'Enter a 4-digit PIN';
-            document.getElementById('createLockConfirm').textContent = 'Create';
-            document.getElementById('createLockConfirm').disabled = true;
-            updateCreatePinDots();
-            return;
-          }
-          
-          const newLock = {
-            name: 'Lock ' + (locks.length + 1),
-            pin: createPin,
-            users: [],
-            createdAt: new Date().toISOString()
-          };
-          locks.push(newLock);
-          saveLocks();
-          closeCreateLockModal();
-          showToast('✅ Lock created successfully!');
-        } else {
-          document.getElementById('createErrorMsg').textContent = '❌ PINs do not match!';
-          const modalContent = document.getElementById('createLockModalContent');
-          modalContent.classList.add('shake');
-          setTimeout(() => modalContent.classList.remove('shake'), 400);
-          
-          isCreateConfirmStep = false;
-          createPin = '';
-          createConfirmPin = '';
-          document.getElementById('createLockTitle').textContent = '🔐 Create New Lock';
-          document.getElementById('createLockSubtitle').textContent = 'Enter a 4-digit PIN';
-          document.getElementById('createLockConfirm').textContent = 'Create';
-          document.getElementById('createLockConfirm').disabled = true;
-          updateCreatePinDots();
-        }
-      }
+      if (createPin.length === 4 && createConfirmPin.length === 4 && createPin === createConfirmPin) {
+        if (locks.some(l => l.pin === createPin)) { document.getElementById('createErrorMsg').textContent = '❌ PIN exists!'; document.getElementById('createLockModalContent').classList.add('shake'); setTimeout(() => document.getElementById('createLockModalContent').classList.remove('shake'), 400); return; }
+        locks.push({ name: 'Lock ' + (locks.length + 1), pin: createPin, users: [], createdAt: new Date().toISOString() });
+        saveLocks(); closeCreateLockModal(); showToast('✅ Lock created!');
+      } else { document.getElementById('createErrorMsg').textContent = '❌ PINs mismatch!'; }
     };
 
-    // ========== ADD USERS BOTTOM SHEET ==========
-    
-    window.showAddUsersSheet = function() {
-      loadUserLists();
-      currentUserTab = 'besties';
-      document.querySelectorAll('.sheet-tab').forEach((t, i) => {
-        t.classList.toggle('active', i === 0);
-      });
-      document.getElementById('userSearchInput').value = '';
-      renderUsersSheetList(bestiesList);
-      document.getElementById('addUsersOverlay').classList.add('show');
-    };
-
-    window.closeAddUsersSheet = function() {
-      document.getElementById('addUsersOverlay').classList.remove('show');
-    };
-
-    window.switchUserTab = function(tab, el) {
-      currentUserTab = tab;
-      document.querySelectorAll('.sheet-tab').forEach(t => t.classList.remove('active'));
-      el.classList.add('active');
-      document.getElementById('userSearchInput').value = '';
-      
-      if (tab === 'besties') renderUsersSheetList(bestiesList);
-      else if (tab === 'friends') renderUsersSheetList(friendsList);
-      else renderUsersSheetList(allUsersList);
-    };
-
-    window.filterUserList = function() {
-      const search = document.getElementById('userSearchInput').value.toLowerCase();
-      let sourceList;
-      if (currentUserTab === 'besties') sourceList = bestiesList;
-      else if (currentUserTab === 'friends') sourceList = friendsList;
-      else sourceList = allUsersList;
-      
-      const filtered = sourceList.filter(u => 
-        u.name.toLowerCase().includes(search) || 
-        u.username.toLowerCase().includes(search)
-      );
-      renderUsersSheetList(filtered);
-    };
-
+    window.showAddUsersSheet = function() { loadUserLists(); currentUserTab = 'besties'; document.querySelectorAll('.sheet-tab').forEach((t, i) => t.classList.toggle('active', i === 0)); document.getElementById('userSearchInput').value = ''; renderUsersSheetList(bestiesList); document.getElementById('addUsersOverlay').classList.add('show'); };
+    window.closeAddUsersSheet = function() { document.getElementById('addUsersOverlay').classList.remove('show'); };
+    window.switchUserTab = function(tab, el) { currentUserTab = tab; document.querySelectorAll('.sheet-tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); document.getElementById('userSearchInput').value = ''; if (tab === 'besties') renderUsersSheetList(bestiesList); else if (tab === 'friends') renderUsersSheetList(friendsList); else renderUsersSheetList(allUsersList); };
+    window.filterUserList = function() { const s = document.getElementById('userSearchInput').value.toLowerCase(); let src = currentUserTab === 'besties' ? bestiesList : currentUserTab === 'friends' ? friendsList : allUsersList; renderUsersSheetList(src.filter(u => u.name.toLowerCase().includes(s) || u.username.toLowerCase().includes(s))); };
     function renderUsersSheetList(users) {
-      const container = document.getElementById('usersSheetList');
-      const lock = locks[currentLockIndex];
-      const existingUsernames = (lock.users || []).map(u => u.username);
-      
-      if (users.length === 0) {
-        container.innerHTML = '<div class="empty-list">No users found</div>';
-        return;
-      }
-      
-      container.innerHTML = users.map(user => {
-        const alreadyAdded = existingUsernames.includes(user.username);
-        const avatarHTML = user.avatar && user.avatar !== 'null' && user.avatar !== 'undefined' 
-          ? `<img src="${user.avatar}" alt="">` 
-          : user.name.charAt(0).toUpperCase();
-        
-        return `
-          <div class="sheet-user-item">
-            <div class="avatar">${avatarHTML}</div>
-            <div class="info">
-              <div class="name">${user.name}</div>
-              <div class="sub">@${user.username.replace('@','')}</div>
-            </div>
-            ${alreadyAdded 
-              ? '<span class="check-icon"><i class="fas fa-check-circle"></i></span>'
-              : `<button class="add-icon" onclick="addUserFromSheet('${user.username}', '${user.name}', '${user.avatar || ''}')"><i class="fas fa-plus"></i></button>`
-            }
-          </div>
-        `;
+      const lock = locks[currentLockIndex]; const ex = (lock.users || []).map(u => u.username);
+      document.getElementById('usersSheetList').innerHTML = users.length === 0 ? '<div class="empty-list">No users</div>' : users.map(u => {
+        const added = ex.includes(u.username);
+        return `<div class="sheet-user-item"><div class="avatar">${u.avatar&&u.avatar!=='null'?`<img src="${u.avatar}">`:u.name.charAt(0).toUpperCase()}</div><div class="info"><div class="name">${u.name}</div><div class="sub">@${u.username.replace('@','')}</div></div>${added?'<span class="check-icon"><i class="fas fa-check-circle"></i></span>':`<button class="add-icon" onclick="addUserFromSheet('${u.username}','${u.name}','${u.avatar||''}')"><i class="fas fa-plus"></i></button>`}</div>`;
       }).join('');
     }
-
     window.addUserFromSheet = function(username, name, avatar) {
       if (currentLockIndex < 0) return;
-      
-      const lock = locks[currentLockIndex];
-      if (!lock.users) lock.users = [];
-      
-      if (lock.users.some(u => u.username === username)) {
-        showToast('User already added!', 'error');
-        return;
-      }
-      
-      lock.users.push({
-        username: username,
-        name: name,
-        avatar: avatar && avatar !== 'null' && avatar !== 'undefined' ? avatar : null,
-        addedAt: new Date().toISOString()
-      });
-      
-      saveLocks();
-      renderLockUsers();
-      
-      // Refresh the sheet list
-      loadUserLists();
-      const search = document.getElementById('userSearchInput').value.toLowerCase();
-      let sourceList;
-      if (currentUserTab === 'besties') sourceList = bestiesList;
-      else if (currentUserTab === 'friends') sourceList = friendsList;
-      else sourceList = allUsersList;
-      
-      const filtered = search ? sourceList.filter(u => 
-        u.name.toLowerCase().includes(search) || u.username.toLowerCase().includes(search)
-      ) : sourceList;
-      renderUsersSheetList(filtered);
-      
+      const lock = locks[currentLockIndex]; if (!lock.users) lock.users = [];
+      if (lock.users.some(u => u.username === username)) { showToast('Already added!', 'error'); return; }
+      lock.users.push({ username, name, avatar: avatar && avatar !== 'null' ? avatar : null, addedAt: new Date().toISOString() });
+      saveLocks(); renderLockUsers(); loadUserLists();
+      const s = document.getElementById('userSearchInput').value.toLowerCase();
+      let src = currentUserTab === 'besties' ? bestiesList : currentUserTab === 'friends' ? friendsList : allUsersList;
+      renderUsersSheetList(s ? src.filter(u => u.name.toLowerCase().includes(s) || u.username.toLowerCase().includes(s)) : src);
       showToast('User added! ✅');
     };
 
-    // ========== LOCK DETAIL ==========
-    
     function openLockDetail(index) {
-      const lock = locks[index];
       document.getElementById('mainView').style.display = 'none';
       document.getElementById('lockDetailView').style.display = 'flex';
-      document.getElementById('lockDetailTitle').textContent = lock.name + ' Users';
+      document.getElementById('lockDetailTitle').textContent = locks[index].name + ' Users';
+      document.getElementById('lockChatView').classList.remove('show');
       renderLockUsers();
     }
-
-    window.goBackToMain = function() {
-      document.getElementById('lockDetailView').style.display = 'none';
-      document.getElementById('mainView').style.display = 'flex';
-      currentLockIndex = -1;
-    };
-
+    window.goBackToMain = function() { closeLockChat(); document.getElementById('lockDetailView').style.display = 'none'; document.getElementById('mainView').style.display = 'flex'; currentLockIndex = -1; };
     function renderLockUsers() {
       if (currentLockIndex < 0) return;
       const lock = locks[currentLockIndex];
-      const container = document.getElementById('lockUsersList');
-      
-      if (!lock.users || lock.users.length === 0) {
-        container.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;font-size:0.7rem;">No users added yet<br>Tap "Add Users to Chat" to add</div>';
-        return;
-      }
-      
-      container.innerHTML = lock.users.map((user, uIndex) => {
-        const avatarHTML = user.avatar && user.avatar !== 'null' && user.avatar !== 'undefined'
-          ? `<img src="${user.avatar}" alt="">`
-          : (user.name || 'U').charAt(0).toUpperCase();
-        
-        return `
-          <div class="user-item">
-            <div class="avatar">${avatarHTML}</div>
-            <div class="name">${(user.name || user.username || 'User').replace('@','')}</div>
-            <button class="go-btn" onclick="openChatWithUser('${user.username || user.name}')" title="Chat">
-              <i class="fas fa-comment-dots"></i>
-            </button>
-            <button class="go-btn" style="background:rgba(239,68,68,0.15);color:#ef4444;margin-left:0.3rem;" onclick="removeUserFromLock(${uIndex})" title="Remove">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-        `;
-      }).join('');
+      const c = document.getElementById('lockUsersList');
+      if (!lock.users || lock.users.length === 0) { c.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;font-size:0.7rem;">No users yet</div>'; return; }
+      c.innerHTML = lock.users.map((u, i) => `<div class="user-item"><div class="avatar">${u.avatar&&u.avatar!=='null'?`<img src="${u.avatar}">`:(u.name||'U').charAt(0).toUpperCase()}</div><div class="name">${(u.name||u.username).replace('@','')}</div><button class="go-btn" onclick="openLockChat('${u.username}','${(u.name||u.username).replace('@','')}')"><i class="fas fa-comment-dots"></i></button><button class="go-btn" style="background:rgba(239,68,68,0.15);color:#ef4444;margin-left:0.3rem;" onclick="removeUserFromLock(${i})"><i class="fas fa-times"></i></button></div>`).join('');
     }
+    window.removeUserFromLock = function(i) { if (currentLockIndex < 0) return; locks[currentLockIndex].users.splice(i, 1); saveLocks(); renderLockUsers(); showToast('User removed'); };
 
-    window.removeUserFromLock = function(userIndex) {
-      if (currentLockIndex < 0) return;
-      if (confirm('Remove this user from the lock?')) {
-        locks[currentLockIndex].users.splice(userIndex, 1);
-        saveLocks();
-        renderLockUsers();
-        showToast('User removed');
-      }
+    // ✅ LOCK CHAT - sends with source=settings flag
+    window.openLockChat = function(username, displayName) {
+      lockChatPartner = username;
+      lockChatId = [currentUserId, username.replace('@','')].sort().join('_');
+      document.getElementById('lockUsersList').style.display = 'none';
+      document.querySelectorAll('.add-user-btn, .btn-delete').forEach(el => el.style.display = 'none');
+      document.getElementById('lockDetailTitle').textContent = 'Chat: ' + displayName;
+      document.getElementById('lockChatPartnerName').textContent = displayName;
+      document.getElementById('lockChatView').classList.add('show');
+      document.getElementById('lockChatMessages').innerHTML = '<div style="text-align:center;color:#555;padding:1rem;font-size:0.7rem;">Loading...</div>';
+      listenToLockMessages();
     };
-
-    window.openChatWithUser = function(username) {
-      sessionStorage.setItem('openChatWith', username);
-      window.location.href = 'chat.html';
+    window.closeLockChat = function() {
+      if (unsubLockMessages) { unsubLockMessages(); unsubLockMessages = null; }
+      lockChatPartner = null; lockChatId = null;
+      document.getElementById('lockChatView').classList.remove('show');
+      document.getElementById('lockUsersList').style.display = 'flex';
+      document.querySelectorAll('.add-user-btn, .btn-delete').forEach(el => el.style.display = '');
+      if (currentLockIndex >= 0) document.getElementById('lockDetailTitle').textContent = locks[currentLockIndex].name + ' Users';
     };
-
-    window.deleteCurrentLock = function() {
-      if (currentLockIndex < 0) return;
-      if (confirm('Delete this lock? All saved users will be lost.')) {
-        locks.splice(currentLockIndex, 1);
-        saveLocks();
-        goBackToMain();
-        showToast('Lock deleted');
-      }
-    };
-
-    function showToast(msg, type) {
-      const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.className = 'toast ' + (type || '');
-      t.classList.add('show');
-      clearTimeout(t._t);
-      t._t = setTimeout(() => t.classList.remove('show'), 2000);
+    async function ensureLockChatDoc() {
+      const ref = doc(db, 'chats', lockChatId);
+      if (!(await getDoc(ref)).exists()) await setDoc(ref, { users: [currentUserId, lockChatPartner.replace('@','')], lastMessage: '', lastType: 'text', lastTime: serverTimestamp() });
     }
+    function listenToLockMessages() {
+      if (unsubLockMessages) { unsubLockMessages(); unsubLockMessages = null; }
+      const q = query(collection(db, 'chats', lockChatId, 'messages'), orderBy('createdAt', 'asc'));
+      getDocs(q).then(snap => {
+        const c = document.getElementById('lockChatMessages'); c.innerHTML = '';
+        if (snap.empty) c.innerHTML = '<div style="text-align:center;color:#555;padding:1rem;font-size:0.7rem;">Send a message!</div>';
+        else snap.forEach(d => renderLockMsg(d.id, d.data()));
+        scrollLockChatBottom();
+      });
+      unsubLockMessages = onSnapshot(q, (snap) => {
+        const c = document.getElementById('lockChatMessages');
+        const emptyEl = c.querySelector('div[style]');
+        if (emptyEl && emptyEl.textContent === 'Send a message!') c.innerHTML = '';
+        snap.docChanges().forEach(ch => { if (ch.type === 'added' && !document.getElementById('lock-msg-' + ch.doc.id)) { renderLockMsg(ch.doc.id, ch.doc.data()); scrollLockChatBottom(); } });
+      });
+    }
+    function renderLockMsg(id, msg) {
+      const c = document.getElementById('lockChatMessages');
+      const isSent = msg.sender === currentUserId;
+      if (document.getElementById('lock-msg-' + id)) return;
+      const w = document.createElement('div');
+      w.className = 'lock-msg-wrapper ' + (isSent ? 'sent' : 'received');
+      w.id = 'lock-msg-' + id;
+      let time = '';
+      if (msg.createdAt) try { time = new Date(msg.createdAt.toDate()).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); } catch(e) {}
+      const isFromSettings = msg.source === 'settings';
+      w.innerHTML = `<div class="lock-msg-bubble">${msg.text||''}<div class="lock-msg-time">${time}</div>${isFromSettings ? '<div class="lock-msg-label"><i class="fas fa-shield-halved"></i> Settings</div>' : ''}</div>`;
+      c.appendChild(w);
+    }
+    window.sendLockMessage = async function() {
+      const input = document.getElementById('lockChatInput');
+      const text = input.value.trim();
+      if (!text || !lockChatId) return;
+      input.value = '';
+      try {
+        await ensureLockChatDoc();
+        // ✅ Send with source=settings flag
+        await addDoc(collection(db, 'chats', lockChatId, 'messages'), {
+          text, sender: currentUserId, createdAt: serverTimestamp(), seen: false, source: 'settings'
+        });
+        await updateDoc(doc(db, 'chats', lockChatId), {
+          lastMessage: '🔒 ' + text, lastType: 'text', lastTime: serverTimestamp(),
+          ['unread_' + lockChatPartner.replace('@','')]: increment(1),
+          source: 'settings'
+        });
+      } catch(e) { console.error(e); }
+    };
+    function scrollLockChatBottom() { const c = document.getElementById('lockChatMessages'); setTimeout(() => { if(c) c.scrollTop = c.scrollHeight; }, 100); }
+    document.getElementById('lockChatInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); sendLockMessage(); } });
 
-    // Close modals/sheets on overlay click
-    document.getElementById('createLockModal').addEventListener('click', function(e) {
-      if (e.target === this) closeCreateLockModal();
-    });
-    document.getElementById('addUsersOverlay').addEventListener('click', function(e) {
-      if (e.target === this) closeAddUsersSheet();
-    });
+    window.deleteCurrentLock = function() { if (currentLockIndex < 0) return; if (confirm('Delete this lock?')) { locks.splice(currentLockIndex, 1); saveLocks(); goBackToMain(); showToast('Lock deleted'); } };
+    function showToast(msg, type) { const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast ' + (type || ''); t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2000); }
 
-    // Keyboard support
+    document.getElementById('createLockModal').addEventListener('click', function(e) { if (e.target === this) closeCreateLockModal(); });
+    document.getElementById('addUsersOverlay').addEventListener('click', function(e) { if (e.target === this) closeAddUsersSheet(); });
     document.addEventListener('keydown', function(e) {
-      const createModalOpen = document.getElementById('createLockModal').classList.contains('show');
-      
-      if (createModalOpen) {
-        if (e.key >= '0' && e.key <= '9') {
-          createNumpadPress(e.key);
-        } else if (e.key === 'Backspace' || e.key === 'Delete') {
-          createNumpadDelete();
-        } else if (e.key === 'Enter') {
-          const confirmBtn = document.getElementById('createLockConfirm');
-          if (!confirmBtn.disabled) confirmCreateLock();
-        } else if (e.key === 'Escape') {
-          closeCreateLockModal();
-        }
+      if (document.getElementById('createLockModal').classList.contains('show')) {
+        if (e.key >= '0' && e.key <= '9') createNumpadPress(e.key);
+        else if (e.key === 'Backspace') createNumpadDelete();
+        else if (e.key === 'Enter') { const b = document.getElementById('createLockConfirm'); if (!b.disabled) confirmCreateLock(); }
+        else if (e.key === 'Escape') closeCreateLockModal();
         return;
       }
-      
-      // Main page numpad
-      if (e.key >= '0' && e.key <= '9') {
-        numpadPress(e.key);
-      } else if (e.key === 'Backspace' || e.key === 'Delete') {
-        numpadDelete();
-      } else if (e.key === 'Escape') {
-        accessPin = '';
-        updateAccessPinDots();
-        document.getElementById('errorMsg').textContent = '';
-        resetPinDotsError();
-      }
+      if (e.key >= '0' && e.key <= '9') numpadPress(e.key);
+      else if (e.key === 'Backspace') numpadDelete();
+      else if (e.key === 'Escape') { accessPin = ''; updateAccessPinDots(); document.getElementById('errorMsg').textContent = ''; resetPinDotsError(); }
     });
 
-    // Initialize
     loadLocks();
   </script>
 </body>

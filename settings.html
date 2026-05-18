@@ -58,19 +58,14 @@
     .numpad-section { width:100%;display:flex;flex-direction:column;align-items:center;gap:1rem; }
     .numpad-label { font-size:0.75rem;color:#888;text-align:center; }
     .pin-dots { display:flex;gap:1rem;margin:0.3rem 0; }
-    .pin-dot {
-      width:14px;height:14px;border-radius:50%;
-      border:2px solid rgba(255,255,255,0.3);transition:all 0.2s;
-    }
+    .pin-dot { width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);transition:all 0.2s; }
     .pin-dot.filled { background:#FFFC00;border-color:#FFFC00;animation:dotPulse 0.3s ease; }
     .pin-dot.error { background:#ef4444;border-color:#ef4444; }
-    
     .numpad-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:0.6rem;width:100%;max-width:260px; }
     .numpad-key {
-      aspect-ratio:1;border-radius:50%;
-      background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
-      color:#fff;font-size:1.3rem;font-weight:500;cursor:pointer;
-      display:flex;align-items:center;justify-content:center;
+      aspect-ratio:1;border-radius:50%;background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.1);color:#fff;font-size:1.3rem;
+      font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;
       transition:all 0.15s;user-select:none;
     }
     .numpad-key:active { background:rgba(255,255,255,0.2);transform:scale(0.92); }
@@ -78,217 +73,90 @@
     .numpad-key.delete-btn { background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.2);color:#ef4444;font-size:0.8rem; }
     .error-msg { color:#ef4444;font-size:0.7rem;text-align:center;min-height:1rem; }
 
-    .modal-overlay {
-      position:fixed;top:0;left:0;right:0;bottom:0;
-      background:rgba(0,0,0,0.9);z-index:300;
-      display:none;align-items:center;justify-content:center;padding:1rem;
-    }
+    .modal-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:300;display:none;align-items:center;justify-content:center;padding:1rem; }
     .modal-overlay.show { display:flex; }
-    .modal {
-      background:#1a1a1a;border-radius:1.2rem;padding:1.5rem;
-      width:100%;max-width:320px;animation:popIn 0.3s ease;
-      border:1px solid rgba(255,255,255,0.1);
-      display:flex;flex-direction:column;align-items:center;gap:0.8rem;
-    }
+    .modal { background:#1a1a1a;border-radius:1.2rem;padding:1.5rem;width:100%;max-width:320px;animation:popIn 0.3s ease;border:1px solid rgba(255,255,255,0.1);display:flex;flex-direction:column;align-items:center;gap:0.8rem; }
     .modal h3 { font-size:0.9rem;color:#fff;text-align:center; }
     .modal p { font-size:0.65rem;color:#888;text-align:center; }
     .modal .numpad-grid { max-width:220px; }
     .modal .numpad-key { font-size:1.1rem; }
     .modal .btn-row { display:flex;gap:0.5rem;width:100%; }
-    .modal .btn-row button {
-      flex:1;padding:0.6rem;border-radius:0.8rem;border:none;
-      font-size:0.75rem;font-weight:600;cursor:pointer;
-    }
+    .modal .btn-row button { flex:1;padding:0.6rem;border-radius:0.8rem;border:none;font-size:0.75rem;font-weight:600;cursor:pointer; }
     .btn-cancel { background:rgba(255,255,255,0.1);color:#fff; }
     .btn-save { background:#FFFC00;color:#000; }
     .btn-save:disabled { opacity:0.4;cursor:not-allowed; }
 
-    /* ✅ CHAT-LIKE USER LIST */
-    .chat-list-header {
-      padding:0.5rem 0;font-size:0.6rem;color:#666;text-transform:uppercase;
-      letter-spacing:1px;display:flex;justify-content:space-between;align-items:center;
-      width:100%;
-    }
+    .chat-list-header { padding:0.5rem 0;font-size:0.6rem;color:#666;text-transform:uppercase;letter-spacing:1px;display:flex;justify-content:space-between;align-items:center;width:100%; }
     .users-list { width:100%;display:flex;flex-direction:column; }
-    .user-list-item {
-      display:flex;align-items:center;gap:0.7rem;padding:0.7rem 0;
-      cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.02);
-    }
+    .user-list-item { display:flex;align-items:center;gap:0.7rem;padding:0.7rem 0;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.02); }
     .user-list-item:active { background:rgba(255,255,255,0.03); }
-    .user-avatar {
-      width:48px;height:48px;border-radius:50%;background:#1a1a1a;
-      overflow:hidden;display:flex;align-items:center;justify-content:center;
-      font-size:1.1rem;color:#fff;font-weight:700;flex-shrink:0;
-    }
+    .user-avatar { width:48px;height:48px;border-radius:50%;background:#1a1a1a;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:#fff;font-weight:700;flex-shrink:0; }
     .user-avatar img { width:100%;height:100%;object-fit:cover; }
     .user-info { flex:1;min-width:0; }
     .user-name-row { display:flex;align-items:center;justify-content:space-between; }
     .user-name { font-size:0.85rem;color:#fff;font-weight:500; }
     .user-last-msg { font-size:0.7rem;color:#666;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px; }
-    .unread-count {
-      background:#FFFC00;color:#000;font-size:0.6rem;font-weight:700;
-      min-width:18px;height:18px;border-radius:9px;
-      display:flex;align-items:center;justify-content:center;flex-shrink:0;
-    }
-    .add-user-btn {
-      width:100%;padding:0.6rem;border-radius:0.8rem;
-      border:1px dashed rgba(255,255,255,0.15);background:transparent;
-      color:#aaa;font-size:0.7rem;cursor:pointer;
-      display:flex;align-items:center;justify-content:center;gap:0.4rem;margin-top:0.5rem;
-    }
+    .add-user-btn { width:100%;padding:0.6rem;border-radius:0.8rem;border:1px dashed rgba(255,255,255,0.15);background:transparent;color:#aaa;font-size:0.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.4rem;margin-top:0.5rem; }
     .add-user-btn:hover { border-color:#4ade80;color:#4ade80;background:rgba(74,222,128,0.05); }
+    .btn-delete { width:100%;padding:0.5rem;border-radius:0.8rem;margin-top:0.5rem;border:none;font-size:0.7rem;cursor:pointer;background:rgba(239,68,68,0.15);color:#ef4444; }
 
-    .btn-delete {
-      width:100%;padding:0.5rem;border-radius:0.8rem;margin-top:0.5rem;
-      border:none;font-size:0.7rem;cursor:pointer;
-      background:rgba(239,68,68,0.15);color:#ef4444;
-    }
-
-    /* ✅ CHAT VIEW - Same as chat.html */
     .lock-chat-view { display:none;flex-direction:column;flex:1;width:100%;min-height:0; }
     .lock-chat-view.show { display:flex; }
-    
-    .lock-chat-header {
-      display:flex;align-items:center;gap:0.6rem;
-      padding:0.5rem 0;flex-shrink:0;
-    }
-    .lock-chat-avatar {
-      width:40px;height:40px;border-radius:50%;background:#1a1a1a;
-      display:flex;align-items:center;justify-content:center;
-      font-size:0.9rem;color:#fff;flex-shrink:0;overflow:hidden;
-    }
+    .lock-chat-header { display:flex;align-items:center;gap:0.6rem;padding:0.5rem 0;flex-shrink:0; }
+    .lock-chat-avatar { width:40px;height:40px;border-radius:50%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;font-size:0.9rem;color:#fff;flex-shrink:0;overflow:hidden; }
     .lock-chat-avatar img { width:100%;height:100%;object-fit:cover; }
     .lock-chat-partner-info { flex:1;min-width:0; }
     .lock-chat-partner-name { font-size:0.85rem;font-weight:600;color:#fff; }
     .lock-chat-partner-status { font-size:0.6rem;color:#4ade80;display:flex;align-items:center;gap:0.2rem; }
     .lock-chat-partner-status .dot { width:5px;height:5px;border-radius:50%;background:#4ade80;display:inline-block; }
-    
-    .lock-chat-messages {
-      flex:1;overflow-y:auto;padding:0.5rem 0;display:flex;flex-direction:column;gap:0.2rem;
-    }
+    .lock-chat-messages { flex:1;overflow-y:auto;padding:0.5rem 0;display:flex;flex-direction:column;gap:0.2rem; }
     .lock-chat-messages::-webkit-scrollbar { width:0; }
-    
-    .message-wrapper {
-      display:flex;max-width:85%;animation:fadeInUp 0.25s ease-out;
-    }
+    .message-wrapper { display:flex;max-width:85%;animation:fadeInUp 0.25s ease-out; }
     .message-wrapper.sent { align-self:flex-end;flex-direction:row-reverse; }
     .message-wrapper.received { align-self:flex-start; }
-    
-    .message-bubble {
-      padding:0.55rem 0.8rem;border-radius:1.2rem;font-size:0.85rem;line-height:1.3;
-      word-break:break-word;
-    }
-    .sent .message-bubble { background:#FFFC00;color:#000;border-bottom-right-radius:0.3rem; }
+    .message-bubble { padding:0.55rem 0.8rem;border-radius:1.2rem;font-size:0.85rem;line-height:1.3;word-break:break-word; }
+    .sent .message-bubble { background:#a78bfa;color:#fff;border-bottom-right-radius:0.3rem; }
     .received .message-bubble { background:#111;color:#fff;border-bottom-left-radius:0.3rem; }
-    .message-time {
-      font-size:0.55rem;margin-top:0.1rem;display:flex;align-items:center;gap:0.15rem;
-    }
-    .sent .message-time { justify-content:flex-end;color:rgba(0,0,0,0.45); }
+    .message-time { font-size:0.55rem;margin-top:0.1rem;display:flex;align-items:center;gap:0.15rem; }
+    .sent .message-time { justify-content:flex-end;color:rgba(255,255,255,0.5); }
     .received .message-time { color:rgba(255,255,255,0.35); }
-    .settings-badge {
-      font-size:0.5rem;color:#a78bfa;margin-top:0.15rem;
-      display:flex;align-items:center;gap:0.2rem;
-      background:rgba(139,92,246,0.15);padding:2px 6px;
-      border-radius:4px;width:fit-content;
-    }
+    .settings-badge { font-size:0.5rem;color:#a78bfa;margin-top:0.15rem;display:flex;align-items:center;gap:0.2rem;background:rgba(139,92,246,0.2);padding:2px 6px;border-radius:4px;width:fit-content; }
     
-    .lock-chat-input-area {
-      display:flex;align-items:center;gap:0.4rem;padding:0.5rem 0;
-      background:#000;border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0;
-      position:sticky;bottom:0;
-    }
-    .lock-chat-input {
-      flex:1;padding:0.6rem 1rem;border-radius:1.5rem;
-      border:1px solid rgba(255,255,255,0.12);background:#0a0a0a;
-      color:#fff;font-size:0.85rem;outline:none;
-    }
-    .lock-chat-input:focus { border-color:#FFFC00; }
-    .lock-send-btn {
-      width:38px;height:38px;border-radius:50%;background:#FFFC00;
-      border:none;color:#000;font-size:0.9rem;cursor:pointer;
-      display:flex;align-items:center;justify-content:center;flex-shrink:0;
-    }
+    .lock-chat-input-area { display:flex;align-items:center;gap:0.4rem;padding:0.5rem 0;background:#000;border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0;position:sticky;bottom:0; }
+    .lock-chat-input { flex:1;padding:0.6rem 1rem;border-radius:1.5rem;border:1px solid rgba(255,255,255,0.12);background:#0a0a0a;color:#fff;font-size:0.85rem;outline:none; }
+    .lock-chat-input:focus { border-color:#a78bfa; }
+    .lock-send-btn { width:38px;height:38px;border-radius:50%;background:#a78bfa;border:none;color:#fff;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+    .empty-chat { flex:1;display:flex;align-items:center;justify-content:center;color:#333;font-size:0.8rem; }
 
-    .empty-chat { 
-      flex:1;display:flex;align-items:center;justify-content:center;
-      color:#333;font-size:0.8rem;
-    }
-
-    .lock-info-bar {
-      display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.8rem;
-      background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);
-      border-radius:0.8rem;width:100%;margin-bottom:0.3rem;
-    }
+    .lock-info-bar { display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.8rem;background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);border-radius:0.8rem;width:100%;margin-bottom:0.3rem; }
     .lock-info-bar .icon { color:#a78bfa;font-size:0.8rem; }
     .lock-info-bar .text { font-size:0.6rem;color:#a78bfa; }
 
-    .add-users-overlay {
-      position:fixed;top:0;left:0;right:0;bottom:0;
-      background:rgba(0,0,0,0.8);z-index:350;
-      display:none;align-items:flex-end;justify-content:center;
-    }
+    .add-users-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:350;display:none;align-items:flex-end;justify-content:center; }
     .add-users-overlay.show { display:flex; }
-    .add-users-sheet {
-      background:#1a1a1a;border-radius:1.5rem 1.5rem 0 0;
-      width:100%;max-width:450px;max-height:70vh;
-      display:flex;flex-direction:column;
-      animation:slideUp 0.3s ease;
-      padding-bottom:env(safe-area-inset-bottom,1rem);
-    }
-    .sheet-header {
-      display:flex;align-items:center;justify-content:space-between;
-      padding:1rem 1.2rem;border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0;
-    }
+    .add-users-sheet { background:#1a1a1a;border-radius:1.5rem 1.5rem 0 0;width:100%;max-width:450px;max-height:70vh;display:flex;flex-direction:column;animation:slideUp 0.3s ease;padding-bottom:env(safe-area-inset-bottom,1rem); }
+    .sheet-header { display:flex;align-items:center;justify-content:space-between;padding:1rem 1.2rem;border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0; }
     .sheet-header h3 { font-size:0.85rem;color:#fff; }
-    .sheet-close {
-      width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.1);
-      border:none;color:#fff;font-size:0.8rem;cursor:pointer;
-      display:flex;align-items:center;justify-content:center;
-    }
+    .sheet-close { width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.1);border:none;color:#fff;font-size:0.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center; }
     .sheet-tabs { display:flex;border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0; }
-    .sheet-tab {
-      flex:1;text-align:center;padding:0.7rem;color:#888;font-size:0.7rem;
-      cursor:pointer;border-bottom:2px solid transparent;
-    }
+    .sheet-tab { flex:1;text-align:center;padding:0.7rem;color:#888;font-size:0.7rem;cursor:pointer;border-bottom:2px solid transparent; }
     .sheet-tab.active { color:#fff;border-bottom-color:#a78bfa; }
     .sheet-list { flex:1;overflow-y:auto;padding:0.5rem 0; }
     .sheet-list::-webkit-scrollbar { width:0; }
-    .sheet-user-item {
-      display:flex;align-items:center;gap:0.7rem;padding:0.7rem 1.2rem;
-      cursor:pointer;
-    }
+    .sheet-user-item { display:flex;align-items:center;gap:0.7rem;padding:0.7rem 1.2rem;cursor:pointer; }
     .sheet-user-item:hover { background:rgba(255,255,255,0.03); }
-    .sheet-user-item .avatar {
-      width:40px;height:40px;border-radius:50%;background:#333;
-      display:flex;align-items:center;justify-content:center;
-      font-size:0.9rem;color:#fff;flex-shrink:0;overflow:hidden;
-    }
+    .sheet-user-item .avatar { width:40px;height:40px;border-radius:50%;background:#333;display:flex;align-items:center;justify-content:center;font-size:0.9rem;color:#fff;flex-shrink:0;overflow:hidden; }
     .sheet-user-item .avatar img { width:100%;height:100%;object-fit:cover; }
     .sheet-user-item .info { flex:1;min-width:0; }
     .sheet-user-item .name { font-size:0.8rem;color:#fff; }
     .sheet-user-item .sub { font-size:0.6rem;color:#888; }
-    .sheet-user-item .add-icon {
-      width:30px;height:30px;border-radius:50%;
-      background:rgba(139,92,246,0.15);border:none;
-      color:#a78bfa;font-size:0.7rem;cursor:pointer;
-      display:flex;align-items:center;justify-content:center;flex-shrink:0;
-    }
+    .sheet-user-item .add-icon { width:30px;height:30px;border-radius:50%;background:rgba(139,92,246,0.15);border:none;color:#a78bfa;font-size:0.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
     .sheet-user-item .check-icon { color:#4ade80;font-size:0.8rem;flex-shrink:0; }
     .sheet-search { padding:0.5rem 1.2rem;flex-shrink:0; }
-    .sheet-search input {
-      width:100%;padding:0.5rem 0.8rem;border-radius:0.8rem;
-      border:1px solid rgba(255,255,255,0.1);background:#111;
-      color:#fff;font-size:0.75rem;outline:none;
-    }
+    .sheet-search input { width:100%;padding:0.5rem 0.8rem;border-radius:0.8rem;border:1px solid rgba(255,255,255,0.1);background:#111;color:#fff;font-size:0.75rem;outline:none; }
     .sheet-search input::placeholder { color:#555; }
     .empty-list { text-align:center;color:#555;padding:2rem;font-size:0.7rem; }
-
-    .toast {
-      position:fixed;bottom:50px;left:50%;transform:translateX(-50%);
-      background:#333;color:#fff;padding:0.5rem 1rem;border-radius:2rem;
-      font-size:0.7rem;z-index:400;opacity:0;transition:all 0.3s;
-      pointer-events:none;white-space:nowrap;
-    }
+    .toast { position:fixed;bottom:50px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:0.5rem 1rem;border-radius:2rem;font-size:0.7rem;z-index:400;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap; }
     .toast.show { opacity:1; }
     .shake { animation:shake 0.4s ease; }
   </style>
@@ -302,12 +170,10 @@
         <div style="width:2.4rem;"></div>
       </div>
 
-      <!-- Main View -->
       <div class="content" id="mainView">
         <button class="create-btn" onclick="showCreateLockModal()">
           <i class="fas fa-plus-circle"></i> Create New Lock
         </button>
-
         <div class="numpad-section" id="numpadSection">
           <div class="numpad-label">🔐 Enter PIN to access lock</div>
           <div class="pin-dots" id="pinDots">
@@ -332,16 +198,13 @@
         </div>
       </div>
 
-      <!-- Lock Detail View - Chat Style User List -->
       <div class="content" id="lockDetailView" style="display:none;">
         <div class="lock-info-bar">
           <span class="icon"><i class="fas fa-shield-halved"></i></span>
-          <span class="text" id="lockInfoText">🔒 Private chat - Hidden from main Chats</span>
+          <span class="text" id="lockInfoText">🔒 Private chat - Separate from main Chats</span>
         </div>
-        
         <div class="chat-list-header">Users <span id="lockUserCount"></span></div>
         <div class="users-list" id="lockUsersList"></div>
-        
         <button class="add-user-btn" onclick="showAddUsersSheet()">
           <i class="fas fa-user-plus"></i> Add Users to Lock
         </button>
@@ -349,7 +212,6 @@
           <i class="fas fa-trash"></i> Delete This Lock
         </button>
         
-        <!-- ✅ CHAT VIEW - Same as chat.html -->
         <div class="lock-chat-view" id="lockChatView">
           <div class="lock-chat-header">
             <div class="lock-chat-avatar" id="lockChatAvatar"><i class="fas fa-user"></i></div>
@@ -362,7 +224,7 @@
             <div class="empty-chat">Send a message!</div>
           </div>
           <div class="lock-chat-input-area">
-            <input type="text" class="lock-chat-input" id="lockChatInput" placeholder="Message...">
+            <input type="text" class="lock-chat-input" id="lockChatInput" placeholder="Message (private)...">
             <button class="lock-send-btn" onclick="sendLockMessage()"><i class="fas fa-paper-plane"></i></button>
           </div>
         </div>
@@ -401,13 +263,8 @@
 
     <div class="add-users-overlay" id="addUsersOverlay">
       <div class="add-users-sheet">
-        <div class="sheet-header">
-          <h3>👥 Add Users</h3>
-          <button class="sheet-close" onclick="closeAddUsersSheet()"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="sheet-search">
-          <input type="text" id="userSearchInput" placeholder="🔍 Search users..." oninput="filterUserList()">
-        </div>
+        <div class="sheet-header"><h3>👥 Add Users</h3><button class="sheet-close" onclick="closeAddUsersSheet()"><i class="fas fa-times"></i></button></div>
+        <div class="sheet-search"><input type="text" id="userSearchInput" placeholder="🔍 Search users..." oninput="filterUserList()"></div>
         <div class="sheet-tabs">
           <div class="sheet-tab active" onclick="switchUserTab('besties', this)">⭐ Besties</div>
           <div class="sheet-tab" onclick="switchUserTab('friends', this)">👥 Friends</div>
@@ -454,7 +311,6 @@
       else { locks = []; }
     }
     function saveLocks() { localStorage.setItem('chat_locks_' + currentUserId, JSON.stringify(locks)); }
-    
     function loadUserLists() {
       const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
       bestiesList = (profile.besties || []).map(f => ({ name: (f.name || '').replace('@',''), username: f.name || '', avatar: f.avatar || null, type: 'bestie' }));
@@ -463,26 +319,19 @@
       [...bestiesList, ...friendsList].forEach(u => { if (!allMap[u.username]) { allMap[u.username] = u; userProfiles[u.username] = { name: u.name, avatar: u.avatar }; } });
       allUsersList = Object.values(allMap);
     }
-
-    function avatarHTML(u, size) {
+    function avatarHTML(u) {
       const p = userProfiles[u];
-      const s = size || '48px';
       if (p && p.avatar && p.avatar !== 'null' && p.avatar !== 'undefined') {
-        return `<img src="${p.avatar}" alt="" onerror="this.style.display='none';this.parentElement.innerHTML='${(p.name||u).replace('@','').charAt(0).toUpperCase()}';" style="width:100%;height:100%;object-fit:cover;">`;
+        return `<img src="${p.avatar}" alt="" onerror="this.style.display='none';this.parentElement.innerHTML='${(p.name||u).replace('@','').charAt(0).toUpperCase()}';">`;
       }
       return (u||'U').replace('@','').charAt(0).toUpperCase();
     }
 
     window.goBack = function() {
-      if (currentView === 'lockChat') {
-        closeLockChat();
-      } else if (currentView === 'lockDetail') {
-        goBackToMainSettings();
-      } else {
-        window.history.back();
-      }
+      if (currentView === 'lockChat') { closeLockChat(); }
+      else if (currentView === 'lockDetail') { goBackToMainSettings(); }
+      else { window.history.back(); }
     };
-
     function goBackToMainSettings() {
       closeLockChat();
       document.getElementById('lockDetailView').style.display = 'none';
@@ -491,126 +340,59 @@
       currentView = 'main';
     }
 
-    window.numpadPress = function(num) {
-      if (accessPin.length < 4) { accessPin += num; updateAccessPinDots(); if (accessPin.length === 4) setTimeout(() => checkAccessPin(), 400); }
-    };
+    window.numpadPress = function(num) { if (accessPin.length < 4) { accessPin += num; updateAccessPinDots(); if (accessPin.length === 4) setTimeout(() => checkAccessPin(), 400); } };
     window.numpadDelete = function() { accessPin = accessPin.slice(0, -1); document.getElementById('errorMsg').textContent = ''; resetPinDotsError(); updateAccessPinDots(); };
     function updateAccessPinDots() { document.querySelectorAll('#pinDots .pin-dot').forEach((dot, i) => { dot.classList.remove('filled', 'error'); if (i < accessPin.length) dot.classList.add('filled'); }); }
     function resetPinDotsError() { document.querySelectorAll('#pinDots .pin-dot').forEach(dot => dot.classList.remove('error')); }
     function checkAccessPin() {
       const foundIndex = locks.findIndex(lock => lock.pin === accessPin);
       if (foundIndex >= 0) { currentLockIndex = foundIndex; document.getElementById('errorMsg').textContent = ''; accessPin = ''; updateAccessPinDots(); openLockDetail(foundIndex); }
-      else {
-        document.getElementById('errorMsg').textContent = '❌ Wrong PIN!'; 
-        document.querySelectorAll('#pinDots .pin-dot').forEach(dot => dot.classList.add('error'));
-        document.getElementById('numpadSection').classList.add('shake');
-        setTimeout(() => { document.getElementById('numpadSection').classList.remove('shake'); accessPin = ''; updateAccessPinDots(); resetPinDotsError(); document.getElementById('errorMsg').textContent = ''; }, 1200);
-      }
+      else { document.getElementById('errorMsg').textContent = '❌ Wrong PIN!'; document.querySelectorAll('#pinDots .pin-dot').forEach(dot => dot.classList.add('error')); document.getElementById('numpadSection').classList.add('shake'); setTimeout(() => { document.getElementById('numpadSection').classList.remove('shake'); accessPin = ''; updateAccessPinDots(); resetPinDotsError(); document.getElementById('errorMsg').textContent = ''; }, 1200); }
     }
 
-    window.showCreateLockModal = function() {
-      createPin = ''; createConfirmPin = ''; isCreateConfirmStep = false;
-      document.getElementById('createLockTitle').textContent = '🔐 Create New Lock';
-      document.getElementById('createLockSubtitle').textContent = 'Enter a 4-digit PIN';
-      document.getElementById('createLockConfirm').textContent = 'Create';
-      document.getElementById('createLockConfirm').disabled = true;
-      document.getElementById('createErrorMsg').textContent = '';
-      updateCreatePinDots(); document.getElementById('createLockModal').classList.add('show');
-    };
+    window.showCreateLockModal = function() { createPin = ''; createConfirmPin = ''; isCreateConfirmStep = false; document.getElementById('createLockTitle').textContent = '🔐 Create New Lock'; document.getElementById('createLockSubtitle').textContent = 'Enter a 4-digit PIN'; document.getElementById('createLockConfirm').textContent = 'Create'; document.getElementById('createLockConfirm').disabled = true; document.getElementById('createErrorMsg').textContent = ''; updateCreatePinDots(); document.getElementById('createLockModal').classList.add('show'); };
     window.closeCreateLockModal = function() { document.getElementById('createLockModal').classList.remove('show'); };
-    window.createNumpadPress = function(num) {
-      if (isCreateConfirmStep) { if (createConfirmPin.length < 4) { createConfirmPin += num; updateCreatePinDots(); if (createConfirmPin.length === 4) document.getElementById('createLockConfirm').disabled = false; } }
-      else { if (createPin.length < 4) { createPin += num; updateCreatePinDots(); if (createPin.length === 4) setTimeout(() => { isCreateConfirmStep = true; document.getElementById('createLockTitle').textContent = '🔐 Confirm PIN'; document.getElementById('createLockSubtitle').textContent = 'Re-enter code'; document.getElementById('createLockConfirm').textContent = 'Create Lock'; document.getElementById('createLockConfirm').disabled = true; updateCreatePinDots(); }, 300); } }
-    };
+    window.createNumpadPress = function(num) { if (isCreateConfirmStep) { if (createConfirmPin.length < 4) { createConfirmPin += num; updateCreatePinDots(); if (createConfirmPin.length === 4) document.getElementById('createLockConfirm').disabled = false; } } else { if (createPin.length < 4) { createPin += num; updateCreatePinDots(); if (createPin.length === 4) setTimeout(() => { isCreateConfirmStep = true; document.getElementById('createLockTitle').textContent = '🔐 Confirm PIN'; document.getElementById('createLockSubtitle').textContent = 'Re-enter code'; document.getElementById('createLockConfirm').textContent = 'Create Lock'; document.getElementById('createLockConfirm').disabled = true; updateCreatePinDots(); }, 300); } } };
     window.createNumpadDelete = function() { if (isCreateConfirmStep) createConfirmPin = createConfirmPin.slice(0, -1); else createPin = createPin.slice(0, -1); document.getElementById('createLockConfirm').disabled = true; updateCreatePinDots(); };
     function updateCreatePinDots() { const cp = isCreateConfirmStep ? createConfirmPin : createPin; document.querySelectorAll('#createPinDots .pin-dot').forEach((dot, i) => { dot.classList.remove('filled', 'error'); if (i < cp.length) dot.classList.add('filled'); }); }
-    window.confirmCreateLock = function() {
-      if (createPin.length === 4 && createConfirmPin.length === 4 && createPin === createConfirmPin) {
-        if (locks.some(l => l.pin === createPin)) { document.getElementById('createErrorMsg').textContent = '❌ PIN exists!'; document.getElementById('createLockModalContent').classList.add('shake'); setTimeout(() => document.getElementById('createLockModalContent').classList.remove('shake'), 400); return; }
-        locks.push({ name: 'Lock ' + (locks.length + 1), pin: createPin, users: [], createdAt: new Date().toISOString() });
-        saveLocks(); closeCreateLockModal(); showToast('✅ Lock created!');
-      } else { document.getElementById('createErrorMsg').textContent = '❌ PINs mismatch!'; }
-    };
+    window.confirmCreateLock = function() { if (createPin.length === 4 && createConfirmPin.length === 4 && createPin === createConfirmPin) { if (locks.some(l => l.pin === createPin)) { document.getElementById('createErrorMsg').textContent = '❌ PIN exists!'; document.getElementById('createLockModalContent').classList.add('shake'); setTimeout(() => document.getElementById('createLockModalContent').classList.remove('shake'), 400); return; } locks.push({ name: 'Lock ' + (locks.length + 1), pin: createPin, users: [], createdAt: new Date().toISOString() }); saveLocks(); closeCreateLockModal(); showToast('✅ Lock created!'); } else { document.getElementById('createErrorMsg').textContent = '❌ PINs mismatch!'; } };
 
     window.showAddUsersSheet = function() { loadUserLists(); currentUserTab = 'besties'; document.querySelectorAll('.sheet-tab').forEach((t, i) => t.classList.toggle('active', i === 0)); document.getElementById('userSearchInput').value = ''; renderUsersSheetList(bestiesList); document.getElementById('addUsersOverlay').classList.add('show'); };
     window.closeAddUsersSheet = function() { document.getElementById('addUsersOverlay').classList.remove('show'); };
     window.switchUserTab = function(tab, el) { currentUserTab = tab; document.querySelectorAll('.sheet-tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); document.getElementById('userSearchInput').value = ''; if (tab === 'besties') renderUsersSheetList(bestiesList); else if (tab === 'friends') renderUsersSheetList(friendsList); else renderUsersSheetList(allUsersList); };
     window.filterUserList = function() { const s = document.getElementById('userSearchInput').value.toLowerCase(); let src = currentUserTab === 'besties' ? bestiesList : currentUserTab === 'friends' ? friendsList : allUsersList; renderUsersSheetList(src.filter(u => u.name.toLowerCase().includes(s) || u.username.toLowerCase().includes(s))); };
-    function renderUsersSheetList(users) {
-      const lock = locks[currentLockIndex]; const ex = (lock.users || []).map(u => u.username);
-      document.getElementById('usersSheetList').innerHTML = users.length === 0 ? '<div class="empty-list">No users</div>' : users.map(u => {
-        const added = ex.includes(u.username);
-        return `<div class="sheet-user-item"><div class="avatar">${u.avatar&&u.avatar!=='null'?`<img src="${u.avatar}">`:u.name.charAt(0).toUpperCase()}</div><div class="info"><div class="name">${u.name}</div><div class="sub">@${u.username.replace('@','')}</div></div>${added?'<span class="check-icon"><i class="fas fa-check-circle"></i></span>':`<button class="add-icon" onclick="addUserFromSheet('${u.username}','${u.name}','${u.avatar||''}')"><i class="fas fa-plus"></i></button>`}</div>`;
-      }).join('');
-    }
-    window.addUserFromSheet = function(username, name, avatar) {
-      if (currentLockIndex < 0) return;
-      const lock = locks[currentLockIndex]; if (!lock.users) lock.users = [];
-      if (lock.users.some(u => u.username === username)) { showToast('Already added!', 'error'); return; }
-      lock.users.push({ username, name, avatar: avatar && avatar !== 'null' ? avatar : null, addedAt: new Date().toISOString() });
-      if (avatar) userProfiles[username] = { name, avatar };
-      saveLocks(); renderLockUsers(); loadUserLists();
-      const s = document.getElementById('userSearchInput').value.toLowerCase();
-      let src = currentUserTab === 'besties' ? bestiesList : currentUserTab === 'friends' ? friendsList : allUsersList;
-      renderUsersSheetList(s ? src.filter(u => u.name.toLowerCase().includes(s) || u.username.toLowerCase().includes(s)) : src);
-      showToast('User added! ✅');
-    };
+    function renderUsersSheetList(users) { const lock = locks[currentLockIndex]; const ex = (lock.users || []).map(u => u.username); document.getElementById('usersSheetList').innerHTML = users.length === 0 ? '<div class="empty-list">No users</div>' : users.map(u => { const added = ex.includes(u.username); return `<div class="sheet-user-item"><div class="avatar">${u.avatar&&u.avatar!=='null'?`<img src="${u.avatar}">`:u.name.charAt(0).toUpperCase()}</div><div class="info"><div class="name">${u.name}</div><div class="sub">@${u.username.replace('@','')}</div></div>${added?'<span class="check-icon"><i class="fas fa-check-circle"></i></span>':`<button class="add-icon" onclick="addUserFromSheet('${u.username}','${u.name}','${u.avatar||''}')"><i class="fas fa-plus"></i></button>`}</div>`; }).join(''); }
+    window.addUserFromSheet = function(username, name, avatar) { if (currentLockIndex < 0) return; const lock = locks[currentLockIndex]; if (!lock.users) lock.users = []; if (lock.users.some(u => u.username === username)) { showToast('Already added!', 'error'); return; } lock.users.push({ username, name, avatar: avatar && avatar !== 'null' ? avatar : null, addedAt: new Date().toISOString() }); if (avatar) userProfiles[username] = { name, avatar }; saveLocks(); renderLockUsers(); loadUserLists(); const s = document.getElementById('userSearchInput').value.toLowerCase(); let src = currentUserTab === 'besties' ? bestiesList : currentUserTab === 'friends' ? friendsList : allUsersList; renderUsersSheetList(s ? src.filter(u => u.name.toLowerCase().includes(s) || u.username.toLowerCase().includes(s)) : src); showToast('User added! ✅'); };
 
     function openLockDetail(index) {
       document.getElementById('mainView').style.display = 'none';
       document.getElementById('lockDetailView').style.display = 'flex';
-      document.getElementById('lockInfoText').textContent = '🔒 ' + locks[index].name + ' - Private chat';
+      document.getElementById('lockInfoText').textContent = '🔒 ' + locks[index].name + ' - Private chat (Separate from Chats)';
       document.getElementById('lockChatView').classList.remove('show');
       currentView = 'lockDetail';
       renderLockUsers();
     }
-    
-    // ✅ Chat-style user list
     function renderLockUsers() {
       if (currentLockIndex < 0) return;
       const lock = locks[currentLockIndex];
       const c = document.getElementById('lockUsersList');
       document.getElementById('lockUserCount').textContent = lock.users ? '(' + lock.users.length + ')' : '(0)';
-      
-      if (!lock.users || lock.users.length === 0) {
-        c.innerHTML = '<div style="text-align:center;color:#555;padding:3rem;font-size:0.8rem;">No users yet</div>';
-        return;
-      }
-      
-      c.innerHTML = lock.users.map((u, i) => `
-        <div class="user-list-item" onclick="openLockChat('${u.username}','${(u.name||u.username).replace('@','')}','${u.avatar||''}')">
-          <div class="user-avatar">${avatarHTML(u.username)}</div>
-          <div class="user-info">
-            <div class="user-name-row">
-              <span class="user-name">${(u.name||u.username).replace('@','')}</span>
-            </div>
-            <div class="user-last-msg">Tap to chat</div>
-          </div>
-          <button class="go-btn" style="background:rgba(239,68,68,0.15);color:#ef4444;width:28px;height:28px;border-radius:50%;border:none;font-size:0.6rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;" onclick="event.stopPropagation();removeUserFromLock(${i})" title="Remove">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-      `).join('');
+      if (!lock.users || lock.users.length === 0) { c.innerHTML = '<div style="text-align:center;color:#555;padding:3rem;font-size:0.8rem;">No users yet</div>'; return; }
+      c.innerHTML = lock.users.map((u, i) => `<div class="user-list-item" onclick="openLockChat('${u.username}','${(u.name||u.username).replace('@','')}','${u.avatar||''}')"><div class="user-avatar">${avatarHTML(u.username)}</div><div class="user-info"><div class="user-name-row"><span class="user-name">${(u.name||u.username).replace('@','')}</span></div><div class="user-last-msg">Tap to chat</div></div><button style="background:rgba(239,68,68,0.15);color:#ef4444;width:28px;height:28px;border-radius:50%;border:none;font-size:0.6rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;" onclick="event.stopPropagation();removeUserFromLock(${i})" title="Remove"><i class="fas fa-times"></i></button></div>`).join('');
     }
     window.removeUserFromLock = function(i) { if (currentLockIndex < 0) return; locks[currentLockIndex].users.splice(i, 1); saveLocks(); renderLockUsers(); showToast('User removed'); };
 
-    // ✅ Open chat - same style as chat.html
+    // ✅ SEPARATE CHAT - Uses settings_messages subcollection
     window.openLockChat = function(username, displayName, avatarUrl) {
       lockChatPartner = username;
       lockChatId = [currentUserId, username.replace('@','')].sort().join('_');
       document.getElementById('lockUsersList').style.display = 'none';
       document.querySelector('.chat-list-header').style.display = 'none';
       document.querySelectorAll('.add-user-btn, .btn-delete').forEach(el => el.style.display = 'none');
-      document.getElementById('lockInfoText').textContent = '💬 Chat with ' + displayName;
-      
-      // Set avatar
+      document.getElementById('lockInfoText').textContent = '💬 ' + displayName + ' (Private)';
       const avatarEl = document.getElementById('lockChatAvatar');
-      if (avatarUrl && avatarUrl !== 'null' && avatarUrl !== 'undefined') {
-        avatarEl.innerHTML = `<img src="${avatarUrl}" alt="" style="width:100%;height:100%;object-fit:cover;">`;
-      } else {
-        avatarEl.innerHTML = displayName.charAt(0).toUpperCase();
-      }
-      
+      if (avatarUrl && avatarUrl !== 'null' && avatarUrl !== 'undefined') { avatarEl.innerHTML = `<img src="${avatarUrl}" alt="" style="width:100%;height:100%;object-fit:cover;">`; }
+      else { avatarEl.innerHTML = displayName.charAt(0).toUpperCase(); }
       document.getElementById('lockChatPartnerName').textContent = displayName;
       document.getElementById('lockChatView').classList.add('show');
       document.getElementById('lockChatMessages').innerHTML = '<div class="empty-chat">Loading...</div>';
@@ -629,13 +411,18 @@
       currentView = 'lockDetail';
     };
     
+    // ✅ Store settings messages in a SEPARATE subcollection
     async function ensureLockChatDoc() {
       const ref = doc(db, 'chats', lockChatId);
-      if (!(await getDoc(ref)).exists()) await setDoc(ref, { users: [currentUserId, lockChatPartner.replace('@','')], lastMessage: '', lastType: 'text', lastTime: serverTimestamp() });
+      if (!(await getDoc(ref)).exists()) {
+        await setDoc(ref, { users: [currentUserId, lockChatPartner.replace('@','')], lastMessage: '', lastType: 'text', lastTime: serverTimestamp() });
+      }
     }
+    
     function listenToLockMessages() {
       if (unsubLockMessages) { unsubLockMessages(); unsubLockMessages = null; }
-      const q = query(collection(db, 'chats', lockChatId, 'messages'), orderBy('createdAt', 'asc'));
+      // ✅ Use settings_messages subcollection (separate from chat.html messages)
+      const q = query(collection(db, 'chats', lockChatId, 'settings_messages'), orderBy('createdAt', 'asc'));
       getDocs(q).then(snap => {
         const c = document.getElementById('lockChatMessages'); c.innerHTML = '';
         if (snap.empty) c.innerHTML = '<div class="empty-chat">Send a message!</div>';
@@ -649,6 +436,7 @@
         snap.docChanges().forEach(ch => { if (ch.type === 'added' && !document.getElementById('msg-' + ch.doc.id)) { renderLockMsg(ch.doc.id, ch.doc.data()); scrollLockChatBottom(); } });
       });
     }
+    
     function renderLockMsg(id, msg) {
       const c = document.getElementById('lockChatMessages');
       const isSent = msg.sender === currentUserId;
@@ -658,10 +446,11 @@
       w.id = 'msg-' + id;
       let time = '';
       if (msg.createdAt) try { time = new Date(msg.createdAt.toDate()).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); } catch(e) {}
-      const isFromSettings = msg.source === 'settings';
-      w.innerHTML = `<div class="message-bubble">${msg.text||''}<div class="message-time">${time}${isSent ? ' <i class="fas fa-check"></i>' : ''}</div>${isFromSettings ? '<div class="settings-badge"><i class="fas fa-shield-halved"></i> Settings</div>' : ''}</div>`;
+      w.innerHTML = `<div class="message-bubble">${msg.text||''}<div class="message-time">${time}${isSent ? ' <i class="fas fa-check"></i>' : ''}</div><div class="settings-badge"><i class="fas fa-shield-halved"></i> Private</div></div>`;
       c.appendChild(w);
     }
+    
+    // ✅ Send to settings_messages (NOT messages)
     window.sendLockMessage = async function() {
       const input = document.getElementById('lockChatInput');
       const text = input.value.trim();
@@ -669,15 +458,18 @@
       input.value = '';
       try {
         await ensureLockChatDoc();
-        await addDoc(collection(db, 'chats', lockChatId, 'messages'), {
-          text, sender: currentUserId, createdAt: serverTimestamp(), seen: false, source: 'settings'
+        await addDoc(collection(db, 'chats', lockChatId, 'settings_messages'), {
+          text, sender: currentUserId, createdAt: serverTimestamp(), seen: false
         });
+        // Update a separate field so chat.html doesn't see it
         await updateDoc(doc(db, 'chats', lockChatId), {
-          lastMessage: '🔒 ' + text, lastType: 'text', lastTime: serverTimestamp(),
-          ['unread_' + lockChatPartner.replace('@','')]: increment(1), source: 'settings'
+          settingsLastMessage: text,
+          settingsLastTime: serverTimestamp(),
+          ['settings_unread_' + lockChatPartner.replace('@','')]: increment(1)
         });
       } catch(e) { console.error(e); }
     };
+    
     function scrollLockChatBottom() { const c = document.getElementById('lockChatMessages'); setTimeout(() => { if(c) c.scrollTop = c.scrollHeight; }, 100); }
     document.getElementById('lockChatInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); sendLockMessage(); } });
 
@@ -686,16 +478,7 @@
 
     document.getElementById('createLockModal').addEventListener('click', function(e) { if (e.target === this) closeCreateLockModal(); });
     document.getElementById('addUsersOverlay').addEventListener('click', function(e) { if (e.target === this) closeAddUsersSheet(); });
-    document.addEventListener('keydown', function(e) {
-      if (document.getElementById('createLockModal').classList.contains('show')) {
-        if (e.key >= '0' && e.key <= '9') createNumpadPress(e.key);
-        else if (e.key === 'Backspace') createNumpadDelete();
-        else if (e.key === 'Enter') { const b = document.getElementById('createLockConfirm'); if (!b.disabled) confirmCreateLock(); }
-        return;
-      }
-      if (e.key >= '0' && e.key <= '9') numpadPress(e.key);
-      else if (e.key === 'Backspace') numpadDelete();
-    });
+    document.addEventListener('keydown', function(e) { if (document.getElementById('createLockModal').classList.contains('show')) { if (e.key >= '0' && e.key <= '9') createNumpadPress(e.key); else if (e.key === 'Backspace') createNumpadDelete(); else if (e.key === 'Enter') { const b = document.getElementById('createLockConfirm'); if (!b.disabled) confirmCreateLock(); } return; } if (e.key >= '0' && e.key <= '9') numpadPress(e.key); else if (e.key === 'Backspace') numpadDelete(); });
 
     loadLocks();
     loadUserLists();

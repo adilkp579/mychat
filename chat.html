@@ -36,10 +36,7 @@
       font-size:1rem;display:flex;align-items:center;justify-content:center;
       text-decoration:none;border:1px solid #333;cursor:pointer;transition:all 0.3s;
     }
-    .corner-btn:hover {
-      background:#2a2a2a;
-      transform:scale(1.05);
-    }
+    .corner-btn:hover { background:#2a2a2a;transform:scale(1.05); }
     .top-brand {
       font-size:2rem;font-weight:700;color:#fff;letter-spacing:3px;
       font-family:'Segoe Script','Brush Script MT','Apple Chancery','Comic Sans MS',cursive;
@@ -137,7 +134,7 @@
 
     .empty-chat {flex:1;display:flex;align-items:center;justify-content:center;color:#333;font-size:0.8rem;}
 
-    /* 🌟 ULTRA-TRANSPARENT GLASSMORPHISM MODAL - NEW CHAT */
+    /* ULTRA-TRANSPARENT GLASSMORPHISM MODAL - NEW CHAT */
     .new-chat-overlay {
       position:fixed;top:0;left:0;right:0;bottom:0;
       background: rgba(0,0,0,0.2);
@@ -159,347 +156,115 @@
       display: flex;
       flex-direction: column;
       border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.4),
-        0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
       overflow: hidden;
       position: relative;
     }
     
-    /* Glass shine effect */
     .new-chat-modal::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.02) 25%,
-        rgba(255, 255, 255, 0.04) 50%,
-        rgba(255, 255, 255, 0.02) 75%,
-        transparent 100%
-      );
+      top: 0;left: -100%;width: 100%;height: 100%;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.02) 25%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0.02) 75%, transparent 100%);
       animation: glassShine 8s infinite linear;
       pointer-events: none;
     }
     
-    /* Frosted glass particles */
     .new-chat-modal::after {
       content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: 
-        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.02) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(255, 252, 0, 0.01) 0%, transparent 50%),
-        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.01) 0%, transparent 70%);
+      position: absolute;top:0;left:0;right:0;bottom:0;
+      background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.02) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(255,252,0,0.01) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(255,255,255,0.01) 0%, transparent 70%);
       pointer-events: none;
     }
     
-    /* Ultra transparent tabs */
     .new-chat-tabs {
-      display: flex;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-      flex-shrink: 0;
-      background: rgba(255, 255, 255, 0.01);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      position: relative;
-      z-index: 2;
+      display: flex;border-bottom: 1px solid rgba(255,255,255,0.04);
+      flex-shrink: 0;background: rgba(255,255,255,0.01);
+      backdrop-filter: blur(20px);-webkit-backdrop-filter: blur(20px);
+      position: relative;z-index: 2;
     }
     
     .new-chat-tab {
-      flex: 1;
-      text-align: center;
-      padding: 0.9rem;
-      color: rgba(255, 255, 255, 0.3);
-      font-size: 0.8rem;
-      font-weight: 500;
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      z-index: 3;
-      letter-spacing: 0.5px;
+      flex: 1;text-align: center;padding: 0.9rem;
+      color: rgba(255,255,255,0.3);font-size: 0.8rem;font-weight: 500;
+      cursor: pointer;border-bottom: 2px solid transparent;
+      transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+      position: relative;z-index: 3;letter-spacing: 0.5px;
     }
+    .new-chat-tab:hover { color: rgba(255,255,255,0.7);background: rgba(255,255,255,0.02); }
+    .new-chat-tab.active { color: #fff;background: rgba(255,255,255,0.05);border-bottom-color: #FFFC00;text-shadow: 0 0 20px rgba(255,252,0,0.5); }
     
-    .new-chat-tab:hover {
-      color: rgba(255, 255, 255, 0.7);
-      background: rgba(255, 255, 255, 0.02);
-    }
-    
-    .new-chat-tab.active {
-      color: #fff;
-      background: rgba(255, 255, 255, 0.05);
-      border-bottom-color: #FFFC00;
-      text-shadow: 0 0 20px rgba(255, 252, 0, 0.5);
-    }
-    
-    /* Tab badge - frosted glass */
     .new-chat-tab .tab-badge {
-      position: absolute;
-      top: 0.4rem;
-      right: 0.8rem;
-      background: rgba(239, 68, 68, 0.8);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      color: #fff;
-      font-size: 0.55rem;
-      min-width: 18px;
-      height: 18px;
-      border-radius: 9px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+      position: absolute;top:0.4rem;right:0.8rem;
+      background: rgba(239,68,68,0.8);backdrop-filter: blur(10px);-webkit-backdrop-filter: blur(10px);
+      color: #fff;font-size:0.55rem;min-width:18px;height:18px;border-radius:9px;
+      display: flex;align-items: center;justify-content: center;font-weight: 700;
+      border: 1px solid rgba(239,68,68,0.3);box-shadow: 0 0 15px rgba(239,68,68,0.3);
     }
     
-    /* Ultra transparent search */
-    .new-chat-search {
-      padding: 0.7rem 1rem;
-      flex-shrink: 0;
-      position: relative;
-      z-index: 2;
-    }
-    
+    .new-chat-search { padding: 0.7rem 1rem;flex-shrink: 0;position: relative;z-index: 2; }
     .new-chat-search input {
-      width: 100%;
-      padding: 0.6rem 1rem;
-      border-radius: 1.2rem;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      background: rgba(255, 255, 255, 0.02);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      color: #fff;
-      font-size: 0.8rem;
-      outline: none;
-      transition: all 0.3s;
+      width: 100%;padding: 0.6rem 1rem;border-radius: 1.2rem;
+      border: 1px solid rgba(255,255,255,0.06);background: rgba(255,255,255,0.02);
+      backdrop-filter: blur(20px);-webkit-backdrop-filter: blur(20px);
+      color: #fff;font-size: 0.8rem;outline: none;transition: all 0.3s;
     }
+    .new-chat-search input::placeholder { color: rgba(255,255,255,0.2); }
+    .new-chat-search input:focus { border-color: rgba(255,255,255,0.2);background: rgba(255,255,255,0.05);box-shadow: 0 0 20px rgba(255,255,255,0.05); }
     
-    .new-chat-search input::placeholder {
-      color: rgba(255, 255, 255, 0.2);
-    }
+    .new-chat-list { flex: 1;overflow-y: auto;padding: 0.3rem 0;position: relative;z-index: 2; }
+    .new-chat-list::-webkit-scrollbar { width:3px; }
+    .new-chat-list::-webkit-scrollbar-track { background:transparent; }
+    .new-chat-list::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1);border-radius:3px; }
     
-    .new-chat-search input:focus {
-      border-color: rgba(255, 255, 255, 0.2);
-      background: rgba(255, 255, 255, 0.05);
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
-    }
-    
-    /* Ultra transparent list */
-    .new-chat-list {
-      flex: 1;
-      overflow-y: auto;
-      padding: 0.3rem 0;
-      position: relative;
-      z-index: 2;
-    }
-    
-    .new-chat-list::-webkit-scrollbar {
-      width: 3px;
-    }
-    
-    .new-chat-list::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    
-    .new-chat-list::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 3px;
-    }
-    
-    /* Glass list items */
     .new-chat-item {
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-      padding: 0.8rem 1rem;
-      cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      background: transparent;
-      margin: 0 0.3rem;
-      border-radius: 0.8rem;
-      position: relative;
+      display: flex;align-items: center;gap:0.8rem;padding:0.8rem 1rem;
+      cursor: pointer;transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+      background: transparent;margin: 0 0.3rem;border-radius: 0.8rem;position: relative;
     }
-    
-    .new-chat-item:hover {
-      background: rgba(255, 255, 255, 0.04);
-      transform: scale(1.01);
-    }
-    
-    .new-chat-item:active {
-      background: rgba(255, 255, 255, 0.08);
-      transform: scale(0.99);
-    }
+    .new-chat-item:hover { background: rgba(255,255,255,0.04);transform: scale(1.01); }
+    .new-chat-item:active { background: rgba(255,255,255,0.08);transform: scale(0.99); }
     
     .new-chat-avatar {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-weight: 700;
-      font-size: 1rem;
-      flex-shrink: 0;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      width:44px;height:44px;border-radius:50%;
+      background: rgba(255,255,255,0.05);backdrop-filter: blur(10px);-webkit-backdrop-filter: blur(10px);
+      overflow:hidden;display:flex;align-items:center;justify-content:center;
+      color:#fff;font-weight:700;font-size:1rem;flex-shrink:0;
+      border:1px solid rgba(255,255,255,0.15);box-shadow:0 2px 10px rgba(0,0,0,0.2);
     }
+    .new-chat-avatar img { width:100%;height:100%;object-fit:cover; }
+    .new-chat-info { flex:1;min-width:0; }
+    .new-chat-name { font-size:0.85rem;color:#fff;font-weight:500;text-shadow:0 1px 3px rgba(0,0,0,0.3); }
+    .new-chat-sub { font-size:0.65rem;color:rgba(255,255,255,0.4);margin-top:2px; }
     
-    .new-chat-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    
-    .new-chat-info {
-      flex: 1;
-      min-width: 0;
-    }
-    
-    .new-chat-name {
-      font-size: 0.85rem;
-      color: #fff;
-      font-weight: 500;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-    }
-    
-    .new-chat-sub {
-      font-size: 0.65rem;
-      color: rgba(255, 255, 255, 0.4);
-      margin-top: 2px;
-    }
-    
-    /* Glass action buttons */
-    .new-chat-actions {
-      display: flex;
-      gap: 0.5rem;
-      flex-shrink: 0;
-    }
-    
+    .new-chat-actions { display:flex;gap:0.5rem;flex-shrink:0; }
     .new-chat-action {
-      padding: 0.4rem 1rem;
-      border-radius: 1.2rem;
-      font-size: 0.65rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      background: transparent;
-      backdrop-filter: blur(15px);
-      -webkit-backdrop-filter: blur(15px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      letter-spacing: 0.3px;
+      padding:0.4rem 1rem;border-radius:1.2rem;font-size:0.65rem;font-weight:600;
+      cursor:pointer;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+      background:transparent;backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);
+      border:1px solid rgba(255,255,255,0.1);letter-spacing:0.3px;
     }
+    .new-chat-action:hover { transform:translateY(-1px); }
+    .new-chat-action:active { transform:scale(0.95); }
+    .new-chat-action.accept { color:#4ade80;border-color:rgba(74,222,128,0.3);background:rgba(74,222,128,0.05); }
+    .new-chat-action.accept:hover { background:rgba(74,222,128,0.15);box-shadow:0 0 20px rgba(74,222,128,0.2); }
+    .new-chat-action.decline { color:#ef4444;border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.05); }
+    .new-chat-action.decline:hover { background:rgba(239,68,68,0.15);box-shadow:0 0 20px rgba(239,68,68,0.2); }
+    .new-chat-action.chat { color:#FFFC00;border-color:rgba(255,252,0,0.3);background:rgba(255,252,0,0.05); }
+    .new-chat-action.chat:hover { background:rgba(255,252,0,0.15);box-shadow:0 0 20px rgba(255,252,0,0.2); }
+    .new-chat-action.request-btn { color:#a78bfa;border-color:rgba(139,92,246,0.3);background:rgba(139,92,246,0.05); }
+    .new-chat-action.request-btn:hover { background:rgba(139,92,246,0.15);box-shadow:0 0 20px rgba(139,92,246,0.2); }
     
-    .new-chat-action:hover {
-      transform: translateY(-1px);
-    }
-    
-    .new-chat-action:active {
-      transform: scale(0.95);
-    }
-    
-    .new-chat-action.accept {
-      color: #4ade80;
-      border-color: rgba(74, 222, 128, 0.3);
-      background: rgba(74, 222, 128, 0.05);
-    }
-    
-    .new-chat-action.accept:hover {
-      background: rgba(74, 222, 128, 0.15);
-      box-shadow: 0 0 20px rgba(74, 222, 128, 0.2);
-    }
-    
-    .new-chat-action.decline {
-      color: #ef4444;
-      border-color: rgba(239, 68, 68, 0.3);
-      background: rgba(239, 68, 68, 0.05);
-    }
-    
-    .new-chat-action.decline:hover {
-      background: rgba(239, 68, 68, 0.15);
-      box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
-    }
-    
-    .new-chat-action.chat {
-      color: #FFFC00;
-      border-color: rgba(255, 252, 0, 0.3);
-      background: rgba(255, 252, 0, 0.05);
-    }
-    
-    .new-chat-action.chat:hover {
-      background: rgba(255, 252, 0, 0.15);
-      box-shadow: 0 0 20px rgba(255, 252, 0, 0.2);
-    }
-    
-    .new-chat-action.request-btn {
-      color: #a78bfa;
-      border-color: rgba(139, 92, 246, 0.3);
-      background: rgba(139, 92, 246, 0.05);
-    }
-    
-    .new-chat-action.request-btn:hover {
-      background: rgba(139, 92, 246, 0.15);
-      box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
-    }
-    
-    /* Close button */
     .new-chat-close {
-      text-align: center;
-      padding: 0.7rem;
-      color: rgba(255, 255, 255, 0.3);
-      cursor: pointer;
-      font-size: 0.75rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.04);
-      background: rgba(255, 255, 255, 0.01);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      flex-shrink: 0;
-      position: relative;
-      z-index: 2;
-      transition: all 0.3s;
+      text-align:center;padding:0.7rem;color:rgba(255,255,255,0.3);cursor:pointer;
+      font-size:0.75rem;border-top:1px solid rgba(255,255,255,0.04);
+      background:rgba(255,255,255,0.01);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+      flex-shrink:0;position:relative;z-index:2;transition:all 0.3s;
     }
+    .new-chat-close:hover { color:#ef4444;background:rgba(239,68,68,0.05); }
     
-    .new-chat-close:hover {
-      color: #ef4444;
-      background: rgba(239, 68, 68, 0.05);
-    }
-    
-    .requested-label {
-      color: #f59e0b;
-      font-size: 0.6rem;
-      font-weight: 500;
-      padding: 0.3rem 0.6rem;
-      border-radius: 0.8rem;
-      background: rgba(245, 158, 11, 0.05);
-      border: 1px solid rgba(245, 158, 11, 0.2);
-    }
-    
-    .new-badge {
-      background: rgba(74, 222, 128, 0.1);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      color: #4ade80;
-      font-size: 0.5rem;
-      padding: 2px 6px;
-      border-radius: 6px;
-      margin-left: 8px;
-      font-weight: 700;
-      display: inline-block;
-      border: 1px solid rgba(74, 222, 128, 0.3);
-    }
+    .requested-label { color:#f59e0b;font-size:0.6rem;font-weight:500;padding:0.3rem 0.6rem;border-radius:0.8rem;background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.2); }
+    .new-badge { background:rgba(74,222,128,0.1);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#4ade80;font-size:0.5rem;padding:2px 6px;border-radius:6px;margin-left:8px;font-weight:700;display:inline-block;border:1px solid rgba(74,222,128,0.3); }
 
     /* Call Overlay */
     .call-overlay {position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.97);z-index:600;display:none;flex-direction:column;align-items:center;justify-content:center;}
@@ -531,130 +296,36 @@
     .loading-screen i {font-size:2rem;color:#3897f0;animation:spin 1s infinite;}
     .loading-screen span {font-size:0.75rem;color:#888;}
 
-    /* 🌟 MAXIMUM VISIBILITY - Ultra Transparent Glassmorphism Navbar */
     .floating-nav {
-      position: fixed;
-      bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
-      left: 50%;
-      transform: translateX(-50%);
-      width: 92%;
-      max-width: 500px;
-      background: transparent;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border-radius: 2.5rem;
-      padding: 0.7rem 1.5rem;
-      border: 1px solid rgba(255, 255, 255, 0.04);
-      box-shadow: none;
-      z-index: 100;
-      transition: all 0.3s ease;
-      pointer-events: auto;
+      position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));
+      left:50%;transform:translateX(-50%);width:92%;max-width:500px;
+      background:transparent;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+      border-radius:2.5rem;padding:0.7rem 1.5rem;
+      border:1px solid rgba(255,255,255,0.04);box-shadow:none;z-index:100;
     }
-    
-    .floating-nav:hover {
-      background: rgba(255, 255, 255, 0.02);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-color: rgba(255, 255, 255, 0.08);
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-    
+    .floating-nav:hover { background:rgba(255,255,255,0.02);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-color:rgba(255,255,255,0.08); }
     .floating-nav.hidden { display:none; }
-    
-    .nav-center {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      max-width: 380px;
-      gap: 0.3rem;
-    }
-    
-    .nav-center a {
-      color: rgba(255, 255, 255, 0.7);
-      font-size: 1.3rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 2.5rem;
-      height: 2.5rem;
-      border-radius: 50%;
-      transition: all 0.3s;
-      text-decoration: none;
-      position: relative;
-      background: transparent;
-      text-shadow: 0 0 8px rgba(0, 0, 0, 0.8), 0 0 12px rgba(0, 0, 0, 0.6);
-    }
-    
-    .nav-center a:hover {
-      color: #fff;
-      background: rgba(255, 255, 255, 0.08);
-      transform: translateY(-2px);
-      text-shadow: 0 0 12px rgba(0, 0, 0, 0.9), 0 0 20px rgba(0, 0, 0, 0.7);
-    }
-    
-    .nav-center a::before {
-      content: '';
-      position: absolute;
-      bottom: -2px;
-      left: 50%;
-      transform: translateX(-50%) scale(0);
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: #fff;
-      transition: all 0.3s;
-    }
-    
-    .nav-center a.active {
-      color: #fff;
-      background: rgba(255, 255, 255, 0.12);
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.08);
-      text-shadow: 0 0 14px rgba(0, 0, 0, 0.9), 0 0 24px rgba(0, 0, 0, 0.8);
-    }
-    
-    .nav-center a.active::before {
-      transform: translateX(-50%) scale(1);
-    }
-    
-    .nav-upload, .nav-search { display: none !important; }
+    .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
+    .nav-center a { color:rgba(255,255,255,0.7);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;position:relative;background:transparent;text-shadow:0 0 8px rgba(0,0,0,0.8); }
+    .nav-center a:hover { color:#fff;background:rgba(255,255,255,0.08);transform:translateY(-2px); }
+    .nav-center a.active { color:#fff;background:rgba(255,255,255,0.12);box-shadow:0 0 15px rgba(255,255,255,0.08); }
+    .nav-upload, .nav-search { display:none !important; }
 
-    @media (min-width: 1024px) {
-      .top-icons { display: none; }
-      .chat-header.show { padding-top: 1rem; }
-      .nav-upload, .nav-search { display: flex !important; }
-      
-      .floating-nav {
-        position: fixed;
-        top: 50%;
-        left: 1.5rem;
-        bottom: auto;
-        transform: translateY(-50%);
-        width: 3.8rem;
-        height: auto;
-        max-width: none;
-        border-radius: 2.5rem;
-        padding: 1rem 0.6rem;
-        flex-direction: column;
-        background: transparent;
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-      }
-      
-      .floating-nav.hidden { display: flex !important; }
-      .nav-center { flex-direction: column; gap: 1.2rem; max-width: none; }
-      .nav-center a { font-size: 1.4rem; width: 2.6rem; height: 2.6rem; }
-      .page { padding: 0 0 0 5.5rem; }
-      .scrollable-page { max-width: 550px; margin: 0 auto; width: 100%; }
+    @media (min-width:1024px) {
+      .top-icons { display:none; }
+      .chat-header.show { padding-top:1rem; }
+      .nav-upload, .nav-search { display:flex !important; }
+      .floating-nav { position:fixed;top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column; }
+      .floating-nav.hidden { display:flex !important; }
+      .nav-center { flex-direction:column;gap:1.2rem;max-width:none; }
+      .nav-center a { font-size:1.4rem;width:2.6rem;height:2.6rem; }
+      .page { padding:0 0 0 5.5rem; }
+      .scrollable-page { max-width:550px;margin:0 auto;width:100%; }
     }
     
-    @media (max-width: 380px) {
-      .floating-nav { 
-        width: 94%; 
-        padding: 0.5rem 0.8rem; 
-        bottom: max(0.8rem, env(safe-area-inset-bottom, 0.8rem)); 
-      }
-      .nav-center a { font-size: 1.1rem; width: 2rem; height: 2rem; }
+    @media (max-width:380px) {
+      .floating-nav { width:94%;padding:0.5rem 0.8rem;bottom:max(0.8rem,env(safe-area-inset-bottom,0.8rem)); }
+      .nav-center a { font-size:1.1rem;width:2rem;height:2rem; }
     }
   </style>
 </head>
@@ -662,7 +333,6 @@
   <div class="loading-screen" id="loadingScreen"><i class="fas fa-spinner"></i><span>Loading...</span></div>
   <div class="page" id="mainPage" style="display:none;">
     <div class="scrollable-page" id="scrollablePage">
-      <!-- ✅ Updated top header with heart left, plus and settings right -->
       <div class="top-icons" id="topIcons">
         <a href="hart.html" class="corner-btn" title="Likes"><i class="fas fa-heart"></i></a>
         <span class="top-brand">Chats</span>
@@ -709,7 +379,6 @@
       <button class="send-btn" id="sendBtn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
     </div>
 
-    <!-- 🌟 ULTRA-TRANSPARENT GLASS MODAL -->
     <div class="new-chat-overlay" id="newChatOverlay">
       <div class="new-chat-modal">
         <div class="new-chat-tabs">
@@ -745,7 +414,6 @@
       </div>
     </div>
     
-    <!-- 🌟 MAX VISIBILITY - Ultra Transparent Glassmorphism Navbar -->
     <nav class="floating-nav" id="floatingNav">
       <div class="nav-center">
         <a href="index.html"><i class="fas fa-home"></i></a>
@@ -776,13 +444,28 @@
     document.getElementById('loadingScreen').style.display='none';document.getElementById('mainPage').style.display='flex';
     loadAllUsers();setupRealtimeChatList();listenForIncomingCalls();loadMessageRequests();
     
-    // Check for pre-selected user from profile page
     const preSelectedUser = sessionStorage.getItem('openChatWith');
     if (preSelectedUser) {
       sessionStorage.removeItem('openChatWith');
-      setTimeout(() => {
-        openChat(preSelectedUser);
-      }, 800);
+      setTimeout(() => { openChat(preSelectedUser); }, 800);
+    }
+    
+    // ✅ Get users that are hidden in locks
+    function getLockedUsers() {
+      const saved = localStorage.getItem('chat_locks_' + currentUserId);
+      if (saved) {
+        try {
+          const locks = JSON.parse(saved);
+          const lockedUsers = new Set();
+          locks.forEach(lock => {
+            (lock.users || []).forEach(user => {
+              lockedUsers.add(user.username);
+            });
+          });
+          return lockedUsers;
+        } catch(e) { return new Set(); }
+      }
+      return new Set();
     }
     
     function cleanName(u){return(u||'').replace(/^@/,'');}
@@ -814,7 +497,33 @@
     window.declineRequest=async function(requestId){try{await deleteDoc(doc(db,'message_requests',requestId));messageRequests=messageRequests.filter(r=>r.id!==requestId);updateRequestBadge();renderNewChatRequests(messageRequests);}catch(e){};};
     document.getElementById('newChatOverlay').addEventListener('click',function(e){if(e.target===this)closeNewChatModal();});
     
-    function setupRealtimeChatList(){if(unsubChatList)unsubChatList();const q=query(collection(db,'chats'),orderBy('lastTime','desc'));unsubChatList=onSnapshot(q,(snap)=>{const chats=[];snap.forEach(docSnap=>{const data=docSnap.data();const ids=docSnap.id.split('_');if(ids.includes(currentUserId)){const partnerId=ids.find(i=>i!==currentUserId);if(partnerId&&data.lastMessage!==undefined){chats.push({username:'@'+partnerId,lastMsg:data.lastType==='image'?'📷 Photo':data.lastType==='audio'?'🎤 Voice':data.lastMessage||'',lastTime:data.lastTime?.toDate()||new Date(0),unreadCount:data['unread_'+currentUserId]||0});}}});chatListData=chats;renderChatList(chats);},(error)=>{});}
+    // ✅ Updated: Filter out locked users from chat list
+    function setupRealtimeChatList(){
+      if(unsubChatList)unsubChatList();
+      const q=query(collection(db,'chats'),orderBy('lastTime','desc'));
+      unsubChatList=onSnapshot(q,(snap)=>{
+        const lockedUsers = getLockedUsers();
+        const chats=[];
+        snap.forEach(docSnap=>{
+          const data=docSnap.data();
+          const ids=docSnap.id.split('_');
+          if(ids.includes(currentUserId)){
+            const partnerId=ids.find(i=>i!==currentUserId);
+            // ✅ Skip locked users - they won't show in main chat list
+            if(partnerId && data.lastMessage!==undefined && !lockedUsers.has('@'+partnerId)){
+              chats.push({
+                username:'@'+partnerId,
+                lastMsg:data.lastType==='image'?'📷 Photo':data.lastType==='audio'?'🎤 Voice':data.lastMessage||'',
+                lastTime:data.lastTime?.toDate()||new Date(0),
+                unreadCount:data['unread_'+currentUserId]||0
+              });
+            }
+          }
+        });
+        chatListData=chats;
+        renderChatList(chats);
+      },(error)=>{});
+    }
     
     function renderChatList(cu){const l=document.getElementById('userList'),cnt=document.getElementById('chatCount');const tu=cu.reduce((s,c)=>s+c.unreadCount,0);cnt.textContent=cu.length>0?'('+cu.length+')':'';if(cu.length===0){l.innerHTML='<div style="text-align:center;color:#555;padding:3rem;font-size:0.8rem;">No messages yet</div>';return;}l.innerHTML=cu.map(c=>{const ts=c.lastTime.getTime()>0?fmtTime(c.lastTime):'';const dn=dispName(c.username);return`<div class="user-list-item ${chatPartner===c.username?'active':''}" onclick="openChat('${c.username}')"><div class="user-avatar" onclick="event.stopPropagation();window.location.href='profile.html?user=${encodeURIComponent(c.username)}'">${avatarHTML(c.username)}</div><div class="user-info"><div class="user-name-row"><span class="user-name" onclick="event.stopPropagation();window.location.href='profile.html?user=${encodeURIComponent(c.username)}'">${dn}</span><span class="user-time">${ts}</span></div><div class="user-msg-row"><span class="user-last-msg ${c.unreadCount>0?'unread-msg':''}">${c.lastMsg||'No messages'}</span>${c.unreadCount>0?`<span class="unread-count">${c.unreadCount}</span>`:''}</div></div></div>`;}).join('');}
     function fmtTime(d){if(!d||d.getTime()===0)return'';const n=new Date(),df=n-d;if(df<60000)return'Now';if(df<3600000)return Math.floor(df/60000)+'m';if(d.toDateString()===n.toDateString())return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});if(n-d<604800000)return['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];return d.toLocaleDateString([],{month:'short',day:'numeric'});}
@@ -823,7 +532,6 @@
     
     window.goBack=function(){if(isCallActive){endCall();}chatPartner=null;chatId=null;if(unsubMessages){unsubMessages();unsubMessages=null;}stopVoice(true);document.getElementById('topIcons').classList.remove('hidden');document.getElementById('chatHeader').classList.remove('show');document.getElementById('chatListFull').classList.remove('hidden');document.getElementById('chatView').classList.remove('show');document.getElementById('searchBarContainer').classList.remove('hidden');document.getElementById('partnerName').textContent='';document.getElementById('partnerStatus').textContent='';document.getElementById('chatInputArea').classList.remove('show');document.getElementById('floatingNav').classList.remove('hidden');};
     
-    // ========== CALLS ==========
     window.startCall=async function(type){if(!chatPartner||isCallActive)return;callType=type;isCaller=true;try{localStream=await navigator.mediaDevices.getUserMedia({audio:true,video:type==='video'});document.getElementById('callLocalVideo').srcObject=localStream;document.getElementById('callLocalVideo').style.display=type==='video'?'block':'none';document.getElementById('callOverlay').classList.add('show');document.getElementById('callStatus').textContent='Calling...';document.getElementById('callVideoBtn').style.display=type==='video'?'flex':'none';const callId=[currentUserId,chatPartner.replace('@','')].sort().join('_')+'_'+Date.now();callDocRef=doc(db,'calls',callId);await createPeerConnection();localStream.getTracks().forEach(track=>{peerConnection.addTrack(track,localStream);});const offer=await peerConnection.createOffer();await peerConnection.setLocalDescription(offer);await setDoc(callDocRef,{caller:currentUserId,callee:chatPartner.replace('@',''),type:type,status:'ringing',offer:{type:offer.type,sdp:offer.sdp},createdAt:serverTimestamp()});callUnsub=onSnapshot(callDocRef,async(snap)=>{const data=snap.data();if(!data)return;if(data.status==='rejected'){endCall();return;}if(data.status==='accepted'&&data.answer){if(!peerConnection.currentRemoteDescription){document.getElementById('callStatus').textContent='Connected';await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));}}});isCallActive=true;}catch(e){alert('Camera/microphone needed!');endCall();}};
     async function createPeerConnection(){if(peerConnection){peerConnection.close();}peerConnection=new RTCPeerConnection(servers);peerConnection.ontrack=(event)=>{if(event.streams[0]){document.getElementById('callRemoteVideo').srcObject=event.streams[0];}};peerConnection.onicecandidate=async(event)=>{if(event.candidate&&callDocRef){const snap=await getDoc(callDocRef);const data=snap.data();if(data){const candidates=isCaller?(data.callerCandidates||[]):(data.calleeCandidates||[]);candidates.push(event.candidate.toJSON());await updateDoc(callDocRef,{[isCaller?'callerCandidates':'calleeCandidates']:candidates});}}};peerConnection.onconnectionstatechange=()=>{if(peerConnection.connectionState==='disconnected'||peerConnection.connectionState==='failed'){endCall();}};peerConnection.oniceconnectionstatechange=()=>{if(peerConnection.iceConnectionState==='disconnected'){endCall();}};}
     function listenForIncomingCalls(){const q=query(collection(db,'calls'),orderBy('createdAt','desc'));onSnapshot(q,(snap)=>{snap.docChanges().forEach(async(change)=>{if(change.type==='added'){const data=change.doc.data();const docId=change.doc.id;if(data.callee===currentUserId&&data.status==='ringing'&&!isCallActive){callDocRef=doc(db,'calls',docId);showIncomingCall(data);}}if(change.type==='modified'&&callDocRef&&change.doc.id===callDocRef.id){const data=change.doc.data();if(data.status==='rejected'){endCall();}}});});}
@@ -833,7 +541,6 @@
     window.endCall=function(){if(localStream){localStream.getTracks().forEach(t=>t.stop());localStream=null;}if(peerConnection){peerConnection._addedCandidates=0;peerConnection.close();peerConnection=null;}if(callUnsub){callUnsub();callUnsub=null;}if(callDocRef&&isCaller){updateDoc(callDocRef,{status:'ended'}).then(()=>{deleteDoc(callDocRef).catch(()=>{});}).catch(()=>{});}document.getElementById('callOverlay').classList.remove('show');document.getElementById('incomingCallOverlay').classList.remove('show');document.getElementById('callRemoteVideo').srcObject=null;document.getElementById('callLocalVideo').srcObject=null;document.getElementById('callStatus').textContent='Connecting...';isCallActive=false;isCaller=false;callDocRef=null;isMuted=false;isVideoOff=false;document.getElementById('callMuteBtn').classList.remove('muted');document.getElementById('callVideoBtn').classList.remove('off');};
     window.toggleCallMute=function(){if(!localStream)return;isMuted=!isMuted;localStream.getAudioTracks().forEach(t=>t.enabled=!isMuted);document.getElementById('callMuteBtn').classList.toggle('muted',isMuted);};
     window.toggleCallVideo=function(){if(!localStream)return;isVideoOff=!isVideoOff;localStream.getVideoTracks().forEach(t=>t.enabled=!isVideoOff);document.getElementById('callVideoBtn').classList.toggle('off',isVideoOff);document.getElementById('callLocalVideo').style.display=isVideoOff?'none':'block';};
-    // ========== END CALLS ==========
     
     window.toggleVoice=function(){if(isRecording){window.sendVoice();}else{startVoice();}};
     async function startVoice(){if(!chatId)return;try{const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,sampleRate:44100}});const opts={audioBitsPerSecond:128000};if(MediaRecorder.isTypeSupported('audio/webm;codecs=opus'))opts.mimeType='audio/webm;codecs=opus';else opts.mimeType='audio/webm';mediaRecorder=new MediaRecorder(stream,opts);audioChunks=[];mediaRecorder.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data);};mediaRecorder.onstop=()=>{stream.getTracks().forEach(t=>t.stop());};mediaRecorder.start(100);isRecording=true;voiceSeconds=0;document.getElementById('recordingBar').classList.add('show');document.getElementById('micBtn').style.display='none';document.getElementById('sendBtn').style.display='none';document.getElementById('chatInput').style.display='none';document.getElementById('recTime').textContent='00:00';voiceTimer=setInterval(()=>{voiceSeconds++;document.getElementById('recTime').textContent=formatDuration(voiceSeconds);},1000);}catch(e){}}

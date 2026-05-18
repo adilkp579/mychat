@@ -36,6 +36,10 @@
       font-size:1rem;display:flex;align-items:center;justify-content:center;
       text-decoration:none;border:1px solid #333;cursor:pointer;transition:all 0.3s;
     }
+    .corner-btn:hover {
+      background:#2a2a2a;
+      transform:scale(1.05);
+    }
     .top-brand {
       font-size:2rem;font-weight:700;color:#fff;letter-spacing:3px;
       font-family:'Segoe Script','Brush Script MT','Apple Chancery','Comic Sans MS',cursive;
@@ -535,21 +539,13 @@
       transform: translateX(-50%);
       width: 92%;
       max-width: 500px;
-      
-      /* Completely transparent background */
       background: transparent;
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
-      
       border-radius: 2.5rem;
       padding: 0.7rem 1.5rem;
-      
-      /* Almost invisible border */
       border: 1px solid rgba(255, 255, 255, 0.04);
-      
-      /* No shadow - maximum visibility */
       box-shadow: none;
-      
       z-index: 100;
       transition: all 0.3s ease;
       pointer-events: auto;
@@ -587,7 +583,6 @@
       text-decoration: none;
       position: relative;
       background: transparent;
-      /* Strong text shadow for visibility on any background */
       text-shadow: 0 0 8px rgba(0, 0, 0, 0.8), 0 0 12px rgba(0, 0, 0, 0.6);
     }
     
@@ -641,8 +636,6 @@
         border-radius: 2.5rem;
         padding: 1rem 0.6rem;
         flex-direction: column;
-        
-        /* Same ultra-transparent glass for desktop */
         background: transparent;
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
@@ -669,10 +662,14 @@
   <div class="loading-screen" id="loadingScreen"><i class="fas fa-spinner"></i><span>Loading...</span></div>
   <div class="page" id="mainPage" style="display:none;">
     <div class="scrollable-page" id="scrollablePage">
+      <!-- ✅ Updated top header with heart left, plus and settings right -->
       <div class="top-icons" id="topIcons">
         <a href="hart.html" class="corner-btn" title="Likes"><i class="fas fa-heart"></i></a>
         <span class="top-brand">Chats</span>
-        <button class="corner-btn" id="newChatBtn" onclick="showNewChatModal()"><i class="fas fa-plus"></i></button>
+        <div style="display:flex;gap:0.5rem;">
+          <button class="corner-btn" id="newChatBtn" onclick="showNewChatModal()" title="New Chat"><i class="fas fa-plus"></i></button>
+          <button class="corner-btn" onclick="window.location.href='settings.html'" title="Settings"><i class="fas fa-cog"></i></button>
+        </div>
       </div>
 
       <div class="chat-header" id="chatHeader">
@@ -756,8 +753,8 @@
         <a href="reel.html"><i class="fas fa-film"></i></a>
         <a href="chat.html" class="active"><i class="fas fa-comment-dots"></i></a>
         <a href="profile.html"><i class="fas fa-user"></i></a>
-        <a href="upload.html" class="nav-upload"><i class="fas fa-plus"></i></a>
-        <a href="search.html" class="nav-search"><i class="fas fa-search"></i></a>
+        <a href="upload.html" class="nav-upload"><i class="fas fa-plus-circle"></i></a>
+        <a href="hart.html" class="nav-search"><i class="fas fa-heart"></i></a>
       </div>
     </nav>
   </div>
@@ -778,6 +775,15 @@
     
     document.getElementById('loadingScreen').style.display='none';document.getElementById('mainPage').style.display='flex';
     loadAllUsers();setupRealtimeChatList();listenForIncomingCalls();loadMessageRequests();
+    
+    // Check for pre-selected user from profile page
+    const preSelectedUser = sessionStorage.getItem('openChatWith');
+    if (preSelectedUser) {
+      sessionStorage.removeItem('openChatWith');
+      setTimeout(() => {
+        openChat(preSelectedUser);
+      }, 800);
+    }
     
     function cleanName(u){return(u||'').replace(/^@/,'');}
     function formatDuration(s){const m=Math.floor(s/60);const sec=Math.floor(s%60);return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');}

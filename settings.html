@@ -131,12 +131,6 @@
     }
     .add-user-btn:hover { border-color:#4ade80;color:#4ade80;background:rgba(74,222,128,0.05); }
 
-    .back-header { display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0;width:100%; }
-    .back-btn-small {
-      width:2rem;height:2rem;border-radius:50%;background:#1a1a1a;
-      border:1px solid #333;color:#fff;font-size:0.8rem;cursor:pointer;
-      display:flex;align-items:center;justify-content:center;
-    }
     .page-title { font-size:0.85rem;font-weight:600;color:#fff; }
     .shake { animation:shake 0.4s ease; }
     .toast {
@@ -153,12 +147,11 @@
       background:rgba(239,68,68,0.15);color:#ef4444;
     }
 
-    /* Lock Chat */
     .lock-chat-view { display:none;flex-direction:column;flex:1;width:100%; }
     .lock-chat-view.show { display:flex; }
     .lock-chat-messages {
       flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:0.2rem;
-      padding:0.5rem 0;max-height:50vh;
+      padding:0.5rem 0;max-height:45vh;
     }
     .lock-chat-messages::-webkit-scrollbar { width:0; }
     .lock-msg-wrapper { display:flex;max-width:85%;animation:popIn 0.2s ease; }
@@ -197,7 +190,6 @@
     .lock-info-bar .icon { color:#a78bfa;font-size:0.9rem; }
     .lock-info-bar .text { font-size:0.65rem;color:#a78bfa; }
 
-    /* Add Users Bottom Sheet */
     .add-users-overlay {
       position:fixed;top:0;left:0;right:0;bottom:0;
       background:rgba(0,0,0,0.8);z-index:350;
@@ -266,12 +258,14 @@
 <body>
   <div class="page" id="mainPage">
     <div class="scrollable-content">
+      <!-- ONLY ONE back button - goes back one step -->
       <div class="top-icons">
-        <button class="corner-btn" onclick="window.history.back()"><i class="fas fa-arrow-left"></i></button>
+        <button class="corner-btn" id="mainBackBtn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
         <span class="top-brand">Settings</span>
         <div style="width:2.4rem;"></div>
       </div>
 
+      <!-- Main View -->
       <div class="content" id="mainView">
         <button class="create-btn" onclick="showCreateLockModal()">
           <i class="fas fa-plus-circle"></i> Create New Lock
@@ -301,15 +295,11 @@
         </div>
       </div>
 
+      <!-- Lock Detail View - same back button goes to main view -->
       <div class="content" id="lockDetailView" style="display:none;">
-        <div class="back-header">
-          <button class="back-btn-small" onclick="goBackToMain()"><i class="fas fa-arrow-left"></i></button>
-          <span class="page-title" id="lockDetailTitle">Lock Users</span>
-        </div>
-        
         <div class="lock-info-bar">
           <span class="icon"><i class="fas fa-shield-halved"></i></span>
-          <span class="text">🔒 Private chat - Hidden from main Chats</span>
+          <span class="text" id="lockInfoText">🔒 Private chat - Hidden from main Chats</span>
         </div>
         
         <div class="users-list" id="lockUsersList"></div>
@@ -320,11 +310,8 @@
           <i class="fas fa-trash"></i> Delete This Lock
         </button>
         
+        <!-- Chat inside lock -->
         <div class="lock-chat-view" id="lockChatView">
-          <div class="back-header">
-            <button class="back-btn-small" onclick="closeLockChat()"><i class="fas fa-arrow-left"></i></button>
-            <span class="page-title" id="lockChatPartnerName">Chat</span>
-          </div>
           <div class="lock-chat-messages" id="lockChatMessages">
             <div style="text-align:center;color:#555;padding:1rem;font-size:0.7rem;">Send a message!</div>
           </div>
@@ -401,6 +388,7 @@
     
     let locks = [];
     let currentLockIndex = -1;
+    let currentView = 'main'; // 'main', 'lockDetail', 'lockChat'
     let accessPin = '';
     let createPin = '';
     let createConfirmPin = '';
@@ -426,6 +414,26 @@
       const allMap = {};
       [...bestiesList, ...friendsList].forEach(u => { if (!allMap[u.username]) allMap[u.username] = u; });
       allUsersList = Object.values(allMap);
+    }
+
+    // ✅ SINGLE back button - goes back one step
+    window.goBack = function() {
+      if (currentView === 'lockChat') {
+        closeLockChat();
+      } else if (currentView === 'lockDetail') {
+        goBackToMainSettings();
+      } else {
+        window.history.back();
+      }
+    };
+
+    function goBackToMainSettings() {
+      closeLockChat();
+      document.getElementById('lockDetailView').style.display = 'none';
+      document.getElementById('mainView').style.display = 'flex';
+      document.getElementById('lockInfoText').textContent = '🔒 Private chat - Hidden from main Chats';
+      currentLockIndex = -1;
+      currentView = 'main';
     }
 
     window.numpadPress = function(num) {
@@ -495,11 +503,12 @@
     function openLockDetail(index) {
       document.getElementById('mainView').style.display = 'none';
       document.getElementById('lockDetailView').style.display = 'flex';
-      document.getElementById('lockDetailTitle').textContent = locks[index].name + ' Users';
+      document.getElementById('lockInfoText').textContent = '🔒 ' + locks[index].name + ' - Private chat';
       document.getElementById('lockChatView').classList.remove('show');
+      currentView = 'lockDetail';
       renderLockUsers();
     }
-    window.goBackToMain = function() { closeLockChat(); document.getElementById('lockDetailView').style.display = 'none'; document.getElementById('mainView').style.display = 'flex'; currentLockIndex = -1; };
+    
     function renderLockUsers() {
       if (currentLockIndex < 0) return;
       const lock = locks[currentLockIndex];
@@ -509,26 +518,28 @@
     }
     window.removeUserFromLock = function(i) { if (currentLockIndex < 0) return; locks[currentLockIndex].users.splice(i, 1); saveLocks(); renderLockUsers(); showToast('User removed'); };
 
-    // ✅ LOCK CHAT - sends with source=settings flag
     window.openLockChat = function(username, displayName) {
       lockChatPartner = username;
       lockChatId = [currentUserId, username.replace('@','')].sort().join('_');
       document.getElementById('lockUsersList').style.display = 'none';
       document.querySelectorAll('.add-user-btn, .btn-delete').forEach(el => el.style.display = 'none');
-      document.getElementById('lockDetailTitle').textContent = 'Chat: ' + displayName;
-      document.getElementById('lockChatPartnerName').textContent = displayName;
+      document.getElementById('lockInfoText').textContent = '💬 Chat: ' + displayName;
       document.getElementById('lockChatView').classList.add('show');
       document.getElementById('lockChatMessages').innerHTML = '<div style="text-align:center;color:#555;padding:1rem;font-size:0.7rem;">Loading...</div>';
+      currentView = 'lockChat';
       listenToLockMessages();
     };
+    
     window.closeLockChat = function() {
       if (unsubLockMessages) { unsubLockMessages(); unsubLockMessages = null; }
       lockChatPartner = null; lockChatId = null;
       document.getElementById('lockChatView').classList.remove('show');
       document.getElementById('lockUsersList').style.display = 'flex';
       document.querySelectorAll('.add-user-btn, .btn-delete').forEach(el => el.style.display = '');
-      if (currentLockIndex >= 0) document.getElementById('lockDetailTitle').textContent = locks[currentLockIndex].name + ' Users';
+      if (currentLockIndex >= 0) document.getElementById('lockInfoText').textContent = '🔒 ' + locks[currentLockIndex].name + ' - Private chat';
+      currentView = 'lockDetail';
     };
+    
     async function ensureLockChatDoc() {
       const ref = doc(db, 'chats', lockChatId);
       if (!(await getDoc(ref)).exists()) await setDoc(ref, { users: [currentUserId, lockChatPartner.replace('@','')], lastMessage: '', lastType: 'text', lastTime: serverTimestamp() });
@@ -569,7 +580,6 @@
       input.value = '';
       try {
         await ensureLockChatDoc();
-        // ✅ Send with source=settings flag
         await addDoc(collection(db, 'chats', lockChatId, 'messages'), {
           text, sender: currentUserId, createdAt: serverTimestamp(), seen: false, source: 'settings'
         });
@@ -583,7 +593,7 @@
     function scrollLockChatBottom() { const c = document.getElementById('lockChatMessages'); setTimeout(() => { if(c) c.scrollTop = c.scrollHeight; }, 100); }
     document.getElementById('lockChatInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); sendLockMessage(); } });
 
-    window.deleteCurrentLock = function() { if (currentLockIndex < 0) return; if (confirm('Delete this lock?')) { locks.splice(currentLockIndex, 1); saveLocks(); goBackToMain(); showToast('Lock deleted'); } };
+    window.deleteCurrentLock = function() { if (currentLockIndex < 0) return; if (confirm('Delete this lock?')) { locks.splice(currentLockIndex, 1); saveLocks(); goBackToMainSettings(); showToast('Lock deleted'); } };
     function showToast(msg, type) { const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast ' + (type || ''); t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2000); }
 
     document.getElementById('createLockModal').addEventListener('click', function(e) { if (e.target === this) closeCreateLockModal(); });

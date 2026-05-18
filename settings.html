@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>Settings - Locks</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { margin:0;padding:0;box-sizing:border-box; }
+    body { background:#000;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center; }
+    .page { width:100%;height:100vh;height:100dvh;background:#000;display:flex;flex-direction:column;position:relative;overflow:hidden; }
+
+    @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
+    @keyframes popIn { 0%{transform:scale(0.8);opacity:0} 100%{transform:scale(1);opacity:1} }
+    @keyframes dotPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.3)} }
+    @keyframes slideUp { 0%{transform:translateY(100%)} 100%{transform:translateY(0)} }
+
+    .scrollable-content {
+      flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+      display:flex;flex-direction:column;align-items:center;color:#fff;
+      padding:0 0 2rem 0;background:#000;
+    }
+    .scrollable-content::-webkit-scrollbar { width:0;height:0; }
+    .scrollable-content { scrollbar-width:none;-ms-overflow-style:none; }
+
+    .top-icons {
+      width:100%;max-width:500px;display:flex;align-items:center;justify-content:space-between;
+      padding:0.8rem 0.8rem 0.3rem 0.8rem;flex-shrink:0;position:relative;background:#000;
+      margin:0 auto;
+    }
+    .corner-btn {
+      width:2.4rem;height:2.4rem;background:#1a1a1a;border-radius:50%;color:#fff;
+      font-size:1rem;display:flex;align-items:center;justify-content:center;
+      text-decoration:none;border:1px solid #333;cursor:pointer;transition:all 0.3s;
+    }
+    .corner-btn:hover { background:#2a2a2a;transform:scale(1.05); }
+    .top-brand {
+      font-size:2rem;font-weight:700;color:#fff;letter-spacing:3px;
+      font-family:'Segoe Script','Brush Script MT','Apple Chancery','Comic Sans MS',cursive;
+      position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;
+      line-height:1;font-style:italic;
+    }
+
+    .content {
+      flex:1;display:flex;flex-direction:column;align-items:center;color:#fff;
+      padding:0.5rem 1.2rem 2rem 1.2rem;gap:1.5rem;width:100%;max-width:400px;margin:0 auto;
+    }
+
+    /* Create New Lock Button */
+    .create-btn {
+      width:100%;padding:0.8rem;border-radius:1rem;
+      border:2px dashed rgba(255,255,255,0.2);background:rgba(255,255,255,0.03);
+      color:#aaa;font-size:0.8rem;cursor:pointer;transition:all 0.3s;
+      display:flex;align-items:center;justify-content:center;gap:0.5rem;
+    }
+    .create-btn:hover { border-color:#FFFC00;color:#FFFC00;background:rgba(255,252,0,0.05); }
+
+    /* Number Pad Section */
+    .numpad-section {
+      width:100%;display:flex;flex-direction:column;align-items:center;gap:1rem;
+    }
+    
+    .numpad-label {
+      font-size:0.75rem;color:#888;text-align:center;
+    }
+    
+    .pin-dots {
+      display:flex;gap:1rem;margin:0.3rem 0;
+    }
+    .pin-dot {
+      width:14px;height:14px;border-radius:50%;
+      border:2px solid rgba(255,255,255,0.3);
+      transition:all 0.2s;
+    }
+    .pin-dot.filled {
+      background:#FFFC00;border-color:#FFFC00;
+      animation:dotPulse 0.3s ease;
+    }
+    .pin-dot.error {
+      background:#ef4444;border-color:#ef4444;
+    }
+    
+    .numpad-grid {
+      display:grid;grid-template-columns:repeat(3,1fr);
+      gap:0.6rem;width:100%;max-width:260px;
+    }
+    .numpad-key {
+      aspect-ratio:1;border-radius:50%;
+      background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+      color:#fff;font-size:1.3rem;font-weight:500;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      transition:all 0.15s;user-select:none;
+    }
+    .numpad-key:active { background:rgba(255,255,255,0.2);transform:scale(0.92); }
+    .numpad-key.empty { background:transparent;border:none;cursor:default; }
+    .numpad-key.empty:active { background:transparent;transform:none; }
+    .numpad-key.delete-btn { 
+      background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.2);
+      color:#ef4444;font-size:0.8rem;
+    }
+    .numpad-key.delete-btn:active { background:rgba(239,68,68,0.3); }
+    
+    .error-msg {
+      color:#ef4444;font-size:0.7rem;text-align:center;
+      min-height:1rem;transition:all 0.3s;
+    }
+
+    /* Create Lock Modal */
+    .modal-overlay {
+      position:fixed;top:0;left:0;right:0;bottom:0;
+      background:rgba(0,0,0,0.9);z-index:300;
+      display:none;align-items:center;justify-content:center;padding:1rem;
+    }
+    .modal-overlay.show { display:flex; }
+    .modal {
+      background:#1a1a1a;border-radius:1.2rem;padding:1.5rem;
+      width:100%;max-width:320px;animation:popIn 0.3s ease;
+      border:1px solid rgba(255,255,255,0.1);
+      display:flex;flex-direction:column;align-items:center;gap:0.8rem;
+    }
+    .modal h3 { font-size:0.9rem;color:#fff;text-align:center; }
+    .modal p { font-size:0.65rem;color:#888;text-align:center; }
+    .modal .pin-dots { margin:0.5rem 0; }
+    .modal .numpad-grid { max-width:220px; }
+    .modal .numpad-key { font-size:1.1rem; }
+    .modal .btn-row { display:flex;gap:0.5rem;width:100%; }
+    .modal .btn-row button {
+      flex:1;padding:0.6rem;border-radius:0.8rem;border:none;
+      font-size:0.75rem;font-weight:600;cursor:pointer;transition:all 0.2s;
+    }
+    .btn-cancel { background:rgba(255,255,255,0.1);color:#fff; }
+    .btn-cancel:hover { background:rgba(255,255,255,0.2); }
+    .btn-save { background:#FFFC00;color:#000; }
+    .btn-save:hover { background:#e6e300; }
+    .btn-save:disabled { opacity:0.4;cursor:not-allowed; }
+
+    /* Users List */
+    .users-list { width:100%;display:flex;flex-direction:column;gap:0.3rem; }
+    .user-item {
+      display:flex;align-items:center;gap:0.6rem;padding:0.6rem 0.8rem;
+      background:#111;border-radius:0.8rem;
+      border:1px solid rgba(255,255,255,0.05);transition:all 0.2s;
+    }
+    .user-item:hover { background:#1a1a1a;border-color:rgba(255,255,255,0.15); }
+    .user-item .avatar {
+      width:36px;height:36px;border-radius:50%;background:#333;
+      display:flex;align-items:center;justify-content:center;
+      font-size:0.8rem;color:#fff;flex-shrink:0;overflow:hidden;
+    }
+    .user-item .avatar img { width:100%;height:100%;object-fit:cover; }
+    .user-item .name { font-size:0.75rem;color:#fff;flex:1; }
+    .user-item .go-btn {
+      width:28px;height:28px;border-radius:50%;background:rgba(255,252,0,0.15);
+      border:none;color:#FFFC00;font-size:0.6rem;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    }
+    .add-user-btn {
+      width:100%;padding:0.6rem;border-radius:0.8rem;
+      border:1px dashed rgba(255,255,255,0.15);background:transparent;
+      color:#aaa;font-size:0.7rem;cursor:pointer;transition:all 0.2s;
+      display:flex;align-items:center;justify-content:center;gap:0.4rem;margin-top:0.5rem;
+    }
+    .add-user-btn:hover { border-color:#4ade80;color:#4ade80;background:rgba(74,222,128,0.05); }
+
+    .back-header {
+      display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0;width:100%;
+    }
+    .back-btn-small {
+      width:2rem;height:2rem;border-radius:50%;background:#1a1a1a;
+      border:1px solid #333;color:#fff;font-size:0.8rem;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .back-btn-small:hover { background:#2a2a2a; }
+    .page-title { font-size:0.85rem;font-weight:600;color:#fff; }
+
+    .shake { animation:shake 0.4s ease; }
+    .toast {
+      position:fixed;bottom:50px;left:50%;transform:translateX(-50%);
+      background:#333;color:#fff;padding:0.5rem 1rem;border-radius:2rem;
+      font-size:0.7rem;z-index:400;opacity:0;transition:all 0.3s;
+      pointer-events:none;white-space:nowrap;
+    }
+    .toast.show { opacity:1; }
+    .toast.error { background:rgba(239,68,68,0.9); }
+
+    .btn-delete {
+      width:100%;padding:0.5rem;border-radius:0.8rem;margin-top:0.5rem;
+      border:none;font-size:0.7rem;cursor:pointer;
+      background:rgba(239,68,68,0.15);color:#ef4444;transition:all 0.2s;
+    }
+    .btn-delete:hover { background:rgba(239,68,68,0.3); }
+
+    /* Add Users Bottom Sheet */
+    .add-users-overlay {
+      position:fixed;top:0;left:0;right:0;bottom:0;
+      background:rgba(0,0,0,0.8);z-index:350;
+      display:none;align-items:flex-end;justify-content:center;
+    }
+    .add-users-overlay.show { display:flex; }
+    
+    .add-users-sheet {
+      background:#1a1a1a;border-radius:1.5rem 1.5rem 0 0;
+      width:100%;max-width:450px;max-height:70vh;
+      display:flex;flex-direction:column;
+      animation:slideUp 0.3s ease;
+      padding-bottom:env(safe-area-inset-bottom,1rem);
+    }
+    
+    .sheet-header {
+      display:flex;align-items:center;justify-content:space-between;
+      padding:1rem 1.2rem;border-bottom:1px solid rgba(255,255,255,0.08);
+      flex-shrink:0;
+    }
+    .sheet-header h3 { font-size:0.85rem;color:#fff; }
+    .sheet-close {
+      width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.1);
+      border:none;color:#fff;font-size:0.8rem;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+    }
+    
+    .sheet-tabs {
+      display:flex;border-bottom:1px solid rgba(255,255,255,0.08);
+      flex-shrink:0;
+    }
+    .sheet-tab {
+      flex:1;text-align:center;padding:0.7rem;color:#888;font-size:0.7rem;
+      cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;
+    }
+    .sheet-tab.active { color:#fff;border-bottom-color:#FFFC00; }
+    
+    .sheet-list {
+      flex:1;overflow-y:auto;padding:0.5rem 0;
+    }
+    .sheet-list::-webkit-scrollbar { width:0; }
+    
+    .sheet-user-item {
+      display:flex;align-items:center;gap:0.7rem;padding:0.7rem 1.2rem;
+      cursor:pointer;transition:all 0.2s;
+    }
+    .sheet-user-item:hover { background:rgba(255,255,255,0.03); }
+    .sheet-user-item:active { background:rgba(255,255,255,0.06); }
+    .sheet-user-item .avatar {
+      width:40px;height:40px;border-radius:50%;background:#333;
+      display:flex;align-items:center;justify-content:center;
+      font-size:0.9rem;color:#fff;flex-shrink:0;overflow:hidden;
+    }
+    .sheet-user-item .avatar img { width:100%;height:100%;object-fit:cover; }
+    .sheet-user-item .info { flex:1;min-width:0; }
+    .sheet-user-item .name { font-size:0.8rem;color:#fff; }
+    .sheet-user-item .sub { font-size:0.6rem;color:#888; }
+    .sheet-user-item .add-icon {
+      width:30px;height:30px;border-radius:50%;
+      background:rgba(74,222,128,0.15);border:none;
+      color:#4ade80;font-size:0.7rem;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;
+      transition:all 0.2s;
+    }
+    .sheet-user-item .add-icon:hover { background:rgba(74,222,128,0.3); }
+    .sheet-user-item .add-icon.added {
+      background:rgba(255,252,0,0.2);color:#FFFC00;
+    }
+    .sheet-user-item .check-icon {
+      color:#4ade80;font-size:0.8rem;flex-shrink:0;
+    }
+    
+    .sheet-search {
+      padding:0.5rem 1.2rem;flex-shrink:0;
+    }
+    .sheet-search input {
+      width:100%;padding:0.5rem 0.8rem;border-radius:0.8rem;
+      border:1px solid rgba(255,255,255,0.1);background:#111;
+      color:#fff;font-size:0.75rem;outline:none;
+    }
+    .sheet-search input:focus { border-color:rgba(255,255,255,0.3); }
+    .sheet-search input::placeholder { color:#555; }
+
+    .empty-list {
+      text-align:center;color:#555;padding:2rem;font-size:0.7rem;
+    }
+
+    @media (max-width:380px) {
+      .numpad-key { font-size:1.1rem; }
+      .pin-dots { gap:0.8rem; }
+      .pin-dot { width:12px;height:12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page" id="mainPage">
+    <div class="scrollable-content">
+      <div class="top-icons">
+        <button class="corner-btn" onclick="window.history.back()"><i class="fas fa-arrow-left"></i></button>
+        <span class="top-brand">Settings</span>
+        <div style="width:2.4rem;"></div>
+      </div>
+
+      <!-- Main View -->
+      <div class="content" id="mainView">
+        <!-- Create New Lock Button -->
+        <button class="create-btn" onclick="showCreateLockModal()">
+          <i class="fas fa-plus-circle"></i> Create New Lock
+        </button>
+
+        <!-- Number Pad to access existing locks -->
+        <div class="numpad-section" id="numpadSection">
+          <div class="numpad-label">🔐 Enter PIN to access lock</div>
+          
+          <!-- PIN dots -->
+          <div class="pin-dots" id="pinDots">
+            <div class="pin-dot"></div>
+            <div class="pin-dot"></div>
+            <div class="pin-dot"></div>
+            <div class="pin-dot"></div>
+          </div>
+          
+          <!-- Error message -->
+          <div class="error-msg" id="errorMsg"></div>
+          
+          <!-- Number pad -->
+          <div class="numpad-grid">
+            <button class="numpad-key" onclick="numpadPress('1')">1</button>
+            <button class="numpad-key" onclick="numpadPress('2')">2</button>
+            <button class="numpad-key" onclick="numpadPress('3')">3</button>
+            <button class="numpad-key" onclick="numpadPress('4')">4</button>
+            <button class="numpad-key" onclick="numpadPress('5')">5</button>
+            <button class="numpad-key" onclick="numpadPress('6')">6</button>
+            <button class="numpad-key" onclick="numpadPress('7')">7</button>
+            <button class="numpad-key" onclick="numpadPress('8')">8</button>
+            <button class="numpad-key" onclick="numpadPress('9')">9</button>
+            <button class="numpad-key empty"></button>
+            <button class="numpad-key" onclick="numpadPress('0')">0</button>
+            <button class="numpad-key delete-btn" onclick="numpadDelete()"><i class="fas fa-delete-left"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lock Detail View (after correct PIN) -->
+      <div class="content" id="lockDetailView" style="display:none;">
+        <div class="back-header">
+          <button class="back-btn-small" onclick="goBackToMain()"><i class="fas fa-arrow-left"></i></button>
+          <span class="page-title" id="lockDetailTitle">Lock Users</span>
+        </div>
+        <div class="users-list" id="lockUsersList"></div>
+        <button class="add-user-btn" onclick="showAddUsersSheet()">
+          <i class="fas fa-user-plus"></i> Add Users to Chat
+        </button>
+        <button class="btn-delete" onclick="deleteCurrentLock()">
+          <i class="fas fa-trash"></i> Delete This Lock
+        </button>
+      </div>
+    </div>
+
+    <!-- Create Lock Modal -->
+    <div class="modal-overlay" id="createLockModal">
+      <div class="modal" id="createLockModalContent">
+        <h3 id="createLockTitle">🔐 Create New Lock</h3>
+        <p id="createLockSubtitle">Enter a 4-digit PIN</p>
+        
+        <div class="pin-dots" id="createPinDots">
+          <div class="pin-dot"></div>
+          <div class="pin-dot"></div>
+          <div class="pin-dot"></div>
+          <div class="pin-dot"></div>
+        </div>
+        
+        <p style="color:#ef4444;font-size:0.65rem;min-height:1rem;" id="createErrorMsg"></p>
+        
+        <div class="numpad-grid">
+          <button class="numpad-key" onclick="createNumpadPress('1')">1</button>
+          <button class="numpad-key" onclick="createNumpadPress('2')">2</button>
+          <button class="numpad-key" onclick="createNumpadPress('3')">3</button>
+          <button class="numpad-key" onclick="createNumpadPress('4')">4</button>
+          <button class="numpad-key" onclick="createNumpadPress('5')">5</button>
+          <button class="numpad-key" onclick="createNumpadPress('6')">6</button>
+          <button class="numpad-key" onclick="createNumpadPress('7')">7</button>
+          <button class="numpad-key" onclick="createNumpadPress('8')">8</button>
+          <button class="numpad-key" onclick="createNumpadPress('9')">9</button>
+          <button class="numpad-key empty"></button>
+          <button class="numpad-key" onclick="createNumpadPress('0')">0</button>
+          <button class="numpad-key delete-btn" onclick="createNumpadDelete()"><i class="fas fa-delete-left"></i></button>
+        </div>
+        
+        <div class="btn-row">
+          <button class="btn-cancel" onclick="closeCreateLockModal()">Cancel</button>
+          <button class="btn-save" id="createLockConfirm" disabled onclick="confirmCreateLock()">Create</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Users Bottom Sheet -->
+    <div class="add-users-overlay" id="addUsersOverlay">
+      <div class="add-users-sheet">
+        <div class="sheet-header">
+          <h3>👥 Add Users</h3>
+          <button class="sheet-close" onclick="closeAddUsersSheet()"><i class="fas fa-times"></i></button>
+        </div>
+        
+        <!-- Search -->
+        <div class="sheet-search">
+          <input type="text" id="userSearchInput" placeholder="🔍 Search users..." oninput="filterUserList()">
+        </div>
+        
+        <!-- Tabs -->
+        <div class="sheet-tabs">
+          <div class="sheet-tab active" onclick="switchUserTab('besties', this)">⭐ Besties</div>
+          <div class="sheet-tab" onclick="switchUserTab('friends', this)">👥 Friends</div>
+          <div class="sheet-tab" onclick="switchUserTab('all', this)">🌐 All Users</div>
+        </div>
+        
+        <!-- List -->
+        <div class="sheet-list" id="usersSheetList"></div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <script>
+    if (!localStorage.getItem("uid")) { window.location.replace("login.html"); }
+
+    const currentUser = localStorage.getItem('currentUser') || '@anonymous';
+    const currentUserId = currentUser.replace('@','');
+    
+    let locks = [];
+    let currentLockIndex = -1;
+    let accessPin = '';
+    let createPin = '';
+    let createConfirmPin = '';
+    let isCreateConfirmStep = false;
+    let currentUserTab = 'besties';
+    let allUsersList = [];
+    let friendsList = [];
+    let bestiesList = [];
+
+    // Load locks
+    function loadLocks() {
+      const saved = localStorage.getItem('chat_locks_' + currentUserId);
+      if (saved) {
+        try { locks = JSON.parse(saved); } catch(e) { locks = []; }
+      } else {
+        locks = [];
+      }
+    }
+
+    function saveLocks() {
+      localStorage.setItem('chat_locks_' + currentUserId, JSON.stringify(locks));
+    }
+
+    // Load user lists from profile
+    function loadUserLists() {
+      const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+      bestiesList = (profile.besties || []).map(f => ({
+        name: (f.name || '').replace('@',''),
+        username: f.name || '',
+        avatar: f.avatar || null,
+        type: 'bestie'
+      }));
+      friendsList = (profile.friends || []).map(f => ({
+        name: (f.name || '').replace('@',''),
+        username: f.name || '',
+        avatar: f.avatar || null,
+        type: 'friend'
+      }));
+      
+      // Combine and deduplicate for "All" tab
+      const allMap = {};
+      [...bestiesList, ...friendsList].forEach(u => {
+        if (!allMap[u.username]) {
+          allMap[u.username] = u;
+        }
+      });
+      allUsersList = Object.values(allMap);
+    }
+
+    // ========== MAIN PAGE NUMBER PAD ==========
+    
+    window.numpadPress = function(num) {
+      if (accessPin.length < 4) {
+        accessPin += num;
+        updateAccessPinDots();
+        
+        if (accessPin.length === 4) {
+          setTimeout(() => checkAccessPin(), 400);
+        }
+      }
+    };
+
+    window.numpadDelete = function() {
+      accessPin = accessPin.slice(0, -1);
+      document.getElementById('errorMsg').textContent = '';
+      resetPinDotsError();
+      updateAccessPinDots();
+    };
+
+    function updateAccessPinDots() {
+      const dots = document.querySelectorAll('#pinDots .pin-dot');
+      dots.forEach((dot, i) => {
+        dot.classList.remove('filled', 'error');
+        if (i < accessPin.length) {
+          dot.classList.add('filled');
+        }
+      });
+    }
+
+    function resetPinDotsError() {
+      const dots = document.querySelectorAll('#pinDots .pin-dot');
+      dots.forEach(dot => dot.classList.remove('error'));
+    }
+
+    function checkAccessPin() {
+      const foundIndex = locks.findIndex(lock => lock.pin === accessPin);
+      
+      if (foundIndex >= 0) {
+        currentLockIndex = foundIndex;
+        document.getElementById('errorMsg').textContent = '';
+        accessPin = '';
+        updateAccessPinDots();
+        openLockDetail(foundIndex);
+      } else {
+        document.getElementById('errorMsg').textContent = '❌ Wrong PIN! Try again';
+        
+        const dots = document.querySelectorAll('#pinDots .pin-dot');
+        dots.forEach(dot => dot.classList.add('error'));
+        
+        const numpadSection = document.getElementById('numpadSection');
+        numpadSection.classList.add('shake');
+        setTimeout(() => numpadSection.classList.remove('shake'), 400);
+        
+        setTimeout(() => {
+          accessPin = '';
+          updateAccessPinDots();
+          resetPinDotsError();
+          document.getElementById('errorMsg').textContent = '';
+        }, 1200);
+      }
+    }
+
+    // ========== CREATE LOCK MODAL ==========
+    
+    window.showCreateLockModal = function() {
+      createPin = '';
+      createConfirmPin = '';
+      isCreateConfirmStep = false;
+      document.getElementById('createLockTitle').textContent = '🔐 Create New Lock';
+      document.getElementById('createLockSubtitle').textContent = 'Enter a 4-digit PIN';
+      document.getElementById('createLockConfirm').textContent = 'Create';
+      document.getElementById('createLockConfirm').disabled = true;
+      document.getElementById('createErrorMsg').textContent = '';
+      updateCreatePinDots();
+      document.getElementById('createLockModal').classList.add('show');
+    };
+
+    window.closeCreateLockModal = function() {
+      document.getElementById('createLockModal').classList.remove('show');
+      createPin = '';
+      createConfirmPin = '';
+      isCreateConfirmStep = false;
+    };
+
+    window.createNumpadPress = function(num) {
+      if (isCreateConfirmStep) {
+        if (createConfirmPin.length < 4) {
+          createConfirmPin += num;
+          updateCreatePinDots();
+          if (createConfirmPin.length === 4) {
+            document.getElementById('createLockConfirm').disabled = false;
+          }
+        }
+      } else {
+        if (createPin.length < 4) {
+          createPin += num;
+          updateCreatePinDots();
+          if (createPin.length === 4) {
+            setTimeout(() => {
+              isCreateConfirmStep = true;
+              document.getElementById('createLockTitle').textContent = '🔐 Confirm PIN';
+              document.getElementById('createLockSubtitle').textContent = 'Re-enter your 4-digit code';
+              document.getElementById('createLockConfirm').textContent = 'Create Lock';
+              document.getElementById('createLockConfirm').disabled = true;
+              document.getElementById('createErrorMsg').textContent = '';
+              updateCreatePinDots();
+            }, 300);
+          }
+        }
+      }
+    };
+
+    window.createNumpadDelete = function() {
+      if (isCreateConfirmStep) {
+        createConfirmPin = createConfirmPin.slice(0, -1);
+      } else {
+        createPin = createPin.slice(0, -1);
+      }
+      document.getElementById('createLockConfirm').disabled = true;
+      document.getElementById('createErrorMsg').textContent = '';
+      updateCreatePinDots();
+    };
+
+    function updateCreatePinDots() {
+      const dots = document.querySelectorAll('#createPinDots .pin-dot');
+      const currentPin = isCreateConfirmStep ? createConfirmPin : createPin;
+      
+      dots.forEach((dot, i) => {
+        dot.classList.remove('filled', 'error');
+        if (i < currentPin.length) {
+          dot.classList.add('filled');
+        }
+      });
+    }
+
+    window.confirmCreateLock = function() {
+      if (createPin.length === 4 && createConfirmPin.length === 4) {
+        if (createPin === createConfirmPin) {
+          if (locks.some(lock => lock.pin === createPin)) {
+            document.getElementById('createErrorMsg').textContent = '❌ This PIN already exists!';
+            const modalContent = document.getElementById('createLockModalContent');
+            modalContent.classList.add('shake');
+            setTimeout(() => modalContent.classList.remove('shake'), 400);
+            
+            isCreateConfirmStep = false;
+            createPin = '';
+            createConfirmPin = '';
+            document.getElementById('createLockTitle').textContent = '🔐 Create New Lock';
+            document.getElementById('createLockSubtitle').textContent = 'Enter a 4-digit PIN';
+            document.getElementById('createLockConfirm').textContent = 'Create';
+            document.getElementById('createLockConfirm').disabled = true;
+            updateCreatePinDots();
+            return;
+          }
+          
+          const newLock = {
+            name: 'Lock ' + (locks.length + 1),
+            pin: createPin,
+            users: [],
+            createdAt: new Date().toISOString()
+          };
+          locks.push(newLock);
+          saveLocks();
+          closeCreateLockModal();
+          showToast('✅ Lock created successfully!');
+        } else {
+          document.getElementById('createErrorMsg').textContent = '❌ PINs do not match!';
+          const modalContent = document.getElementById('createLockModalContent');
+          modalContent.classList.add('shake');
+          setTimeout(() => modalContent.classList.remove('shake'), 400);
+          
+          isCreateConfirmStep = false;
+          createPin = '';
+          createConfirmPin = '';
+          document.getElementById('createLockTitle').textContent = '🔐 Create New Lock';
+          document.getElementById('createLockSubtitle').textContent = 'Enter a 4-digit PIN';
+          document.getElementById('createLockConfirm').textContent = 'Create';
+          document.getElementById('createLockConfirm').disabled = true;
+          updateCreatePinDots();
+        }
+      }
+    };
+
+    // ========== ADD USERS BOTTOM SHEET ==========
+    
+    window.showAddUsersSheet = function() {
+      loadUserLists();
+      currentUserTab = 'besties';
+      document.querySelectorAll('.sheet-tab').forEach((t, i) => {
+        t.classList.toggle('active', i === 0);
+      });
+      document.getElementById('userSearchInput').value = '';
+      renderUsersSheetList(bestiesList);
+      document.getElementById('addUsersOverlay').classList.add('show');
+    };
+
+    window.closeAddUsersSheet = function() {
+      document.getElementById('addUsersOverlay').classList.remove('show');
+    };
+
+    window.switchUserTab = function(tab, el) {
+      currentUserTab = tab;
+      document.querySelectorAll('.sheet-tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById('userSearchInput').value = '';
+      
+      if (tab === 'besties') renderUsersSheetList(bestiesList);
+      else if (tab === 'friends') renderUsersSheetList(friendsList);
+      else renderUsersSheetList(allUsersList);
+    };
+
+    window.filterUserList = function() {
+      const search = document.getElementById('userSearchInput').value.toLowerCase();
+      let sourceList;
+      if (currentUserTab === 'besties') sourceList = bestiesList;
+      else if (currentUserTab === 'friends') sourceList = friendsList;
+      else sourceList = allUsersList;
+      
+      const filtered = sourceList.filter(u => 
+        u.name.toLowerCase().includes(search) || 
+        u.username.toLowerCase().includes(search)
+      );
+      renderUsersSheetList(filtered);
+    };
+
+    function renderUsersSheetList(users) {
+      const container = document.getElementById('usersSheetList');
+      const lock = locks[currentLockIndex];
+      const existingUsernames = (lock.users || []).map(u => u.username);
+      
+      if (users.length === 0) {
+        container.innerHTML = '<div class="empty-list">No users found</div>';
+        return;
+      }
+      
+      container.innerHTML = users.map(user => {
+        const alreadyAdded = existingUsernames.includes(user.username);
+        const avatarHTML = user.avatar && user.avatar !== 'null' && user.avatar !== 'undefined' 
+          ? `<img src="${user.avatar}" alt="">` 
+          : user.name.charAt(0).toUpperCase();
+        
+        return `
+          <div class="sheet-user-item">
+            <div class="avatar">${avatarHTML}</div>
+            <div class="info">
+              <div class="name">${user.name}</div>
+              <div class="sub">@${user.username.replace('@','')}</div>
+            </div>
+            ${alreadyAdded 
+              ? '<span class="check-icon"><i class="fas fa-check-circle"></i></span>'
+              : `<button class="add-icon" onclick="addUserFromSheet('${user.username}', '${user.name}', '${user.avatar || ''}')"><i class="fas fa-plus"></i></button>`
+            }
+          </div>
+        `;
+      }).join('');
+    }
+
+    window.addUserFromSheet = function(username, name, avatar) {
+      if (currentLockIndex < 0) return;
+      
+      const lock = locks[currentLockIndex];
+      if (!lock.users) lock.users = [];
+      
+      if (lock.users.some(u => u.username === username)) {
+        showToast('User already added!', 'error');
+        return;
+      }
+      
+      lock.users.push({
+        username: username,
+        name: name,
+        avatar: avatar && avatar !== 'null' && avatar !== 'undefined' ? avatar : null,
+        addedAt: new Date().toISOString()
+      });
+      
+      saveLocks();
+      renderLockUsers();
+      
+      // Refresh the sheet list
+      loadUserLists();
+      const search = document.getElementById('userSearchInput').value.toLowerCase();
+      let sourceList;
+      if (currentUserTab === 'besties') sourceList = bestiesList;
+      else if (currentUserTab === 'friends') sourceList = friendsList;
+      else sourceList = allUsersList;
+      
+      const filtered = search ? sourceList.filter(u => 
+        u.name.toLowerCase().includes(search) || u.username.toLowerCase().includes(search)
+      ) : sourceList;
+      renderUsersSheetList(filtered);
+      
+      showToast('User added! ✅');
+    };
+
+    // ========== LOCK DETAIL ==========
+    
+    function openLockDetail(index) {
+      const lock = locks[index];
+      document.getElementById('mainView').style.display = 'none';
+      document.getElementById('lockDetailView').style.display = 'flex';
+      document.getElementById('lockDetailTitle').textContent = lock.name + ' Users';
+      renderLockUsers();
+    }
+
+    window.goBackToMain = function() {
+      document.getElementById('lockDetailView').style.display = 'none';
+      document.getElementById('mainView').style.display = 'flex';
+      currentLockIndex = -1;
+    };
+
+    function renderLockUsers() {
+      if (currentLockIndex < 0) return;
+      const lock = locks[currentLockIndex];
+      const container = document.getElementById('lockUsersList');
+      
+      if (!lock.users || lock.users.length === 0) {
+        container.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;font-size:0.7rem;">No users added yet<br>Tap "Add Users to Chat" to add</div>';
+        return;
+      }
+      
+      container.innerHTML = lock.users.map((user, uIndex) => {
+        const avatarHTML = user.avatar && user.avatar !== 'null' && user.avatar !== 'undefined'
+          ? `<img src="${user.avatar}" alt="">`
+          : (user.name || 'U').charAt(0).toUpperCase();
+        
+        return `
+          <div class="user-item">
+            <div class="avatar">${avatarHTML}</div>
+            <div class="name">${(user.name || user.username || 'User').replace('@','')}</div>
+            <button class="go-btn" onclick="openChatWithUser('${user.username || user.name}')" title="Chat">
+              <i class="fas fa-comment-dots"></i>
+            </button>
+            <button class="go-btn" style="background:rgba(239,68,68,0.15);color:#ef4444;margin-left:0.3rem;" onclick="removeUserFromLock(${uIndex})" title="Remove">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    window.removeUserFromLock = function(userIndex) {
+      if (currentLockIndex < 0) return;
+      if (confirm('Remove this user from the lock?')) {
+        locks[currentLockIndex].users.splice(userIndex, 1);
+        saveLocks();
+        renderLockUsers();
+        showToast('User removed');
+      }
+    };
+
+    window.openChatWithUser = function(username) {
+      sessionStorage.setItem('openChatWith', username);
+      window.location.href = 'chat.html';
+    };
+
+    window.deleteCurrentLock = function() {
+      if (currentLockIndex < 0) return;
+      if (confirm('Delete this lock? All saved users will be lost.')) {
+        locks.splice(currentLockIndex, 1);
+        saveLocks();
+        goBackToMain();
+        showToast('Lock deleted');
+      }
+    };
+
+    function showToast(msg, type) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast ' + (type || '');
+      t.classList.add('show');
+      clearTimeout(t._t);
+      t._t = setTimeout(() => t.classList.remove('show'), 2000);
+    }
+
+    // Close modals/sheets on overlay click
+    document.getElementById('createLockModal').addEventListener('click', function(e) {
+      if (e.target === this) closeCreateLockModal();
+    });
+    document.getElementById('addUsersOverlay').addEventListener('click', function(e) {
+      if (e.target === this) closeAddUsersSheet();
+    });
+
+    // Keyboard support
+    document.addEventListener('keydown', function(e) {
+      const createModalOpen = document.getElementById('createLockModal').classList.contains('show');
+      
+      if (createModalOpen) {
+        if (e.key >= '0' && e.key <= '9') {
+          createNumpadPress(e.key);
+        } else if (e.key === 'Backspace' || e.key === 'Delete') {
+          createNumpadDelete();
+        } else if (e.key === 'Enter') {
+          const confirmBtn = document.getElementById('createLockConfirm');
+          if (!confirmBtn.disabled) confirmCreateLock();
+        } else if (e.key === 'Escape') {
+          closeCreateLockModal();
+        }
+        return;
+      }
+      
+      // Main page numpad
+      if (e.key >= '0' && e.key <= '9') {
+        numpadPress(e.key);
+      } else if (e.key === 'Backspace' || e.key === 'Delete') {
+        numpadDelete();
+      } else if (e.key === 'Escape') {
+        accessPin = '';
+        updateAccessPinDots();
+        document.getElementById('errorMsg').textContent = '';
+        resetPinDotsError();
+      }
+    });
+
+    // Initialize
+    loadLocks();
+  </script>
+</body>
+</html>

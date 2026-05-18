@@ -58,7 +58,10 @@
     .numpad-section { width:100%;display:flex;flex-direction:column;align-items:center;gap:1rem; }
     .numpad-label { font-size:0.75rem;color:#888;text-align:center; }
     .pin-dots { display:flex;gap:1rem;margin:0.3rem 0; }
-    .pin-dot { width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);transition:all 0.2s; }
+    .pin-dot {
+      width:14px;height:14px;border-radius:50%;
+      border:2px solid rgba(255,255,255,0.3);transition:all 0.2s;
+    }
     .pin-dot.filled { background:#FFFC00;border-color:#FFFC00;animation:dotPulse 0.3s ease; }
     .pin-dot.error { background:#ef4444;border-color:#ef4444; }
     
@@ -72,6 +75,7 @@
     }
     .numpad-key:active { background:rgba(255,255,255,0.2);transform:scale(0.92); }
     .numpad-key.empty { background:transparent;border:none;cursor:default; }
+    .numpad-key.empty:active { background:transparent;transform:none; }
     .numpad-key.delete-btn { background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.2);color:#ef4444;font-size:0.8rem; }
     .numpad-key.delete-btn:active { background:rgba(239,68,68,0.3); }
     .error-msg { color:#ef4444;font-size:0.7rem;text-align:center;min-height:1rem;transition:all 0.3s; }
@@ -93,7 +97,10 @@
     .modal .numpad-grid { max-width:220px; }
     .modal .numpad-key { font-size:1.1rem; }
     .modal .btn-row { display:flex;gap:0.5rem;width:100%; }
-    .modal .btn-row button { flex:1;padding:0.6rem;border-radius:0.8rem;border:none;font-size:0.75rem;font-weight:600;cursor:pointer;transition:all 0.2s; }
+    .modal .btn-row button {
+      flex:1;padding:0.6rem;border-radius:0.8rem;border:none;
+      font-size:0.75rem;font-weight:600;cursor:pointer;transition:all 0.2s;
+    }
     .btn-cancel { background:rgba(255,255,255,0.1);color:#fff; }
     .btn-save { background:#FFFC00;color:#000; }
     .btn-save:disabled { opacity:0.4;cursor:not-allowed; }
@@ -155,7 +162,7 @@
     .lock-info-bar .icon { color:#a78bfa;font-size:0.9rem; }
     .lock-info-bar .text { font-size:0.65rem;color:#a78bfa; }
 
-    /* ✅ Full Page Lock Chat */
+    /* Full Page Lock Chat */
     .lock-chat-full {
       flex:1;display:none;flex-direction:column;width:100%;max-width:450px;margin:0 auto;
       height:100%;background:#000;
@@ -294,7 +301,7 @@
         <div class="content">
           <div class="lock-info-bar">
             <span class="icon"><i class="fas fa-shield-halved"></i></span>
-            <span class="text">🔒 Private - Hidden from main Chats</span>
+            <span class="text">🔒 Messages here stay ONLY in this lock</span>
           </div>
           <div class="users-list" id="lockUsersList"></div>
           <button class="add-user-btn" onclick="showAddUsersSheet()">
@@ -306,13 +313,13 @@
         </div>
       </div>
 
-      <!-- ✅ Full Page Lock Chat -->
+      <!-- Full Page Lock Chat -->
       <div class="lock-chat-full" id="lockChatFullView">
         <div class="chat-header-bar">
           <button class="back-btn-small" onclick="closeLockChatFull()"><i class="fas fa-arrow-left"></i></button>
           <div class="partner-info">
             <div class="partner-name" id="lockChatFullPartner">User</div>
-            <div class="partner-status"><span class="dot"></span> Lock Chat</div>
+            <div class="partner-status"><span class="dot"></span> Private Lock Chat</div>
           </div>
         </div>
         <div class="messages-area" id="lockChatFullMessages">
@@ -373,7 +380,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, getDoc, getDocs, updateDoc, increment } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, getDoc, getDocs, updateDoc, increment, deleteDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
@@ -396,8 +403,6 @@
     let lockChatPartner = null;
     let lockChatId = null;
     let unsubLockMessages = null;
-    
-    // Page stack for back navigation
     let pageStack = ['main'];
 
     function loadLocks() {
@@ -415,7 +420,6 @@
       allUsersList = Object.values(allMap);
     }
 
-    // ✅ Page navigation with stack
     function showPage(pageName) {
       document.getElementById('mainView').style.display = 'none';
       document.getElementById('lockDetailView').style.display = 'none';
@@ -505,7 +509,6 @@
       renderLockUsers();
     }
     
-    // ✅ Back navigation - goes to previous page
     window.goBackToMain = function() {
       closeLockChatFull();
       showPage('main');
@@ -522,10 +525,11 @@
     }
     window.removeUserFromLock = function(i) { if (currentLockIndex < 0) return; locks[currentLockIndex].users.splice(i, 1); saveLocks(); renderLockUsers(); showToast('User removed'); };
 
-    // ✅ Full Page Lock Chat
+    // ✅ LOCK CHAT - Uses SEPARATE collection "lock_messages"
     window.openLockChatFull = function(username, displayName) {
       lockChatPartner = username;
-      lockChatId = [currentUserId, username.replace('@','')].sort().join('_');
+      // ✅ Unique chat ID with "lock_" prefix to separate from normal chats
+      lockChatId = 'lock_' + [currentUserId, username.replace('@','')].sort().join('_');
       document.getElementById('lockChatFullPartner').textContent = displayName;
       document.getElementById('lockChatFullMessages').innerHTML = '<div class="empty-chat-msg">Loading...</div>';
       document.getElementById('lockChatFullInput').value = '';
@@ -537,19 +541,15 @@
       if (unsubLockMessages) { unsubLockMessages(); unsubLockMessages = null; }
       lockChatPartner = null;
       lockChatId = null;
-      // Go back to lock detail
       showPage('lockDetail');
       pageStack = pageStack.filter(p => p !== 'lockChat');
     };
     
-    async function ensureLockChatDoc() {
-      const ref = doc(db, 'chats', lockChatId);
-      if (!(await getDoc(ref)).exists()) await setDoc(ref, { users: [currentUserId, lockChatPartner.replace('@','')], lastMessage: '', lastType: 'text', lastTime: serverTimestamp() });
-    }
-    
     function listenToLockFullMessages() {
       if (unsubLockMessages) { unsubLockMessages(); unsubLockMessages = null; }
-      const q = query(collection(db, 'chats', lockChatId, 'messages'), orderBy('createdAt', 'asc'));
+      // ✅ Use "lock_messages" collection instead of "chats"
+      const messagesRef = collection(db, 'lock_chats', lockChatId, 'messages');
+      const q = query(messagesRef, orderBy('createdAt', 'asc'));
       getDocs(q).then(snap => {
         const c = document.getElementById('lockChatFullMessages'); c.innerHTML = '';
         if (snap.empty) c.innerHTML = '<div class="empty-chat-msg">Send a message!</div>';
@@ -560,7 +560,12 @@
         const c = document.getElementById('lockChatFullMessages');
         const emptyEl = c.querySelector('.empty-chat-msg');
         if (emptyEl && snap.size > 0) c.innerHTML = '';
-        snap.docChanges().forEach(ch => { if (ch.type === 'added' && !document.getElementById('lf-msg-' + ch.doc.id)) { renderLockFullMsg(ch.doc.id, ch.doc.data()); scrollLockFullBottom(); } });
+        snap.docChanges().forEach(ch => { 
+          if (ch.type === 'added' && !document.getElementById('lf-msg-' + ch.doc.id)) { 
+            renderLockFullMsg(ch.doc.id, ch.doc.data()); 
+            scrollLockFullBottom(); 
+          } 
+        });
       });
     }
     
@@ -573,8 +578,7 @@
       w.id = 'lf-msg-' + id;
       let time = '';
       if (msg.createdAt) try { time = new Date(msg.createdAt.toDate()).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); } catch(e) {}
-      const isFromSettings = msg.source === 'settings';
-      w.innerHTML = `<div class="msg-bubble">${msg.text||''}<div class="msg-time">${time}</div>${isFromSettings ? '<div class="msg-label"><i class="fas fa-shield-halved"></i> Settings</div>' : ''}</div>`;
+      w.innerHTML = `<div class="msg-bubble">${msg.text||''}<div class="msg-time">${time}</div></div>`;
       c.appendChild(w);
     }
     
@@ -584,13 +588,21 @@
       if (!text || !lockChatId) return;
       input.value = '';
       try {
-        await ensureLockChatDoc();
-        await addDoc(collection(db, 'chats', lockChatId, 'messages'), {
-          text, sender: currentUserId, createdAt: serverTimestamp(), seen: false, source: 'settings'
+        // ✅ Save to "lock_chats" collection - completely separate from normal chats
+        const lockChatRef = doc(db, 'lock_chats', lockChatId);
+        const lockSnap = await getDoc(lockChatRef);
+        if (!lockSnap.exists()) {
+          await setDoc(lockChatRef, { 
+            users: [currentUserId, lockChatPartner.replace('@','')], 
+            lastMessage: text, 
+            lastTime: serverTimestamp() 
+          });
+        }
+        await addDoc(collection(db, 'lock_chats', lockChatId, 'messages'), {
+          text, sender: currentUserId, createdAt: serverTimestamp(), seen: false
         });
-        await updateDoc(doc(db, 'chats', lockChatId), {
-          lastMessage: '🔒 ' + text, lastType: 'text', lastTime: serverTimestamp(),
-          ['unread_' + lockChatPartner.replace('@','')]: increment(1), source: 'settings'
+        await updateDoc(lockChatRef, {
+          lastMessage: text, lastTime: serverTimestamp()
         });
       } catch(e) { console.error(e); }
     };

@@ -99,15 +99,12 @@
     .voice-duration {font-size:0.55rem;opacity:0.7;min-width:60px;text-align:right;}
     .message-image {max-width:200px;max-height:200px;border-radius:0.8rem;object-fit:cover;cursor:pointer;}
 
-    /* Settings badge */
     .settings-badge {
       font-size:0.5rem;color:#a78bfa;margin-top:0.15rem;
       display:flex;align-items:center;gap:0.2rem;
       background:rgba(139,92,246,0.2);padding:3px 7px;border-radius:4px;width:fit-content;
     }
-    .settings-options {
-      margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;
-    }
+    .settings-options { margin-top:6px;display:flex;gap:4px;flex-wrap:wrap; }
     .settings-opt-btn {
       padding:0.35rem 0.8rem;border-radius:1rem;border:none;
       font-size:0.55rem;font-weight:600;cursor:pointer;
@@ -139,7 +136,6 @@
 
     .empty-chat {flex:1;display:flex;align-items:center;justify-content:center;color:#333;font-size:0.8rem;}
 
-    /* Lock Options Modal */
     .lock-options-overlay {
       position:fixed;top:0;left:0;right:0;bottom:0;
       background:rgba(0,0,0,0.85);z-index:500;
@@ -165,7 +161,6 @@
     .lock-option-btn.existing-lock {color:#f59e0b;border-color:rgba(245,158,11,0.3);}
     .lock-option-btn.cancel-btn {color:#ef4444;border-color:rgba(239,68,68,0.3);justify-content:center;}
 
-    /* New Chat Modal */
     .new-chat-overlay {
       position:fixed;top:0;left:0;right:0;bottom:0;
       background:rgba(0,0,0,0.2);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
@@ -183,15 +178,10 @@
       background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.02) 25%,rgba(255,255,255,0.04) 50%,rgba(255,255,255,0.02) 75%,transparent 100%);
       animation:glassShine 8s infinite linear;pointer-events:none;
     }
-    .new-chat-modal::after {
-      content:'';position:absolute;top:0;left:0;right:0;bottom:0;
-      background:radial-gradient(circle at 20% 20%,rgba(255,255,255,0.02) 0%,transparent 50%),radial-gradient(circle at 80% 80%,rgba(255,252,0,0.01) 0%,transparent 50%),radial-gradient(circle at 50% 50%,rgba(255,255,255,0.01) 0%,transparent 70%);
-      pointer-events:none;
-    }
-    .new-chat-tabs {display:flex;border-bottom:1px solid rgba(255,255,255,0.04);flex-shrink:0;background:rgba(255,255,255,0.01);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);position:relative;z-index:2;}
+    .new-chat-tabs {display:flex;border-bottom:1px solid rgba(255,255,255,0.04);flex-shrink:0;background:rgba(255,255,255,0.01);backdrop-filter:blur(20px);position:relative;z-index:2;}
     .new-chat-tab {flex:1;text-align:center;padding:0.9rem;color:rgba(255,255,255,0.3);font-size:0.8rem;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.3s;position:relative;z-index:3;letter-spacing:0.5px;}
     .new-chat-tab:hover {color:rgba(255,255,255,0.7);background:rgba(255,255,255,0.02);}
-    .new-chat-tab.active {color:#fff;background:rgba(255,255,255,0.05);border-bottom-color:#FFFC00;text-shadow:0 0 20px rgba(255,252,0,0.5);}
+    .new-chat-tab.active {color:#fff;background:rgba(255,255,255,0.05);border-bottom-color:#FFFC00;}
     .new-chat-tab .tab-badge {position:absolute;top:0.4rem;right:0.8rem;background:rgba(239,68,68,0.8);color:#fff;font-size:0.55rem;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:700;}
     .new-chat-search {padding:0.7rem 1rem;flex-shrink:0;position:relative;z-index:2;}
     .new-chat-search input {width:100%;padding:0.6rem 1rem;border-radius:1.2rem;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:#fff;font-size:0.8rem;outline:none;}
@@ -294,20 +284,13 @@
       <button class="send-btn" id="sendBtn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
     </div>
 
-    <!-- Lock Options Modal -->
     <div class="lock-options-overlay" id="lockOptionsOverlay">
       <div class="lock-options-modal">
         <h3>🔒 Settings Message</h3>
         <p id="lockOptionsUser">@user sent this from Settings</p>
-        <button class="lock-option-btn new-lock" onclick="goToNewLock()">
-          <i class="fas fa-plus-circle"></i> Create New Lock & Add
-        </button>
-        <button class="lock-option-btn existing-lock" onclick="goToExistingLock()">
-          <i class="fas fa-folder-open"></i> Add to Existing Lock
-        </button>
-        <button class="lock-option-btn cancel-btn" onclick="continueInChat()">
-          <i class="fas fa-comment-dots"></i> Continue in Chat
-        </button>
+        <button class="lock-option-btn new-lock" onclick="goToNewLock()"><i class="fas fa-plus-circle"></i> Create New Lock & Add</button>
+        <button class="lock-option-btn existing-lock" onclick="goToExistingLock()"><i class="fas fa-folder-open"></i> Add to Existing Lock</button>
+        <button class="lock-option-btn cancel-btn" onclick="continueInChat()"><i class="fas fa-comment-dots"></i> Continue in Chat</button>
       </div>
     </div>
 
@@ -368,48 +351,25 @@
     window.goToPartnerProfile=function(){if(chatPartner)window.location.href='profile.html?user='+encodeURIComponent(chatPartner);};
     window.filterChatList=function(){const s=document.getElementById('chatSearchInput').value.toLowerCase();renderChatList(s?chatListData.filter(c=>dispName(c.username).toLowerCase().includes(s)||(c.lastMsg&&c.lastMsg.toLowerCase().includes(s))):chatListData);};
 
-    // ✅ Lock options - show modal when settings message received
     window.showLockOptions = function(username, msgId) {
-      lockOptionsUser = username;
-      lockOptionsMsgId = msgId;
+      lockOptionsUser = username; lockOptionsMsgId = msgId;
       document.getElementById('lockOptionsUser').textContent = '@' + username.replace('@','') + ' sent this from Settings';
       document.getElementById('lockOptionsOverlay').classList.add('show');
     };
     window.closeLockOptions = function() { document.getElementById('lockOptionsOverlay').classList.remove('show'); lockOptionsUser = null; };
-    
-    // ✅ Create new lock and add user
     window.goToNewLock = function() {
-      if (lockOptionsUser) { 
-        sessionStorage.setItem('settingsAddUser', lockOptionsUser); 
-        sessionStorage.setItem('settingsNewLock', 'true'); 
-      }
-      document.getElementById('lockOptionsOverlay').classList.remove('show');
-      window.location.href = 'settings.html';
+      if (lockOptionsUser) { sessionStorage.setItem('settingsAddUser', lockOptionsUser); sessionStorage.setItem('settingsNewLock', 'true'); }
+      document.getElementById('lockOptionsOverlay').classList.remove('show'); window.location.href = 'settings.html';
     };
-    
-    // ✅ Add to existing lock
     window.goToExistingLock = function() {
-      if (lockOptionsUser) { 
-        sessionStorage.setItem('settingsAddUser', lockOptionsUser); 
-      }
-      document.getElementById('lockOptionsOverlay').classList.remove('show');
-      window.location.href = 'settings.html';
+      if (lockOptionsUser) { sessionStorage.setItem('settingsAddUser', lockOptionsUser); }
+      document.getElementById('lockOptionsOverlay').classList.remove('show'); window.location.href = 'settings.html';
     };
-    
-    // ✅ Continue in chat (dismiss)
     window.continueInChat = function() {
       document.getElementById('lockOptionsOverlay').classList.remove('show');
-      if (lockOptionsMsgId) {
-        const msgEl = document.getElementById('msg-' + lockOptionsMsgId);
-        if (msgEl) {
-          const optionsEl = msgEl.querySelector('.settings-options');
-          if (optionsEl) optionsEl.remove();
-        }
-      }
-      lockOptionsUser = null;
-      lockOptionsMsgId = null;
+      if (lockOptionsMsgId) { const msgEl = document.getElementById('msg-' + lockOptionsMsgId); if (msgEl) { const opt = msgEl.querySelector('.settings-options'); if (opt) opt.remove(); } }
+      lockOptionsUser = null; lockOptionsMsgId = null;
     };
-    
     document.getElementById('lockOptionsOverlay').addEventListener('click', function(e) { if (e.target === this) closeLockOptions(); });
 
     async function loadMessageRequests(){try{const snap=await getDocs(collection(db,'message_requests'));messageRequests=[];snap.forEach(doc=>{const d=doc.data();if(d.to===currentUserId||d.to===currentUser||d.to===currentUser.replace('@','')){messageRequests.push({id:doc.id,...d});}});updateRequestBadge();}catch(e){}}
@@ -424,7 +384,7 @@
     window.closeNewChatModal=function(){document.getElementById('newChatOverlay').classList.remove('show');};
     window.switchNewChatTab=function(tab,el){newChatActiveTab=tab;document.querySelectorAll('.new-chat-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');if(tab==='users'){document.getElementById('newChatSearchInput').placeholder='🔍 Search users...';renderNewChatUsers(allUsersList);}else{document.getElementById('newChatSearchInput').placeholder='🔍 Search requests...';renderNewChatRequests(messageRequests);}};
     window.filterNewChatList=function(){const s=document.getElementById('newChatSearchInput').value.toLowerCase();if(newChatActiveTab==='users'){renderNewChatUsers(allUsersList.filter(u=>u.displayName.toLowerCase().includes(s)));}else{renderNewChatRequests(messageRequests.filter(r=>(r.fromName||r.from||'').toLowerCase().includes(s)));}};
-    function isNewUser(user){if(!user.createdAt||user.createdAt.getTime()===0)return false;const now=new Date();return (now-user.createdAt)<7*24*60*60*1000;}
+    function isNewUser(user){if(!user.createdAt||user.createdAt.getTime()===0)return false;return (new Date()-user.createdAt)<7*24*60*60*1000;}
     
     function renderNewChatUsers(users){const l=document.getElementById('newChatList');if(users.length===0){l.innerHTML='<div style="text-align:center;color:rgba(255,255,255,0.4);padding:2rem;font-size:0.75rem;">No users found</div>';return;}const existingChats=chatListData.map(c=>c.username);const mySentRequests=messageRequests.filter(r=>r.fromId===currentUserId||r.from===currentUser).map(r=>r.to||r.toName);l.innerHTML=users.map(u=>{const alreadyChatting=existingChats.includes(u.username);const alreadyRequested=mySentRequests.includes(u.username.replace('@',''))||mySentRequests.includes(u.username);const newBadge=isNewUser(u)?'<span class="new-badge">NEW</span>':'';let actionBtn='';if(alreadyChatting){actionBtn=`<button class="new-chat-action chat" onclick="event.stopPropagation();closeNewChatModal();openChat('${u.username}')">💬 Chat</button>`;}else if(alreadyRequested){actionBtn=`<span class="requested-label">⏳ Requested</span>`;}else{actionBtn=`<button class="new-chat-action request-btn" onclick="event.stopPropagation();sendChatRequest('${u.username}', this)">📩 Request</button>`;}return`<div class="new-chat-item" onclick="goToUserProfile('${u.username}')"><div class="new-chat-avatar">${avatarHTML(u.username)}</div><div class="new-chat-info"><div class="new-chat-name">${u.displayName}${newBadge}</div><div class="new-chat-sub">${alreadyChatting?'Already in chats':alreadyRequested?'Request sent':'Tap to view profile'}</div></div><div class="new-chat-actions">${actionBtn}</div></div>`;}).join('');}
     
@@ -436,7 +396,7 @@
     window.declineRequest=async function(requestId){try{await deleteDoc(doc(db,'message_requests',requestId));messageRequests=messageRequests.filter(r=>r.id!==requestId);updateRequestBadge();renderNewChatRequests(messageRequests);}catch(e){};};
     document.getElementById('newChatOverlay').addEventListener('click',function(e){if(e.target===this)closeNewChatModal();});
     
-    // ✅ Chat list - filter locked users
+    // ✅ Clean chat list - no lock icons
     function setupRealtimeChatList(){
       if(unsubChatList)unsubChatList();
       const q=query(collection(db,'chats'),orderBy('lastTime','desc'));
@@ -451,7 +411,7 @@
             if(partnerId && data.lastMessage && !lockedUsers.has('@'+partnerId)){
               chats.push({
                 username:'@'+partnerId,
-                lastMsg:(data.source==='settings'?'🔒 ':'')+(data.lastType==='image'?'📷 Photo':data.lastType==='audio'?'🎤 Voice':data.lastMessage||''),
+                lastMsg:data.lastType==='image'?'📷 Photo':data.lastType==='audio'?'🎤 Voice':data.lastMessage||'',
                 lastTime:data.lastTime?.toDate()||new Date(0),
                 unreadCount:data['unread_'+currentUserId]||0
               });
@@ -469,7 +429,6 @@
     
     window.goBack=function(){if(isCallActive)endCall();chatPartner=null;chatId=null;if(unsubMessages){unsubMessages();unsubMessages=null;}stopVoice(true);document.getElementById('topIcons').classList.remove('hidden');document.getElementById('chatHeader').classList.remove('show');document.getElementById('chatListFull').classList.remove('hidden');document.getElementById('chatView').classList.remove('show');document.getElementById('searchBarContainer').classList.remove('hidden');document.getElementById('partnerName').textContent='';document.getElementById('partnerStatus').textContent='';document.getElementById('chatInputArea').classList.remove('show');document.getElementById('floatingNav').classList.remove('hidden');};
     
-    // Voice & Calls (kept short)
     window.toggleVoice=function(){if(isRecording){sendVoice();}else{startVoice();}};
     async function startVoice(){if(!chatId)return;try{const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});mediaRecorder=new MediaRecorder(stream,{mimeType:MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':'audio/webm'});audioChunks=[];mediaRecorder.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data);};mediaRecorder.onstop=()=>{stream.getTracks().forEach(t=>t.stop());};mediaRecorder.start(100);isRecording=true;voiceSeconds=0;document.getElementById('recordingBar').classList.add('show');document.getElementById('micBtn').style.display='none';document.getElementById('sendBtn').style.display='none';document.getElementById('chatInput').style.display='none';document.getElementById('recTime').textContent='00:00';voiceTimer=setInterval(()=>{voiceSeconds++;document.getElementById('recTime').textContent=formatDuration(voiceSeconds);},1000);}catch(e){}}
     function stopVoice(c){if(mediaRecorder&&isRecording){if(c)audioChunks=[];if(mediaRecorder.state==='recording')mediaRecorder.stop();isRecording=false;clearInterval(voiceTimer);document.getElementById('recordingBar').classList.remove('show');document.getElementById('micBtn').style.display='flex';document.getElementById('sendBtn').style.display='flex';document.getElementById('chatInput').style.display='block';}}
@@ -480,43 +439,21 @@
     
     function listenToMessages(){if(unsubMessages){unsubMessages();unsubMessages=null;}const q=query(collection(db,'chats',chatId,'messages'),orderBy('createdAt','asc'));getDocs(q).then(snap=>{const c=document.getElementById('messagesContainer');const ec=document.getElementById('emptyChat');if(snap.empty){ec.style.display='flex';}else{ec.style.display='none';c.querySelectorAll('.message-wrapper').forEach(el=>el.remove());snap.forEach(doc=>renderMsg(doc.id,doc.data()));scrollToBottom();}});unsubMessages=onSnapshot(q,(snap)=>{const c=document.getElementById('messagesContainer');const ec=document.getElementById('emptyChat');if(snap.empty){ec.style.display='flex';return;}ec.style.display='none';snap.docChanges().forEach(ch=>{if(ch.type==='added'&&!document.getElementById('msg-'+ch.doc.id)){renderMsg(ch.doc.id,ch.doc.data());scrollToBottom();}});});}
     
-    // ✅ Render messages - show Settings badge + options on received settings messages
     function renderMsg(id,msg){
       const c=document.getElementById('messagesContainer');
       const tb=document.getElementById('typingBubble');
       const isSent=msg.sender===currentUserId;
       if(document.getElementById('msg-'+id))return;
-      
       const isFromSettings=msg.source==='settings';
-      
       const w=document.createElement('div');
       w.className='message-wrapper '+(isSent?'sent':'received');
       w.id='msg-'+id;
       let time='';
       if(msg.createdAt){try{time=new Date(msg.createdAt.toDate()).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}catch(e){}}
-      
-      if(msg.imageUrl){
-        w.innerHTML=`<div class="message-bubble"><img src="${msg.imageUrl}" class="message-image" onclick="window.open('${msg.imageUrl}')" loading="lazy"><div class="message-time">${time}</div>${isFromSettings?'<div class="settings-badge"><i class="fas fa-shield-halved"></i> From Settings</div>':''}</div>`;
-      }else if(msg.audioUrl){
-        const dur=msg.audioDuration||0;
-        w.innerHTML=`<div class="message-bubble voice-msg" data-audio="${msg.audioUrl}" data-duration="${dur}" onclick="playVoice(this)"><button class="voice-play-btn"><i class="fas fa-play"></i></button><div class="voice-wave-container">${genBars(18)}</div><span class="voice-duration">0:00 / ${formatDuration(dur)}</span><div class="message-time">${time}</div>${isFromSettings?'<div class="settings-badge"><i class="fas fa-shield-halved"></i> From Settings</div>':''}</div>`;
-      }else{
-        w.innerHTML=`<div class="message-bubble">${msg.text||''}<div class="message-time">${time}</div>${isFromSettings?'<div class="settings-badge"><i class="fas fa-shield-halved"></i> From Settings</div>':''}</div>`;
-      }
-      
-      // ✅ Show 2 options on received Settings messages
-      if(isFromSettings && !isSent){
-        w.innerHTML+=`
-          <div class="settings-options">
-            <button class="settings-opt-btn lock-btn" onclick="showLockOptions('${chatPartner}','${id}')">
-              <i class="fas fa-lock"></i> Add to Lock
-            </button>
-            <button class="settings-opt-btn chat-btn" onclick="this.parentElement.remove()">
-              <i class="fas fa-comment-dots"></i> Continue
-            </button>
-          </div>`;
-      }
-      
+      if(msg.imageUrl){w.innerHTML=`<div class="message-bubble"><img src="${msg.imageUrl}" class="message-image" onclick="window.open('${msg.imageUrl}')" loading="lazy"><div class="message-time">${time}</div>${isFromSettings?'<div class="settings-badge"><i class="fas fa-shield-halved"></i> From Settings</div>':''}</div>`;}
+      else if(msg.audioUrl){const dur=msg.audioDuration||0;w.innerHTML=`<div class="message-bubble voice-msg" data-audio="${msg.audioUrl}" data-duration="${dur}" onclick="playVoice(this)"><button class="voice-play-btn"><i class="fas fa-play"></i></button><div class="voice-wave-container">${genBars(18)}</div><span class="voice-duration">0:00 / ${formatDuration(dur)}</span><div class="message-time">${time}</div>${isFromSettings?'<div class="settings-badge"><i class="fas fa-shield-halved"></i> From Settings</div>':''}</div>`;}
+      else {w.innerHTML=`<div class="message-bubble">${msg.text||''}<div class="message-time">${time}</div>${isFromSettings?'<div class="settings-badge"><i class="fas fa-shield-halved"></i> From Settings</div>':''}</div>`;}
+      if(isFromSettings && !isSent){w.innerHTML+=`<div class="settings-options"><button class="settings-opt-btn lock-btn" onclick="showLockOptions('${chatPartner}','${id}')"><i class="fas fa-lock"></i> Add to Lock</button><button class="settings-opt-btn chat-btn" onclick="this.parentElement.remove()"><i class="fas fa-comment-dots"></i> Continue</button></div>`;}
       c.insertBefore(w,tb);
       if(!isSent&&!msg.seen){setDoc(doc(db,'chats',chatId,'messages',id),{seen:true},{merge:true}).catch(()=>{});}
     }
@@ -529,6 +466,16 @@
     document.getElementById('chatInput').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}});
     function scrollToBottom(){const c=document.getElementById('messagesContainer');setTimeout(()=>{if(c)c.scrollTop=c.scrollHeight;},100);}
     function showToast(msg){const t=document.createElement('div');t.style.cssText='position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:0.5rem 1.5rem;border-radius:2rem;font-size:0.7rem;z-index:500;pointer-events:none;';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2000);}
+    
+    window.startCall=async function(type){if(!chatPartner||isCallActive)return;callType=type;isCaller=true;try{localStream=await navigator.mediaDevices.getUserMedia({audio:true,video:type==='video'});document.getElementById('callLocalVideo').srcObject=localStream;document.getElementById('callLocalVideo').style.display=type==='video'?'block':'none';document.getElementById('callOverlay').classList.add('show');document.getElementById('callStatus').textContent='Calling...';const callId=[currentUserId,chatPartner.replace('@','')].sort().join('_')+'_'+Date.now();callDocRef=doc(db,'calls',callId);await createPeerConnection();localStream.getTracks().forEach(track=>{peerConnection.addTrack(track,localStream);});const offer=await peerConnection.createOffer();await peerConnection.setLocalDescription(offer);await setDoc(callDocRef,{caller:currentUserId,callee:chatPartner.replace('@',''),type:type,status:'ringing',offer:{type:offer.type,sdp:offer.sdp},createdAt:serverTimestamp()});callUnsub=onSnapshot(callDocRef,async(snap)=>{const data=snap.data();if(!data)return;if(data.status==='rejected'){endCall();return;}if(data.status==='accepted'&&data.answer){if(!peerConnection.currentRemoteDescription){document.getElementById('callStatus').textContent='Connected';await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));}}});isCallActive=true;}catch(e){alert('Camera/microphone needed!');endCall();}};
+    async function createPeerConnection(){if(peerConnection){peerConnection.close();}peerConnection=new RTCPeerConnection(servers);peerConnection.ontrack=(event)=>{if(event.streams[0]){document.getElementById('callRemoteVideo').srcObject=event.streams[0];}};peerConnection.onicecandidate=async(event)=>{if(event.candidate&&callDocRef){const snap=await getDoc(callDocRef);const data=snap.data();if(data){const candidates=isCaller?(data.callerCandidates||[]):(data.calleeCandidates||[]);candidates.push(event.candidate.toJSON());await updateDoc(callDocRef,{[isCaller?'callerCandidates':'calleeCandidates']:candidates});}}};peerConnection.onconnectionstatechange=()=>{if(peerConnection.connectionState==='disconnected'||peerConnection.connectionState==='failed'){endCall();}};peerConnection.oniceconnectionstatechange=()=>{if(peerConnection.iceConnectionState==='disconnected'){endCall();}};}
+    function listenForIncomingCalls(){const q=query(collection(db,'calls'),orderBy('createdAt','desc'));onSnapshot(q,(snap)=>{snap.docChanges().forEach(async(change)=>{if(change.type==='added'){const data=change.doc.data();const docId=change.doc.id;if(data.callee===currentUserId&&data.status==='ringing'&&!isCallActive){callDocRef=doc(db,'calls',docId);showIncomingCall(data);}}if(change.type==='modified'&&callDocRef&&change.doc.id===callDocRef.id){const data=change.doc.data();if(data.status==='rejected'){endCall();}}});});}
+    function showIncomingCall(data){callType=data.type||'audio';isCaller=false;document.getElementById('incomingName').textContent=dispName('@'+data.caller);document.getElementById('incomingType').textContent=`Incoming ${callType} call...`;document.getElementById('incomingAvatar').innerHTML=avatarHTML('@'+data.caller);document.getElementById('incomingCallOverlay').classList.add('show');}
+    window.acceptCall=async function(){document.getElementById('incomingCallOverlay').classList.remove('show');try{localStream=await navigator.mediaDevices.getUserMedia({audio:true,video:callType==='video'});document.getElementById('callLocalVideo').srcObject=localStream;document.getElementById('callLocalVideo').style.display=callType==='video'?'block':'none';document.getElementById('callOverlay').classList.add('show');document.getElementById('callStatus').textContent='Connecting...';await createPeerConnection();localStream.getTracks().forEach(track=>{peerConnection.addTrack(track,localStream);});const snap=await getDoc(callDocRef);const data=snap.data();if(data&&data.offer){await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));const answer=await peerConnection.createAnswer();await peerConnection.setLocalDescription(answer);await updateDoc(callDocRef,{answer:{type:answer.type,sdp:answer.sdp},status:'accepted'});}callUnsub=onSnapshot(callDocRef,async(snap)=>{const d=snap.data();if(!d)return;if(d.callerCandidates&&peerConnection){const existingLength=peerConnection.getRemoteDescription()?(peerConnection._addedCandidates||0):0;for(let i=existingLength;i<d.callerCandidates.length;i++){try{await peerConnection.addIceCandidate(new RTCIceCandidate(d.callerCandidates[i]));peerConnection._addedCandidates=i+1;}catch(e){}}}});document.getElementById('callStatus').textContent='Connected';isCallActive=true;}catch(e){endCall();}};
+    window.rejectCall=function(){if(callDocRef){updateDoc(callDocRef,{status:'rejected'}).catch(()=>{});}document.getElementById('incomingCallOverlay').classList.remove('show');callDocRef=null;};
+    window.endCall=function(){if(localStream){localStream.getTracks().forEach(t=>t.stop());localStream=null;}if(peerConnection){peerConnection._addedCandidates=0;peerConnection.close();peerConnection=null;}if(callUnsub){callUnsub();callUnsub=null;}if(callDocRef&&isCaller){updateDoc(callDocRef,{status:'ended'}).then(()=>{deleteDoc(callDocRef).catch(()=>{});}).catch(()=>{});}document.getElementById('callOverlay').classList.remove('show');document.getElementById('incomingCallOverlay').classList.remove('show');document.getElementById('callRemoteVideo').srcObject=null;document.getElementById('callLocalVideo').srcObject=null;document.getElementById('callStatus').textContent='Connecting...';isCallActive=false;isCaller=false;callDocRef=null;isMuted=false;isVideoOff=false;document.getElementById('callMuteBtn').classList.remove('muted');document.getElementById('callVideoBtn').classList.remove('off');};
+    window.toggleCallMute=function(){if(!localStream)return;isMuted=!isMuted;localStream.getAudioTracks().forEach(t=>t.enabled=!isMuted);document.getElementById('callMuteBtn').classList.toggle('muted',isMuted);};
+    window.toggleCallVideo=function(){if(!localStream)return;isVideoOff=!isVideoOff;localStream.getVideoTracks().forEach(t=>t.enabled=!isVideoOff);document.getElementById('callVideoBtn').classList.toggle('off',isVideoOff);document.getElementById('callLocalVideo').style.display=isVideoOff?'none':'block';};
     
     window.addEventListener('beforeunload',()=>{if(isCallActive)endCall();});
   </script>

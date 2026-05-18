@@ -97,7 +97,6 @@
     .add-user-btn:hover { border-color:#4ade80;color:#4ade80;background:rgba(74,222,128,0.05); }
     .btn-delete { width:100%;padding:0.5rem;border-radius:0.8rem;margin-top:0.5rem;border:none;font-size:0.7rem;cursor:pointer;background:rgba(239,68,68,0.15);color:#ef4444; }
 
-    /* ✅ CHAT VIEW - Full features like chat.html */
     .lock-chat-view { display:none;flex-direction:column;flex:1;width:100%;min-height:0; }
     .lock-chat-view.show { display:flex; }
     .lock-chat-header { display:flex;align-items:center;gap:0.6rem;padding:0.5rem 0;flex-shrink:0; }
@@ -107,8 +106,6 @@
     .lock-chat-partner-name { font-size:0.85rem;font-weight:600;color:#fff; }
     .lock-chat-partner-status { font-size:0.6rem;color:#4ade80;display:flex;align-items:center;gap:0.2rem; }
     .lock-chat-partner-status .dot { width:5px;height:5px;border-radius:50%;background:#4ade80;display:inline-block; }
-    
-    /* Call buttons */
     .call-btns { display:flex;align-items:center;gap:0.5rem; }
     .call-btn { width:2.2rem;height:2.2rem;border-radius:50%;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.85rem;cursor:pointer;border:none;transition:all 0.2s; }
     .call-btn.video-call { color:#4ade80; }
@@ -127,20 +124,14 @@
     .sent .message-time { justify-content:flex-end;color:rgba(255,255,255,0.5); }
     .received .message-time { color:rgba(255,255,255,0.35); }
     .message-image { max-width:200px;max-height:200px;border-radius:0.8rem;object-fit:cover;cursor:pointer; }
-    
-    /* Voice message */
     .voice-msg { display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.8rem;cursor:pointer;min-width:180px; }
     .voice-play-btn { width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,0.2);border:none;color:#fff;font-size:0.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
     .sent .voice-play-btn { color:#fff;background:rgba(0,0,0,0.15); }
     .voice-wave-container { flex:1;display:flex;align-items:center;gap:1px;height:28px; }
-    .voice-wave-bar { width:2px;border-radius:1px;opacity:0.6; }
-    .sent .voice-wave-bar { background:#fff; }
-    .received .voice-wave-bar { background:#fff; }
+    .voice-wave-bar { width:2px;border-radius:1px;opacity:0.6;background:#fff; }
     .voice-duration { font-size:0.55rem;opacity:0.7;min-width:60px;text-align:right; }
-    
     .settings-badge { font-size:0.5rem;color:#a78bfa;margin-top:0.15rem;display:flex;align-items:center;gap:0.2rem;background:rgba(139,92,246,0.2);padding:2px 6px;border-radius:4px;width:fit-content; }
     
-    /* Recording bar */
     .recording-bar { display:none;align-items:center;gap:0.5rem;padding:0.4rem 0;border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0; }
     .recording-bar.show { display:flex; }
     .recording-dot { width:10px;height:10px;border-radius:50%;background:#ef4444;animation:recPulse 0.8s infinite; }
@@ -219,7 +210,6 @@
         <button class="add-user-btn" onclick="showAddUsersSheet()"><i class="fas fa-user-plus"></i> Add Users to Lock</button>
         <button class="btn-delete" onclick="deleteCurrentLock()"><i class="fas fa-trash"></i> Delete This Lock</button>
         
-        <!-- ✅ FULL CHAT VIEW with camera, mic, voice, calls -->
         <div class="lock-chat-view" id="lockChatView">
           <div class="lock-chat-header">
             <div class="lock-chat-avatar" id="lockChatAvatar" onclick="goToUserProfile()"><i class="fas fa-user"></i></div>
@@ -234,15 +224,12 @@
           </div>
           <div class="lock-chat-messages" id="lockChatMessages"><div class="empty-chat">Send a message!</div></div>
           
-          <!-- Recording bar -->
           <div class="recording-bar" id="lockRecordingBar">
-            <div class="recording-dot"></div>
-            <span class="recording-time-text" id="lockRecTime">00:00</span>
+            <div class="recording-dot"></div><span class="recording-time-text" id="lockRecTime">00:00</span>
             <button class="recording-cancel" onclick="cancelVoice()">✕</button>
             <button class="recording-send-btn" onclick="sendVoice()"><i class="fas fa-paper-plane"></i></button>
           </div>
           
-          <!-- Input area with camera, mic, send -->
           <div class="lock-chat-input-area">
             <button class="camera-btn-s" onclick="document.getElementById('lockImageInput').click()"><i class="fas fa-camera"></i></button>
             <input type="file" id="lockImageInput" accept="image/*" style="display:none" onchange="sendImage(event)">
@@ -296,8 +283,6 @@
     let accessPin = '', createPin = '', createConfirmPin = '', isCreateConfirmStep = false;
     let currentUserTab = 'besties', allUsersList = [], friendsList = [], bestiesList = [];
     let lockChatPartner = null, lockChatId = null, unsubLockMessages = null, userProfiles = {};
-    
-    // Voice recording
     let mediaRecorder = null, audioChunks = [], voiceTimer = null, voiceSeconds = 0, isRecording = false;
 
     function loadLocks() { const saved = localStorage.getItem('chat_locks_' + currentUserId); if (saved) { try { locks = JSON.parse(saved); } catch(e) { locks = []; } } else { locks = []; } }
@@ -316,13 +301,11 @@
     window.goBack = function() { if (currentView === 'lockChat') { closeLockChat(); } else if (currentView === 'lockDetail') { goBackToMainSettings(); } else { window.history.back(); } };
     function goBackToMainSettings() { closeLockChat(); document.getElementById('lockDetailView').style.display = 'none'; document.getElementById('mainView').style.display = 'flex'; currentLockIndex = -1; currentView = 'main'; }
 
-    // Numpad
     window.numpadPress = function(num) { if (accessPin.length < 4) { accessPin += num; updateAccessPinDots(); if (accessPin.length === 4) setTimeout(() => checkAccessPin(), 400); } };
     window.numpadDelete = function() { accessPin = accessPin.slice(0, -1); document.getElementById('errorMsg').textContent = ''; updateAccessPinDots(); };
     function updateAccessPinDots() { document.querySelectorAll('#pinDots .pin-dot').forEach((dot, i) => { dot.classList.remove('filled', 'error'); if (i < accessPin.length) dot.classList.add('filled'); }); }
     function checkAccessPin() { const fi = locks.findIndex(l => l.pin === accessPin); if (fi >= 0) { currentLockIndex = fi; accessPin = ''; updateAccessPinDots(); openLockDetail(fi); } else { document.getElementById('errorMsg').textContent = '❌ Wrong PIN!'; document.querySelectorAll('#pinDots .pin-dot').forEach(d => d.classList.add('error')); setTimeout(() => { accessPin = ''; updateAccessPinDots(); document.getElementById('errorMsg').textContent = ''; }, 1200); } }
 
-    // Create Lock
     window.showCreateLockModal = function() { createPin = ''; createConfirmPin = ''; isCreateConfirmStep = false; document.getElementById('createLockTitle').textContent = '🔐 Create New Lock'; document.getElementById('createLockSubtitle').textContent = 'Enter a 4-digit PIN'; document.getElementById('createLockConfirm').textContent = 'Create'; document.getElementById('createLockConfirm').disabled = true; updateCreatePinDots(); document.getElementById('createLockModal').classList.add('show'); };
     window.closeCreateLockModal = function() { document.getElementById('createLockModal').classList.remove('show'); };
     window.createNumpadPress = function(num) { if (isCreateConfirmStep) { if (createConfirmPin.length < 4) { createConfirmPin += num; updateCreatePinDots(); if (createConfirmPin.length === 4) document.getElementById('createLockConfirm').disabled = false; } } else { if (createPin.length < 4) { createPin += num; updateCreatePinDots(); if (createPin.length === 4) setTimeout(() => { isCreateConfirmStep = true; document.getElementById('createLockTitle').textContent = '🔐 Confirm PIN'; document.getElementById('createLockSubtitle').textContent = 'Re-enter code'; document.getElementById('createLockConfirm').textContent = 'Create Lock'; document.getElementById('createLockConfirm').disabled = true; updateCreatePinDots(); }, 300); } } };
@@ -330,7 +313,6 @@
     function updateCreatePinDots() { const cp = isCreateConfirmStep ? createConfirmPin : createPin; document.querySelectorAll('#createPinDots .pin-dot').forEach((dot, i) => { dot.classList.remove('filled', 'error'); if (i < cp.length) dot.classList.add('filled'); }); }
     window.confirmCreateLock = function() { if (createPin.length === 4 && createConfirmPin.length === 4 && createPin === createConfirmPin) { if (locks.some(l => l.pin === createPin)) { document.getElementById('createErrorMsg').textContent = '❌ PIN exists!'; return; } locks.push({ name: 'Lock ' + (locks.length + 1), pin: createPin, users: [], createdAt: new Date().toISOString() }); saveLocks(); closeCreateLockModal(); showToast('✅ Lock created!'); } else { document.getElementById('createErrorMsg').textContent = '❌ PINs mismatch!'; } };
 
-    // Add Users Sheet
     window.showAddUsersSheet = function() { loadUserLists(); currentUserTab = 'besties'; document.querySelectorAll('.sheet-tab').forEach((t, i) => t.classList.toggle('active', i === 0)); document.getElementById('userSearchInput').value = ''; renderUsersSheetList(bestiesList); document.getElementById('addUsersOverlay').classList.add('show'); };
     window.closeAddUsersSheet = function() { document.getElementById('addUsersOverlay').classList.remove('show'); };
     window.switchUserTab = function(tab, el) { currentUserTab = tab; document.querySelectorAll('.sheet-tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); document.getElementById('userSearchInput').value = ''; if (tab === 'besties') renderUsersSheetList(bestiesList); else if (tab === 'friends') renderUsersSheetList(friendsList); else renderUsersSheetList(allUsersList); };
@@ -347,7 +329,6 @@
     }
     window.removeUserFromLock = function(i) { if (currentLockIndex < 0) return; locks[currentLockIndex].users.splice(i, 1); saveLocks(); renderLockUsers(); showToast('User removed'); };
 
-    // ✅ CHAT FUNCTIONS
     window.openLockChat = function(username, displayName, avatarUrl) {
       lockChatPartner = username; lockChatId = [currentUserId, username.replace('@','')].sort().join('_');
       document.getElementById('lockUsersList').style.display = 'none';
@@ -377,11 +358,22 @@
 
     async function ensureLockChatDoc() { const ref = doc(db, 'chats', lockChatId); if (!(await getDoc(ref)).exists()) await setDoc(ref, { users: [currentUserId, lockChatPartner.replace('@','')], lastMessage: '', lastType: 'text', lastTime: serverTimestamp() }); }
 
+    // ✅ NEW MESSAGES AT TOP, OLD AT BOTTOM
     function listenToLockMessages() {
       if (unsubLockMessages) { unsubLockMessages(); unsubLockMessages = null; }
-      const q = query(collection(db, 'chats', lockChatId, 'settings_messages'), orderBy('createdAt', 'asc'));
-      getDocs(q).then(snap => { const c = document.getElementById('lockChatMessages'); c.innerHTML = ''; if (snap.empty) c.innerHTML = '<div class="empty-chat">Send a message!</div>'; else snap.forEach(d => renderLockMsg(d.id, d.data())); scrollLockChatBottom(); });
-      unsubLockMessages = onSnapshot(q, (snap) => { const c = document.getElementById('lockChatMessages'); const emptyEl = c.querySelector('.empty-chat'); if (emptyEl) c.innerHTML = ''; snap.docChanges().forEach(ch => { if (ch.type === 'added' && !document.getElementById('msg-' + ch.doc.id)) { renderLockMsg(ch.doc.id, ch.doc.data()); scrollLockChatBottom(); } }); });
+      const q = query(collection(db, 'chats', lockChatId, 'settings_messages'), orderBy('createdAt', 'desc'));
+      getDocs(q).then(snap => {
+        const c = document.getElementById('lockChatMessages'); c.innerHTML = '';
+        if (snap.empty) c.innerHTML = '<div class="empty-chat">Send a message!</div>';
+        else { const docs = []; snap.forEach(d => docs.push({ id: d.id, data: d.data() })); docs.forEach(d => renderLockMsg(d.id, d.data())); }
+        scrollLockChatTop();
+      });
+      unsubLockMessages = onSnapshot(q, (snap) => {
+        const c = document.getElementById('lockChatMessages');
+        const emptyEl = c.querySelector('.empty-chat');
+        if (emptyEl) c.innerHTML = '';
+        snap.docChanges().forEach(ch => { if (ch.type === 'added' && !document.getElementById('msg-' + ch.doc.id)) { renderLockMsg(ch.doc.id, ch.doc.data()); scrollLockChatTop(); } });
+      });
     }
 
     function renderLockMsg(id, msg) {
@@ -397,18 +389,18 @@
       } else {
         w.innerHTML = `<div class="message-bubble">${msg.text||''}<div class="message-time">${time}${isSent?' <i class="fas fa-check"></i>':''}</div><div class="settings-badge"><i class="fas fa-shield-halved"></i> Private</div></div>`;
       }
-      c.appendChild(w);
+      // Insert at TOP
+      const firstMsg = c.querySelector('.message-wrapper');
+      if (firstMsg) { c.insertBefore(w, firstMsg); } else { c.appendChild(w); }
     }
     function genBars(n) { let h = ''; for (let i = 0; i < n; i++) h += `<div class="voice-wave-bar" style="height:${Math.floor(Math.random()*22)+4}px;"></div>`; return h; }
 
-    // Send text message
     window.sendLockMessage = async function() {
       const input = document.getElementById('lockChatInput'); const text = input.value.trim();
       if (!text || !lockChatId) return; input.value = '';
       try { await ensureLockChatDoc(); await addDoc(collection(db, 'chats', lockChatId, 'settings_messages'), { text, sender: currentUserId, createdAt: serverTimestamp(), seen: false }); await updateDoc(doc(db, 'chats', lockChatId), { settingsLastMessage: text, settingsLastTime: serverTimestamp(), ['settings_unread_' + lockChatPartner.replace('@','')]: increment(1) }); } catch(e) {}
     };
 
-    // Send image
     window.sendImage = async function(e) {
       const file = e.target.files[0]; if (!file || !lockChatId) return;
       const r = new FileReader(); r.onload = async function(ev) {
@@ -416,7 +408,6 @@
       }; r.readAsDataURL(file); e.target.value = '';
     };
 
-    // Voice recording
     window.toggleVoice = function() { if (isRecording) { sendVoice(); } else { startVoice(); } };
     async function startVoice() { if (!lockChatId) return;
       try { const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); mediaRecorder = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm' }); audioChunks = []; mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); }; mediaRecorder.onstop = () => { stream.getTracks().forEach(t => t.stop()); }; mediaRecorder.start(100); isRecording = true; voiceSeconds = 0; document.getElementById('lockRecordingBar').classList.add('show'); document.getElementById('lockMicBtn').style.display = 'none'; document.getElementById('lockSendBtn').style.display = 'none'; document.getElementById('lockChatInput').style.display = 'none'; document.getElementById('lockRecTime').textContent = '00:00'; voiceTimer = setInterval(() => { voiceSeconds++; document.getElementById('lockRecTime').textContent = formatDuration(voiceSeconds); }, 1000); } catch(e) {} }
@@ -430,7 +421,6 @@
       }; mediaRecorder.stop(); isRecording = false; clearInterval(voiceTimer); document.getElementById('lockRecordingBar').classList.remove('show'); document.getElementById('lockMicBtn').style.display = 'flex'; document.getElementById('lockSendBtn').style.display = 'flex'; document.getElementById('lockChatInput').style.display = 'block';
     };
 
-    // Voice playback
     window.playVoice = function(el) {
       const audioUrl = el.getAttribute('data-audio'); const btn = el.querySelector('.voice-play-btn i'); const ds = el.querySelector('.voice-duration'); const td = parseFloat(el.getAttribute('data-duration') || '0');
       document.querySelectorAll('.voice-msg').forEach(m => { if (m !== el && m._audio) { m._audio.pause(); const ob = m.querySelector('.voice-play-btn i'); if (ob) ob.className = 'fas fa-play'; const od = m.querySelector('.voice-duration'); if (od && m._totalDur) od.textContent = '0:00 / ' + formatDuration(m._totalDur); } });
@@ -438,10 +428,8 @@
       const audio = el._audio; if (audio.paused) { audio.play().catch(() => {}); btn.className = 'fas fa-pause'; } else { audio.pause(); btn.className = 'fas fa-play'; if (ds && el._totalDur) ds.textContent = formatDuration(audio.currentTime) + ' / ' + formatDuration(el._totalDur); }
     };
 
-    // Call functions (placeholder)
     window.startCall = function(type) { showToast('📞 ' + (type === 'video' ? 'Video' : 'Audio') + ' call starting...'); };
-
-    function scrollLockChatBottom() { const c = document.getElementById('lockChatMessages'); setTimeout(() => { if(c) c.scrollTop = c.scrollHeight; }, 100); }
+    function scrollLockChatTop() { const c = document.getElementById('lockChatMessages'); setTimeout(() => { if(c) c.scrollTop = 0; }, 100); }
     document.getElementById('lockChatInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); sendLockMessage(); } });
 
     window.deleteCurrentLock = function() { if (currentLockIndex < 0) return; if (confirm('Delete this lock?')) { locks.splice(currentLockIndex, 1); saveLocks(); goBackToMainSettings(); showToast('Lock deleted'); } };

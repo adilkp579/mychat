@@ -14,18 +14,22 @@
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
     @keyframes glassShine { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
     @keyframes popIn { 0%{transform:scale(0.8);opacity:0} 100%{transform:scale(1);opacity:1} }
-    @keyframes slideUp { 0%{transform:translateY(100%)} 100%{transform:translateY(0)} }
+    @keyframes fadeInUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes recPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+    @keyframes typingBounce { 0%{transform:translateY(0);opacity:0.4} 100%{transform:translateY(-4px);opacity:1} }
     
     .scrollable-page {
       flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
-      display:flex;flex-direction:column;background:#000;padding-bottom:6rem;
+      display:flex;flex-direction:column;background:#000;
+      padding-bottom:6rem;
     }
     .scrollable-page::-webkit-scrollbar { width:0;height:0; }
     .scrollable-page { scrollbar-width:none;-ms-overflow-style:none; }
 
     .top-icons {
       width:100%;max-width:500px;display:flex;align-items:center;justify-content:space-between;
-      padding:0.8rem 0.8rem 0.3rem 0.8rem;flex-shrink:0;position:relative;background:#000;margin:0 auto;
+      padding:0.8rem 0.8rem 0.3rem 0.8rem;flex-shrink:0;position:relative;background:#000;
+      margin:0 auto;
     }
     .top-icons.hidden { display:none; }
     .corner-btn {
@@ -37,12 +41,22 @@
     .top-brand {
       font-size:2rem;font-weight:700;color:#fff;letter-spacing:3px;
       font-family:'Segoe Script','Brush Script MT','Apple Chancery','Comic Sans MS',cursive;
-      position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;line-height:1;font-style:italic;
+      position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;
+      line-height:1;font-style:italic;
     }
 
-    .chat-header { display:none;align-items:center;gap:0.6rem;padding:0.8rem 1rem 0.5rem 1rem;padding-top:max(0.8rem,env(safe-area-inset-top,0.8rem));background:#000;flex-shrink:0; }
+    .chat-header {
+      display:none;align-items:center;gap:0.6rem;
+      padding:0.8rem 1rem 0.5rem 1rem;padding-top:max(0.8rem,env(safe-area-inset-top,0.8rem));
+      background:#000;flex-shrink:0;
+    }
     .chat-header.show {display:flex;}
-    .chat-back { width:2.4rem;height:2.4rem;min-width:2.4rem;background:#1a1a1a;border-radius:50%;color:#fff;font-size:1rem;display:flex;align-items:center;justify-content:center;border:1px solid #333;cursor:pointer; }
+    .chat-back {
+      width:2.4rem;height:2.4rem;min-width:2.4rem;
+      background:#1a1a1a;border-radius:50%;color:#fff;font-size:1rem;
+      display:flex;align-items:center;justify-content:center;
+      border:1px solid #333;cursor:pointer;
+    }
     .chat-partner-info {flex:1;min-width:0;cursor:pointer;display:flex;flex-direction:column;justify-content:center;}
     .chat-partner-name {font-size:0.95rem;font-weight:600;color:#fff;}
     .chat-partner-status {font-size:0.65rem;color:#4ade80;display:flex;align-items:center;gap:0.2rem;}
@@ -82,7 +96,6 @@
     .message-wrapper {display:flex;max-width:85%;animation:fadeInUp 0.25s ease-out;}
     .message-wrapper.sent {align-self:flex-end;flex-direction:row-reverse;}
     .message-wrapper.received {align-self:flex-start;}
-    @keyframes fadeInUp {from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
     .message-bubble {padding:0.55rem 0.8rem;border-radius:1.2rem;font-size:0.85rem;line-height:1.3;word-break:break-word;}
     .sent .message-bubble {background:#FFFC00;color:#000;border-bottom-right-radius:0.3rem;}
     .received .message-bubble {background:#111;color:#fff;border-bottom-left-radius:0.3rem;}
@@ -101,7 +114,6 @@
     .recording-bar {display:none;align-items:center;gap:0.5rem;padding:0.4rem 1rem;background:#0a0a0a;border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0;}
     .recording-bar.show {display:flex;}
     .recording-dot {width:10px;height:10px;border-radius:50%;background:#ef4444;animation:recPulse 0.8s infinite;}
-    @keyframes recPulse {0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.7);}}
     .recording-time-text {color:#ef4444;font-size:0.85rem;font-weight:600;}
     .recording-cancel {margin-left:auto;background:none;border:none;color:#888;font-size:1.2rem;cursor:pointer;}
     .recording-send {width:38px;height:38px;border-radius:50%;background:#FFFC00;border:none;color:#000;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
@@ -110,7 +122,6 @@
     .typing-bubble.show {display:flex;align-items:center;}
     .typing-bubble .tb-dot {width:5px;height:5px;border-radius:50%;background:#888;animation:typingBounce 0.5s infinite alternate;}
     .typing-bubble .tb-dot:nth-child(2) {animation-delay:0.15s;}.typing-bubble .tb-dot:nth-child(3) {animation-delay:0.3s;}
-    @keyframes typingBounce {0%{transform:translateY(0);opacity:0.4;}100%{transform:translateY(-4px);opacity:1;}}
 
     .chat-input-area {display:none;align-items:center;gap:0.4rem;padding:0.5rem 0.8rem;padding-bottom:max(0.5rem,env(safe-area-inset-bottom,0.5rem));background:#000;border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0;position:fixed;bottom:0;left:0;right:0;z-index:50;}
     .chat-input-area.show {display:flex;}
@@ -121,7 +132,6 @@
 
     .empty-chat {flex:1;display:flex;align-items:center;justify-content:center;color:#333;font-size:0.8rem;}
 
-    /* Lock options modal */
     .lock-options-overlay {
       position:fixed;top:0;left:0;right:0;bottom:0;
       background:rgba(0,0,0,0.85);z-index:500;
@@ -147,15 +157,14 @@
     .lock-option-btn.existing-lock {color:#f59e0b;border-color:rgba(245,158,11,0.3);}
     .lock-option-btn.cancel-btn {color:#ef4444;border-color:rgba(239,68,68,0.3);justify-content:center;}
 
-    /* New Chat Modal - Glass */
     .new-chat-overlay {
       position:fixed;top:0;left:0;right:0;bottom:0;
-      background: rgba(0,0,0,0.2);backdrop-filter: blur(4px);-webkit-backdrop-filter: blur(4px);
+      background:rgba(0,0,0,0.2);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
       z-index:400;display:none;align-items:center;justify-content:center;padding:1rem;
     }
     .new-chat-overlay.show {display:flex;}
     .new-chat-modal {
-      background: rgba(255,255,255,0.03);backdrop-filter: blur(60px) saturate(180%);-webkit-backdrop-filter: blur(60px) saturate(180%);
+      background:rgba(255,255,255,0.03);backdrop-filter:blur(60px) saturate(180%);-webkit-backdrop-filter:blur(60px) saturate(180%);
       border-radius:1.5rem;padding:0;width:100%;max-width:420px;max-height:80vh;
       display:flex;flex-direction:column;border:1px solid rgba(255,255,255,0.08);
       box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 0 1px rgba(255,255,255,0.03) inset;overflow:hidden;position:relative;
@@ -165,6 +174,11 @@
       background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.02) 25%,rgba(255,255,255,0.04) 50%,rgba(255,255,255,0.02) 75%,transparent 100%);
       animation:glassShine 8s infinite linear;pointer-events:none;
     }
+    .new-chat-modal::after {
+      content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+      background:radial-gradient(circle at 20% 20%,rgba(255,255,255,0.02) 0%,transparent 50%),radial-gradient(circle at 80% 80%,rgba(255,252,0,0.01) 0%,transparent 50%),radial-gradient(circle at 50% 50%,rgba(255,255,255,0.01) 0%,transparent 70%);
+      pointer-events:none;
+    }
     .new-chat-tabs {display:flex;border-bottom:1px solid rgba(255,255,255,0.04);flex-shrink:0;background:rgba(255,255,255,0.01);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);position:relative;z-index:2;}
     .new-chat-tab {flex:1;text-align:center;padding:0.9rem;color:rgba(255,255,255,0.3);font-size:0.8rem;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.3s;position:relative;z-index:3;letter-spacing:0.5px;}
     .new-chat-tab:hover {color:rgba(255,255,255,0.7);background:rgba(255,255,255,0.02);}
@@ -173,6 +187,7 @@
     .new-chat-search {padding:0.7rem 1rem;flex-shrink:0;position:relative;z-index:2;}
     .new-chat-search input {width:100%;padding:0.6rem 1rem;border-radius:1.2rem;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);color:#fff;font-size:0.8rem;outline:none;transition:all 0.3s;}
     .new-chat-search input::placeholder {color:rgba(255,255,255,0.2);}
+    .new-chat-search input:focus {border-color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.05);box-shadow:0 0 20px rgba(255,255,255,0.05);}
     .new-chat-list {flex:1;overflow-y:auto;padding:0.3rem 0;position:relative;z-index:2;}
     .new-chat-list::-webkit-scrollbar {width:3px;}
     .new-chat-list::-webkit-scrollbar-thumb {background:rgba(255,255,255,0.1);border-radius:3px;}
@@ -188,6 +203,8 @@
     .new-chat-action:hover {transform:translateY(-1px);}
     .new-chat-action.chat {color:#FFFC00;border-color:rgba(255,252,0,0.3);background:rgba(255,252,0,0.05);}
     .new-chat-action.request-btn {color:#a78bfa;border-color:rgba(139,92,246,0.3);background:rgba(139,92,246,0.05);}
+    .new-chat-action.accept {color:#4ade80;border-color:rgba(74,222,128,0.3);background:rgba(74,222,128,0.05);}
+    .new-chat-action.decline {color:#ef4444;border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.05);}
     .new-chat-close {text-align:center;padding:0.7rem;color:rgba(255,255,255,0.3);cursor:pointer;font-size:0.75rem;border-top:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.01);flex-shrink:0;z-index:2;}
     .new-chat-close:hover {color:#ef4444;}
     .requested-label {color:#f59e0b;font-size:0.6rem;font-weight:500;padding:0.3rem 0.6rem;border-radius:0.8rem;background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.2);}
@@ -200,12 +217,9 @@
     .call-local-video {position:absolute;top:1rem;right:1rem;width:100px;height:140px;border-radius:0.8rem;object-fit:cover;background:#222;border:2px solid rgba(255,255,255,0.2);}
     .call-controls {display:flex;gap:1.5rem;margin-top:2rem;align-items:center;}
     .call-ctrl-btn {width:50px;height:50px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.2rem;transition:all 0.2s;}
-    .call-mute-btn {background:rgba(255,255,255,0.15);color:#fff;}
-    .call-mute-btn.muted {background:#ef4444;color:#fff;}
-    .call-video-toggle {background:rgba(255,255,255,0.15);color:#fff;}
-    .call-video-toggle.off {background:#ef4444;color:#fff;}
-    .call-end-btn {background:#ef4444;color:#fff;width:60px;height:60px;font-size:1.4rem;}
-    .call-end-btn i {transform:rotate(135deg);}
+    .call-mute-btn {background:rgba(255,255,255,0.15);color:#fff;}.call-mute-btn.muted {background:#ef4444;color:#fff;}
+    .call-video-toggle {background:rgba(255,255,255,0.15);color:#fff;}.call-video-toggle.off {background:#ef4444;color:#fff;}
+    .call-end-btn {background:#ef4444;color:#fff;width:60px;height:60px;font-size:1.4rem;}.call-end-btn i {transform:rotate(135deg);}
     .call-status {color:#fff;font-size:0.9rem;margin-top:1rem;text-align:center;}
     .incoming-call-overlay {position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:700;display:none;flex-direction:column;align-items:center;justify-content:center;}
     .incoming-call-overlay.show {display:flex;}
@@ -220,12 +234,21 @@
     .loading-screen {position:fixed;top:0;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:0.5rem;}
     .loading-screen i {font-size:2rem;color:#3897f0;animation:spin 1s infinite;}
 
-    .floating-nav {position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:transparent;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:2.5rem;padding:0.7rem 1.5rem;border:1px solid rgba(255,255,255,0.04);z-index:100;}
+    .floating-nav {
+      position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));
+      left:50%;transform:translateX(-50%);width:92%;max-width:500px;
+      background:transparent;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+      border-radius:2.5rem;padding:0.7rem 1.5rem;
+      border:1px solid rgba(255,255,255,0.04);box-shadow:none;z-index:100;
+    }
+    .floating-nav:hover {background:rgba(255,255,255,0.02);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}
     .floating-nav.hidden {display:none;}
     .nav-center {display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem;}
     .nav-center a {color:rgba(255,255,255,0.7);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;background:transparent;text-shadow:0 0 8px rgba(0,0,0,0.8);}
-    .nav-center a:hover {color:#fff;background:rgba(255,255,255,0.08);}
-    .nav-center a.active {color:#fff;background:rgba(255,255,255,0.12);}
+    .nav-center a:hover {color:#fff;background:rgba(255,255,255,0.08);transform:translateY(-2px);}
+    .nav-center a.active {color:#fff;background:rgba(255,255,255,0.12);box-shadow:0 0 15px rgba(255,255,255,0.08);}
+    .nav-center a::before {content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(0);width:4px;height:4px;border-radius:50%;background:#fff;transition:all 0.3s;}
+    .nav-center a.active::before {transform:translateX(-50%) scale(1);}
     .nav-upload,.nav-search {display:none!important;}
 
     @media (min-width:1024px) {
@@ -233,10 +256,8 @@
       .nav-upload,.nav-search{display:flex!important}
       .floating-nav{position:fixed;top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;max-width:none;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column}
       .floating-nav.hidden{display:flex!important}
-      .nav-center{flex-direction:column;gap:1.2rem;max-width:none}
-      .nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
-      .page{padding:0 0 0 5.5rem}
-      .scrollable-page{max-width:550px;margin:0 auto;width:100%}
+      .nav-center{flex-direction:column;gap:1.2rem;max-width:none}.nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem}
+      .page{padding:0 0 0 5.5rem}.scrollable-page{max-width:550px;margin:0 auto;width:100%}
     }
     @media (max-width:380px) {
       .floating-nav{width:94%;padding:0.5rem 0.8rem}
@@ -248,15 +269,17 @@
   <div class="loading-screen" id="loadingScreen"><i class="fas fa-spinner"></i><span>Loading...</span></div>
   <div class="page" id="mainPage" style="display:none;">
     <div class="scrollable-page" id="scrollablePage">
+      <!-- ✅ TOP HEADER: Heart | Chats | Plus + Settings -->
       <div class="top-icons" id="topIcons">
         <a href="hart.html" class="corner-btn" title="Likes"><i class="fas fa-heart"></i></a>
         <span class="top-brand">Chats</span>
         <div style="display:flex;gap:0.5rem;">
-          <button class="corner-btn" onclick="showNewChatModal()" title="New Chat"><i class="fas fa-plus"></i></button>
+          <button class="corner-btn" id="newChatBtn" onclick="showNewChatModal()" title="New Chat"><i class="fas fa-plus"></i></button>
           <button class="corner-btn" onclick="window.location.href='settings.html'" title="Settings"><i class="fas fa-cog"></i></button>
         </div>
       </div>
 
+      <!-- Chat Header (shows when in conversation) -->
       <div class="chat-header" id="chatHeader">
         <button class="chat-back" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
         <div class="chat-partner-info" onclick="goToPartnerProfile()">
@@ -269,14 +292,18 @@
         </div>
       </div>
 
+      <!-- Search Bar -->
       <div class="search-bar-container" id="searchBarContainer">
         <div class="search-bar"><i class="fas fa-search"></i><input type="text" id="chatSearchInput" placeholder="Search messages..." oninput="filterChatList()"></div>
       </div>
 
+      <!-- ✅ USERS LIST - Chat list -->
       <div class="chat-list-full" id="chatListFull">
         <div class="chat-list-header">Messages <span id="chatCount"></span></div>
         <div id="userList"></div>
       </div>
+
+      <!-- Chat Messages View -->
       <div class="chat-view" id="chatView">
         <div class="messages-container" id="messagesContainer">
           <div class="empty-chat" id="emptyChat">Send a message!</div>
@@ -286,6 +313,7 @@
       </div>
     </div>
 
+    <!-- Chat Input Area -->
     <div class="chat-input-area" id="chatInputArea">
       <button class="camera-btn" onclick="document.getElementById('imageInput').click()"><i class="fas fa-camera"></i></button>
       <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="sendImage(event)">
@@ -299,30 +327,26 @@
       <div class="lock-options-modal">
         <h3>🔒 Add to Lock</h3>
         <p id="lockOptionsUser">Add this user to private lock chat</p>
-        <button class="lock-option-btn new-lock" onclick="goToNewLock()">
-          <i class="fas fa-plus-circle"></i> Create New Lock & Add User
-        </button>
-        <button class="lock-option-btn existing-lock" onclick="goToExistingLock()">
-          <i class="fas fa-folder-open"></i> Add to Existing Lock
-        </button>
-        <button class="lock-option-btn cancel-btn" onclick="closeLockOptions()">
-          <i class="fas fa-times"></i> Cancel
-        </button>
+        <button class="lock-option-btn new-lock" onclick="goToNewLock()"><i class="fas fa-plus-circle"></i> Create New Lock & Add User</button>
+        <button class="lock-option-btn existing-lock" onclick="goToExistingLock()"><i class="fas fa-folder-open"></i> Add to Existing Lock</button>
+        <button class="lock-option-btn cancel-btn" onclick="closeLockOptions()"><i class="fas fa-times"></i> Cancel</button>
       </div>
     </div>
 
+    <!-- New Chat Modal -->
     <div class="new-chat-overlay" id="newChatOverlay">
       <div class="new-chat-modal">
         <div class="new-chat-tabs">
           <div class="new-chat-tab active" onclick="switchNewChatTab('users', this)">👥 Users</div>
           <div class="new-chat-tab" onclick="switchNewChatTab('requests', this)">📩 Requests <span class="tab-badge" id="requestBadge" style="display:none;">0</span></div>
         </div>
-        <div class="new-chat-search"><input type="text" id="newChatSearchInput" placeholder="🔍 Search users..." oninput="filterNewChatList()"></div>
+        <div class="new-chat-search" id="newChatSearchBox"><input type="text" id="newChatSearchInput" placeholder="🔍 Search users..." oninput="filterNewChatList()"></div>
         <div class="new-chat-list" id="newChatList"></div>
         <div class="new-chat-close" onclick="closeNewChatModal()">Close ✕</div>
       </div>
     </div>
 
+    <!-- Call Overlays -->
     <div class="call-overlay" id="callOverlay">
       <div class="call-video-container"><video id="callRemoteVideo" class="call-remote-video" autoplay playsinline></video><video id="callLocalVideo" class="call-local-video" autoplay playsinline muted></video></div>
       <div class="call-status" id="callStatus">Connecting...</div>
@@ -332,7 +356,6 @@
         <button class="call-ctrl-btn call-end-btn" onclick="endCall()"><i class="fas fa-phone"></i></button>
       </div>
     </div>
-
     <div class="incoming-call-overlay" id="incomingCallOverlay">
       <div class="incoming-avatar" id="incomingAvatar"><i class="fas fa-user"></i></div>
       <div class="incoming-name" id="incomingName">Caller</div>
@@ -343,6 +366,7 @@
       </div>
     </div>
     
+    <!-- Bottom Navbar -->
     <nav class="floating-nav" id="floatingNav">
       <div class="nav-center">
         <a href="index.html"><i class="fas fa-home"></i></a>
@@ -374,10 +398,11 @@
     document.getElementById('loadingScreen').style.display='none';document.getElementById('mainPage').style.display='flex';
     loadAllUsers();setupRealtimeChatList();listenForIncomingCalls();loadMessageRequests();
     
+    // Check for pre-selected user from profile
     const preSelectedUser = sessionStorage.getItem('openChatWith');
     if (preSelectedUser) { sessionStorage.removeItem('openChatWith'); setTimeout(() => { openChat(preSelectedUser); }, 800); }
 
-    // ✅ Get locked users
+    // ✅ Get locked users from localStorage
     function getLockedUsers() {
       const saved = localStorage.getItem('chat_locks_' + currentUserId);
       if (saved) { try { const locks = JSON.parse(saved); const set = new Set(); locks.forEach(l => (l.users||[]).forEach(u => set.add(u.username))); return set; } catch(e) { return new Set(); } }
@@ -389,7 +414,7 @@
     window.goToPartnerProfile=function(){if(chatPartner)window.location.href='profile.html?user='+encodeURIComponent(chatPartner);};
     window.filterChatList=function(){const s=document.getElementById('chatSearchInput').value.toLowerCase();renderChatList(s?chatListData.filter(c=>dispName(c.username).toLowerCase().includes(s)||(c.lastMsg&&c.lastMsg.toLowerCase().includes(s))):chatListData);};
 
-    // ✅ Lock options
+    // Lock options
     window.showLockOptions = function(username) {
       lockOptionsUser = username;
       document.getElementById('lockOptionsUser').textContent = 'Add @' + username.replace('@','') + ' to private lock chat';
@@ -430,7 +455,7 @@
     window.declineRequest=async function(requestId){try{await deleteDoc(doc(db,'message_requests',requestId));messageRequests=messageRequests.filter(r=>r.id!==requestId);updateRequestBadge();renderNewChatRequests(messageRequests);}catch(e){};};
     document.getElementById('newChatOverlay').addEventListener('click',function(e){if(e.target===this)closeNewChatModal();});
     
-    // ✅ HIDE locked users completely from chat list + hide settings messages
+    // ✅ Chat list - hide locked users
     function setupRealtimeChatList(){
       if(unsubChatList)unsubChatList();
       const q=query(collection(db,'chats'),orderBy('lastTime','desc'));
@@ -442,17 +467,13 @@
           const ids=docSnap.id.split('_');
           if(ids.includes(currentUserId)){
             const partnerId=ids.find(i=>i!==currentUserId);
-            // ✅ Skip locked users entirely - don't show in chat list
             if(partnerId && data.lastMessage && !lockedUsers.has('@'+partnerId)){
-              // ✅ Skip if message source is settings
-              if(data.source !== 'settings'){
-                chats.push({
-                  username:'@'+partnerId,
-                  lastMsg:data.lastType==='image'?'📷 Photo':data.lastType==='audio'?'🎤 Voice':data.lastMessage||'',
-                  lastTime:data.lastTime?.toDate()||new Date(0),
-                  unreadCount:data['unread_'+currentUserId]||0
-                });
-              }
+              chats.push({
+                username:'@'+partnerId,
+                lastMsg:data.lastType==='image'?'📷 Photo':data.lastType==='audio'?'🎤 Voice':data.lastMessage||'',
+                lastTime:data.lastTime?.toDate()||new Date(0),
+                unreadCount:data['unread_'+currentUserId]||0
+              });
             }
           }
         });
@@ -461,13 +482,14 @@
       },(error)=>{});
     }
     
-    function renderChatList(cu){const l=document.getElementById('userList'),cnt=document.getElementById('chatCount');const tu=cu.reduce((s,c)=>s+c.unreadCount,0);cnt.textContent=cu.length>0?'('+cu.length+')':'';if(cu.length===0){l.innerHTML='<div style="text-align:center;color:#555;padding:3rem;font-size:0.8rem;">No messages yet</div>';return;}l.innerHTML=cu.map(c=>{const ts=c.lastTime.getTime()>0?fmtTime(c.lastTime):'';const dn=dispName(c.username);return`<div class="user-list-item ${chatPartner===c.username?'active':''}" onclick="openChat('${c.username}')"><div class="user-avatar" onclick="event.stopPropagation();window.location.href='profile.html?user=${encodeURIComponent(c.username)}'">${avatarHTML(c.username)}</div><div class="user-info"><div class="user-name-row"><span class="user-name">${dn}</span><span class="user-time">${ts}</span></div><div class="user-msg-row"><span class="user-last-msg ${c.unreadCount>0?'unread-msg':''}">${c.lastMsg||'No messages'}</span>${c.unreadCount>0?`<span class="unread-count">${c.unreadCount}</span>`:''}</div></div></div>`;}).join('');}
+    function renderChatList(cu){const l=document.getElementById('userList'),cnt=document.getElementById('chatCount');const tu=cu.reduce((s,c)=>s+c.unreadCount,0);cnt.textContent=cu.length>0?'('+cu.length+')':'';if(cu.length===0){l.innerHTML='<div style="text-align:center;color:#555;padding:3rem;font-size:0.8rem;">No messages yet</div>';return;}l.innerHTML=cu.map(c=>{const ts=c.lastTime.getTime()>0?fmtTime(c.lastTime):'';const dn=dispName(c.username);return`<div class="user-list-item ${chatPartner===c.username?'active':''}" onclick="openChat('${c.username}')"><div class="user-avatar" onclick="event.stopPropagation();window.location.href='profile.html?user=${encodeURIComponent(c.username)}'">${avatarHTML(c.username)}</div><div class="user-info"><div class="user-name-row"><span class="user-name" onclick="event.stopPropagation();window.location.href='profile.html?user=${encodeURIComponent(c.username)}'">${dn}</span><span class="user-time">${ts}</span></div><div class="user-msg-row"><span class="user-last-msg ${c.unreadCount>0?'unread-msg':''}">${c.lastMsg||'No messages'}</span>${c.unreadCount>0?`<span class="unread-count">${c.unreadCount}</span>`:''}</div></div></div>`;}).join('');}
     function fmtTime(d){if(!d||d.getTime()===0)return'';const n=new Date(),df=n-d;if(df<60000)return'Now';if(df<3600000)return Math.floor(df/60000)+'m';if(d.toDateString()===n.toDateString())return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});if(n-d<604800000)return['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];return d.toLocaleDateString([],{month:'short',day:'numeric'});}
     
     window.openChat=function(u){chatPartner=u;chatId=[currentUserId,u.replace('@','')].sort().join('_');updateDoc(doc(db,'chats',chatId),{['unread_'+currentUserId]:0}).catch(()=>{});document.getElementById('topIcons').classList.add('hidden');document.getElementById('chatHeader').classList.add('show');document.getElementById('chatListFull').classList.add('hidden');document.getElementById('chatView').classList.add('show');document.getElementById('searchBarContainer').classList.add('hidden');document.getElementById('partnerName').textContent=dispName(u);document.getElementById('partnerStatus').innerHTML='<span class="dot"></span> online';document.getElementById('chatInputArea').classList.add('show');document.getElementById('floatingNav').classList.add('hidden');const c=document.getElementById('messagesContainer');c.querySelectorAll('.message-wrapper').forEach(el=>el.remove());document.getElementById('emptyChat').style.display='flex';listenToMessages();listenToTyping();scrollToBottom();};
     
     window.goBack=function(){if(isCallActive){endCall();}chatPartner=null;chatId=null;if(unsubMessages){unsubMessages();unsubMessages=null;}stopVoice(true);document.getElementById('topIcons').classList.remove('hidden');document.getElementById('chatHeader').classList.remove('show');document.getElementById('chatListFull').classList.remove('hidden');document.getElementById('chatView').classList.remove('show');document.getElementById('searchBarContainer').classList.remove('hidden');document.getElementById('partnerName').textContent='';document.getElementById('partnerStatus').textContent='';document.getElementById('chatInputArea').classList.remove('show');document.getElementById('floatingNav').classList.remove('hidden');};
     
+    // Calls
     window.startCall=async function(type){if(!chatPartner||isCallActive)return;callType=type;isCaller=true;try{localStream=await navigator.mediaDevices.getUserMedia({audio:true,video:type==='video'});document.getElementById('callLocalVideo').srcObject=localStream;document.getElementById('callLocalVideo').style.display=type==='video'?'block':'none';document.getElementById('callOverlay').classList.add('show');document.getElementById('callStatus').textContent='Calling...';document.getElementById('callVideoBtn').style.display=type==='video'?'flex':'none';const callId=[currentUserId,chatPartner.replace('@','')].sort().join('_')+'_'+Date.now();callDocRef=doc(db,'calls',callId);await createPeerConnection();localStream.getTracks().forEach(track=>{peerConnection.addTrack(track,localStream);});const offer=await peerConnection.createOffer();await peerConnection.setLocalDescription(offer);await setDoc(callDocRef,{caller:currentUserId,callee:chatPartner.replace('@',''),type:type,status:'ringing',offer:{type:offer.type,sdp:offer.sdp},createdAt:serverTimestamp()});callUnsub=onSnapshot(callDocRef,async(snap)=>{const data=snap.data();if(!data)return;if(data.status==='rejected'){endCall();return;}if(data.status==='accepted'&&data.answer){if(!peerConnection.currentRemoteDescription){document.getElementById('callStatus').textContent='Connected';await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));}}});isCallActive=true;}catch(e){alert('Camera/microphone needed!');endCall();}};
     async function createPeerConnection(){if(peerConnection){peerConnection.close();}peerConnection=new RTCPeerConnection(servers);peerConnection.ontrack=(event)=>{if(event.streams[0]){document.getElementById('callRemoteVideo').srcObject=event.streams[0];}};peerConnection.onicecandidate=async(event)=>{if(event.candidate&&callDocRef){const snap=await getDoc(callDocRef);const data=snap.data();if(data){const candidates=isCaller?(data.callerCandidates||[]):(data.calleeCandidates||[]);candidates.push(event.candidate.toJSON());await updateDoc(callDocRef,{[isCaller?'callerCandidates':'calleeCandidates']:candidates});}}};peerConnection.onconnectionstatechange=()=>{if(peerConnection.connectionState==='disconnected'||peerConnection.connectionState==='failed'){endCall();}};peerConnection.oniceconnectionstatechange=()=>{if(peerConnection.iceConnectionState==='disconnected'){endCall();}};}
     function listenForIncomingCalls(){const q=query(collection(db,'calls'),orderBy('createdAt','desc'));onSnapshot(q,(snap)=>{snap.docChanges().forEach(async(change)=>{if(change.type==='added'){const data=change.doc.data();const docId=change.doc.id;if(data.callee===currentUserId&&data.status==='ringing'&&!isCallActive){callDocRef=doc(db,'calls',docId);showIncomingCall(data);}}if(change.type==='modified'&&callDocRef&&change.doc.id===callDocRef.id){const data=change.doc.data();if(data.status==='rejected'){endCall();}}});});}
@@ -478,6 +500,7 @@
     window.toggleCallMute=function(){if(!localStream)return;isMuted=!isMuted;localStream.getAudioTracks().forEach(t=>t.enabled=!isMuted);document.getElementById('callMuteBtn').classList.toggle('muted',isMuted);};
     window.toggleCallVideo=function(){if(!localStream)return;isVideoOff=!isVideoOff;localStream.getVideoTracks().forEach(t=>t.enabled=!isVideoOff);document.getElementById('callVideoBtn').classList.toggle('off',isVideoOff);document.getElementById('callLocalVideo').style.display=isVideoOff?'none':'block';};
     
+    // Voice
     window.toggleVoice=function(){if(isRecording){window.sendVoice();}else{startVoice();}};
     async function startVoice(){if(!chatId)return;try{const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,sampleRate:44100}});const opts={audioBitsPerSecond:128000};if(MediaRecorder.isTypeSupported('audio/webm;codecs=opus'))opts.mimeType='audio/webm;codecs=opus';else opts.mimeType='audio/webm';mediaRecorder=new MediaRecorder(stream,opts);audioChunks=[];mediaRecorder.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data);};mediaRecorder.onstop=()=>{stream.getTracks().forEach(t=>t.stop());};mediaRecorder.start(100);isRecording=true;voiceSeconds=0;document.getElementById('recordingBar').classList.add('show');document.getElementById('micBtn').style.display='none';document.getElementById('sendBtn').style.display='none';document.getElementById('chatInput').style.display='none';document.getElementById('recTime').textContent='00:00';voiceTimer=setInterval(()=>{voiceSeconds++;document.getElementById('recTime').textContent=formatDuration(voiceSeconds);},1000);}catch(e){}}
     function stopVoice(c){if(mediaRecorder&&isRecording){if(c)audioChunks=[];if(mediaRecorder.state==='recording')mediaRecorder.stop();isRecording=false;clearInterval(voiceTimer);document.getElementById('recordingBar').classList.remove('show');document.getElementById('micBtn').style.display='flex';document.getElementById('sendBtn').style.display='flex';document.getElementById('chatInput').style.display='block';}}
@@ -489,6 +512,7 @@
     
     window.playVoice=function(el){const audioUrl=el.getAttribute('data-audio');const btn=el.querySelector('.voice-play-btn i');const ds=el.querySelector('.voice-duration');const td=parseFloat(el.getAttribute('data-duration')||'0');document.querySelectorAll('.voice-msg').forEach(m=>{if(m!==el&&m._audio){m._audio.pause();const ob=m.querySelector('.voice-play-btn i');if(ob)ob.className='fas fa-play';const od=m.querySelector('.voice-duration');if(od&&m._totalDur)od.textContent='0:00 / '+formatDuration(m._totalDur);}});if(!el._audio){el._audio=new Audio(audioUrl);el._totalDur=td;if(ds)ds.textContent='0:00 / '+formatDuration(td);el._audio.ontimeupdate=()=>{if(ds&&el._audio&&el._totalDur)ds.textContent=formatDuration(el._audio.currentTime)+' / '+formatDuration(el._totalDur);};el._audio.onended=()=>{btn.className='fas fa-play';if(ds&&el._totalDur)ds.textContent='0:00 / '+formatDuration(el._totalDur);};}const audio=el._audio;if(audio.paused){audio.play().catch(()=>{});btn.className='fas fa-pause';}else{audio.pause();btn.className='fas fa-play';if(ds&&el._totalDur)ds.textContent=formatDuration(audio.currentTime)+' / '+formatDuration(el._totalDur);}};
     
+    // ✅ Messages - skip settings messages
     function listenToMessages(){if(unsubMessages){unsubMessages();unsubMessages=null;}const messagesRef=collection(db,'chats',chatId,'messages');const q=query(messagesRef,orderBy('createdAt','asc'));getDocs(q).then(snap=>{const c=document.getElementById('messagesContainer');const ec=document.getElementById('emptyChat');if(snap.empty){ec.style.display='flex';}else{ec.style.display='none';c.querySelectorAll('.message-wrapper').forEach(el=>el.remove());snap.forEach(doc=>{renderMsg(doc.id,doc.data());});scrollToBottom();}}).catch(err=>{});unsubMessages=onSnapshot(q,(snap)=>{const c=document.getElementById('messagesContainer');const ec=document.getElementById('emptyChat');if(snap.empty){ec.style.display='flex';return;}ec.style.display='none';snap.docChanges().forEach(ch=>{if(ch.type==='added'&&!document.getElementById('msg-'+ch.doc.id)){renderMsg(ch.doc.id,ch.doc.data());scrollToBottom();}});},(error)=>{console.error(error);});}
     
     function renderMsg(id,msg){
@@ -496,9 +520,7 @@
       const tb=document.getElementById('typingBubble');
       const isSent=msg.sender===currentUserId;
       if(document.getElementById('msg-'+id))return;
-      
-      // ✅ Skip settings messages entirely
-      if(msg.source === 'settings') return;
+      if(msg.source==='settings')return;
       
       const w=document.createElement('div');
       w.className='message-wrapper '+(isSent?'sent':'received');

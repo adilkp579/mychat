@@ -9,12 +9,15 @@
     * { margin:0;padding:0;box-sizing:border-box; }
     body { background:#000;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;overscroll-behavior:none; }
     .page { width:100%;height:100vh;height:100dvh;background:#000;display:flex;flex-direction:column;position:relative;overflow:hidden; }
+    
     @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
     @keyframes popIn { 0%{transform:scale(0.8);opacity:0} 100%{transform:scale(1);opacity:1} }
     @keyframes dotPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.3)} }
     @keyframes slideUp { 0%{transform:translateY(100%)} 100%{transform:translateY(0)} }
     @keyframes fadeInUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
     @keyframes recPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+    @keyframes glassShine { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
+    @keyframes glow { 0%,100% { box-shadow: 0 0 20px rgba(255,252,0,0.05), 0 0 40px rgba(255,252,0,0.02); } 50% { box-shadow: 0 0 30px rgba(255,252,0,0.1), 0 0 60px rgba(255,252,0,0.04); } }
 
     .scrollable-content { flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;align-items:center;color:#fff;padding:0;background:#000; }
     .scrollable-content::-webkit-scrollbar { width:0;height:0; }
@@ -22,63 +25,133 @@
     
     .top-icons {
       width:100%;display:flex;align-items:center;justify-content:space-between;
-      padding:0.8rem 0.8rem 0.3rem 0.8rem;flex-shrink:0;position:relative;background:#000;
+      padding:0.8rem 0.8rem 0.3rem 0.8rem;flex-shrink:0;position:relative;
+      background:transparent;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
     }
-    .corner-btn { width:2.4rem;height:2.4rem;background:#1a1a1a;border-radius:50%;color:#fff;font-size:1rem;display:flex;align-items:center;justify-content:center;text-decoration:none;border:1px solid #333;cursor:pointer;transition:all 0.3s; }
-    .corner-btn:hover { background:#2a2a2a;transform:scale(1.05); }
-    .top-brand { font-size:2rem;font-weight:700;color:#fff;letter-spacing:3px;font-family:'Segoe Script','Brush Script MT','Apple Chancery','Comic Sans MS',cursive;position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;line-height:1;font-style:italic; }
+    .corner-btn {
+      width:2.4rem;height:2.4rem;
+      background:rgba(255,255,255,0.03);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);
+      border-radius:50%;color:#fff;font-size:1rem;display:flex;align-items:center;justify-content:center;
+      text-decoration:none;border:1px solid rgba(255,255,255,0.08);cursor:pointer;transition:all 0.3s;
+    }
+    .corner-btn:hover { background:rgba(255,255,255,0.08);transform:scale(1.05); }
+    .top-brand {
+      font-size:2rem;font-weight:700;color:#fff;letter-spacing:3px;
+      font-family:'Segoe Script','Brush Script MT','Apple Chancery','Comic Sans MS',cursive;
+      position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;line-height:1;font-style:italic;
+    }
 
     .content { flex:1;display:flex;flex-direction:column;align-items:center;color:#fff;padding:0.5rem 1.2rem 2rem 1.2rem;gap:1.5rem;width:100%;max-width:500px;margin:0 auto; }
-    .create-btn { width:100%;padding:0.8rem;border-radius:1rem;border:2px dashed rgba(255,255,255,0.2);background:rgba(255,255,255,0.03);color:#aaa;font-size:0.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem; }
-    .create-btn:hover { border-color:#FFFC00;color:#FFFC00;background:rgba(255,252,0,0.05); }
+
+    /* ✅ Glass Create Button */
+    .create-btn {
+      width:100%;padding:0.8rem;border-radius:1rem;
+      border:1px solid rgba(255,255,255,0.06);
+      background:rgba(255,255,255,0.02);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+      color:#aaa;font-size:0.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;
+      transition:all 0.3s;box-shadow:0 4px 15px rgba(0,0,0,0.2);
+    }
+    .create-btn:hover { border-color:rgba(255,252,0,0.3);color:#FFFC00;background:rgba(255,252,0,0.04);box-shadow:0 4px 20px rgba(255,252,0,0.1); }
+
+    /* ✅ Glass Numpad */
     .numpad-section { width:100%;display:flex;flex-direction:column;align-items:center;gap:1rem; }
-    .numpad-label { font-size:0.75rem;color:#888;text-align:center; }
+    .numpad-label { font-size:0.75rem;color:rgba(255,255,255,0.4);text-align:center; }
     .pin-dots { display:flex;gap:1rem;margin:0.3rem 0; }
-    .pin-dot { width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);transition:all 0.2s; }
-    .pin-dot.filled { background:#FFFC00;border-color:#FFFC00;animation:dotPulse 0.3s ease; }
+    .pin-dot { width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,0.15);transition:all 0.2s; }
+    .pin-dot.filled { background:#FFFC00;border-color:#FFFC00;animation:dotPulse 0.3s ease;box-shadow:0 0 10px rgba(255,252,0,0.3); }
     .pin-dot.error { background:#ef4444;border-color:#ef4444; }
     .numpad-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:0.6rem;width:100%;max-width:260px; }
-    .numpad-key { aspect-ratio:1;border-radius:50%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#fff;font-size:1.3rem;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;user-select:none; }
-    .numpad-key:active { background:rgba(255,255,255,0.2);transform:scale(0.92); }
-    .numpad-key.empty { background:transparent;border:none;cursor:default; }
-    .numpad-key.delete-btn { background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.2);color:#ef4444;font-size:0.8rem; }
+    .numpad-key {
+      aspect-ratio:1;border-radius:50%;
+      background:rgba(255,255,255,0.03);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+      border:1px solid rgba(255,255,255,0.06);color:#fff;font-size:1.3rem;font-weight:500;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;
+      transition:all 0.15s;user-select:none;box-shadow:0 2px 8px rgba(0,0,0,0.2);
+    }
+    .numpad-key:active { background:rgba(255,255,255,0.12);transform:scale(0.92); }
+    .numpad-key.empty { background:transparent;border:none;cursor:default;box-shadow:none; }
+    .numpad-key.delete-btn { background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.15);color:#ef4444;font-size:0.8rem; }
     .error-msg { color:#ef4444;font-size:0.7rem;text-align:center;min-height:1rem; }
-    
-    .modal-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:300;display:none;align-items:center;justify-content:center;padding:1rem; }
-    .modal-overlay.show { display:flex; }
-    .modal { background:#1a1a1a;border-radius:1.2rem;padding:1.5rem;width:100%;max-width:320px;animation:popIn 0.3s ease;border:1px solid rgba(255,255,255,0.1);display:flex;flex-direction:column;align-items:center;gap:0.8rem; }
-    .modal h3 { font-size:0.9rem;color:#fff;text-align:center; }
-    .modal p { font-size:0.65rem;color:#888;text-align:center; }
-    .modal .numpad-grid { max-width:220px; }
-    .modal .numpad-key { font-size:1.1rem; }
-    .modal .btn-row { display:flex;gap:0.5rem;width:100%; }
-    .modal .btn-row button { flex:1;padding:0.6rem;border-radius:0.8rem;border:none;font-size:0.75rem;font-weight:600;cursor:pointer; }
-    .btn-cancel { background:rgba(255,255,255,0.1);color:#fff; }
-    .btn-save { background:#FFFC00;color:#000; }
-    .btn-save:disabled { opacity:0.4;cursor:not-allowed; }
 
-    .chat-list-header { padding:0.5rem 0;font-size:0.6rem;color:#666;text-transform:uppercase;letter-spacing:1px;display:flex;justify-content:space-between;align-items:center;width:100%; }
+    /* ✅ Glass Modal */
+    .modal-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:300;display:none;align-items:center;justify-content:center;padding:1rem; }
+    .modal-overlay.show { display:flex; }
+    .modal {
+      background:rgba(255,255,255,0.02);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);
+      border-radius:1.5rem;padding:1.5rem;width:100%;max-width:340px;animation:popIn 0.3s ease;
+      border:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;align-items:center;gap:0.8rem;
+      box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 0 1px rgba(255,255,255,0.03) inset;
+      animation:glow 3s ease-in-out infinite;
+    }
+    .modal::before {
+      content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+      background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.02) 25%,rgba(255,255,255,0.04) 50%,rgba(255,255,255,0.02) 75%,transparent 100%);
+      animation:glassShine 8s infinite linear;pointer-events:none;border-radius:1.5rem;
+    }
+    .modal h3 { font-size:0.9rem;color:#fff;text-align:center;position:relative;z-index:2; }
+    .modal p { font-size:0.65rem;color:rgba(255,255,255,0.4);text-align:center;position:relative;z-index:2; }
+    .modal .numpad-grid { max-width:220px;position:relative;z-index:2; }
+    .modal .numpad-key { font-size:1.1rem; }
+    .modal .btn-row { display:flex;gap:0.5rem;width:100%;position:relative;z-index:2; }
+    .modal .btn-row button { flex:1;padding:0.6rem;border-radius:0.8rem;border:none;font-size:0.75rem;font-weight:600;cursor:pointer;transition:all 0.2s; }
+    .btn-cancel { background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.6);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.08); }
+    .btn-save { background:rgba(255,252,0,0.15);color:#FFFC00;border:1px solid rgba(255,252,0,0.3);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px); }
+    .btn-save:disabled { opacity:0.3;cursor:not-allowed; }
+
+    /* ✅ Glass Lock Info Bar */
+    .lock-info-bar {
+      display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.8rem;
+      background:rgba(255,252,0,0.04);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);
+      border:1px solid rgba(255,252,0,0.1);border-radius:0.8rem;width:100%;margin-bottom:0.3rem;
+    }
+    .lock-info-bar .icon { color:#FFFC00;font-size:0.8rem; }
+    .lock-info-bar .text { font-size:0.6rem;color:rgba(255,252,0,0.7); }
+
+    /* ✅ Glass Chat List */
+    .chat-list-header { padding:0.5rem 0;font-size:0.6rem;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1px;display:flex;justify-content:space-between;align-items:center;width:100%; }
     .users-list { width:100%;display:flex;flex-direction:column; }
-    .user-list-item { display:flex;align-items:center;gap:0.7rem;padding:0.7rem 0;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.02); }
-    .user-avatar { width:48px;height:48px;border-radius:50%;background:#1a1a1a;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:#fff;font-weight:700;flex-shrink:0; }
+    .user-list-item {
+      display:flex;align-items:center;gap:0.7rem;padding:0.7rem 0.8rem;cursor:pointer;
+      border-bottom:1px solid rgba(255,255,255,0.02);border-radius:0.6rem;
+      background:transparent;transition:all 0.2s;
+    }
+    .user-list-item:hover { background:rgba(255,255,255,0.03); }
+    .user-avatar {
+      width:48px;height:48px;border-radius:50%;
+      background:rgba(255,255,255,0.04);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+      overflow:hidden;display:flex;align-items:center;justify-content:center;
+      font-size:1.1rem;color:#fff;font-weight:700;flex-shrink:0;
+      border:1px solid rgba(255,255,255,0.1);
+    }
     .user-avatar img { width:100%;height:100%;object-fit:cover; }
     .user-info { flex:1;min-width:0; }
     .user-name-row { display:flex;align-items:center;justify-content:space-between; }
     .user-name { font-size:0.85rem;color:#fff;font-weight:500; }
-    .user-last-msg { font-size:0.7rem;color:#666;margin-top:2px; }
-    .add-user-btn { width:100%;padding:0.6rem;border-radius:0.8rem;border:1px dashed rgba(255,255,255,0.15);background:transparent;color:#aaa;font-size:0.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.4rem;margin-top:0.5rem; }
-    .add-user-btn:hover { border-color:#4ade80;color:#4ade80;background:rgba(74,222,128,0.05); }
-    .btn-delete { width:100%;padding:0.5rem;border-radius:0.8rem;margin-top:0.5rem;border:none;font-size:0.7rem;cursor:pointer;background:rgba(239,68,68,0.15);color:#ef4444; }
+    .user-last-msg { font-size:0.7rem;color:rgba(255,255,255,0.35);margin-top:2px; }
+    
+    /* ✅ Glass Add/Delete Buttons */
+    .add-user-btn {
+      width:100%;padding:0.6rem;border-radius:0.8rem;
+      border:1px solid rgba(255,255,255,0.06);
+      background:rgba(255,255,255,0.02);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);
+      color:rgba(255,255,255,0.5);font-size:0.7rem;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;gap:0.4rem;margin-top:0.5rem;
+      transition:all 0.2s;
+    }
+    .add-user-btn:hover { border-color:rgba(74,222,128,0.3);color:#4ade80;background:rgba(74,222,128,0.05); }
+    .btn-delete {
+      width:100%;padding:0.5rem;border-radius:0.8rem;margin-top:0.5rem;
+      border:1px solid rgba(239,68,68,0.15);
+      background:rgba(239,68,68,0.05);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+      font-size:0.7rem;cursor:pointer;color:#ef4444;transition:all 0.2s;
+    }
+    .btn-delete:hover { background:rgba(239,68,68,0.15); }
 
-    .lock-info-bar { display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.8rem;background:rgba(255,252,0,0.08);border:1px solid rgba(255,252,0,0.15);border-radius:0.8rem;width:100%;margin-bottom:0.3rem; }
-    .lock-info-bar .icon { color:#FFFC00;font-size:0.8rem; }
-    .lock-info-bar .text { font-size:0.6rem;color:#FFFC00; }
-
-    /* ✅ FULL SCREEN CHAT VIEW */
+    /* ✅ Full Screen Glass Chat */
     .chat-fullscreen {
       position:fixed;top:0;left:0;right:0;bottom:0;
-      background:#000;z-index:200;
-      display:none;flex-direction:column;
+      background:rgba(0,0,0,0.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+      z-index:200;display:none;flex-direction:column;
     }
     .chat-fullscreen.show { display:flex; }
     
@@ -86,46 +159,67 @@
       display:flex;align-items:center;gap:0.6rem;
       padding:0.8rem 0.8rem 0.5rem 0.8rem;
       padding-top:max(0.8rem,env(safe-area-inset-top,0.8rem));
-      background:#000;flex-shrink:0;
+      background:transparent;backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);
+      flex-shrink:0;border-bottom:1px solid rgba(255,255,255,0.04);
     }
-    .chat-back-btn { width:2.4rem;height:2.4rem;min-width:2.4rem;background:#1a1a1a;border-radius:50%;color:#fff;font-size:1rem;display:flex;align-items:center;justify-content:center;border:1px solid #333;cursor:pointer; }
-    .chat-avatar { width:40px;height:40px;border-radius:50%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;font-size:0.9rem;color:#fff;flex-shrink:0;overflow:hidden;cursor:pointer; }
+    .chat-back-btn {
+      width:2.4rem;height:2.4rem;min-width:2.4rem;
+      background:rgba(255,255,255,0.03);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+      border-radius:50%;color:#fff;font-size:1rem;display:flex;align-items:center;justify-content:center;
+      border:1px solid rgba(255,255,255,0.08);cursor:pointer;
+    }
+    .chat-avatar {
+      width:40px;height:40px;border-radius:50%;
+      background:rgba(255,255,255,0.04);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+      display:flex;align-items:center;justify-content:center;
+      font-size:0.9rem;color:#fff;flex-shrink:0;overflow:hidden;cursor:pointer;
+      border:1px solid rgba(255,255,255,0.1);
+    }
     .chat-avatar img { width:100%;height:100%;object-fit:cover; }
     .chat-partner-info { flex:1;min-width:0;cursor:pointer;display:flex;flex-direction:column;justify-content:center; }
     .chat-partner-name { font-size:0.95rem;font-weight:600;color:#fff; }
     .chat-partner-status { font-size:0.65rem;color:#4ade80;display:flex;align-items:center;gap:0.2rem; }
     .chat-partner-status .dot { width:5px;height:5px;border-radius:50%;background:#4ade80;display:inline-block; }
     .call-btns { display:flex;align-items:center;gap:0.5rem; }
-    .call-btn { width:2.2rem;height:2.2rem;border-radius:50%;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.85rem;cursor:pointer;border:none;transition:all 0.2s; }
+    .call-btn {
+      width:2.2rem;height:2.2rem;border-radius:50%;
+      background:rgba(255,255,255,0.04);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+      display:flex;align-items:center;justify-content:center;
+      color:#fff;font-size:0.85rem;cursor:pointer;border:1px solid rgba(255,255,255,0.06);
+      transition:all 0.2s;
+    }
     .call-btn.video-call { color:#4ade80; }.call-btn.audio-call { color:#60a5fa; }
     
     .messages-container {
       flex:1;overflow-y:auto;padding:0.8rem 0.8rem 0.5rem 0.8rem;
-      display:flex;flex-direction:column;gap:0.2rem;background:#000;
+      display:flex;flex-direction:column;gap:0.2rem;
     }
     .messages-container::-webkit-scrollbar { width:0; }
     
     .message-wrapper { display:flex;max-width:85%;animation:fadeInUp 0.25s ease-out; }
     .message-wrapper.sent { align-self:flex-end;flex-direction:row-reverse; }
     .message-wrapper.received { align-self:flex-start; }
-    .message-bubble { padding:0.55rem 0.8rem;border-radius:1.2rem;font-size:0.85rem;line-height:1.3;word-break:break-word; }
-    .sent .message-bubble { background:#FFFC00;color:#000;border-bottom-right-radius:0.3rem; }
-    .received .message-bubble { background:#111;color:#fff;border-bottom-left-radius:0.3rem; }
+    .message-bubble {
+      padding:0.55rem 0.8rem;border-radius:1.2rem;font-size:0.85rem;line-height:1.3;word-break:break-word;
+      backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    }
+    .sent .message-bubble { background:rgba(255,252,0,0.9);color:#000;border-bottom-right-radius:0.3rem; }
+    .received .message-bubble { background:rgba(255,255,255,0.06);color:#fff;border-bottom-left-radius:0.3rem;border:1px solid rgba(255,255,255,0.06); }
     .message-time { font-size:0.55rem;margin-top:0.1rem;display:flex;align-items:center;gap:0.15rem; }
     .sent .message-time { justify-content:flex-end;color:rgba(0,0,0,0.45); }
-    .received .message-time { color:rgba(255,255,255,0.35); }
+    .received .message-time { color:rgba(255,255,255,0.3); }
     .message-image { max-width:200px;max-height:200px;border-radius:0.8rem;object-fit:cover;cursor:pointer; }
     .voice-msg { display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.8rem;cursor:pointer;min-width:180px; }
-    .voice-play-btn { width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,0.2);border:none;color:#fff;font-size:0.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
-    .sent .voice-play-btn { color:#000;background:rgba(0,0,0,0.15); }
+    .voice-play-btn { width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.1);color:#fff;font-size:0.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+    .sent .voice-play-btn { color:#000;background:rgba(0,0,0,0.1); }
     .voice-wave-container { flex:1;display:flex;align-items:center;gap:1px;height:28px; }
     .voice-wave-bar { width:2px;border-radius:1px;opacity:0.6; }
     .sent .voice-wave-bar { background:#000; }.received .voice-wave-bar { background:#fff; }
-    .voice-duration { font-size:0.55rem;opacity:0.7;min-width:60px;text-align:right; }
+    .voice-duration { font-size:0.55rem;opacity:0.5;min-width:60px;text-align:right; }
     
-    .empty-chat-full { flex:1;display:flex;align-items:center;justify-content:center;color:#333;font-size:0.8rem; }
+    .empty-chat-full { flex:1;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.2);font-size:0.8rem; }
     
-    .recording-bar { display:none;align-items:center;gap:0.5rem;padding:0.4rem 0.8rem;background:#0a0a0a;border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0; }
+    .recording-bar { display:none;align-items:center;gap:0.5rem;padding:0.4rem 0.8rem;background:rgba(0,0,0,0.5);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,0.04);flex-shrink:0; }
     .recording-bar.show { display:flex; }
     .recording-dot { width:10px;height:10px;border-radius:50%;background:#ef4444;animation:recPulse 0.8s infinite; }
     .recording-time-text { color:#ef4444;font-size:0.85rem;font-weight:600; }
@@ -135,38 +229,89 @@
     .chat-input-area {
       display:flex;align-items:center;gap:0.4rem;
       padding:0.5rem 0.8rem;padding-bottom:max(0.5rem,env(safe-area-inset-bottom,0.5rem));
-      background:#000;border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0;
+      background:transparent;backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);
+      border-top:1px solid rgba(255,255,255,0.04);flex-shrink:0;
     }
-    .camera-btn-s,.mic-btn-s { width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.1);border:none;color:#fff;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s; }
-    .chat-input { flex:1;padding:0.6rem 1rem;border-radius:1.5rem;border:1px solid rgba(255,255,255,0.12);background:#0a0a0a;color:#fff;font-size:0.85rem;outline:none; }
-    .chat-input:focus { border-color:#FFFC00; }
-    .send-btn { width:38px;height:38px;border-radius:50%;background:#FFFC00;border:none;color:#000;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s; }
+    .camera-btn-s,.mic-btn-s {
+      width:38px;height:38px;border-radius:50%;
+      background:rgba(255,255,255,0.04);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+      border:1px solid rgba(255,255,255,0.06);color:#fff;font-size:0.9rem;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;
+    }
+    .chat-input {
+      flex:1;padding:0.6rem 1rem;border-radius:1.5rem;
+      border:1px solid rgba(255,255,255,0.08);
+      background:rgba(255,255,255,0.03);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);
+      color:#fff;font-size:0.85rem;outline:none;
+    }
+    .chat-input:focus { border-color:rgba(255,252,0,0.4);background:rgba(255,255,255,0.05); }
+    .send-btn {
+      width:38px;height:38px;border-radius:50%;
+      background:rgba(255,252,0,0.9);border:none;color:#000;font-size:0.9rem;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;
+    }
 
-    .add-users-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:350;display:none;align-items:flex-end;justify-content:center; }
+    /* ✅ Glass Bottom Sheet */
+    .add-users-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:350;display:none;align-items:flex-end;justify-content:center; }
     .add-users-overlay.show { display:flex; }
-    .add-users-sheet { background:#1a1a1a;border-radius:1.5rem 1.5rem 0 0;width:100%;max-width:450px;max-height:70vh;display:flex;flex-direction:column;animation:slideUp 0.3s ease;padding-bottom:env(safe-area-inset-bottom,1rem); }
-    .sheet-header { display:flex;align-items:center;justify-content:space-between;padding:1rem 1.2rem;border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0; }
+    .add-users-sheet {
+      background:rgba(30,30,30,0.6);backdrop-filter:blur(50px) saturate(180%);-webkit-backdrop-filter:blur(50px) saturate(180%);
+      border-radius:1.5rem 1.5rem 0 0;width:100%;max-width:450px;max-height:70vh;
+      display:flex;flex-direction:column;animation:slideUp 0.3s ease;
+      padding-bottom:env(safe-area-inset-bottom,1rem);border:1px solid rgba(255,255,255,0.06);
+      box-shadow:0 -8px 32px rgba(0,0,0,0.4);
+    }
+    .sheet-header { display:flex;align-items:center;justify-content:space-between;padding:1rem 1.2rem;border-bottom:1px solid rgba(255,255,255,0.04);flex-shrink:0; }
     .sheet-header h3 { font-size:0.85rem;color:#fff; }
-    .sheet-close { width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.1);border:none;color:#fff;font-size:0.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center; }
-    .sheet-tabs { display:flex;border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0; }
-    .sheet-tab { flex:1;text-align:center;padding:0.7rem;color:#888;font-size:0.7rem;cursor:pointer;border-bottom:2px solid transparent; }
-    .sheet-tab.active { color:#fff;border-bottom-color:#FFFC00; }
+    .sheet-close {
+      width:28px;height:28px;border-radius:50%;
+      background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);
+      color:#fff;font-size:0.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    }
+    .sheet-tabs { display:flex;border-bottom:1px solid rgba(255,255,255,0.04);flex-shrink:0; }
+    .sheet-tab { flex:1;text-align:center;padding:0.7rem;color:rgba(255,255,255,0.3);font-size:0.7rem;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s; }
+    .sheet-tab.active { color:#fff;border-bottom-color:#FFFC00;background:rgba(255,255,255,0.03); }
     .sheet-list { flex:1;overflow-y:auto;padding:0.5rem 0; }
     .sheet-list::-webkit-scrollbar { width:0; }
-    .sheet-user-item { display:flex;align-items:center;gap:0.7rem;padding:0.7rem 1.2rem;cursor:pointer; }
-    .sheet-user-item:hover { background:rgba(255,255,255,0.03); }
-    .sheet-user-item .avatar { width:40px;height:40px;border-radius:50%;background:#333;display:flex;align-items:center;justify-content:center;font-size:0.9rem;color:#fff;flex-shrink:0;overflow:hidden; }
+    .sheet-user-item { display:flex;align-items:center;gap:0.7rem;padding:0.7rem 1.2rem;cursor:pointer;transition:all 0.2s; }
+    .sheet-user-item:hover { background:rgba(255,255,255,0.04); }
+    .sheet-user-item .avatar {
+      width:40px;height:40px;border-radius:50%;
+      background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+      display:flex;align-items:center;justify-content:center;
+      font-size:0.9rem;color:#fff;flex-shrink:0;overflow:hidden;
+      border:1px solid rgba(255,255,255,0.1);
+    }
     .sheet-user-item .avatar img { width:100%;height:100%;object-fit:cover; }
     .sheet-user-item .info { flex:1;min-width:0; }
     .sheet-user-item .name { font-size:0.8rem;color:#fff; }
-    .sheet-user-item .sub { font-size:0.6rem;color:#888; }
-    .sheet-user-item .add-icon { width:30px;height:30px;border-radius:50%;background:rgba(255,252,0,0.15);border:none;color:#FFFC00;font-size:0.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+    .sheet-user-item .sub { font-size:0.6rem;color:rgba(255,255,255,0.35); }
+    .sheet-user-item .add-icon {
+      width:30px;height:30px;border-radius:50%;
+      background:rgba(255,252,0,0.08);border:1px solid rgba(255,252,0,0.15);
+      color:#FFFC00;font-size:0.7rem;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;
+    }
+    .sheet-user-item .add-icon:hover { background:rgba(255,252,0,0.2); }
     .sheet-user-item .check-icon { color:#4ade80;font-size:0.8rem;flex-shrink:0; }
     .sheet-search { padding:0.5rem 1.2rem;flex-shrink:0; }
-    .sheet-search input { width:100%;padding:0.5rem 0.8rem;border-radius:0.8rem;border:1px solid rgba(255,255,255,0.1);background:#111;color:#fff;font-size:0.75rem;outline:none; }
-    .sheet-search input::placeholder { color:#555; }
-    .empty-list { text-align:center;color:#555;padding:2rem;font-size:0.7rem; }
-    .toast { position:fixed;bottom:50px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:0.5rem 1rem;border-radius:2rem;font-size:0.7rem;z-index:400;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap; }
+    .sheet-search input {
+      width:100%;padding:0.5rem 0.8rem;border-radius:0.8rem;
+      border:1px solid rgba(255,255,255,0.06);
+      background:rgba(255,255,255,0.03);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);
+      color:#fff;font-size:0.75rem;outline:none;
+    }
+    .sheet-search input:focus { border-color:rgba(255,255,255,0.2); }
+    .sheet-search input::placeholder { color:rgba(255,255,255,0.25); }
+    .empty-list { text-align:center;color:rgba(255,255,255,0.25);padding:2rem;font-size:0.7rem; }
+    
+    .toast {
+      position:fixed;bottom:50px;left:50%;transform:translateX(-50%);
+      background:rgba(0,0,0,0.7);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+      color:#fff;padding:0.5rem 1rem;border-radius:2rem;font-size:0.7rem;
+      z-index:400;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap;
+      border:1px solid rgba(255,255,255,0.1);
+    }
     .toast.show { opacity:1; }
     .shake { animation:shake 0.4s ease; }
   </style>
@@ -204,7 +349,6 @@
       </div>
     </div>
 
-    <!-- ✅ FULL SCREEN CHAT VIEW -->
     <div class="chat-fullscreen" id="chatFullscreen">
       <div class="chat-header-bar">
         <button class="chat-back-btn" onclick="closeChat()"><i class="fas fa-arrow-left"></i></button>
@@ -233,7 +377,7 @@
       <div class="modal" id="createLockModalContent">
         <h3 id="createLockTitle">🔐 Create New Lock</h3><p id="createLockSubtitle">Enter a 4-digit PIN</p>
         <div class="pin-dots" id="createPinDots"><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div></div>
-        <p style="color:#ef4444;font-size:0.65rem;min-height:1rem;" id="createErrorMsg"></p>
+        <p style="color:#ef4444;font-size:0.65rem;min-height:1rem;position:relative;z-index:2;" id="createErrorMsg"></p>
         <div class="numpad-grid">
           <button class="numpad-key" onclick="createNumpadPress('1')">1</button><button class="numpad-key" onclick="createNumpadPress('2')">2</button><button class="numpad-key" onclick="createNumpadPress('3')">3</button>
           <button class="numpad-key" onclick="createNumpadPress('4')">4</button><button class="numpad-key" onclick="createNumpadPress('5')">5</button><button class="numpad-key" onclick="createNumpadPress('6')">6</button>
@@ -288,7 +432,7 @@
 
     window.showCreateLockModal=function(){createPin='';createConfirmPin='';isCreateConfirmStep=false;document.getElementById('createLockTitle').textContent='🔐 Create New Lock';document.getElementById('createLockSubtitle').textContent='Enter a 4-digit PIN';document.getElementById('createLockConfirm').textContent='Create';document.getElementById('createLockConfirm').disabled=true;updateCreatePinDots();document.getElementById('createLockModal').classList.add('show')};
     window.closeCreateLockModal=function(){document.getElementById('createLockModal').classList.remove('show')};
-    window.createNumpadPress=function(num){if(isCreateConfirmStep){if(createConfirmPin.length<4){createConfirmPin+=num;updateCreatePinDots();if(createConfirmPin.length===4)document.getElementById('createLockConfirm').disabled=false}}else{if(createPin.length<4){createPin+=num;updateCreatePinDots();if(createPin.length===4)setTimeout(()=>{isCreateConfirmStep=true;document.getElementById('createLockTitle').textContent='🔐 Confirm PIN';document.getElementById('createLockSubtitle').textContent='Re-enter code';document.getElementById('createLockConfirm').textContent='Create Lock';document.getElementById('createLockConfirm').disabled=true;updateCreatePinDots()},300)}}};
+    window.createNumpadPress=function(num){if(isCreateConfirmStep){if(createConfirmPin.length<4){createConfirmPin+=num;updateCreatePinDots();if(createConfirmPin.length===4)document.getElementById('createLockConfirm').disabled=false}}else{if(createPin.length<4){createPin+=num;updateCreatePinDots();if(createPin.length===4)setTimeout(()=>{isCreateConfirmStep=true;document.getElementById('createLockTitle').textContent='🔐 Confirm PIN';document.getElementById('createLockConfirm').textContent='Create Lock';document.getElementById('createLockConfirm').disabled=true;updateCreatePinDots()},300)}}};
     window.createNumpadDelete=function(){if(isCreateConfirmStep)createConfirmPin=createConfirmPin.slice(0,-1);else createPin=createPin.slice(0,-1);document.getElementById('createLockConfirm').disabled=true;updateCreatePinDots()};
     function updateCreatePinDots(){const cp=isCreateConfirmStep?createConfirmPin:createPin;document.querySelectorAll('#createPinDots .pin-dot').forEach((dot,i)=>{dot.classList.remove('filled','error');if(i<cp.length)dot.classList.add('filled')})}
     window.confirmCreateLock=function(){
@@ -312,11 +456,10 @@
     function renderLockUsers(){
       if(currentLockIndex<0)return;const lock=locks[currentLockIndex];const c=document.getElementById('lockUsersList');
       document.getElementById('lockUserCount').textContent=lock.users?'('+lock.users.length+')':'(0)';
-      if(!lock.users||lock.users.length===0){c.innerHTML='<div style="text-align:center;color:#555;padding:3rem;font-size:0.8rem;">No users yet</div>';return}
-      c.innerHTML=lock.users.map((u,i)=>`<div class="user-list-item" onclick="openChat('${u.username}','${(u.name||u.username).replace('@','')}','${u.avatar||''}')"><div class="user-avatar">${avatarHTML(u.username)}</div><div class="user-info"><div class="user-name-row"><span class="user-name">${(u.name||u.username).replace('@','')}</span></div><div class="user-last-msg">Tap to chat</div></div><button style="background:rgba(239,68,68,0.15);color:#ef4444;width:28px;height:28px;border-radius:50%;border:none;font-size:0.6rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;" onclick="event.stopPropagation();removeUserFromLock(${i})"><i class="fas fa-times"></i></button></div>`).join('')}
+      if(!lock.users||lock.users.length===0){c.innerHTML='<div style="text-align:center;color:rgba(255,255,255,0.25);padding:3rem;font-size:0.8rem;">No users yet</div>';return}
+      c.innerHTML=lock.users.map((u,i)=>`<div class="user-list-item" onclick="openChat('${u.username}','${(u.name||u.username).replace('@','')}','${u.avatar||''}')"><div class="user-avatar">${avatarHTML(u.username)}</div><div class="user-info"><div class="user-name-row"><span class="user-name">${(u.name||u.username).replace('@','')}</span></div><div class="user-last-msg">Tap to chat</div></div><button style="background:rgba(239,68,68,0.1);color:#ef4444;width:28px;height:28px;border-radius:50%;border:1px solid rgba(239,68,68,0.2);font-size:0.6rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;" onclick="event.stopPropagation();removeUserFromLock(${i})"><i class="fas fa-times"></i></button></div>`).join('')}
     window.removeUserFromLock=function(i){if(currentLockIndex<0)return;locks[currentLockIndex].users.splice(i,1);saveLocks();renderLockUsers();showToast('User removed')};
 
-    // ✅ FULL SCREEN CHAT
     window.openChat=function(username,displayName,avatarUrl){
       chatPartner=username;chatId=[currentUserId,username.replace('@','')].sort().join('_');
       const ae=document.getElementById('chatAvatar');
@@ -326,7 +469,6 @@
       document.getElementById('messagesContainer').innerHTML='<div class="empty-chat-full">Loading...</div>';
       listenToMessages();
     };
-    
     window.closeChat=function(){
       if(unsubMessages){unsubMessages();unsubMessages=null}
       stopVoice(true);chatPartner=null;chatId=null;
@@ -336,7 +478,6 @@
     window.startCall=function(type){showToast('📞 '+(type==='video'?'Video':'Audio')+' call...')};
 
     async function ensureChatDoc(){const ref=doc(db,'chats',chatId);if(!(await getDoc(ref)).exists())await setDoc(ref,{users:[currentUserId,chatPartner.replace('@','')],lastMessage:'',lastType:'text',lastTime:serverTimestamp()})}
-
     function listenToMessages(){
       if(unsubMessages){unsubMessages();unsubMessages=null}
       const q=query(collection(db,'chats',chatId,'messages'),orderBy('createdAt','asc'));

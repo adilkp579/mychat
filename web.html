@@ -3,1401 +3,522 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>Web • Live Chat</title>
+  <title>Web · Live Stranger Chat</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     * { margin:0;padding:0;box-sizing:border-box; }
     body { background:#000;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;overscroll-behavior:none;overflow:hidden; }
     .page { width:100%;height:100vh;height:100dvh;background:#000;display:flex;flex-direction:column;position:relative;overflow:hidden; }
     
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
-    @keyframes livePulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.7)} 50%{box-shadow:0 0 0 10px rgba(239,68,68,0)} }
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-    @keyframes giftFloat { 0%{transform:translateY(0) scale(1);opacity:1} 100%{transform:translateY(-60px) scale(1.3);opacity:0} }
+    @keyframes livePulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.7)} 50%{box-shadow:0 0 0 10px rgba(239,68,68,0)} }
+    @keyframes giftFloat { 0%{transform:translateY(0) scale(1);opacity:1} 100%{transform:translateY(-80px) scale(1.3);opacity:0} }
     @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+    
+    .top-icons { width:100%;max-width:500px;display:flex;align-items:center;justify-content:space-between;padding:0.8rem;margin:0 auto; }
+    .corner-btn { width:2.4rem;height:2.4rem;background:#1a1a1a;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;text-decoration:none;border:1px solid #333; }
+    .top-brand { font-size:2rem;font-weight:700;color:#fff;font-family:'Segoe Script',cursive;position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;font-style:italic; }
+    
+    .main-content { flex:1;display:flex;flex-direction:column;padding:0.5rem 1.2rem 1rem;gap:8px; }
+    .section-label { font-size:14px;font-weight:600;color:#aaa;display:flex;align-items:center;gap:8px; }
+    .username-badge { font-size:12px;color:#4ade80;background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.3);padding:2px 10px;border-radius:12px; }
+    .online-dot { width:6px;height:6px;border-radius:50%;background:#4ade80;box-shadow:0 0 8px rgba(74,222,128,0.5); }
+    
+    .camera-area { display:flex;gap:12px;align-items:flex-start;margin-top:5mm; }
+    .stranger-section { width:60%;display:flex;flex-direction:column;gap:4px; }
+    .stranger-camera { width:100%;height:55vh;background:#111;border:2px solid rgba(255,255,255,0.2);border-radius:20px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center; }
+    .stranger-camera.connected { border-color:#4ade80; box-shadow:0 0 20px rgba(74,222,128,0.15); }
+    #strangerFeed { width:100%;height:100%;object-fit:cover;display:none;background:#000; }
+    .stranger-placeholder { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:rgba(255,255,255,0.3);text-align:center; }
+    .stranger-placeholder i { font-size:2.5rem; }
+    
+    .you-section { width:35%;display:flex;flex-direction:column;gap:4px;align-items:flex-end; }
+    .my-camera { width:100%;height:28vh;background:#111;border:2px solid rgba(255,255,255,0.3);border-radius:20px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center; }
+    .my-camera.active { border-color:#ef4444; }
+    #myFeed { width:100%;height:100%;object-fit:cover;display:none;background:#000; }
+    .my-placeholder { display:flex;flex-direction:column;align-items:center;gap:4px;color:rgba(255,255,255,0.4);font-size:0.7rem; }
+    
+    .token-stack { display:flex;flex-direction:column;gap:8px;align-items:flex-end;margin-top:8px; }
+    .token-btn { width:110px;height:40px;border-radius:12px;border:1.5px solid rgba(255,255,255,0.15);background:rgba(0,0,0,0.6);backdrop-filter:blur(10px);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-size:0.75rem;font-weight:600;color:#fff;transition:all 0.2s; }
+    .token-btn:active { transform:scale(0.95); }
+    .token-btn .token-count { background:rgba(0,0,0,0.5);padding:2px 6px;border-radius:8px;min-width:22px;text-align:center; }
+    .token-btn.token-chicken { border-color:#f59e0b;background:rgba(245,158,11,0.15); }
+    .token-btn.token-lion { border-color:#ef4444;background:rgba(239,68,68,0.15); }
+    .token-btn.token-fish { border-color:#3b82f6;background:rgba(59,130,246,0.15); }
+    .token-btn.token-bike { border-color:#a855f7;background:rgba(168,85,247,0.15); }
+    .token-btn:disabled { opacity:0.4; cursor:not-allowed; }
+    .token-btn.no-receiver { animation: shake 0.5s ease; border-color:#ef4444 !important; }
     @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
     
-    /* ✅ NEW: Top icons bar - same as index.html */
-    .top-icons {
-      width:100%;max-width:500px;display:flex;align-items:center;justify-content:space-between;
-      padding:0.8rem 0.8rem 0.3rem 0.8rem;flex-shrink:0;position:relative;background:#000;
-      margin:0 auto;
-    }
-    .corner-btn {
-      width:2.4rem;height:2.4rem;background:#1a1a1a;border-radius:50%;color:#fff;
-      font-size:1rem;display:flex;align-items:center;justify-content:center;
-      text-decoration:none;border:1px solid #333;
-    }
-    .top-brand {
-      font-size:2rem;font-weight:700;color:#fff;letter-spacing:3px;
-      font-family:'Segoe Script','Brush Script MT','Apple Chancery','Comic Sans MS',cursive;
-      position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;
-      line-height:1;font-style:italic;
-    }
-    
-    .main-content {
-      flex:1;display:flex;flex-direction:column;padding:0.5rem 1.2rem 1rem 1.2rem;position:relative;
-      gap:8px;
-    }
-    
-    .section-label {
-      font-size:14px;font-weight:600;color:#aaa;letter-spacing:1px;
-      display:flex;align-items:center;gap:8px;
-    }
-    .section-label .username-badge {
-      font-size:12px;font-weight:500;color:#4ade80;
-      background:linear-gradient(135deg,rgba(74,222,128,0.15),rgba(74,222,128,0.05));
-      border:1px solid rgba(74,222,128,0.3);
-      padding:2px 10px;border-radius:12px;
-      letter-spacing:0.5px;
-      backdrop-filter:blur(10px);
-      -webkit-backdrop-filter:blur(10px);
-    }
-    .section-label .online-dot {
-      width:6px;height:6px;border-radius:50%;
-      background:#4ade80;
-      box-shadow:0 0 8px rgba(74,222,128,0.5);
-    }
-    
-    .camera-area {
-      display:flex;gap:8px;align-items:flex-start;
-      margin-top: 5mm;
-    }
-    
-    .stranger-section {
-      width:60%;display:flex;flex-direction:column;gap:4px;
-    }
-    .stranger-camera {
-      width:100%;height:55vh;background:#111;
-      border:2px solid rgba(255,255,255,0.2);border-radius:14px;
-      position:relative;overflow:hidden;
-      display:flex;align-items:center;justify-content:center;
-    }
-    .stranger-camera.connected { border-color:#4ade80; box-shadow:0 0 20px rgba(74,222,128,0.15); }
-    .stranger-camera.live-active { border-color:#ef4444; animation:livePulse 2s infinite; }
-    #strangerFeed { width:100%;height:100%;object-fit:cover;display:none;background:#000;transform:rotateY(180deg);-webkit-transform:rotateY(180deg); }
-    .stranger-placeholder { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:rgba(255,255,255,0.25); }
-    .stranger-placeholder i { font-size:2.5rem; }
-    .stranger-placeholder span { font-size:0.8rem; }
-    .stranger-placeholder.searching-text { color:#fbbf24; }
-    
-    .you-section {
-      width:35%;display:flex;flex-direction:column;gap:4px;align-items:flex-end;
-    }
-    .my-camera {
-      width:100%;height:28vh;background:#111;
-      border:2px solid rgba(255,255,255,0.3);border-radius:14px;
-      position:relative;overflow:hidden;
-      display:flex;align-items:center;justify-content:center;
-    }
-    .my-camera.active { border-color:#ef4444; }
-    #myFeed { width:100%;height:100%;object-fit:cover;display:none;background:#000;transform:rotateY(180deg);-webkit-transform:rotateY(180deg); }
-    .my-placeholder { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:rgba(255,255,255,0.35);font-size:0.6rem; }
-    .my-placeholder i { font-size:1.2rem; }
-    
-    .token-stack {
-      display:flex;flex-direction:column;gap:10px;align-items:flex-end;margin-top:4px;
-    }
-    .token-btn {
-      width:110px;height:40px;border-radius:10px;
-      border:1.5px solid rgba(255,255,255,0.15);
-      background:rgba(0,0,0,0.5);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-      cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
-      font-size:0.75rem;font-weight:600;transition:all 0.2s;color:#fff;padding:0 12px;
-      position:relative;
-    }
-    .token-btn:active { transform:scale(0.95); }
-    .token-btn .token-emoji { font-size:1.1rem;line-height:1; }
-    .token-btn .token-label { font-size:0.7rem;font-weight:700; }
-    .token-btn .token-count {
-      font-size:0.65rem;font-weight:700;
-      background:rgba(0,0,0,0.4);
-      padding:2px 6px;border-radius:8px;
-      min-width:20px;text-align:center;
-    }
-    .token-btn.token-chicken { border-color:rgba(245,158,11,0.5);background:rgba(245,158,11,0.15); }
-    .token-btn.token-chicken .token-label { color:#f59e0b; }
-    .token-btn.token-chicken .token-count { color:#f59e0b; }
-    .token-btn.token-lion { border-color:rgba(239,68,68,0.5);background:rgba(239,68,68,0.15); }
-    .token-btn.token-lion .token-label { color:#ef4444; }
-    .token-btn.token-lion .token-count { color:#ef4444; }
-    .token-btn.token-fish { border-color:rgba(59,130,246,0.5);background:rgba(59,130,246,0.15); }
-    .token-btn.token-fish .token-label { color:#3b82f6; }
-    .token-btn.token-fish .token-count { color:#3b82f6; }
-    .token-btn.token-bike { border-color:rgba(168,85,247,0.5);background:rgba(168,85,247,0.15); }
-    .token-btn.token-bike .token-label { color:#a855f7; }
-    .token-btn.token-bike .token-count { color:#a855f7; }
-    .token-btn:disabled {
-      opacity:0.4;
-      cursor:not-allowed;
-    }
-    .token-btn.no-receiver {
-      animation: shake 0.5s ease-in-out;
-      border-color: rgba(239,68,68,0.8) !important;
-    }
-    
     .gift-float { position:absolute;font-size:2rem;pointer-events:none;animation:giftFloat 1.5s ease-out forwards;z-index:50; }
-    
-    .control-row {
-      display:flex;gap:12px;align-items:center; flex-wrap: wrap;
-    }
-    .ctrl-btn {
-      width:80px;height:34px;border-radius:17px;
-      display:inline-flex;align-items:center;justify-content:center;gap:4px;
-      cursor:pointer;border:1px solid transparent;outline:none;
-      font-size:0.7rem;font-weight:600;padding:0;color:#fff;
-      transition:all 0.3s;-webkit-tap-highlight-color:transparent;
-      touch-action:manipulation;user-select:none;-webkit-user-select:none;
-    }
-    .ctrl-btn:active { transform:scale(0.95); }
+    .control-row { display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:8px; }
+    .ctrl-btn { width:80px;height:36px;border-radius:18px;display:inline-flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;border:1px solid transparent;font-size:0.7rem;font-weight:600;color:#fff;transition:all 0.2s; }
+    .ctrl-btn:active { transform:scale(0.96); }
     .live-btn { background:rgba(74,222,128,0.2);border-color:rgba(74,222,128,0.5);color:#4ade80; }
-    .live-btn.active { background:rgba(239,68,68,0.3);border-color:rgba(239,68,68,0.7);color:#ef4444;animation:livePulse 2s infinite; }
+    .live-btn.active { background:rgba(239,68,68,0.3);border-color:#ef4444;color:#ef4444;animation:livePulse 2s infinite; }
     .start-btn { background:rgba(74,222,128,0.2);border-color:rgba(74,222,128,0.5);color:#4ade80; }
     .start-btn.stop-state { background:rgba(239,68,68,0.2);border-color:rgba(239,68,68,0.5);color:#ef4444; }
+    .next-btn { display:none;width:65px;height:36px;border-radius:18px;background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);color:#ccc; }
+    .next-btn.visible { display:inline-flex;align-items:center;justify-content:center;gap:6px;cursor:pointer; }
+    .mic-btn { display:none;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);color:#4ade80; }
+    .mic-btn.visible { display:inline-flex;align-items:center;justify-content:center;cursor:pointer; }
+    .mic-btn.muted { color:#ef4444;background:rgba(239,68,68,0.2); }
+    .chat-toggle-btn { display:none;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);color:#fff; }
+    .chat-toggle-btn.visible { display:inline-flex;align-items:center;justify-content:center;cursor:pointer; }
+    .chat-toggle-btn.has-messages { animation:pulse 1.5s infinite; color:#4ade80; border-color:#4ade80; }
+    .stranger-controls-row { display:none;gap:10px;margin-top:4px; }
     
-    .next-btn { display:none;width:60px;height:34px;border-radius:17px;background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);color:#ccc; }
-    .next-btn.visible { display:inline-flex;align-items:center;justify-content:center;gap:4px;cursor:pointer;border:1px solid rgba(255,255,255,0.2);outline:none;font-size:0.7rem;font-weight:600; }
-    .mic-btn { display:none;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);color:#4ade80; }
-    .mic-btn.visible { display:inline-flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid rgba(255,255,255,0.2);outline:none;font-size:0.8rem; }
-    .mic-btn.muted { color:#ef4444;background:rgba(239,68,68,0.2);border-color:rgba(239,68,68,0.5); }
+    .chat-box { position:fixed;bottom:5.5rem;left:50%;transform:translateX(-50%);width:92%;max-width:500px;height:35vh;max-height:350px;background:linear-gradient(135deg,rgba(20,20,30,0.95),rgba(10,10,15,0.95));backdrop-filter:blur(30px);border-radius:28px;border:1px solid rgba(255,255,255,0.2);display:flex;flex-direction:column;z-index:150;animation:slideUp 0.3s ease;overflow:hidden; }
+    .chat-box.hidden { display:none; }
+    .chat-header { display:flex;justify-content:space-between;align-items:center;padding:0.8rem 1.2rem;background:rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.1);color:#fff;font-weight:600; }
+    .chat-close-btn { background:rgba(255,255,255,0.1);border:none;color:#eee;cursor:pointer;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:0.2s; }
+    .chat-messages { flex:1;overflow-y:auto;padding:0.8rem;display:flex;flex-direction:column;gap:8px; }
+    .chat-messages::-webkit-scrollbar { width:3px; }
+    .chat-message { background:rgba(255,255,255,0.08);padding:0.5rem 0.9rem;border-radius:18px;color:#f0f0f0;font-size:0.8rem;max-width:78%;align-self:flex-start;border:1px solid rgba(255,255,255,0.08);animation:slideUp 0.2s ease; }
+    .chat-message.self { align-self:flex-end;background:linear-gradient(135deg,rgba(74,222,128,0.25),rgba(74,222,128,0.1));border-color:rgba(74,222,128,0.3); }
+    .chat-message.system { align-self:center;background:rgba(255,255,255,0.04);color:#aaa;font-size:0.7rem;max-width:90%;text-align:center; }
+    .chat-input-area { display:flex;padding:0.6rem 0.8rem;gap:8px;background:rgba(0,0,0,0.3);border-top:1px solid rgba(255,255,255,0.1); }
+    .chat-input { flex:1;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:24px;padding:0.55rem 1rem;color:#fff;font-size:0.8rem;outline:none; }
+    .chat-send-btn { background:rgba(74,222,128,0.3);border:1px solid rgba(74,222,128,0.4);border-radius:50%;width:38px;height:38px;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer; }
     
-    .chat-toggle-btn {
-      display:none; width:34px; height:34px; border-radius:50%;
-      background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.2); color:#fff;
-    }
-    .chat-toggle-btn.visible {
-      display:inline-flex; align-items:center; justify-content:center;
-      cursor:pointer; border:1px solid rgba(255,255,255,0.2); outline:none; font-size:0.8rem;
-    }
-    .chat-toggle-btn.has-messages {
-      animation: pulse 1.5s infinite;
-      color: #4ade80;
-      border-color: rgba(74, 222, 128, 0.5);
-    }
+    .loading-screen { position:fixed;top:0;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:500;gap:10px;color:#fff; }
+    .loading-screen i { font-size:2rem;animation:spin 1s infinite linear; }
     
-    .stranger-controls-row {
-      display: none;
-      gap: 10px;
-      align-items: center;
-      margin-top: 4px;
-    }
+    .floating-nav { position:fixed;bottom:max(1rem,env(safe-area-inset-bottom,1rem));left:50%;transform:translateX(-50%);width:92%;max-width:500px;background:transparent;backdrop-filter:blur(12px);border-radius:2.5rem;padding:0.7rem 1.5rem;border:1px solid rgba(255,255,255,0.06);z-index:100; }
+    .nav-center { display:flex;align-items:center;justify-content:space-between;width:100%;max-width:380px;gap:0.3rem; }
+    .nav-center a { color:rgba(255,255,255,0.7);font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;transition:all 0.3s;text-decoration:none;text-shadow:0 0 8px rgba(0,0,0,0.8); }
+    .nav-center a:hover { color:#fff;background:rgba(255,255,255,0.1); }
+    .nav-center a.active { color:#fff;background:rgba(255,255,255,0.15); }
     
-    .chat-box {
-      position: fixed; bottom: 5.5rem; left: 50%; transform: translateX(-50%);
-      width: 92%; max-width: 500px; height: 35vh; max-height: 350px;
-      background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%);
-      backdrop-filter: blur(40px) saturate(200%);
-      -webkit-backdrop-filter: blur(40px) saturate(200%);
-      border-radius: 28px;
-      border: 1.5px solid rgba(255, 255, 255, 0.3);
-      box-shadow: 
-        0 25px 50px rgba(0, 0, 0, 0.6),
-        0 0 0 1px rgba(255, 255, 255, 0.1) inset,
-        0 0 30px rgba(255, 255, 255, 0.05) inset,
-        0 0 80px rgba(138, 43, 226, 0.08);
-      display: flex; flex-direction: column; z-index: 150;
-      animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-      overflow: hidden;
-      transition: all 0.3s ease;
-    }
-    .chat-box::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-      opacity: 0.6;
-    }
-    .chat-box.hidden { display: none; }
-    .chat-header {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 0.8rem 1.2rem;
-      background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(30px);
-      -webkit-backdrop-filter: blur(30px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-      color: #f5f5f5; font-size: 0.85rem; font-weight: 600;
-      letter-spacing: 0.5px;
-    }
-    .chat-close-btn {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(15px);
-      -webkit-backdrop-filter: blur(15px);
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      color: #eee; font-size: 0.85rem; cursor: pointer;
-      width: 30px; height: 30px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.25s;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-    .chat-close-btn:hover { 
-      background: rgba(255, 255, 255, 0.2); 
-      color: #fff; 
-      transform: rotate(90deg);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-    }
-    .chat-messages {
-      flex: 1; overflow-y: auto; padding: 0.8rem; display: flex; flex-direction: column; gap: 8px;
-      background: transparent;
-    }
-    .chat-messages::-webkit-scrollbar { width: 3px; }
-    .chat-messages::-webkit-scrollbar-track { background: transparent; }
-    .chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
-    .chat-message {
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      padding: 0.55rem 0.95rem; border-radius: 18px;
-      color: #f0f0f0; font-size: 0.8rem; max-width: 78%; align-self: flex-start;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-      transition: all 0.2s;
-      animation: slideUp 0.25s ease;
-    }
-    .chat-message.self { 
-      align-self: flex-end; 
-      background: linear-gradient(135deg, rgba(74, 222, 128, 0.25), rgba(74, 222, 128, 0.08));
-      border-color: rgba(74, 222, 128, 0.3);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      box-shadow: 0 6px 20px rgba(74, 222, 128, 0.15);
-    }
-    .chat-message.system {
-      align-self: center;
-      background: rgba(255,255,255,0.05);
-      border-color: rgba(255,255,255,0.08);
-      color: #aaa;
-      font-size: 0.7rem;
-      max-width: 90%;
-      text-align: center;
-    }
-    .chat-input-area {
-      display: flex; padding: 0.6rem 0.8rem; gap: 8px;
-      background: rgba(0, 0, 0, 0.15);
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
-      border-top: 1px solid rgba(255, 255, 255, 0.15);
-    }
-    .chat-input {
-      flex:1;
-      background: rgba(255, 255, 255, 0.06);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 24px; padding: 0.55rem 1rem; color: #fff; font-size: 0.8rem; outline: none;
-      transition: all 0.3s;
-      box-shadow: inset 0 2px 8px rgba(0,0,0,0.2);
-    }
-    .chat-input::placeholder { color: rgba(255,255,255,0.4); }
-    .chat-input:focus { 
-      border-color: rgba(255,255,255,0.45); 
-      background: rgba(255,255,255,0.12);
-      box-shadow: 0 0 20px rgba(138, 43, 226, 0.15), inset 0 2px 8px rgba(0,0,0,0.2);
-    }
-    .chat-send-btn {
-      background: linear-gradient(135deg, rgba(74, 222, 128, 0.3), rgba(74, 222, 128, 0.1));
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(74, 222, 128, 0.35);
-      border-radius: 50%; width: 38px; height: 38px;
-      color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer;
-      transition: all 0.3s;
-      box-shadow: 0 4px 15px rgba(74, 222, 128, 0.2);
-    }
-    .chat-send-btn:hover { 
-      background: rgba(74, 222, 128, 0.45); 
-      transform: scale(1.05);
-      box-shadow: 0 8px 25px rgba(74, 222, 128, 0.35);
-    }
-    .chat-send-btn:active { transform: scale(0.9); }
-
-    .https-warning { display:none;background:#ef4444;color:#fff;text-align:center;padding:4px;font-size:0.55rem;font-weight:600;z-index:200;width:100%; }
-    .https-warning.show { display:block; }
-    .loading-screen { position:fixed;top:0;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:8px; }
-    .loading-screen i { font-size:2rem;color:#3897f0;animation:spin 1s infinite; }
-    .loading-screen span { font-size:0.75rem;color:#888; }
-
-    /* 🌟 ULTRA TRANSPARENT GLASSMORPHISM NAVBAR */
-    .floating-nav {
-      position: fixed;
-      bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
-      left: 50%;
-      transform: translateX(-50%);
-      width: 92%;
-      max-width: 500px;
-      
-      /* Completely transparent background */
-      background: transparent;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      
-      border-radius: 2.5rem;
-      padding: 0.7rem 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      
-      /* Almost invisible border */
-      border: 1px solid rgba(255, 255, 255, 0.04);
-      
-      /* No shadow - maximum visibility */
-      box-shadow: none;
-      
-      z-index: 100;
-      transition: all 0.3s ease;
-      pointer-events: auto;
-    }
-    
-    .floating-nav:hover {
-      background: rgba(255, 255, 255, 0.02);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-color: rgba(255, 255, 255, 0.08);
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-    
-    .nav-center {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      max-width: 380px;
-      gap: 0.3rem;
-    }
-    
-    .nav-center a {
-      color: rgba(255, 255, 255, 0.7);
-      font-size: 1.3rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 2.5rem;
-      height: 2.5rem;
-      border-radius: 50%;
-      transition: all 0.3s;
-      text-decoration: none;
-      position: relative;
-      background: transparent;
-      /* Strong text shadow for visibility on any background */
-      text-shadow: 0 0 8px rgba(0, 0, 0, 0.8), 0 0 12px rgba(0, 0, 0, 0.6);
-    }
-    
-    .nav-center a:hover {
-      color: #fff;
-      background: rgba(255, 255, 255, 0.08);
-      transform: translateY(-2px);
-      text-shadow: 0 0 12px rgba(0, 0, 0, 0.9), 0 0 20px rgba(0, 0, 0, 0.7);
-    }
-    
-    .nav-center a::before {
-      content: '';
-      position: absolute;
-      bottom: -2px;
-      left: 50%;
-      transform: translateX(-50%) scale(0);
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: #fff;
-      transition: all 0.3s;
-    }
-    
-    .nav-center a.active {
-      color: #fff;
-      background: rgba(255, 255, 255, 0.12);
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.08);
-      text-shadow: 0 0 14px rgba(0, 0, 0, 0.9), 0 0 24px rgba(0, 0, 0, 0.8);
-    }
-    
-    .nav-center a.active::before {
-      transform: translateX(-50%) scale(1);
-    }
-    
-    .nav-wallet, .nav-live { display: none !important; }
-
-    @media (max-width: 380px) {
-      .token-btn{width:100px;height:36px;font-size:0.7rem;}
-      .token-btn .token-emoji{font-size:1rem;}.token-btn .token-label{font-size:0.65rem;}
-      .ctrl-btn{width:65px;height:30px;font-size:0.6rem;}
-      .floating-nav {
-        width: 94%;
-        padding: 0.5rem 0.8rem;
-        bottom: max(0.8rem, env(safe-area-inset-bottom, 0.8rem));
-      }
-      .nav-center a { font-size: 1.1rem; width: 2rem; height: 2rem; }
-    }
-
-    @media (min-width: 1024px) {
-      /* ✅ Desktop: Hide top icons bar */
-      .top-icons { display: none; }
-      .nav-wallet, .nav-live { display: flex !important; }
-      
-      .floating-nav {
-        position: fixed;
-        top: 50%;
-        left: 1.5rem;
-        bottom: auto;
-        transform: translateY(-50%);
-        width: 3.8rem;
-        height: auto;
-        max-width: none;
-        border-radius: 2.5rem;
-        padding: 1rem 0.6rem;
-        flex-direction: column;
-        
-        /* Same ultra-transparent glass for desktop */
-        background: transparent;
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-      }
-      
-      .nav-center {
-        flex-direction: column;
-        gap: 1.2rem;
-        max-width: none;
-      }
-      
-      .nav-center a {
-        font-size: 1.4rem;
-        width: 2.6rem;
-        height: 2.6rem;
-      }
-      
-      .nav-center a::before {
-        bottom: auto;
-        right: -4px;
-        left: auto;
-        top: 50%;
-        transform: translateY(-50%) scale(0);
-      }
-      
-      .nav-center a.active::before {
-        transform: translateY(-50%) scale(1);
-      }
-      
-      .page { padding-left: 5rem; }
-      .main-content { max-width: 950px; margin: 0 auto; width: 100%; padding-bottom: 1rem; padding-top: 1rem; }
-      .camera-area { gap: 20px; }
-      /* Desktop: both screens same size - 48% each */
-      .stranger-section { width: 48%; }
-      .you-section { width: 48%; align-items: flex-start; }
-      .stranger-camera { height: 50vh; }
-      .my-camera { height: 50vh; }
-      
-      .token-stack { 
-        flex-direction: row; 
-        flex-wrap: wrap; 
-        gap: 8px; 
-        margin-top: 8px; 
-        align-items: center;
-        justify-content: flex-start;
-      }
-      .token-btn { width: auto; min-width: 90px; height: 36px; padding: 0 10px; }
-      
-      .stranger-controls-row {
-        display: flex;
-      }
-      .control-row.mobile-only {
-        display: none;
-      }
-      
-      .chat-box { width: 400px; left: auto; right: 2rem; transform: none; }
-    }
-    
-    @media (max-width: 1023px) {
-      .stranger-controls-row {
-        display: none;
-      }
-      .control-row.mobile-only {
-        display: flex;
-      }
-    }
+    @media (max-width:380px) { .token-btn{width:95px;height:36px;} .ctrl-btn{width:70px;height:32px;} .floating-nav{width:94%;padding:0.5rem 0.8rem;} .nav-center a{font-size:1.1rem;width:2rem;height:2rem;} }
+    @media (min-width:1024px) { .top-icons{display:none;} .floating-nav{position:fixed;top:50%;left:1.5rem;bottom:auto;transform:translateY(-50%);width:3.8rem;height:auto;border-radius:2.5rem;padding:1rem 0.6rem;flex-direction:column;} .nav-center{flex-direction:column;gap:1.2rem;} .nav-center a{font-size:1.4rem;width:2.6rem;height:2.6rem;} .page{padding-left:5rem;} .main-content{max-width:950px;margin:0 auto;} .camera-area{gap:20px;} .stranger-section{width:48%;} .you-section{width:48%;align-items:flex-start;} .stranger-camera{height:50vh;} .my-camera{height:50vh;} .token-stack{flex-direction:row;flex-wrap:wrap;justify-content:flex-start;} .token-btn{width:auto;min-width:90px;} .stranger-controls-row{display:flex;} .control-row.mobile-only{display:none;} .chat-box{width:380px;left:auto;right:1.5rem;transform:none;} }
+    @media (max-width:1023px) { .stranger-controls-row{display:none;} .control-row.mobile-only{display:flex;} }
   </style>
 </head>
 <body>
-  <div class="https-warning" id="httpsWarning">⚠️ Camera requires HTTPS! <a href="javascript:void(0)" onclick="switchToHTTPS()">Switch to secure</a></div>
-  <div class="loading-screen" id="loadingScreen"><i class="fas fa-spinner"></i><span>Loading...</span></div>
+  <div class="loading-screen" id="loadingScreen"><i class="fas fa-spinner"></i><span>Initializing...</span></div>
   <div class="page" id="mainPage" style="display:none;">
-    <!-- ✅ NEW: Same header as index.html - Upload (Live) | Choicho | Search (Wallet) -->
-    <div class="top-icons">
-      <a href="live.html" class="corner-btn"><i class="fas fa-broadcast-tower"></i></a>
-      <span class="top-brand">Nokk</span>
-      <a href="wallet.html" class="corner-btn"><i class="fas fa-wallet"></i></a>
-    </div>
-    
+    <div class="top-icons"><a href="live.html" class="corner-btn"><i class="fas fa-broadcast-tower"></i></a><span class="top-brand">Nokk</span><a href="wallet.html" class="corner-btn"><i class="fas fa-wallet"></i></a></div>
     <div class="main-content">
       <div class="camera-area">
         <div class="stranger-section">
-          <span class="section-label" id="strangerLabel">
-            Stranger
-            <span class="online-dot" id="strangerOnlineDot" style="display:none;"></span>
-            <span class="username-badge" id="strangerUsername" style="display:none;"></span>
-          </span>
+          <span class="section-label">Stranger<span class="online-dot" id="strangerOnlineDot" style="display:none;"></span><span class="username-badge" id="strangerUsername" style="display:none;"></span></span>
           <div class="stranger-camera" id="strangerCamera">
-            <video id="strangerFeed" autoplay playsinline></video>
-            <div class="stranger-placeholder" id="strangerPlaceholder"><i class="fas fa-user-secret"></i><span>???</span></div>
+            <video id="strangerFeed" autoplay playsinline webkit-playsinline></video>
+            <div class="stranger-placeholder" id="strangerPlaceholder"><i class="fas fa-user-secret"></i><span>Waiting for stranger...</span></div>
           </div>
           <div class="stranger-controls-row" id="strangerControlsRow">
-            <button class="ctrl-btn live-btn" id="liveBtnDesktop" type="button"><i class="fas fa-circle"></i><span>Live</span></button>
-            <button class="ctrl-btn start-btn" id="startStopBtnDesktop" type="button"><i class="fas fa-play"></i><span>Start</span></button>
-            <button class="next-btn" id="nextBtnDesktop" type="button"><i class="fas fa-forward"></i><span>Next</span></button>
-            <button class="mic-btn" id="micBtnDesktop" type="button" title="Mute"><i class="fas fa-microphone"></i></button>
-            <button class="chat-toggle-btn" id="chatToggleBtnDesktop" type="button" title="Chat"><i class="fas fa-comment"></i></button>
+            <button class="ctrl-btn start-btn" id="startStopBtnDesktop"><i class="fas fa-play"></i><span>Start</span></button>
+            <button class="next-btn" id="nextBtnDesktop"><i class="fas fa-forward"></i><span>Next</span></button>
+            <button class="mic-btn" id="micBtnDesktop"><i class="fas fa-microphone"></i></button>
+            <button class="chat-toggle-btn" id="chatToggleBtnDesktop"><i class="fas fa-comment"></i></button>
           </div>
         </div>
         <div class="you-section">
           <span class="section-label">You</span>
           <div class="my-camera" id="myCamera">
-            <video id="myFeed" autoplay playsinline muted></video>
-            <div class="my-placeholder" id="myPlaceholder"><i class="fas fa-video"></i><span>off</span></div>
+            <video id="myFeed" autoplay playsinline muted webkit-playsinline></video>
+            <div class="my-placeholder" id="myPlaceholder"><i class="fas fa-video"></i><span>Camera off</span></div>
           </div>
           <div class="token-stack" id="tokenStack">
-            <button class="token-btn token-chicken" id="chickenBtn" onclick="window.handleTokenSend('chicken')">
-              <span class="token-emoji">🍗</span>
-              <span class="token-count" id="chickenCount">0</span>
-            </button>
-            <button class="token-btn token-lion" id="lionBtn" onclick="window.handleTokenSend('lion')">
-              <span class="token-emoji">🦁</span>
-              <span class="token-count" id="lionCount">0</span>
-            </button>
-            <button class="token-btn token-fish" id="fishBtn" onclick="window.handleTokenSend('fish')">
-              <span class="token-emoji">🐟</span>
-              <span class="token-count" id="fishCount">0</span>
-            </button>
-            <button class="token-btn token-bike" id="bikeBtn" onclick="window.handleTokenSend('bike')">
-              <span class="token-emoji">🏍️</span>
-              <span class="token-count" id="bikeCount">0</span>
-            </button>
+            <button class="token-btn token-chicken" id="chickenBtn"><span>🍗</span><span class="token-count" id="chickenCount">0</span></button>
+            <button class="token-btn token-lion" id="lionBtn"><span>🦁</span><span class="token-count" id="lionCount">0</span></button>
+            <button class="token-btn token-fish" id="fishBtn"><span>🐟</span><span class="token-count" id="fishCount">0</span></button>
+            <button class="token-btn token-bike" id="bikeBtn"><span>🏍️</span><span class="token-count" id="bikeCount">0</span></button>
           </div>
         </div>
       </div>
-      
       <div class="control-row mobile-only">
-        <button class="ctrl-btn live-btn" id="liveBtn" type="button"><i class="fas fa-circle"></i><span>Live</span></button>
-        <button class="ctrl-btn start-btn" id="startStopBtn" type="button"><i class="fas fa-play"></i><span>Start</span></button>
-        <button class="next-btn" id="nextBtn" type="button"><i class="fas fa-forward"></i><span>Next</span></button>
-        <button class="mic-btn" id="micBtn" type="button" title="Mute"><i class="fas fa-microphone"></i></button>
-        <button class="chat-toggle-btn" id="chatToggleBtn" type="button" title="Chat"><i class="fas fa-comment"></i></button>
+        <button class="ctrl-btn start-btn" id="startStopBtn"><i class="fas fa-play"></i><span>Start</span></button>
+        <button class="next-btn" id="nextBtn"><i class="fas fa-forward"></i><span>Next</span></button>
+        <button class="mic-btn" id="micBtn"><i class="fas fa-microphone"></i></button>
+        <button class="chat-toggle-btn" id="chatToggleBtn"><i class="fas fa-comment"></i></button>
       </div>
     </div>
-
     <div class="chat-box hidden" id="chatBox">
-      <div class="chat-header">
-        <span>💬 Chat</span>
-        <button class="chat-close-btn" id="chatCloseBtn"><i class="fas fa-times"></i></button>
-      </div>
+      <div class="chat-header"><span>💬 Chat</span><button class="chat-close-btn" id="chatCloseBtn"><i class="fas fa-times"></i></button></div>
       <div class="chat-messages" id="chatMessages"></div>
-      <div class="chat-input-area">
-        <input type="text" class="chat-input" id="chatInput" placeholder="Type a message..." autocomplete="off">
-        <button class="chat-send-btn" id="chatSendBtn"><i class="fas fa-paper-plane"></i></button>
-      </div>
+      <div class="chat-input-area"><input class="chat-input" id="chatInput" placeholder="Type a message..."><button class="chat-send-btn" id="chatSendBtn"><i class="fas fa-paper-plane"></i></button></div>
     </div>
-    
-    <!-- 🌟 Ultra Transparent Glassmorphism Navbar -->
-    <nav class="floating-nav">
-      <div class="nav-center">
-        <a href="index.html"><i class="fas fa-home"></i></a>
-        <a href="web.html" class="active"><i class="fas fa-globe"></i></a>
-        <a href="reel.html"><i class="fas fa-film"></i></a>
-        <a href="chat.html"><i class="fas fa-comment-dots"></i></a>
-        <a href="profile.html"><i class="fas fa-user"></i></a>
-        <a href="wallet.html" class="nav-wallet"><i class="fas fa-wallet"></i></a>
-        <a href="live.html" class="nav-live"><i class="fas fa-broadcast-tower"></i></a>
-      </div>
-    </nav>
+    <nav class="floating-nav"><div class="nav-center"><a href="index.html"><i class="fas fa-home"></i></a><a href="web.html" class="active"><i class="fas fa-globe"></i></a><a href="reel.html"><i class="fas fa-film"></i></a><a href="chat.html"><i class="fas fa-comment-dots"></i></a><a href="profile.html"><i class="fas fa-user"></i></a></div></nav>
   </div>
+
   <script>
-    if (!localStorage.getItem("uid")) { window.location.replace("login.html"); }
-    if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-      document.getElementById('httpsWarning').classList.add('show');
-    }
-    window.switchToHTTPS = function() { window.location.href = window.location.href.replace('http://', 'https://'); };
+    if (!localStorage.getItem("uid")) window.location.replace("login.html");
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('mainPage').style.display = 'flex';
   </script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, collection, addDoc, onSnapshot, getDocs, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, addDoc, onSnapshot, getDocs, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
     
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
-    document.getElementById('loadingScreen').style.display = 'none';
-    document.getElementById('mainPage').style.display = 'flex';
-    
-    const chatBox = document.getElementById('chatBox');
-    const chatToggleBtn = document.getElementById('chatToggleBtn');
-    const chatToggleBtnDesktop = document.getElementById('chatToggleBtnDesktop');
-    const chatCloseBtn = document.getElementById('chatCloseBtn');
-    const chatMessages = document.getElementById('chatMessages');
-    const chatInput = document.getElementById('chatInput');
-    const chatSendBtn = document.getElementById('chatSendBtn');
-    
-    let chatVisible = false;
-    let pendingMessages = 0;
-    
-    let tokenBalances = {
-      chicken: 0,
-      lion: 0,
-      fish: 0,
-      bike: 0
-    };
-    
     const uid = localStorage.getItem('uid');
     const currentUser = localStorage.getItem('currentUser') || '@anonymous';
+    const myId = crypto.randomUUID();
     
-    async function loadWalletBalances() {
+    let tokenBalances = { chicken: 10, lion: 5, fish: 8, bike: 3 };
+    let localStream = null, pc = null, roomId = null;
+    let unsubs = [], roomIceUnsub = null, roomChatUnsub = null, roomTokenUnsub = null;
+    let pendingICECandidates = [];
+    let isConnected = false, strangerUsername = '', isMuted = false;
+    let chatVisible = false, pendingMsgCount = 0;
+    
+    // Load wallet
+    async function loadWallet() {
       try {
-        const walletDoc = await getDoc(doc(db, 'wallets', uid));
-        if (walletDoc.exists()) {
-          const walletData = walletDoc.data();
-          tokenBalances.chicken = walletData.chicken || 0;
-          tokenBalances.lion = walletData.lion || 0;
-          tokenBalances.fish = walletData.fish || 0;
-          tokenBalances.bike = walletData.bike || 0;
+        const docSnap = await getDoc(doc(db, 'wallets', uid));
+        if (docSnap.exists()) {
+          const d = docSnap.data();
+          tokenBalances = { chicken: d.chicken || 0, lion: d.lion || 0, fish: d.fish || 0, bike: d.bike || 0 };
         } else {
-          await setDoc(doc(db, 'wallets', uid), {
-            userId: uid,
-            username: currentUser,
-            chicken: 10,
-            lion: 5,
-            fish: 8,
-            bike: 3,
-            createdAt: serverTimestamp()
-          });
-          tokenBalances.chicken = 10;
-          tokenBalances.lion = 5;
-          tokenBalances.fish = 8;
-          tokenBalances.bike = 3;
+          await setDoc(doc(db, 'wallets', uid), { userId: uid, username: currentUser, ...tokenBalances, createdAt: serverTimestamp() });
         }
-        updateTokenDisplay();
-      } catch (e) {
-        console.error("Error loading wallet:", e);
+        updateTokenUI();
+      } catch(e) {}
+    }
+    function updateTokenUI() {
+      ['chicken','lion','fish','bike'].forEach(t => {
+        document.getElementById(`${t}Count`).textContent = tokenBalances[t];
+        document.getElementById(`${t}Btn`).disabled = tokenBalances[t] <= 0;
+      });
+    }
+    async function saveWallet() { await updateDoc(doc(db, 'wallets', uid), tokenBalances).catch(()=>{}); }
+    loadWallet();
+    
+    // TURN + STUN servers (FIX #5)
+    const iceServers = [
+      { urls: "stun:stun.l.google.com:19302" },
+      { urls: "stun:stun1.l.google.com:19302" },
+      { urls: "stun:stun.relay.metered.ca:80" },
+      { urls: "turn:standard.relay.metered.ca:80", username: "a6b2ebd89a4174b7f3843634", credential: "xyEoZGCCUl7ZAQ4h" },
+      { urls: "turn:standard.relay.metered.ca:80?transport=tcp", username: "a6b2ebd89a4174b7f3843634", credential: "xyEoZGCCUl7ZAQ4h" },
+      { urls: "turns:standard.relay.metered.ca:443?transport=tcp", username: "a6b2ebd89a4174b7f3843634", credential: "xyEoZGCCUl7ZAQ4h" }
+    ];
+    
+    // Chat UI
+    const chatBox = document.getElementById('chatBox'), chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput'), chatSendBtn = document.getElementById('chatSendBtn');
+    function addMessage(text, isSelf = false, username = '', isSystem = false) {
+      const div = document.createElement('div');
+      div.className = `chat-message${isSelf ? ' self' : ''}${isSystem ? ' system' : ''}`;
+      if (username && !isSelf && !isSystem) div.innerHTML = `<span style="font-size:0.65rem;color:#aaa;">${username}</span><br>${text}`;
+      else div.textContent = text;
+      chatMessages.appendChild(div);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      if (!chatVisible && !isSelf && !isSystem) {
+        pendingMsgCount++;
+        document.getElementById('chatToggleBtn').classList.add('has-messages');
+        document.getElementById('chatToggleBtnDesktop')?.classList.add('has-messages');
       }
     }
-    
-    async function saveWalletBalances() {
-      try {
-        await updateDoc(doc(db, 'wallets', uid), {
-          chicken: tokenBalances.chicken,
-          lion: tokenBalances.lion,
-          fish: tokenBalances.fish,
-          bike: tokenBalances.bike
-        });
-      } catch (e) {
-        console.error("Error saving wallet:", e);
-      }
-    }
-    
-    function updateTokenDisplay() {
-      document.getElementById('chickenCount').textContent = tokenBalances.chicken;
-      document.getElementById('lionCount').textContent = tokenBalances.lion;
-      document.getElementById('fishCount').textContent = tokenBalances.fish;
-      document.getElementById('bikeCount').textContent = tokenBalances.bike;
-      
-      document.getElementById('chickenBtn').disabled = tokenBalances.chicken <= 0;
-      document.getElementById('lionBtn').disabled = tokenBalances.lion <= 0;
-      document.getElementById('fishBtn').disabled = tokenBalances.fish <= 0;
-      document.getElementById('bikeBtn').disabled = tokenBalances.bike <= 0;
-    }
-    
-    function showStrangerInfo(username) {
-      const badge = document.getElementById('strangerUsername');
-      const dot = document.getElementById('strangerOnlineDot');
-      
-      badge.textContent = username;
-      badge.style.display = 'inline-block';
-      dot.style.display = 'inline-block';
-    }
-    
-    function hideStrangerInfo() {
-      document.getElementById('strangerUsername').style.display = 'none';
-      document.getElementById('strangerOnlineDot').style.display = 'none';
-    }
-    
     function toggleChat() {
       chatVisible = !chatVisible;
-      if (chatVisible) {
-        chatBox.classList.remove('hidden');
-        pendingMessages = 0;
-        chatToggleBtn.classList.remove('has-messages');
-        if (chatToggleBtnDesktop) chatToggleBtnDesktop.classList.remove('has-messages');
-      } else {
-        chatBox.classList.add('hidden');
-      }
+      chatBox.classList.toggle('hidden', !chatVisible);
+      if (chatVisible) { pendingMsgCount = 0; document.getElementById('chatToggleBtn').classList.remove('has-messages'); document.getElementById('chatToggleBtnDesktop')?.classList.remove('has-messages'); }
     }
+    document.getElementById('chatToggleBtn').addEventListener('click', toggleChat);
+    document.getElementById('chatToggleBtnDesktop')?.addEventListener('click', toggleChat);
+    document.getElementById('chatCloseBtn').addEventListener('click', () => { chatBox.classList.add('hidden'); chatVisible = false; });
+    chatSendBtn.addEventListener('click', () => { const t = chatInput.value.trim(); if (t && window.sendChatMsg) window.sendChatMsg(t); chatInput.value = ''; });
+    chatInput.addEventListener('keypress', e => { if (e.key === 'Enter') chatSendBtn.click(); });
     
-    chatToggleBtn.addEventListener('click', toggleChat);
-    if (chatToggleBtnDesktop) chatToggleBtnDesktop.addEventListener('click', toggleChat);
-    chatCloseBtn.addEventListener('click', () => {
-      chatBox.classList.add('hidden');
-      chatVisible = false;
-    });
-    
-    function addChatMessage(text, isSelf = false, username = '', isSystem = false) {
-      const msgDiv = document.createElement('div');
-      msgDiv.className = 'chat-message' + (isSelf ? ' self' : '') + (isSystem ? ' system' : '');
-      
-      if (username && !isSelf && !isSystem) {
-        msgDiv.innerHTML = `<span style="font-size:0.65rem;color:#aaa;display:block;margin-bottom:2px;">${username}</span>${text}`;
-      } else {
-        msgDiv.textContent = text;
-      }
-      
-      chatMessages.appendChild(msgDiv);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-      
-      if (!chatVisible && !isSelf && !isSystem) {
-        pendingMessages++;
-        if (pendingMessages > 0) {
-          chatToggleBtn.classList.add('has-messages');
-          if (chatToggleBtnDesktop) chatToggleBtnDesktop.classList.add('has-messages');
-        }
-      }
-    }
-    
-    let sendChatMessageFn = null;
-    let sendTokenToStrangerFn = null;
-    let myId = null;
-    let isConnectedToStranger = false;
-    let strangerUsername = '';
-    
-    window.handleTokenSend = function(tokenType) {
-      if (!isConnectedToStranger) {
-        const btn = document.getElementById(tokenType + 'Btn');
-        btn.classList.add('no-receiver');
-        setTimeout(() => btn.classList.remove('no-receiver'), 500);
-        addChatMessage(`❌ No stranger connected! Cannot send ${tokenType}.`, true);
+    // Send token
+    window.handleTokenSend = async (type) => {
+      if (!isConnected) {
+        document.getElementById(`${type}Btn`).classList.add('no-receiver');
+        setTimeout(() => document.getElementById(`${type}Btn`).classList.remove('no-receiver'), 500);
+        addMessage(`❌ No stranger connected!`, true);
         return;
       }
-      
-      if (tokenBalances[tokenType] <= 0) {
-        addChatMessage(`❌ No more ${tokenType} tokens in wallet!`, true);
-        return;
-      }
-      
-      tokenBalances[tokenType]--;
-      updateTokenDisplay();
-      saveWalletBalances();
-      
-      const emojiMap = { chicken: '🍗', lion: '🦁', fish: '🐟', bike: '🏍️' };
-      const emoji = emojiMap[tokenType];
-      
-      const strangerCam = document.getElementById('strangerCamera');
+      if (tokenBalances[type] <= 0) { addMessage(`❌ No ${type} tokens left!`, true); return; }
+      tokenBalances[type]--;
+      updateTokenUI();
+      await saveWallet();
+      const emoji = { chicken:'🍗', lion:'🦁', fish:'🐟', bike:'🏍️' }[type];
       const float = document.createElement('span');
       float.className = 'gift-float';
       float.textContent = emoji;
       float.style.left = (Math.random() * 60 + 20) + '%';
       float.style.top = '55%';
-      strangerCam.appendChild(float);
+      document.getElementById('strangerCamera').appendChild(float);
       setTimeout(() => float.remove(), 1500);
-      
-      if (sendTokenToStrangerFn) {
-        sendTokenToStrangerFn(emoji, tokenType);
-      }
-      
-      addChatMessage(`🎁 Sent ${emoji} to ${strangerUsername} (${tokenBalances[tokenType]} left)`, true);
+      if (window.sendTokenFn) window.sendTokenFn(emoji, type);
+      addMessage(`🎁 Sent ${emoji} to ${strangerUsername}`, true);
     };
+    ['chicken','lion','fish','bike'].forEach(t => { document.getElementById(`${t}Btn`).onclick = () => window.handleTokenSend(t); });
     
-    chatSendBtn.addEventListener('click', () => {
-      const text = chatInput.value.trim();
-      if (text && sendChatMessageFn) {
-        sendChatMessageFn(text);
-        chatInput.value = '';
-      }
-    });
+    // Cleanup
+    function cleanupRoom() {
+      unsubs.forEach(u => { try { u(); } catch(e) {} });
+      unsubs = [];
+      if (roomIceUnsub) { roomIceUnsub(); roomIceUnsub = null; }
+      if (roomChatUnsub) { roomChatUnsub(); roomChatUnsub = null; }
+      if (roomTokenUnsub) { roomTokenUnsub(); roomTokenUnsub = null; }
+    }
     
-    chatInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        chatSendBtn.click();
-      }
-    });
+    function resetStrangerUI() {
+      document.getElementById('strangerFeed').style.display = 'none';
+      document.getElementById('strangerFeed').srcObject = null;
+      document.getElementById('strangerPlaceholder').innerHTML = '<i class="fas fa-user-secret"></i><span>Waiting for stranger...</span>';
+      document.getElementById('strangerCamera').classList.remove('connected');
+      isConnected = false;
+      strangerUsername = '';
+      document.getElementById('strangerUsername').style.display = 'none';
+      document.getElementById('strangerOnlineDot').style.display = 'none';
+    }
     
-    loadWalletBalances();
-    startWebChat();
+    function setConnected(username) {
+      isConnected = true;
+      strangerUsername = username || 'Stranger';
+      document.getElementById('strangerUsername').textContent = strangerUsername;
+      document.getElementById('strangerUsername').style.display = 'inline-block';
+      document.getElementById('strangerOnlineDot').style.display = 'inline-block';
+      document.getElementById('startStopBtn').classList.add('stop-state');
+      document.getElementById('startStopBtn').innerHTML = '<i class="fas fa-stop"></i><span>Stop</span>';
+      document.getElementById('startStopBtnDesktop')?.classList.add('stop-state');
+      document.getElementById('startStopBtnDesktop').innerHTML = '<i class="fas fa-stop"></i><span>Stop</span>';
+      document.getElementById('nextBtn').classList.add('visible');
+      document.getElementById('nextBtnDesktop')?.classList.add('visible');
+      document.getElementById('micBtn').classList.add('visible');
+      document.getElementById('micBtnDesktop')?.classList.add('visible');
+      document.getElementById('chatToggleBtn').classList.add('visible');
+      document.getElementById('chatToggleBtnDesktop')?.classList.add('visible');
+      addMessage(`🔗 Connected with ${strangerUsername}!`, false, '', true);
+    }
     
-    function startWebChat() {
-      const myFeed=document.getElementById('myFeed'),myPlaceholder=document.getElementById('myPlaceholder'),myCameraEl=document.getElementById('myCamera');
-      const strangerFeed=document.getElementById('strangerFeed'),strangerPlaceholder=document.getElementById('strangerPlaceholder'),strangerCamera=document.getElementById('strangerCamera');
+    function setDisconnected() {
+      isConnected = false;
+      document.getElementById('startStopBtn').classList.remove('stop-state');
+      document.getElementById('startStopBtn').innerHTML = '<i class="fas fa-play"></i><span>Start</span>';
+      document.getElementById('startStopBtnDesktop')?.classList.remove('stop-state');
+      document.getElementById('startStopBtnDesktop').innerHTML = '<i class="fas fa-play"></i><span>Start</span>';
+      document.getElementById('nextBtn').classList.remove('visible');
+      document.getElementById('nextBtnDesktop')?.classList.remove('visible');
+      document.getElementById('micBtn').classList.remove('visible');
+      document.getElementById('micBtnDesktop')?.classList.remove('visible');
+      document.getElementById('chatToggleBtn').classList.remove('visible', 'has-messages');
+      document.getElementById('chatToggleBtnDesktop')?.classList.remove('visible', 'has-messages');
+      pendingMsgCount = 0;
+      resetStrangerUI();
+    }
+    
+    async function createPeerConnection(isCaller = true, remoteOffer = null) {
+      if (pc) { pc.close(); pc = null; }
+      pendingICECandidates = [];
+      pc = new RTCPeerConnection({ iceServers });
+      if (localStream) localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
       
-      const startStopBtn=document.getElementById('startStopBtn'),nextBtn=document.getElementById('nextBtn'),micBtn=document.getElementById('micBtn'),liveBtn=document.getElementById('liveBtn');
-      const startStopBtnDesktop=document.getElementById('startStopBtnDesktop'),nextBtnDesktop=document.getElementById('nextBtnDesktop'),micBtnDesktop=document.getElementById('micBtnDesktop'),liveBtnDesktop=document.getElementById('liveBtnDesktop');
-      
-      myId = crypto.randomUUID ? crypto.randomUUID() : 'id_' + Date.now() + '_' + Math.random().toString(36).substr(2,9);
-      const liveUserId = currentUser.replace('@','');
-      
-      let localStream, pc, roomId, unsubs=[], isMuted=false, isLive=false;
-      let strangerStream=null, liveViewers={}, liveUnsub=null;
-      let chatMessagesUnsub = null;
-      let tokenTransferUnsub = null;
-      let messageCache = new Set();
-      
-      const servers={iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:"stun:stun1.l.google.com:19302"}]};
-      
-      sendChatMessageFn = async (text) => {
-        if (!roomId) {
-          addChatMessage(text, true);
-          return;
-        }
-        
-        try {
-          const messageData = {
-            sender: myId,
-            text: text,
-            timestamp: serverTimestamp(),
-            username: currentUser,
-            messageId: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)
-          };
-          
-          await addDoc(collection(db, 'rooms', roomId, 'messages'), messageData);
-        } catch (e) {
-          console.error("Error sending message:", e);
-          addChatMessage(text, true);
+      pc.ontrack = (e) => {
+        const feed = document.getElementById('strangerFeed');
+        if (feed.srcObject) return;
+        if (e.streams[0]) {
+          feed.srcObject = e.streams[0];
+          feed.style.display = 'block';
+          document.getElementById('strangerPlaceholder').innerHTML = '';
+          document.getElementById('strangerCamera').classList.add('connected');
         }
       };
       
-      sendTokenToStrangerFn = async (emoji, tokenType) => {
-        if (!roomId || !isConnectedToStranger) return;
-        
-        try {
-          const tokenData = {
-            sender: myId,
-            senderUid: uid,
-            senderUsername: currentUser,
-            emoji: emoji,
-            tokenType: tokenType,
-            timestamp: serverTimestamp(),
-            tokenId: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)
-          };
-          
-          await addDoc(collection(db, 'rooms', roomId, 'tokens'), tokenData);
-        } catch (e) {
-          tokenBalances[tokenType]++;
-          updateTokenDisplay();
-          saveWalletBalances();
-          console.error("Error sending token:", e);
-          addChatMessage(`❌ Failed to send token. Refunded to wallet.`, true);
+      pc.onconnectionstatechange = () => {
+        if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') stopChat();
+      };
+      
+      pc.onicecandidate = async (e) => {
+        if (e.candidate && roomId) {
+          await addDoc(collection(db, 'rooms', roomId, 'ice'), { sender: myId, candidate: e.candidate.toJSON(), ts: serverTimestamp() });
         }
       };
       
-      liveBtn.onclick = () => toggleLive();
-      if (liveBtnDesktop) liveBtnDesktop.onclick = () => toggleLive();
-      
-      startStopBtn.onclick = handleStartStop;
-      if (startStopBtnDesktop) startStopBtnDesktop.onclick = handleStartStop;
-      
-      nextBtn.onclick = () => { stopChat(); setTimeout(() => startChat(), 500); };
-      if (nextBtnDesktop) nextBtnDesktop.onclick = () => { stopChat(); setTimeout(() => startChat(), 500); };
-      
-      micBtn.onclick = toggleMute;
-      if (micBtnDesktop) micBtnDesktop.onclick = toggleMute;
-      
-      function setButtonState(state) {
-        [startStopBtn, startStopBtnDesktop].forEach(btn => {
-          if (!btn) return;
-          btn.classList.remove('stop-state');
-          if (state === 'start') {
-            btn.innerHTML = '<i class="fas fa-play"></i><span>Start</span>';
-          } else {
-            btn.classList.add('stop-state');
-            btn.innerHTML = '<i class="fas fa-stop"></i><span>Stop</span>';
-          }
-        });
+      if (!isCaller && remoteOffer) {
+        await pc.setRemoteDescription(new RTCSessionDescription(remoteOffer));
+        for (const cand of pendingICECandidates) { try { await pc.addIceCandidate(cand); } catch(e) {} }
+        pendingICECandidates = [];
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        return answer;
+      } else {
+        const offer = await pc.createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: true });
+        await pc.setLocalDescription(offer);
+        return offer;
       }
-      
-      function handleStartStop() {
-        if (startStopBtn.classList.contains('stop-state')) {
-          stopChat();
-        } else {
-          startChat();
-        }
-      }
-      
-      function updateLiveButton() {
-        [liveBtn, liveBtnDesktop].forEach(btn => {
-          if (!btn) return;
-          if (isLive) {
-            btn.innerHTML = '<i class="fas fa-stop-circle"></i><span>End</span>';
-            btn.classList.add('active');
-          } else {
-            btn.innerHTML = '<i class="fas fa-circle"></i><span>Live</span>';
-            btn.classList.remove('active');
-          }
-        });
-      }
-      
-      async function startLive() {
-        if (!localStream) return;
-        isLive = true;
-        updateLiveButton();
-        try {
-          await setDoc(doc(db,'live',liveUserId), {
-            userId: currentUser,
-            active: true,
-            startedAt: serverTimestamp(),
-            viewers: 0
-          });
-          strangerCamera.classList.add('live-active');
-          liveUnsub = onSnapshot(collection(db,'live_viewers'), (snap) => {
-            snap.docChanges().forEach(async (c) => {
-              const vd = c.doc.data();
-              if (c.type === 'added' && vd.liveUser === currentUser && vd.offer) {
-                await handleNewViewer(c.doc.id, vd);
+    }
+    
+    async function listenRoomICE() {
+      if (roomIceUnsub) roomIceUnsub();
+      roomIceUnsub = onSnapshot(query(collection(db, 'rooms', roomId, 'ice'), orderBy('ts', 'asc')), async (snap) => {
+        for (const change of snap.docChanges()) {
+          if (change.type === 'added') {
+            const data = change.doc.data();
+            if (data.sender !== myId && pc) {
+              const cand = new RTCIceCandidate(data.candidate);
+              if (pc.remoteDescription && pc.remoteDescription.type) {
+                try { await pc.addIceCandidate(cand); } catch(e) {}
+              } else {
+                pendingICECandidates.push(cand);
               }
-              if (c.type === 'modified' && vd.streamEnded) {
-                cleanupViewer(c.doc.id);
-              }
-            });
-          });
-        } catch(e) {
-          isLive = false;
-          updateLiveButton();
-        }
-      }
-      
-      async function handleNewViewer(vid, vd) {
-        try {
-          const vpc = new RTCPeerConnection(servers);
-          if (localStream) localStream.getTracks().forEach(t => vpc.addTrack(t, localStream));
-          vpc.onicecandidate = async (e) => {
-            if (e.candidate) {
-              const s = await getDoc(doc(db,'live_viewers',vid));
-              const ex = s.data()?.hostCandidates || [];
-              ex.push(e.candidate.toJSON());
-              await setDoc(doc(db,'live_viewers',vid), {hostCandidates: ex}, {merge: true});
             }
-          };
-          await vpc.setRemoteDescription(new RTCSessionDescription(vd.offer));
-          const a = await vpc.createAnswer();
-          await vpc.setLocalDescription(a);
-          await setDoc(doc(db,'live_viewers',vid), {answer: {type: a.type, sdp: a.sdp}}, {merge: true});
-          liveViewers[vid] = vpc;
-        } catch(e) {}
-      }
-      
-      function cleanupViewer(vid) {
-        if (liveViewers[vid]) {
-          liveViewers[vid].close();
-          delete liveViewers[vid];
-        }
-      }
-      
-      async function endLive() {
-        isLive = false;
-        updateLiveButton();
-        Object.keys(liveViewers).forEach(id => {
-          if (liveViewers[id]) liveViewers[id].close();
-        });
-        liveViewers = {};
-        await deleteDoc(doc(db,'live',liveUserId)).catch(() => {});
-        if (liveUnsub) {
-          liveUnsub();
-          liveUnsub = null;
-        }
-        strangerCamera.classList.remove('live-active');
-      }
-      
-      async function toggleLive() {
-        if (isLive) {
-          await endLive();
-        } else {
-          if (!localStream) {
-            if (!await startCamera()) return;
           }
-          await startLive();
         }
-      }
-      
-      async function startCamera() {
+      });
+    }
+    
+    window.sendChatMsg = async (text) => { if (roomId) await addDoc(collection(db, 'rooms', roomId, 'messages'), { sender: myId, text, ts: serverTimestamp(), username: currentUser }); };
+    window.sendTokenFn = async (emoji, type) => { if (roomId) await addDoc(collection(db, 'rooms', roomId, 'tokens'), { sender: myId, senderUsername: currentUser, emoji, tokenType: type, ts: serverTimestamp() }); };
+    
+    async function startChat() {
+      if (!localStream) {
         try {
-          if (localStream) localStream.getTracks().forEach(t => t.stop());
-          localStream = await navigator.mediaDevices.getUserMedia({
-            video: {width: 480, height: 640, facingMode: 'user'},
-            audio: {echoCancellation: true, noiseSuppression: true}
-          });
-          myFeed.srcObject = localStream;
-          await myFeed.play();
-          myFeed.style.display = 'block';
-          myPlaceholder.style.display = 'none';
-          myCameraEl.classList.add('active');
-          return true;
-        } catch(e) {
-          return false;
-        }
+          localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: { echoCancellation: true, noiseSuppression: true } });
+          document.getElementById('myFeed').srcObject = localStream;
+          document.getElementById('myFeed').style.display = 'block';
+          document.getElementById('myPlaceholder').style.display = 'none';
+          document.getElementById('myCamera').classList.add('active');
+        } catch(e) { alert('Camera permission required'); return; }
       }
+      document.getElementById('strangerPlaceholder').innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Searching for stranger...</span>';
       
-      function stopCamera() {
-        if (localStream) {
-          localStream.getTracks().forEach(t => t.stop());
-          localStream = null;
-        }
-        myFeed.style.display = 'none';
-        myFeed.srcObject = null;
-        myPlaceholder.style.display = '';
-        myCameraEl.classList.remove('active');
-      }
+      // Atomic matchmaking
+      const waitingSnap = await getDocs(collection(db, 'waiting'));
+      let matched = null;
+      for (const d of waitingSnap.docs) if (d.data().userId !== myId) { matched = d.data().userId; break; }
       
-      function resetStranger() {
-        strangerStream = null;
-        strangerFeed.style.display = 'none';
-        strangerFeed.srcObject = null;
-        strangerPlaceholder.innerHTML = '<i class="fas fa-user-secret"></i><span>???</span>';
-        strangerPlaceholder.classList.remove('searching-text');
-        strangerCamera.classList.remove('connected','live-active');
-        isConnectedToStranger = false;
-        strangerUsername = '';
-        hideStrangerInfo();
-      }
-      
-      function showConnected(username) {
-        setButtonState('stop');
-        [nextBtn, nextBtnDesktop].forEach(btn => { if (btn) btn.classList.add('visible'); });
-        [micBtn, micBtnDesktop].forEach(btn => { if (btn) btn.classList.add('visible'); });
-        [chatToggleBtn, chatToggleBtnDesktop].forEach(btn => { if (btn) btn.classList.add('visible'); });
-        isConnectedToStranger = true;
-        strangerUsername = username || 'Stranger';
-        showStrangerInfo(strangerUsername);
-        addChatMessage(`🔗 Connected with ${strangerUsername}!`, false, '', true);
-      }
-      
-      function showDisconnected() {
-        setButtonState('start');
-        [nextBtn, nextBtnDesktop].forEach(btn => { if (btn) btn.classList.remove('visible'); });
-        [micBtn, micBtnDesktop].forEach(btn => { if (btn) btn.classList.remove('visible'); });
-        [chatToggleBtn, chatToggleBtnDesktop].forEach(btn => { 
-          if (btn) {
-            btn.classList.remove('visible');
-            btn.classList.remove('has-messages');
-          }
+      if (matched) {
+        await deleteDoc(doc(db, 'waiting', matched)).catch(()=>{});
+        await deleteDoc(doc(db, 'waiting', myId)).catch(()=>{});
+        roomId = [myId, matched].sort().join('_');
+        const offer = await createPeerConnection(true);
+        await setDoc(doc(db, 'rooms', roomId), { users: [myId, matched], createdAt: serverTimestamp() });
+        await setDoc(doc(db, 'invites', matched), { from: myId, fromUsername: currentUser, offer: { type: offer.type, sdp: offer.sdp } });
+        await listenRoomICE();
+        // listen chat & tokens
+        roomChatUnsub = onSnapshot(query(collection(db, 'rooms', roomId, 'messages'), orderBy('ts', 'asc')), (snap) => {
+          snap.docChanges().forEach(ch => { if (ch.type === 'added' && ch.doc.data().sender !== myId) addMessage(ch.doc.data().text, false, ch.doc.data().username); });
         });
-        pendingMessages = 0;
-        isConnectedToStranger = false;
-        strangerUsername = '';
-        hideStrangerInfo();
-      }
-      
-      function toggleMute() {
-        if (!localStream) return;
-        const t = localStream.getAudioTracks();
-        if (t.length > 0) {
-          isMuted = !isMuted;
-          t.forEach(t => t.enabled = !isMuted);
-          [micBtn, micBtnDesktop].forEach(btn => {
-            if (!btn) return;
-            btn.classList.toggle('muted', isMuted);
-            btn.querySelector('i').className = isMuted ? 'fas fa-microphone-slash' : 'fas fa-microphone';
+        roomTokenUnsub = onSnapshot(query(collection(db, 'rooms', roomId, 'tokens'), orderBy('ts', 'asc')), (snap) => {
+          snap.docChanges().forEach(async ch => {
+            if (ch.type === 'added' && ch.doc.data().sender !== myId) {
+              const data = ch.doc.data();
+              const ttype = data.tokenType;
+              if (tokenBalances[ttype] !== undefined) {
+                tokenBalances[ttype]++;
+                updateTokenUI();
+                await saveWallet();
+                addMessage(`🎁 Received ${data.emoji} from ${data.senderUsername || 'Stranger'}!`, false);
+                const float = document.createElement('span');
+                float.className = 'gift-float';
+                float.textContent = data.emoji;
+                float.style.left = (Math.random() * 60 + 20) + '%';
+                float.style.top = '55%';
+                document.getElementById('myCamera').appendChild(float);
+                setTimeout(() => float.remove(), 1500);
+              }
+            }
           });
-        }
-      }
-      
-      function listenForTokenTransfers() {
-        if (tokenTransferUnsub) {
-          tokenTransferUnsub();
-        }
-        
-        if (roomId) {
-          const tokensQuery = query(
-            collection(db, 'rooms', roomId, 'tokens'),
-            orderBy('timestamp', 'asc')
-          );
-          
-          tokenTransferUnsub = onSnapshot(tokensQuery, (snapshot) => {
-            snapshot.docChanges().forEach((change) => {
-              if (change.type === 'added') {
-                const tokenData = change.doc.data();
-                
-                if (tokenData.sender !== myId) {
-                  const tokenType = tokenData.tokenType;
-                  if (tokenType && tokenBalances[tokenType] !== undefined) {
-                    tokenBalances[tokenType]++;
-                    updateTokenDisplay();
-                    saveWalletBalances();
-                    
-                    const senderName = tokenData.senderUsername || 'Stranger';
-                    addChatMessage(`🎁 Received ${tokenData.emoji} from ${senderName}! Added to wallet. (${tokenBalances[tokenType]} total)`, false);
-                    
-                    const myCam = document.getElementById('myCamera');
+        });
+        setConnected('Stranger');
+      } else {
+        await setDoc(doc(db, 'waiting', myId), { userId: myId, username: currentUser, createdAt: serverTimestamp() });
+        const inviteUnsub = onSnapshot(doc(db, 'invites', myId), async (snap) => {
+          if (!snap.exists()) return;
+          const data = snap.data();
+          if (data.offer) {
+            await deleteDoc(doc(db, 'waiting', myId)).catch(()=>{});
+            await deleteDoc(doc(db, 'invites', myId)).catch(()=>{});
+            roomId = [myId, data.from].sort().join('_');
+            const answer = await createPeerConnection(false, data.offer);
+            await setDoc(doc(db, 'rooms', roomId), { users: [myId, data.from], createdAt: serverTimestamp() });
+            await setDoc(doc(db, 'invites', data.from), { answer: { type: answer.type, sdp: answer.sdp } });
+            await listenRoomICE();
+            roomChatUnsub = onSnapshot(query(collection(db, 'rooms', roomId, 'messages'), orderBy('ts', 'asc')), (snap) => {
+              snap.docChanges().forEach(ch => { if (ch.type === 'added' && ch.doc.data().sender !== myId) addMessage(ch.doc.data().text, false, ch.doc.data().username); });
+            });
+            roomTokenUnsub = onSnapshot(query(collection(db, 'rooms', roomId, 'tokens'), orderBy('ts', 'asc')), (snap) => {
+              snap.docChanges().forEach(async ch => {
+                if (ch.type === 'added' && ch.doc.data().sender !== myId) {
+                  const data = ch.doc.data();
+                  const ttype = data.tokenType;
+                  if (tokenBalances[ttype] !== undefined) {
+                    tokenBalances[ttype]++;
+                    updateTokenUI();
+                    await saveWallet();
+                    addMessage(`🎁 Received ${data.emoji} from ${data.senderUsername || 'Stranger'}!`, false);
                     const float = document.createElement('span');
                     float.className = 'gift-float';
-                    float.textContent = tokenData.emoji;
+                    float.textContent = data.emoji;
                     float.style.left = (Math.random() * 60 + 20) + '%';
                     float.style.top = '55%';
-                    myCam.appendChild(float);
+                    document.getElementById('myCamera').appendChild(float);
                     setTimeout(() => float.remove(), 1500);
                   }
                 }
-              }
-            });
-          });
-        }
-      }
-      
-      function listenForChatMessages() {
-        if (chatMessagesUnsub) {
-          chatMessagesUnsub();
-        }
-        
-        if (roomId) {
-          const messagesQuery = query(
-            collection(db, 'rooms', roomId, 'messages'),
-            orderBy('timestamp', 'asc')
-          );
-          
-          chatMessagesUnsub = onSnapshot(messagesQuery, (snapshot) => {
-            snapshot.docChanges().forEach((change) => {
-              if (change.type === 'added') {
-                const messageData = change.doc.data();
-                
-                if (messageData.messageId && messageCache.has(messageData.messageId)) {
-                  return;
-                }
-                
-                if (messageData.messageId) {
-                  messageCache.add(messageData.messageId);
-                }
-                
-                const isSelf = messageData.sender === myId;
-                
-                if (!isSelf || !messageData.messageId) {
-                  addChatMessage(messageData.text, isSelf, messageData.username);
-                } else {
-                  addChatMessage(messageData.text, true);
-                }
-              }
-            });
-          }, (error) => {
-            console.error("Chat listener error:", error);
-          });
-        }
-      }
-      
-      async function createRoom(oId, isCaller) {
-        roomId = [myId, oId].sort().join('_');
-        
-        let strangerUser = 'Stranger';
-        try {
-          const waitingDocs = await getDocs(collection(db, 'waiting'));
-          waitingDocs.forEach(d => {
-            if (d.data().userId === oId) {
-              strangerUser = d.data().username || 'Stranger';
-            }
-          });
-        } catch(e) {}
-        
-        showConnected(strangerUser);
-        
-        if (pc) {
-          pc.close();
-          pc = null;
-        }
-        
-        unsubs.forEach(u => u());
-        unsubs = [];
-        
-        pc = new RTCPeerConnection(servers);
-        localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
-        
-        pc.ontrack = (e) => {
-          if (e.streams[0]) {
-            strangerStream = e.streams[0];
-            strangerFeed.srcObject = e.streams[0];
-            strangerFeed.style.display = 'block';
-            strangerPlaceholder.innerHTML = '';
-            strangerCamera.classList.add('connected');
-          }
-        };
-        
-        pc.onicecandidate = async (e) => {
-          if (e.candidate) {
-            await addDoc(collection(doc(db,'rooms',roomId),'ice'), {
-              sender: myId,
-              candidate: e.candidate.toJSON()
-            });
-          }
-        };
-        
-        unsubs.push(onSnapshot(collection(doc(db,'rooms',roomId),'ice'), (snap) => {
-          snap.docChanges().forEach(async (c) => {
-            if (c.type === 'added' && c.doc.data().sender !== myId && pc) {
-              try {
-                await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate));
-              } catch(e) {}
-            }
-          });
-        }));
-        
-        if (isCaller) {
-          const offer = await pc.createOffer({offerToReceiveVideo: true, offerToReceiveAudio: true});
-          await pc.setLocalDescription(offer);
-          await setDoc(doc(db,'invites',oId), {
-            from: myId,
-            fromUsername: currentUser,
-            offer: {type: offer.type, sdp: offer.sdp}
-          });
-          unsubs.push(onSnapshot(doc(db,'invites',oId), async (snap) => {
-            const d = snap.data();
-            if (d?.answer && !pc.currentRemoteDescription) {
-              await pc.setRemoteDescription(new RTCSessionDescription(d.answer));
-            }
-          }));
-        }
-        
-        listenForChatMessages();
-        listenForTokenTransfers();
-      }
-      
-      function listenForInvites() {
-        unsubs.push(onSnapshot(doc(db,'invites',myId), async (snap) => {
-          if (!snap.exists()) return;
-          const d = snap.data();
-          await deleteDoc(doc(db,'waiting',myId)).catch(() => {});
-          roomId = [myId, d.from].sort().join('_');
-          
-          const strangerUser = d.fromUsername || 'Stranger';
-          showConnected(strangerUser);
-          
-          if (pc) {
-            pc.close();
-            pc = null;
-          }
-          
-          unsubs.forEach(u => u());
-          unsubs = [];
-          
-          pc = new RTCPeerConnection(servers);
-          localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
-          
-          pc.ontrack = (e) => {
-            if (e.streams[0]) {
-              strangerStream = e.streams[0];
-              strangerFeed.srcObject = e.streams[0];
-              strangerFeed.style.display = 'block';
-              strangerPlaceholder.innerHTML = '';
-              strangerCamera.classList.add('connected');
-            }
-          };
-          
-          pc.onicecandidate = async (e) => {
-            if (e.candidate) {
-              await addDoc(collection(doc(db,'rooms',roomId),'ice'), {
-                sender: myId,
-                candidate: e.candidate.toJSON()
               });
-            }
-          };
-          
-          if (d.offer && pc.signalingState !== 'closed') {
-            await pc.setRemoteDescription(new RTCSessionDescription(d.offer));
-            const answer = await pc.createAnswer();
-            await pc.setLocalDescription(answer);
-            await setDoc(doc(db,'invites',myId), {
-              fromUsername: currentUser,
-              answer: {type: answer.type, sdp: answer.sdp}
-            }, {merge: true});
+            });
+            setConnected(data.fromUsername || 'Stranger');
+            inviteUnsub();
           }
-          
-          unsubs.push(onSnapshot(collection(doc(db,'rooms',roomId),'ice'), (snap) => {
-            snap.docChanges().forEach(async (c) => {
-              if (c.type === 'added' && c.doc.data().sender !== myId && pc) {
-                try {
-                  await pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate));
-                } catch(e) {}
-              }
-            });
-          }));
-          
-          listenForChatMessages();
-          listenForTokenTransfers();
-        }));
-      }
-      
-      async function startChat() {
-        if (isLive) {
-          alert('Please END first.');
-          return;
-        }
-        
-        setButtonState('stop');
-        strangerPlaceholder.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span style="color:#fbbf24;">Searching...</span>';
-        strangerPlaceholder.classList.add('searching-text');
-        
-        if (!(await startCamera())) {
-          stopChat();
-          return;
-        }
-        
-        const snap = await getDocs(collection(db,'waiting'));
-        let found = null;
-        snap.forEach(d => {
-          if (d.data().userId !== myId && !found) found = d.data().userId;
         });
-        
-        if (found) {
-          await deleteDoc(doc(db,'waiting',myId)).catch(() => {});
-          await deleteDoc(doc(db,'waiting',found)).catch(() => {});
-          await createRoom(found, true);
-        } else {
-          await setDoc(doc(db,'waiting',myId), {userId: myId, username: currentUser});
-          listenForInvites();
-        }
+        unsubs.push(inviteUnsub);
       }
-      
-      function stopChat() {
-        if (pc) {
-          pc.close();
-          pc = null;
-        }
-        
-        unsubs.forEach(u => u());
-        unsubs = [];
-        
-        if (chatMessagesUnsub) {
-          chatMessagesUnsub();
-          chatMessagesUnsub = null;
-        }
-        
-        if (tokenTransferUnsub) {
-          tokenTransferUnsub();
-          tokenTransferUnsub = null;
-        }
-        
-        messageCache.clear();
-        
-        if (roomId) {
-          getDocs(collection(db, 'rooms', roomId, 'messages')).then((snapshot) => {
-            snapshot.forEach((doc) => {
-              deleteDoc(doc.ref).catch(() => {});
-            });
-          }).catch(() => {});
-          
-          getDocs(collection(db, 'rooms', roomId, 'tokens')).then((snapshot) => {
-            snapshot.forEach((doc) => {
-              deleteDoc(doc.ref).catch(() => {});
-            });
-          }).catch(() => {});
-          
-          deleteDoc(doc(db,'rooms',roomId)).catch(() => {});
-          roomId = null;
-        }
-        
-        deleteDoc(doc(db,'waiting',myId)).catch(() => {});
-        deleteDoc(doc(db,'invites',myId)).catch(() => {});
-        
-        if (isLive) endLive();
-        resetStranger();
-        stopCamera();
-        showDisconnected();
-        
-        chatMessages.innerHTML = '';
-        chatBox.classList.add('hidden');
-        chatVisible = false;
-      }
-      
-      window.addEventListener('beforeunload', () => {
-        saveWalletBalances();
-        if (isLive) endLive().catch(() => {});
-        if (pc) pc.close();
-        if (localStream) localStream.getTracks().forEach(t => t.stop());
-      });
     }
+    
+    async function stopChat() {
+      if (pc) { pc.close(); pc = null; }
+      cleanupRoom();
+      pendingICECandidates = [];
+      if (roomId) {
+        const rid = roomId;
+        setTimeout(async () => {
+          await deleteDoc(doc(db, 'rooms', rid)).catch(()=>{});
+          const msgs = await getDocs(collection(db, 'rooms', rid, 'messages'));
+          msgs.forEach(d => deleteDoc(d.ref).catch(()=>{}));
+          const tokens = await getDocs(collection(db, 'rooms', rid, 'tokens'));
+          tokens.forEach(d => deleteDoc(d.ref).catch(()=>{}));
+          const ice = await getDocs(collection(db, 'rooms', rid, 'ice'));
+          ice.forEach(d => deleteDoc(d.ref).catch(()=>{}));
+        }, 8000);
+        roomId = null;
+      }
+      await deleteDoc(doc(db, 'waiting', myId)).catch(()=>{});
+      await deleteDoc(doc(db, 'invites', myId)).catch(()=>{});
+      setDisconnected();
+      if (localStream) {
+        localStream.getTracks().forEach(t => t.stop());
+        localStream = null;
+        document.getElementById('myFeed').style.display = 'none';
+        document.getElementById('myFeed').srcObject = null;
+        document.getElementById('myPlaceholder').style.display = '';
+        document.getElementById('myCamera').classList.remove('active');
+      }
+      chatMessages.innerHTML = '';
+      chatBox.classList.add('hidden');
+      chatVisible = false;
+    }
+    
+    function toggleMute() {
+      if (!localStream) return;
+      const audio = localStream.getAudioTracks()[0];
+      if (audio) {
+        isMuted = !isMuted;
+        audio.enabled = !isMuted;
+        document.getElementById('micBtn').classList.toggle('muted', isMuted);
+        document.getElementById('micBtnDesktop')?.classList.toggle('muted', isMuted);
+        const icon = isMuted ? 'fa-microphone-slash' : 'fa-microphone';
+        document.getElementById('micBtn').querySelector('i').className = `fas ${icon}`;
+        document.getElementById('micBtnDesktop').querySelector('i').className = `fas ${icon}`;
+      }
+    }
+    
+    document.getElementById('startStopBtn').onclick = () => { if (document.getElementById('startStopBtn').classList.contains('stop-state')) stopChat(); else startChat(); };
+    document.getElementById('startStopBtnDesktop').onclick = () => { if (document.getElementById('startStopBtnDesktop').classList.contains('stop-state')) stopChat(); else startChat(); };
+    document.getElementById('nextBtn').onclick = () => { stopChat(); setTimeout(startChat, 500); };
+    document.getElementById('nextBtnDesktop').onclick = () => { stopChat(); setTimeout(startChat, 500); };
+    document.getElementById('micBtn').onclick = toggleMute;
+    document.getElementById('micBtnDesktop').onclick = toggleMute;
+    
+    window.addEventListener('beforeunload', () => { if (pc) pc.close(); if (localStream) localStream.getTracks().forEach(t => t.stop()); saveWallet(); });
   </script>
 </body>
 </html>

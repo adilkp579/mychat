@@ -77,7 +77,6 @@
     .sent .voice-wave-bar { background:#000; }.received .voice-wave-bar { background:#fff; }
     .voice-duration { font-size:0.55rem;opacity:0.7;min-width:60px;text-align:right; }
     .message-image { max-width:200px;max-height:200px;border-radius:0.8rem;object-fit:cover;cursor:pointer; }
-
     .settings-badge { font-size:0.5rem;color:#a78bfa;margin-top:0.15rem;display:flex;align-items:center;gap:0.2rem;background:rgba(139,92,246,0.2);padding:3px 7px;border-radius:4px;width:fit-content; }
     .settings-options { margin-top:6px;display:flex;gap:4px;flex-wrap:wrap; }
     .settings-opt-btn { padding:0.35rem 0.8rem;border-radius:1rem;border:none;font-size:0.55rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:0.2rem;transition:all 0.2s; }
@@ -85,7 +84,6 @@
     .settings-opt-btn.lock-btn:hover { background:rgba(139,92,246,0.35); }
     .settings-opt-btn.chat-btn { background:rgba(255,255,255,0.08);color:#ccc;border:1px solid rgba(255,255,255,0.1); }
     .settings-opt-btn.chat-btn:hover { background:rgba(255,255,255,0.15); }
-
     .recording-bar { display:none;align-items:center;gap:0.5rem;padding:0.4rem 1rem;background:#0a0a0a;border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0; }
     .recording-bar.show { display:flex; }
     .recording-dot { width:10px;height:10px;border-radius:50%;background:#ef4444;animation:recPulse 0.8s infinite; }
@@ -103,7 +101,6 @@
     .chat-input:focus { border-color:#FFFC00; }
     .send-btn { width:38px;height:38px;border-radius:50%;background:#FFFC00;border:none;color:#000;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s; }
     .empty-chat { flex:1;display:flex;align-items:center;justify-content:center;color:#333;font-size:0.8rem; }
-
     .lock-options-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:500;display:none;align-items:center;justify-content:center;padding:1rem; }
     .lock-options-overlay.show { display:flex; }
     .lock-options-modal { background:#1a1a1a;border-radius:1.2rem;padding:1.5rem;width:100%;max-width:340px;animation:popIn 0.3s ease;border:1px solid rgba(255,255,255,0.1);display:flex;flex-direction:column;gap:0.8rem; }
@@ -115,7 +112,6 @@
     .lock-option-btn.new-lock { color:#a78bfa;border-color:rgba(139,92,246,0.3); }
     .lock-option-btn.existing-lock { color:#f59e0b;border-color:rgba(245,158,11,0.3); }
     .lock-option-btn.cancel-btn { color:#ef4444;border-color:rgba(239,68,68,0.3);justify-content:center; }
-
     .new-chat-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.2);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:400;display:none;align-items:center;justify-content:center;padding:1rem; }
     .new-chat-overlay.show { display:flex; }
     .new-chat-modal { background:rgba(255,255,255,0.03);backdrop-filter:blur(60px) saturate(180%);-webkit-backdrop-filter:blur(60px) saturate(180%);border-radius:1.5rem;padding:0;width:100%;max-width:420px;max-height:80vh;display:flex;flex-direction:column;border:1px solid rgba(255,255,255,0.08);box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 0 1px rgba(255,255,255,0.03) inset;overflow:hidden;position:relative; }
@@ -216,14 +212,18 @@
     let mediaRecorder=null,audioChunks=[],voiceTimer=null,voiceSeconds=0,isRecording=false;
     let localStream=null,peerConnection=null,callUnsub=null,callDocRef=null;
     let isCallActive=false,isCaller=false,callType='audio',isMuted=false,isVideoOff=false;
-    let newChatActiveTab='users',messageRequests=[];
-    let lockOptionsUser=null,lockOptionsMsgId=null;
+    let newChatActiveTab='users',messageRequests=[],lockOptionsUser=null,lockOptionsMsgId=null;
     const servers={iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:"stun:stun1.l.google.com:19302"}]};
     
     document.getElementById('loadingScreen').style.display='none';document.getElementById('mainPage').style.display='flex';
     loadAllUsers();setupRealtimeChatList();listenForIncomingCalls();loadMessageRequests();
     const preSelectedUser=sessionStorage.getItem('openChatWith');
     if(preSelectedUser){sessionStorage.removeItem('openChatWith');setTimeout(()=>{openChat(preSelectedUser)},800);}
+
+    // ✅ Dismiss system
+    function hasDismissedSettings(username){try{const d=JSON.parse(localStorage.getItem('dismissed_settings_'+currentUserId)||'{}');return d[username]===true}catch(e){return false}}
+    function dismissSettingsUser(username){try{const d=JSON.parse(localStorage.getItem('dismissed_settings_'+currentUserId)||'{}');d[username]=true;localStorage.setItem('dismissed_settings_'+currentUserId,JSON.stringify(d))}catch(e){}}
+    window.dismissAndContinue=function(username,msgId){dismissSettingsUser(username);document.querySelectorAll('.settings-options').forEach(el=>el.remove())};
 
     function cleanName(u){return(u||'').replace(/^@/,'');}
     function formatDuration(s){const m=Math.floor(s/60);const sec=Math.floor(s%60);return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');}
@@ -234,7 +234,7 @@
     window.closeLockOptions=function(){document.getElementById('lockOptionsOverlay').classList.remove('show');lockOptionsUser=null;};
     window.goToNewLock=function(){if(lockOptionsUser){sessionStorage.setItem('settingsAddUser',lockOptionsUser);sessionStorage.setItem('settingsNewLock','true');}document.getElementById('lockOptionsOverlay').classList.remove('show');window.location.href='settings.html';};
     window.goToExistingLock=function(){if(lockOptionsUser){sessionStorage.setItem('settingsAddUser',lockOptionsUser);}document.getElementById('lockOptionsOverlay').classList.remove('show');window.location.href='settings.html';};
-    window.continueInChat=function(){document.getElementById('lockOptionsOverlay').classList.remove('show');if(lockOptionsMsgId){const msgEl=document.getElementById('msg-'+lockOptionsMsgId);if(msgEl){const opt=msgEl.querySelector('.settings-options');if(opt)opt.remove();}}lockOptionsUser=null;lockOptionsMsgId=null;};
+    window.continueInChat=function(){dismissSettingsUser(lockOptionsUser);document.getElementById('lockOptionsOverlay').classList.remove('show');document.querySelectorAll('.settings-options').forEach(el=>el.remove());lockOptionsUser=null;};
     document.getElementById('lockOptionsOverlay').addEventListener('click',function(e){if(e.target===this)closeLockOptions();});
 
     async function loadMessageRequests(){try{const snap=await getDocs(collection(db,'message_requests'));messageRequests=[];snap.forEach(doc=>{const d=doc.data();if(d.to===currentUserId||d.to===currentUser||d.to===currentUser.replace('@','')){messageRequests.push({id:doc.id,...d});}});updateRequestBadge();}catch(e){}}
@@ -302,7 +302,8 @@
       if(msg.imageUrl){w.innerHTML=`<div class="message-bubble"><img src="${msg.imageUrl}" class="message-image" onclick="window.open('${msg.imageUrl}')" loading="lazy"><div class="message-time">${time}</div>${isFromSettings?'<div class="settings-badge"><i class="fas fa-shield-halved"></i> From Settings</div>':''}</div>`;}
       else if(msg.audioUrl){const dur=msg.audioDuration||0;w.innerHTML=`<div class="message-bubble voice-msg" data-audio="${msg.audioUrl}" data-duration="${dur}" onclick="playVoice(this)"><button class="voice-play-btn"><i class="fas fa-play"></i></button><div class="voice-wave-container">${genBars(18)}</div><span class="voice-duration">0:00 / ${formatDuration(dur)}</span><div class="message-time">${time}</div>${isFromSettings?'<div class="settings-badge"><i class="fas fa-shield-halved"></i> From Settings</div>':''}</div>`;}
       else {w.innerHTML=`<div class="message-bubble">${msg.text||''}<div class="message-time">${time}</div>${isFromSettings?'<div class="settings-badge"><i class="fas fa-shield-halved"></i> From Settings</div>':''}</div>`;}
-      if(isFromSettings&&!isSent){w.innerHTML+=`<div class="settings-options"><button class="settings-opt-btn lock-btn" onclick="showLockOptions('${chatPartner}','${id}')"><i class="fas fa-lock"></i> Add to Lock</button><button class="settings-opt-btn chat-btn" onclick="this.parentElement.remove()"><i class="fas fa-comment-dots"></i> Continue</button></div>`;}
+      // ✅ Show options only if not dismissed
+      if(isFromSettings&&!isSent&&!hasDismissedSettings(chatPartner)){w.innerHTML+=`<div class="settings-options"><button class="settings-opt-btn lock-btn" onclick="showLockOptions('${chatPartner}','${id}')"><i class="fas fa-lock"></i> Add to Lock</button><button class="settings-opt-btn chat-btn" onclick="dismissAndContinue('${chatPartner}','${id}')"><i class="fas fa-comment-dots"></i> Continue</button></div>`;}
       c.insertBefore(w,tb);if(!isSent&&!msg.seen){setDoc(doc(db,'chats',chatId,'messages',id),{seen:true},{merge:true}).catch(()=>{});}
     }
     

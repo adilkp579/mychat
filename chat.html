@@ -141,12 +141,12 @@
     .requested-label { color:#f59e0b;font-size:0.6rem;padding:0.3rem 0.6rem;border-radius:0.8rem;background:rgba(245,158,11,0.05); }
     .new-badge { background:rgba(74,222,128,0.1);color:#4ade80;font-size:0.5rem;padding:2px 6px;border-radius:6px;margin-left:8px;font-weight:700; }
     
-    /* WhatsApp Style Call UI - No mirroring on remote video */
+    /* WhatsApp Style Call UI - NO MIRRORING on any video */
     .call-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:#000;z-index:600;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.96);backdrop-filter:blur(20px); }
     .call-overlay.show { display:flex; }
     .call-video-container { position:relative;width:100%;flex:1;display:flex;align-items:center;justify-content:center;background:#0a0a0a;overflow:hidden; }
-    .call-remote-video { width:100%;height:100%;object-fit:cover;background:#111;transform:scaleX(1); } /* No mirroring */
-    .call-local-video { position:absolute;bottom:24px;right:16px;width:110px;height:150px;border-radius:20px;object-fit:cover;border:2px solid rgba(255,255,255,0.4);background:#1a1a1a;z-index:10;box-shadow:0 8px 20px rgba(0,0,0,0.5);cursor:pointer;transform:scaleX(-1); } /* Self-view mirror for natural feel */
+    .call-remote-video { width:100%;height:100%;object-fit:cover;background:#111;transform:scaleX(1); } /* NO MIRROR - NORMAL VIEW */
+    .call-local-video { position:absolute;bottom:24px;right:16px;width:110px;height:150px;border-radius:20px;object-fit:cover;border:2px solid rgba(255,255,255,0.4);background:#1a1a1a;z-index:10;box-shadow:0 8px 20px rgba(0,0,0,0.5);cursor:pointer;transform:scaleX(1); } /* NO MIRROR - NORMAL VIEW */
     .call-controls { position:absolute;bottom:40px;left:0;right:0;display:flex;justify-content:center;gap:1.2rem;padding:0.8rem;background:rgba(0,0,0,0.7);backdrop-filter:blur(30px);border-radius:80px;width:fit-content;margin:0 auto;z-index:20; }
     .call-ctrl-btn { width:64px;height:64px;border-radius:50%;border:none;font-size:1.6rem;cursor:pointer;transition:0.15s;background:#2c2c2e;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.3); }
     .call-ctrl-btn:active { transform:scale(0.96); }
@@ -218,7 +218,7 @@
     </div>
     <div class="new-chat-overlay" id="newChatOverlay"><div class="new-chat-modal"><div class="new-chat-tabs"><div class="new-chat-tab active" onclick="switchNewChatTab('users', this)">👥 Users</div><div class="new-chat-tab" onclick="switchNewChatTab('requests', this)">📩 Requests <span class="tab-badge" id="requestBadge" style="display:none;">0</span></div></div><div class="new-chat-search" id="newChatSearchBox"><input type="text" id="newChatSearchInput" placeholder="🔍 Search users..." oninput="filterNewChatList()"></div><div class="new-chat-list" id="newChatList"></div><div class="new-chat-close" onclick="closeNewChatModal()">Close ✕</div></div></div>
     
-    <!-- CALL UI with Flip Camera Button -->
+    <!-- CALL UI with Flip Camera Button - NO MIRRORING -->
     <div class="call-overlay" id="callOverlay">
       <div class="call-video-container" id="videoCallContainer">
         <video id="callRemoteVideo" class="call-remote-video" autoplay playsinline></video>
@@ -287,7 +287,7 @@
       return peerConnection;
     }
     
-    // Flip Camera Function
+    // Flip Camera Function - maintains normal (non-mirrored) view
     window.flipCamera = async function() {
       if(!localStream || callType !== 'video') return;
       const videoTrack = localStream.getVideoTracks()[0];
@@ -301,7 +301,6 @@
         localStream.removeTrack(oldVideoTrack);
         localStream.addTrack(newVideoTrack);
         oldVideoTrack.stop();
-        // Update peerConnection tracks
         const senders = peerConnection.getSenders();
         const videoSender = senders.find(s => s.track && s.track.kind === 'video');
         if(videoSender) await videoSender.replaceTrack(newVideoTrack);
@@ -312,7 +311,7 @@
     document.getElementById('loadingScreen').style.display='none';document.getElementById('mainPage').style.display='flex';
     loadAllUsers();setupRealtimeChatList();listenForIncomingCalls();loadMessageRequests();
     
-    // [All existing chat functions - kept identical]
+    // [All existing chat functions - kept identical, reduced for brevity but fully functional]
     function hasDismissedSettings(username){try{const d=JSON.parse(localStorage.getItem('dismissed_settings_'+currentUserId)||'{}');return d[username]===true}catch(e){return false}}
     function dismissSettingsUser(username){try{const d=JSON.parse(localStorage.getItem('dismissed_settings_'+currentUserId)||'{}');d[username]=true;localStorage.setItem('dismissed_settings_'+currentUserId,JSON.stringify(d))}catch(e){}}
     window.dismissAndContinue=function(username,msgId){dismissSettingsUser(username);document.querySelectorAll('.settings-options').forEach(el=>el.remove())};

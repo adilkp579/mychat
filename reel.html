@@ -23,14 +23,40 @@
       width:100%;height:100vh;height:100dvh;
       scroll-snap-align:start;
       position:relative;
-      display:flex;align-items:center;justify-content:center;
-      background:#000;flex-shrink:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#000;
+      flex-shrink:0;
     }
+    
+    /* VIDEO FIX: Full screen but NOT over-zoomed - maintains original aspect ratio */
     .reel-slide video {
-      width:100%;height:100%;
-      object-fit:contain;background:#000;
-      position:absolute;top:0;left:0;
+      width:100%;
+      height:100%;
+      object-fit:contain;  /* Maintains original aspect ratio, no cropping/zooming */
+      background:#000;
+      position:absolute;
+      top:0;
+      left:0;
     }
+    
+    /* For portrait videos, they will be centered with black bars on sides */
+    /* For landscape videos, they will be centered with black bars top/bottom */
+    
+    .video-loading {
+      position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+      width:40px;height:40px;border:3px solid rgba(255,255,255,0.3);
+      border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite;
+      z-index:6;pointer-events:none;
+    }
+    .video-error {
+      position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+      color:rgba(255,255,255,0.5);font-size:0.8rem;text-align:center;
+      background:rgba(0,0,0,0.6);padding:8px 16px;border-radius:20px;
+      z-index:6;pointer-events:none;
+    }
+    @keyframes spin { to { transform: translate(-50%,-50%) rotate(360deg); } }
 
     .user-tag { position:absolute;top:1rem;left:1rem;display:flex;align-items:center;gap:0.5rem;background:rgba(0,0,0,0.5);backdrop-filter:blur(10px);padding:0.4rem 0.8rem;border-radius:1.5rem;z-index:10;border:1px solid rgba(255,255,255,0.1); }
     .user-tag .avatar { width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:#fff; }
@@ -45,7 +71,7 @@
     .caption-bar { position:absolute;bottom:1rem;left:1rem;right:5rem;z-index:10; }
     .caption-text { color:#fff;font-size:0.8rem;background:rgba(0,0,0,0.4);padding:0.5rem 0.8rem;border-radius:0.5rem;display:inline-block;max-width:100%; }
 
-    .play-overlay { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:4rem;color:rgba(255,255,255,0.4);pointer-events:none;z-index:5; }
+    .play-overlay { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:4rem;color:rgba(255,255,255,0.4);pointer-events:none;z-index:5;transition:opacity 0.2s; }
 
     .empty-state { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;color:#555; }
     .empty-state i { font-size:3rem;display:block;margin-bottom:0.5rem; }
@@ -53,9 +79,7 @@
     .toast { position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:0.5rem 1rem;border-radius:2rem;font-size:0.7rem;z-index:400;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap; }
     .toast.show { opacity:1; }
 
-    @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-
-    /* 🌟 ULTRA TRANSPARENT GLASSMORPHISM NAVBAR */
+    /* 🌟 ULTRA TRANSPARENT GLASSMORPHISM NAVBAR - UNCHANGED */
     .floating-nav {
       position: fixed;
       bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
@@ -63,24 +87,16 @@
       transform: translateX(-50%);
       width: 92%;
       max-width: 500px;
-      
-      /* Completely transparent background */
       background: transparent;
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
-      
       border-radius: 2.5rem;
       padding: 0.7rem 1.5rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      
-      /* Almost invisible border */
       border: 1px solid rgba(255, 255, 255, 0.04);
-      
-      /* No shadow - maximum visibility */
       box-shadow: none;
-      
       z-index: 100;
       transition: all 0.3s ease;
       pointer-events: auto;
@@ -116,7 +132,6 @@
       text-decoration: none;
       position: relative;
       background: transparent;
-      /* Strong text shadow for visibility on any background */
       text-shadow: 0 0 8px rgba(0, 0, 0, 0.8), 0 0 12px rgba(0, 0, 0, 0.6);
     }
     
@@ -169,7 +184,6 @@
 
     @media (min-width: 1024px) {
       .nav-upload, .nav-search { display: flex !important; }
-      
       .floating-nav {
         position: fixed;
         top: 50%;
@@ -182,25 +196,20 @@
         border-radius: 2.5rem;
         padding: 1rem 0.6rem;
         flex-direction: column;
-        
-        /* Same ultra-transparent glass for desktop */
         background: transparent;
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
       }
-      
       .nav-center {
         flex-direction: column;
         gap: 1.2rem;
         max-width: none;
       }
-      
       .nav-center a {
         font-size: 1.4rem;
         width: 2.6rem;
         height: 2.6rem;
       }
-      
       .nav-center a::before {
         bottom: auto;
         right: -4px;
@@ -208,14 +217,19 @@
         top: 50%;
         transform: translateY(-50%) scale(0);
       }
-      
       .nav-center a.active::before {
         transform: translateY(-50%) scale(1);
       }
-      
       .reel-wrapper { margin-left: 5rem; }
       .reel-slide { max-width: 500px; margin: 0 auto; }
       .actions-bar { right: 2rem; bottom: 35%; }
+    }
+    
+    /* iOS Safari specific - maintain contain */
+    @supports (-webkit-touch-callout: none) {
+      .reel-slide video {
+        object-fit: contain;
+      }
     }
   </style>
 </head>
@@ -226,7 +240,7 @@
     </div>
     <div class="toast" id="toast"></div>
 
-    <!-- 🌟 Ultra Transparent Glassmorphism Navbar -->
+    <!-- 🌟 Ultra Transparent Glassmorphism Navbar - EXACTLY AS IS -->
     <nav class="floating-nav">
       <div class="nav-center">
         <a href="index.html"><i class="fas fa-home"></i></a>
@@ -246,126 +260,430 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, collection, query, orderBy, limit, startAfter, getDocs, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, collection, query, orderBy, limit, startAfter, getDocs, doc, updateDoc, increment, writeBatch } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
-    const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",
+      authDomain: "mychat-a97bf.firebaseapp.com",
+      projectId: "mychat-a97bf"
+    };
+    const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app);
 
-    const reelData = [];
-    const mountedSlides = new Set();
-    let currentIndex = 0;
-    let lastDoc = null;
-    let isLoadingMore = false;
-    let allLoaded = false;
-    const PAGE_SIZE = 5;
-    let isTransitioning = false;
-    let scrollTick = false;
-
+    // ========== OPTIMIZED REEL PLAYER ==========
     const wrapper = document.getElementById('reelWrapper');
     const toast = document.getElementById('toast');
     const emptyState = document.getElementById('emptyState');
 
-    function createSlideHTML(reel, index) {
-      return `
-        <div class="reel-slide" data-index="${index}" id="slide${index}">
-          <video id="video${index}" muted loop playsinline webkit-playsinline preload="none"></video>
-          <div class="play-overlay" id="overlay${index}"><i class="fas fa-play-circle"></i></div>
-          <div class="user-tag" onclick="event.stopPropagation();window.location.href='profile.html?user=${encodeURIComponent(reel.username)}'">
-            <div class="avatar"><i class="fas fa-user"></i></div>
-            <span class="name">${escapeHTML(reel.username)}</span>
-          </div>
-          <div class="actions-bar">
-            <button class="action-btn ${reel.liked?'liked':''}" data-action="like" data-index="${index}" onclick="event.stopPropagation();window._toggleLike(${index})">
-              <i class="${reel.liked?'fas':'far'} fa-heart"></i>
-              <span id="likes${index}">${reel.likes||0}</span>
-            </button>
-            <button class="action-btn" data-action="comment" data-index="${index}" onclick="event.stopPropagation();showToast('Comments coming soon! 💬')">
-              <i class="far fa-comment"></i>
-              <span>${reel.comments||0}</span>
-            </button>
-            <button class="action-btn" data-action="share" data-index="${index}" onclick="event.stopPropagation();window._shareReel(${index})">
-              <i class="far fa-share-square"></i>
-              <span>Share</span>
-            </button>
-          </div>
-          ${reel.caption ? `<div class="caption-bar"><div class="caption-text">${escapeHTML(reel.caption)}</div></div>` : ''}
-        </div>`;
-    }
-
+    let reelData = [];
+    let mountedSlides = new Map();
+    let currentIndex = 0;
+    let lastDoc = null;
+    let isLoadingMore = false;
+    let allLoaded = false;
+    let scrollHandlerActive = true;
+    let videoObserver = null;
+    let retryCounts = new Map();
+    
+    const PAGE_SIZE = 6;
+    const PRELOAD_BUFFER = 2;
+    const CACHE_KEY = 'reels_cache_v1';
+    const CACHE_TTL = 5 * 60 * 1000;
+    
+    // ========== HELPER FUNCTIONS ==========
     function escapeHTML(str) {
+      if (!str) return '';
       const div = document.createElement('div');
-      div.textContent = str || '';
+      div.textContent = str;
       return div.innerHTML;
     }
-
-    // ✅ Video click = play/pause
-    wrapper.addEventListener('click', (e) => {
-      const slide = e.target.closest('.reel-slide');
-      if (!slide) return;
-      const index = parseInt(slide.dataset.index);
-      
-      // Only toggle play if clicking on video or overlay (not buttons)
-      if (e.target.tagName === 'VIDEO' || e.target.closest('.play-overlay')) {
-        togglePlay(index);
-      }
-    });
-
-    // ✅ Expose functions globally with double-tap like detection
-    let lastTapTime = 0;
     
-    window._toggleLike = async function(index) {
-      const now = Date.now();
+    function showToast(msg, duration = 2000) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      if (toast._timer) clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => toast.classList.remove('show'), duration);
+    }
+    
+    function isVideoValid(src) {
+      if (!src || typeof src !== 'string') return false;
+      return src.startsWith('blob:') || src.startsWith('data:video/') || 
+             src.match(/\.(mp4|webm|mov|m4v)($|\?)/i) ||
+             src.includes('firebasestorage.googleapis.com');
+    }
+    
+    // ========== VIDEO LOADING WITH RETRY ==========
+    async function loadVideoWithRetry(videoElement, src, maxRetries = 2) {
+      return new Promise((resolve) => {
+        if (!videoElement || !src) {
+          resolve(false);
+          return;
+        }
+        
+        const attempts = retryCounts.get(src) || 0;
+        if (attempts > maxRetries) {
+          showVideoError(videoElement.parentElement, 'Failed to load video');
+          resolve(false);
+          return;
+        }
+        
+        const showLoading = () => {
+          const slide = videoElement.closest('.reel-slide');
+          if (slide && !slide.querySelector('.video-loading')) {
+            const loader = document.createElement('div');
+            loader.className = 'video-loading';
+            loader.style.cssText = 'top:50%;left:50%;transform:translate(-50%,-50%);';
+            slide.appendChild(loader);
+            videoElement._loader = loader;
+          }
+        };
+        
+        const hideLoading = () => {
+          if (videoElement._loader) {
+            videoElement._loader.remove();
+            videoElement._loader = null;
+          }
+          const slide = videoElement.closest('.reel-slide');
+          const errorDiv = slide?.querySelector('.video-error');
+          if (errorDiv) errorDiv.remove();
+        };
+        
+        videoElement.oncanplay = () => {
+          hideLoading();
+          resolve(true);
+        };
+        
+        videoElement.onerror = () => {
+          hideLoading();
+          retryCounts.set(src, attempts + 1);
+          console.warn(`Video load error, retry ${attempts + 1}/${maxRetries}:`, src);
+          if (attempts < maxRetries) {
+            setTimeout(() => loadVideoWithRetry(videoElement, src, maxRetries), 500);
+          } else {
+            showVideoError(videoElement.closest('.reel-slide'), 'Video unavailable');
+            resolve(false);
+          }
+        };
+        
+        if (videoElement.src !== src) {
+          videoElement.preload = 'metadata';
+          showLoading();
+          videoElement.src = src;
+          videoElement.load();
+        } else {
+          resolve(true);
+        }
+      });
+    }
+    
+    function showVideoError(slide, message) {
+      if (!slide) return;
+      const existing = slide.querySelector('.video-error');
+      if (existing) return;
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'video-error';
+      errorDiv.textContent = message || '⚠️ Failed to load';
+      slide.appendChild(errorDiv);
+      setTimeout(() => errorDiv.remove(), 3000);
+    }
+    
+    // ========== VIDEO PLAYBACK CONTROL ==========
+    async function playVideo(index, forcePlay = false) {
+      const slide = document.getElementById(`slide${index}`);
+      if (!slide) return;
+      
+      const video = slide.querySelector('video');
+      const overlay = slide.querySelector('.play-overlay');
+      
+      if (!video) return;
+      
+      if (!forcePlay && index !== currentIndex) return;
+      
+      const reel = reelData[index];
+      if (reel && (!video.src || video.src !== reel.src)) {
+        const success = await loadVideoWithRetry(video, reel.src);
+        if (!success) return;
+      }
+      
+      try {
+        await video.play();
+        if (overlay) overlay.style.opacity = '0';
+        video._isPlaying = true;
+      } catch (err) {
+        console.log('Play error:', err.message);
+        if (overlay) overlay.style.opacity = '1';
+        video._isPlaying = false;
+      }
+    }
+    
+    function pauseVideo(index) {
+      const slide = document.getElementById(`slide${index}`);
+      if (!slide) return;
+      const video = slide.querySelector('video');
+      const overlay = slide.querySelector('.play-overlay');
+      if (video && !video.paused) {
+        video.pause();
+        video._isPlaying = false;
+        if (overlay) overlay.style.opacity = '1';
+      }
+    }
+    
+    function pauseAllExcept(activeIndex) {
+      for (let i = 0; i < reelData.length; i++) {
+        if (i !== activeIndex) pauseVideo(i);
+      }
+    }
+    
+    // ========== INTERSECTION OBSERVER ==========
+    function setupVideoObserver() {
+      if (videoObserver) videoObserver.disconnect();
+      
+      videoObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          const slide = entry.target.closest('.reel-slide');
+          if (!slide) return;
+          const index = parseInt(slide.dataset.index);
+          if (isNaN(index)) return;
+          
+          const video = slide.querySelector('video');
+          if (entry.isIntersecting) {
+            if (video && reelData[index] && (!video.src || video.src !== reelData[index].src)) {
+              video.preload = 'auto';
+              if (video.src !== reelData[index].src) {
+                video.src = reelData[index].src;
+                video.load();
+              }
+            }
+          } else {
+            if (video && video._isPlaying) {
+              video.pause();
+              video._isPlaying = false;
+              const overlay = slide.querySelector('.play-overlay');
+              if (overlay) overlay.style.opacity = '1';
+            }
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '200px' });
+      
+      return videoObserver;
+    }
+    
+    // ========== RENDER SLIDE ==========
+    function createSlideElement(reel, index) {
+      const slide = document.createElement('div');
+      slide.className = 'reel-slide';
+      slide.id = `slide${index}`;
+      slide.dataset.index = index;
+      
+      slide.innerHTML = `
+        <video id="video${index}" muted loop playsinline webkit-playsinline preload="none"></video>
+        <div class="play-overlay" id="overlay${index}"><i class="fas fa-play-circle"></i></div>
+        <div class="user-tag" data-username="${escapeHTML(reel.username)}">
+          <div class="avatar"><i class="fas fa-user"></i></div>
+          <span class="name">${escapeHTML(reel.username)}</span>
+        </div>
+        <div class="actions-bar">
+          <button class="action-btn ${reel.liked ? 'liked' : ''}" data-action="like" data-index="${index}">
+            <i class="${reel.liked ? 'fas' : 'far'} fa-heart"></i>
+            <span class="likes-count">${reel.likes || 0}</span>
+          </button>
+          <button class="action-btn" data-action="comment">
+            <i class="far fa-comment"></i>
+            <span>${reel.comments || 0}</span>
+          </button>
+          <button class="action-btn" data-action="share">
+            <i class="far fa-share-square"></i>
+            <span>Share</span>
+          </button>
+        </div>
+        ${reel.caption ? `<div class="caption-bar"><div class="caption-text">${escapeHTML(reel.caption)}</div></div>` : ''}
+      `;
+      
+      const likeBtn = slide.querySelector('[data-action="like"]');
+      const commentBtn = slide.querySelector('[data-action="comment"]');
+      const shareBtn = slide.querySelector('[data-action="share"]');
+      const userTag = slide.querySelector('.user-tag');
+      
+      if (likeBtn) likeBtn.addEventListener('click', (e) => { e.stopPropagation(); handleLike(index); });
+      if (commentBtn) commentBtn.addEventListener('click', (e) => { e.stopPropagation(); showToast('Comments coming soon! 💬'); });
+      if (shareBtn) shareBtn.addEventListener('click', (e) => { e.stopPropagation(); handleShare(index); });
+      if (userTag) userTag.addEventListener('click', (e) => { e.stopPropagation(); window.location.href = `profile.html?user=${encodeURIComponent(reel.username)}`; });
+      
+      const video = slide.querySelector('video');
+      const overlay = slide.querySelector('.play-overlay');
+      if (video) {
+        video.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(index); });
+        if (overlay) overlay.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(index); });
+      }
+      
+      return slide;
+    }
+    
+    // ========== LIKE HANDLER ==========
+    let pendingLikeUpdates = new Map();
+    let likeBatchTimer = null;
+    
+    function flushLikeUpdates() {
+      if (pendingLikeUpdates.size === 0) return;
+      const batch = writeBatch(db);
+      for (const [docId, delta] of pendingLikeUpdates) {
+        if (docId && !docId.startsWith('local_')) {
+          const ref = doc(db, 'posts', docId);
+          batch.update(ref, { likes: increment(delta) });
+        }
+      }
+      batch.commit().catch(console.error);
+      pendingLikeUpdates.clear();
+    }
+    
+    async function handleLike(index) {
       const reel = reelData[index];
       if (!reel) return;
       
-      reel.liked = !reel.liked;
-      reel.likes += reel.liked ? 1 : -1;
+      const newLiked = !reel.liked;
+      const delta = newLiked ? 1 : -1;
       
-      // Update UI
-      const likesSpan = document.getElementById('likes' + index);
-      if (likesSpan) likesSpan.textContent = reel.likes;
+      reel.liked = newLiked;
+      reel.likes = Math.max(0, (reel.likes || 0) + delta);
       
-      const slide = document.getElementById('slide' + index);
-      const likeBtn = slide?.querySelector('[data-action="like"]');
-      if (likeBtn) {
-        likeBtn.classList.toggle('liked', reel.liked);
-        const icon = likeBtn.querySelector('i');
-        if (icon) icon.className = reel.liked ? 'fas fa-heart' : 'far fa-heart';
-      }
-      
-      showToast(reel.liked ? 'Liked! ❤️' : 'Unliked');
-      
-      // Save to Firebase
-      if (!reel.id.startsWith('local_')) {
-        try { 
-          await updateDoc(doc(db, 'posts', reel.id), { 
-            likes: increment(reel.liked ? 1 : -1) 
-          }); 
-        } catch(e) {
-          console.error('Like save error:', e);
+      const slide = document.getElementById(`slide${index}`);
+      if (slide) {
+        const likeBtn = slide.querySelector('[data-action="like"]');
+        const likesSpan = slide.querySelector('.likes-count');
+        if (likeBtn) {
+          likeBtn.classList.toggle('liked', newLiked);
+          const icon = likeBtn.querySelector('i');
+          if (icon) icon.className = newLiked ? 'fas fa-heart' : 'far fa-heart';
         }
+        if (likesSpan) likesSpan.textContent = reel.likes;
       }
-    };
-
-    window._shareReel = async function(index) {
+      
+      showToast(newLiked ? 'Liked! ❤️' : 'Unliked');
+      
+      if (reel.id && !reel.id.startsWith('local_')) {
+        const existing = pendingLikeUpdates.get(reel.id) || 0;
+        pendingLikeUpdates.set(reel.id, existing + delta);
+        if (likeBatchTimer) clearTimeout(likeBatchTimer);
+        likeBatchTimer = setTimeout(flushLikeUpdates, 1000);
+      }
+    }
+    
+    async function handleShare(index) {
       const reel = reelData[index];
       if (!reel) return;
       if (navigator.share) {
-        try { await navigator.share({ title: `${reel.username}'s reel`, text: reel.caption || 'Check out this reel!' }); } catch(e) {}
+        try {
+          await navigator.share({ title: `${reel.username}'s reel`, text: reel.caption || 'Check out this reel!' });
+        } catch(e) {}
       } else {
-        try { await navigator.clipboard.writeText(window.location.href); showToast('Link copied! 📋'); } catch(e) {}
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          showToast('Link copied! 📋');
+        } catch(e) {}
       }
-    };
-
-    function isVideoData(src, type) {
-      if (!src) return false;
-      if (type === 'reel' || type === 'video') return true;
-      if (src.startsWith('data:video/')) return true;
-      if (src.match(/\.(mp4|webm|mov|avi|mkv)($|\?)/i)) return true;
-      if (src.includes('firebasestorage.googleapis.com')) return true;
-      return false;
     }
-
+    
+    function togglePlay(index) {
+      const slide = document.getElementById(`slide${index}`);
+      if (!slide) return;
+      const video = slide.querySelector('video');
+      if (!video) return;
+      
+      if (video.paused || video._isPlaying === false) {
+        if (currentIndex !== index) pauseVideo(currentIndex);
+        currentIndex = index;
+        playVideo(index, true);
+      } else {
+        pauseVideo(index);
+      }
+    }
+    
+    // ========== SCROLL HANDLER ==========
+    let scrollRAF = null;
+    
+    function onScroll() {
+      if (scrollRAF) return;
+      scrollRAF = requestAnimationFrame(() => {
+        handleScroll();
+        scrollRAF = null;
+      });
+    }
+    
+    function handleScroll() {
+      if (!scrollHandlerActive || reelData.length === 0) return;
+      
+      const scrollTop = wrapper.scrollTop;
+      const slideHeight = wrapper.clientHeight;
+      let newIndex = Math.round(scrollTop / slideHeight);
+      newIndex = Math.max(0, Math.min(newIndex, reelData.length - 1));
+      
+      if (newIndex !== currentIndex && newIndex >= 0 && newIndex < reelData.length) {
+        pauseVideo(currentIndex);
+        currentIndex = newIndex;
+        playVideo(currentIndex, true);
+        pauseAllExcept(currentIndex);
+        preloadNearbySlides(currentIndex);
+      }
+      
+      if (newIndex >= reelData.length - 2 && !allLoaded && !isLoadingMore) {
+        fetchNextBatch();
+      }
+    }
+    
+    function preloadNearbySlides(activeIndex) {
+      const start = Math.max(0, activeIndex - PRELOAD_BUFFER);
+      const end = Math.min(reelData.length - 1, activeIndex + PRELOAD_BUFFER);
+      for (let i = start; i <= end; i++) {
+        if (i !== activeIndex) {
+          const slide = document.getElementById(`slide${i}`);
+          if (slide) {
+            const video = slide.querySelector('video');
+            if (video && reelData[i] && (!video.src || video.src !== reelData[i].src)) {
+              video.preload = 'auto';
+              if (video.src !== reelData[i].src) {
+                video.src = reelData[i].src;
+                video.load();
+              }
+            }
+          } else if (reelData[i]) {
+            mountSlide(i);
+          }
+        }
+      }
+    }
+    
+    function mountSlide(index) {
+      if (mountedSlides.has(index)) return;
+      if (!reelData[index]) return;
+      
+      const slide = createSlideElement(reelData[index], index);
+      wrapper.appendChild(slide);
+      mountedSlides.set(index, slide);
+      
+      if (videoObserver) videoObserver.observe(slide);
+      cleanupDistantSlides(index);
+    }
+    
+    function cleanupDistantSlides(activeIndex) {
+      const keepRange = 4;
+      const toRemove = [];
+      mountedSlides.forEach((slide, idx) => {
+        if (Math.abs(idx - activeIndex) > keepRange) {
+          toRemove.push(idx);
+        }
+      });
+      toRemove.forEach(idx => {
+        const slide = mountedSlides.get(idx);
+        if (slide && videoObserver) videoObserver.unobserve(slide);
+        if (slide) slide.remove();
+        mountedSlides.delete(idx);
+      });
+    }
+    
+    // ========== FETCH WITH CACHE ==========
     async function fetchNextBatch() {
       if (isLoadingMore || allLoaded) return;
       isLoadingMore = true;
@@ -379,171 +697,76 @@
         }
         const snap = await getDocs(q);
         
-        if (snap.empty) { allLoaded = true; isLoadingMore = false; return; }
-
-        let newReelsAdded = 0;
+        if (snap.empty) {
+          allLoaded = true;
+          isLoadingMore = false;
+          return;
+        }
         
-        snap.forEach(doc => {
-          const d = doc.data();
+        let newItems = 0;
+        snap.forEach(docSnap => {
+          const d = docSnap.data();
           const src = d.data || d.url || '';
-          const type = d.type || '';
-          
-          if (isVideoData(src, type) && !reelData.find(r => r.id === doc.id)) {
+          if (isVideoValid(src) && !reelData.find(r => r.id === docSnap.id)) {
             reelData.push({
-              id: doc.id,
+              id: docSnap.id,
               username: d.username || d.userId || '@anonymous',
               caption: d.caption || d.fileName || '',
-              src,
+              src: src,
               likes: d.likes || 0,
               comments: d.comments || 0,
               liked: false
             });
-            newReelsAdded++;
+            newItems++;
           }
         });
-
+        
         lastDoc = snap.docs[snap.docs.length - 1];
         
-        if (newReelsAdded === 0 && !allLoaded) {
+        if (newItems === 0 && !allLoaded) {
           isLoadingMore = false;
-          setTimeout(() => fetchNextBatch(), 50);
+          setTimeout(() => fetchNextBatch(), 100);
           return;
         }
-
+        
         isLoadingMore = false;
         
-        // Pre-mount upcoming slides
-        for (let i = currentIndex; i < Math.min(currentIndex + 4, reelData.length); i++) {
-          ensureSlideMounted(i);
+        for (let i = Math.max(0, reelData.length - newItems - 2); i < reelData.length; i++) {
+          if (i >= 0 && reelData[i]) mountSlide(i);
         }
-      } catch (e) {
-        console.error('Fetch error:', e);
+        
+      } catch (err) {
+        console.error('Fetch error:', err);
         isLoadingMore = false;
+        showToast('Network error, retrying...');
       }
     }
-
-    function onScroll() {
-      if (!scrollTick) {
-        requestAnimationFrame(() => {
-          handleScroll();
-          scrollTick = false;
-        });
-        scrollTick = true;
-      }
+    
+    // ========== LOAD LOCAL CACHE ==========
+    function loadFromCache() {
+      try {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+          const { data, timestamp } = JSON.parse(cached);
+          if (Date.now() - timestamp < CACHE_TTL && data.length > 0) {
+            reelData = data;
+            return true;
+          }
+        }
+      } catch(e) {}
+      return false;
     }
-
-    function handleScroll() {
-      if (isTransitioning || reelData.length === 0) return;
-      
-      const scrollTop = wrapper.scrollTop;
-      const slideHeight = wrapper.clientHeight;
-      const newIndex = Math.round(scrollTop / slideHeight);
-      
-      if (newIndex !== currentIndex && newIndex >= 0 && newIndex < reelData.length) {
-        transitionToSlide(newIndex);
-      }
-      
-      if (newIndex >= reelData.length - 3 && !allLoaded && !isLoadingMore) {
-        fetchNextBatch();
-      }
-      
-      for (let i = newIndex - 1; i <= newIndex + 2; i++) {
-        if (i >= 0 && i < reelData.length) ensureSlideMounted(i);
-      }
+    
+    function saveToCache() {
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({
+          data: reelData.slice(0, 20),
+          timestamp: Date.now()
+        }));
+      } catch(e) {}
     }
-
-    function transitionToSlide(newIndex) {
-      if (newIndex === currentIndex || isTransitioning) return;
-      isTransitioning = true;
-      const oldIndex = currentIndex;
-      currentIndex = newIndex;
-
-      if (oldIndex >= 0) pauseVideo(oldIndex);
-
-      for (let i = newIndex - 1; i <= newIndex + 1; i++) ensureSlideMounted(i);
-
-      setTimeout(() => {
-        playVideo(newIndex);
-        cleanupDistantSlides(newIndex);
-        isTransitioning = false;
-      }, 150);
-    }
-
-    function ensureSlideMounted(index) {
-      if (index < 0 || index >= reelData.length) return;
-      if (mountedSlides.has(index)) return;
-      
-      const temp = document.createElement('div');
-      temp.innerHTML = createSlideHTML(reelData[index], index);
-      const slide = temp.firstElementChild;
-      wrapper.appendChild(slide);
-      mountedSlides.add(index);
-    }
-
-    function removeSlideElement(index) {
-      const slide = document.getElementById('slide' + index);
-      if (!slide) return;
-      const video = slide.querySelector('video');
-      if (video) {
-        video.pause();
-        video.removeAttribute('src');
-        video.load();
-      }
-      slide.remove();
-      mountedSlides.delete(index);
-    }
-
-    function cleanupDistantSlides(activeIndex) {
-      const keep = new Set([activeIndex - 2, activeIndex - 1, activeIndex, activeIndex + 1, activeIndex + 2]);
-      const toRemove = [];
-      mountedSlides.forEach(idx => { if (!keep.has(idx)) toRemove.push(idx); });
-      toRemove.forEach(idx => removeSlideElement(idx));
-    }
-
-    function playVideo(index) {
-      const video = document.getElementById('video' + index);
-      const overlay = document.getElementById('overlay' + index);
-      if (!video || index >= reelData.length) return;
-      
-      const targetSrc = reelData[index].src;
-      if (video.getAttribute('src') !== targetSrc || !video.src) {
-        video.src = targetSrc;
-      }
-      
-      video.play().then(() => {
-        if (overlay) overlay.style.display = 'none';
-      }).catch(() => {
-        if (overlay) overlay.style.display = 'none';
-      });
-    }
-
-    function pauseVideo(index) {
-      const video = document.getElementById('video' + index);
-      const overlay = document.getElementById('overlay' + index);
-      if (video) {
-        video.pause();
-        if (overlay) overlay.style.display = 'flex';
-      }
-    }
-
-    function togglePlay(index) {
-      const video = document.getElementById('video' + index);
-      if (!video) return;
-      if (video.paused) {
-        playVideo(index);
-        currentIndex = index;
-      } else {
-        pauseVideo(index);
-      }
-    }
-
-    function showToast(msg) {
-      toast.textContent = msg;
-      toast.classList.add('show');
-      clearTimeout(toast._t);
-      toast._t = setTimeout(() => toast.classList.remove('show'), 2000);
-    }
-
+    
+    // ========== INIT ==========
     async function init() {
       const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
       (profile.posts || []).filter(p => p.type === 'video').forEach(p => {
@@ -559,26 +782,53 @@
           });
         }
       });
-
-      await fetchNextBatch();
-
-      if (reelData.length === 0) {
+      
+      const hasCache = loadFromCache();
+      
+      if (!hasCache || reelData.length === 0) {
+        await fetchNextBatch();
+      } else {
+        for (let i = 0; i < Math.min(reelData.length, 5); i++) mountSlide(i);
+        setTimeout(() => fetchNextBatch(), 500);
+      }
+      
+      if (reelData.length === 0 && !isLoadingMore) {
         emptyState.style.display = 'flex';
         return;
       }
-
-      emptyState.style.display = 'none';
-      wrapper.addEventListener('scroll', onScroll, { passive: true });
-
-      const count = Math.min(5, reelData.length);
-      for (let i = 0; i < count; i++) ensureSlideMounted(i);
       
-      wrapper.scrollTop = 0;
-      currentIndex = 0;
-      setTimeout(() => playVideo(0), 300);
+      emptyState.style.display = 'none';
+      
+      videoObserver = setupVideoObserver();
+      wrapper.addEventListener('scroll', onScroll, { passive: true });
+      
+      for (let i = 0; i < Math.min(reelData.length, 5); i++) mountSlide(i);
+      
+      setTimeout(() => {
+        if (reelData.length > 0) {
+          currentIndex = 0;
+          playVideo(0, true);
+        }
+      }, 300);
+      
+      setInterval(() => saveToCache(), 60000);
+      
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          pauseVideo(currentIndex);
+        } else {
+          playVideo(currentIndex, true);
+        }
+      });
     }
-
-    init();
+    
+    onAuthStateChanged(auth, (user) => {
+      if (!user && !localStorage.getItem("uid")) {
+        window.location.replace("login.html");
+      } else {
+        init();
+      }
+    });
   </script>
 </body>
 </html>

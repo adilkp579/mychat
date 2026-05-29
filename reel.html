@@ -92,7 +92,7 @@
     .toast { position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:0.5rem 1rem;border-radius:2rem;font-size:0.7rem;z-index:400;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap; }
     .toast.show { opacity:1; }
 
-    /* Navbar - NO DOTS, will be hidden during fullscreen */
+    /* Navbar - NO DOTS */
     .floating-nav {
       position: fixed;
       bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
@@ -113,15 +113,6 @@
       z-index: 100;
       transition: all 0.3s ease;
       pointer-events: auto;
-    }
-    
-    /* Hide navbar during fullscreen */
-    :fullscreen .floating-nav,
-    :-webkit-full-screen .floating-nav,
-    :-moz-full-screen .floating-nav {
-      display: none !important;
-      visibility: hidden !important;
-      opacity: 0 !important;
     }
     
     .floating-nav:hover {
@@ -284,8 +275,8 @@
     const CACHE_KEY = 'reels_cache_v1';
     const CACHE_TTL = 5 * 60 * 1000;
     
-    // Mobile fullscreen function - hides navbar automatically
-    function toggleFullscreen(videoElement) {
+    // Fullscreen function - toggles properly and updates icon
+    function toggleFullscreen(videoElement, fullscreenBtn) {
       if (!videoElement) return;
       
       const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
@@ -299,11 +290,13 @@
         } else if (document.mozCancelFullScreen) {
           document.mozCancelFullScreen();
         }
-        // Show navbar again
+        // Show navbar
         if (floatingNav) floatingNav.style.display = 'flex';
         // Change icon back to expand
-        const fullscreenBtn = videoElement.closest('.reel-slide')?.querySelector('[data-action="fullscreen"] i');
-        if (fullscreenBtn) fullscreenBtn.className = 'fas fa-expand';
+        if (fullscreenBtn) {
+          const icon = fullscreenBtn.querySelector('i');
+          if (icon) icon.className = 'fas fa-expand';
+        }
       } else {
         // Enter fullscreen
         const elem = videoElement;
@@ -319,12 +312,14 @@
         // Hide navbar
         if (floatingNav) floatingNav.style.display = 'none';
         // Change icon to compress
-        const fullscreenBtn = videoElement.closest('.reel-slide')?.querySelector('[data-action="fullscreen"] i');
-        if (fullscreenBtn) fullscreenBtn.className = 'fas fa-compress';
+        if (fullscreenBtn) {
+          const icon = fullscreenBtn.querySelector('i');
+          if (icon) icon.className = 'fas fa-compress';
+        }
       }
     }
     
-    // Listen for fullscreen change events
+    // Listen for fullscreen change events from system (like ESC key)
     document.addEventListener('fullscreenchange', updateFullscreenUI);
     document.addEventListener('webkitfullscreenchange', updateFullscreenUI);
     document.addEventListener('mozfullscreenchange', updateFullscreenUI);
@@ -569,7 +564,7 @@
         if (fullscreenBtn) {
           fullscreenBtn.addEventListener('click', (e) => { 
             e.stopPropagation(); 
-            toggleFullscreen(video); 
+            toggleFullscreen(video, fullscreenBtn); 
           });
         }
       }

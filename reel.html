@@ -275,14 +275,14 @@
     const CACHE_KEY = 'reels_cache_v1';
     const CACHE_TTL = 5 * 60 * 1000;
     
-    // Fullscreen toggle - exit icon shows navbar when tapped
+    // Mobile-friendly fullscreen toggle - works on all devices
     function toggleFullscreen(videoElement, fullscreenBtn) {
       if (!videoElement) return;
       
       const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
       
       if (isFullscreen) {
-        // EXIT FULLSCREEN - second tap on exit icon
+        // EXIT FULLSCREEN - works on mobile
         if (document.exitFullscreen) {
           document.exitFullscreen();
         } else if (document.webkitExitFullscreen) {
@@ -300,7 +300,7 @@
           if (span) span.textContent = 'Full';
         }
       } else {
-        // ENTER FULLSCREEN - first tap on full icon
+        // ENTER FULLSCREEN - works on mobile
         const elem = videoElement;
         if (elem.requestFullscreen) {
           elem.requestFullscreen();
@@ -323,7 +323,7 @@
       }
     }
     
-    // Listen for fullscreen change events from system (like ESC key)
+    // Listen for fullscreen change events
     document.addEventListener('fullscreenchange', updateFullscreenUI);
     document.addEventListener('webkitfullscreenchange', updateFullscreenUI);
     document.addEventListener('mozfullscreenchange', updateFullscreenUI);

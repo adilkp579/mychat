@@ -282,7 +282,7 @@
       const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
       
       if (isFullscreen) {
-        // Exit fullscreen - second tap
+        // Exit fullscreen
         if (document.exitFullscreen) {
           document.exitFullscreen();
         } else if (document.webkitExitFullscreen) {
@@ -298,7 +298,7 @@
           if (icon) icon.className = 'fas fa-expand';
         }
       } else {
-        // Enter fullscreen - first tap
+        // Enter fullscreen
         const elem = videoElement;
         if (elem.requestFullscreen) {
           elem.requestFullscreen();

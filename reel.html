@@ -40,7 +40,7 @@
       left:0;
     }
     
-    /* Fullscreen mode - video fills screen on mobile */
+    /* Fullscreen mode styles */
     .reel-slide video:fullscreen {
       object-fit:cover;
       width:100%;
@@ -55,18 +55,6 @@
       object-fit:cover;
       width:100%;
       height:100%;
-    }
-    
-    /* Fullscreen mode - allow scrolling */
-    :fullscreen .reel-wrapper {
-      overflow-y:scroll !important;
-      scroll-snap-type:y mandatory !important;
-      -webkit-overflow-scrolling:touch !important;
-    }
-    :-webkit-full-screen .reel-wrapper {
-      overflow-y:scroll !important;
-      scroll-snap-type:y mandatory !important;
-      -webkit-overflow-scrolling:touch !important;
     }
     
     .video-loading {
@@ -104,7 +92,7 @@
     .toast { position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:0.5rem 1rem;border-radius:2rem;font-size:0.7rem;z-index:400;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap; }
     .toast.show { opacity:1; }
 
-    /* 🌟 ULTRA TRANSPARENT GLASSMORPHISM NAVBAR - NO DOTS */
+    /* Navbar - NO DOTS */
     .floating-nav {
       position: fixed;
       bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
@@ -172,8 +160,6 @@
       transform: translateY(-2px);
       text-shadow: 0 0 12px rgba(0, 0, 0, 0.9), 0 0 20px rgba(0, 0, 0, 0.7);
     }
-    
-    /* NO DOTS - removed completely */
     
     .nav-center a.active {
       color: #fff;
@@ -245,7 +231,6 @@
     </div>
     <div class="toast" id="toast"></div>
 
-    <!-- 🌟 Ultra Transparent Glassmorphism Navbar - NO DOTS -->
     <nav class="floating-nav">
       <div class="nav-center">
         <a href="index.html"><i class="fas fa-home"></i></a>
@@ -296,7 +281,7 @@
     const CACHE_KEY = 'reels_cache_v1';
     const CACHE_TTL = 5 * 60 * 1000;
     
-    // FIXED: Mobile fullscreen function
+    // FIXED: Mobile fullscreen function - works on iOS and Android
     function toggleFullscreen(videoElement) {
       if (!videoElement) return;
       
@@ -304,7 +289,7 @@
       const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
       
       if (isFullscreen) {
-        // Exit fullscreen
+        // Exit fullscreen - multiple methods for compatibility
         if (document.exitFullscreen) {
           document.exitFullscreen();
         } else if (document.webkitExitFullscreen) {
@@ -312,6 +297,9 @@
         } else if (document.mozCancelFullScreen) {
           document.mozCancelFullScreen();
         }
+        // Change icon back to expand
+        const fullscreenBtn = videoElement.closest('.reel-slide')?.querySelector('[data-action="fullscreen"] i');
+        if (fullscreenBtn) fullscreenBtn.className = 'fas fa-expand';
       } else {
         // Enter fullscreen on video element
         const elem = videoElement;
@@ -324,7 +312,23 @@
         } else if (elem.msRequestFullscreen) {
           elem.msRequestFullscreen();
         }
+        // Change icon to compress
+        const fullscreenBtn = videoElement.closest('.reel-slide')?.querySelector('[data-action="fullscreen"] i');
+        if (fullscreenBtn) fullscreenBtn.className = 'fas fa-compress';
       }
+    }
+    
+    // Listen for fullscreen change events to update icon
+    document.addEventListener('fullscreenchange', updateFullscreenIcons);
+    document.addEventListener('webkitfullscreenchange', updateFullscreenIcons);
+    document.addEventListener('mozfullscreenchange', updateFullscreenIcons);
+    
+    function updateFullscreenIcons() {
+      const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
+      const iconClass = isFullscreen ? 'fas fa-compress' : 'fas fa-expand';
+      document.querySelectorAll('[data-action="fullscreen"] i').forEach(icon => {
+        icon.className = iconClass;
+      });
     }
     
     function escapeHTML(str) {

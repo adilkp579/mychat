@@ -30,7 +30,6 @@
       flex-shrink:0;
     }
     
-    /* VIDEO - Full screen but not over-zoomed */
     .reel-slide video {
       width:100%;
       height:100%;
@@ -41,19 +40,19 @@
       left:0;
     }
     
-    /* Fullscreen mode - video takes full screen, scrolling still works */
+    /* Fullscreen mode - video fills screen on mobile */
     .reel-slide video:fullscreen {
-      object-fit:contain;
+      object-fit:cover;
       width:100%;
       height:100%;
     }
     .reel-slide video:-webkit-full-screen {
-      object-fit:contain;
+      object-fit:cover;
       width:100%;
       height:100%;
     }
     .reel-slide video:-moz-full-screen {
-      object-fit:contain;
+      object-fit:cover;
       width:100%;
       height:100%;
     }
@@ -163,7 +162,6 @@
       border-radius: 50%;
       transition: all 0.3s;
       text-decoration: none;
-      position: relative;
       background: transparent;
       text-shadow: 0 0 8px rgba(0, 0, 0, 0.8), 0 0 12px rgba(0, 0, 0, 0.6);
     }
@@ -175,7 +173,7 @@
       text-shadow: 0 0 12px rgba(0, 0, 0, 0.9), 0 0 20px rgba(0, 0, 0, 0.7);
     }
     
-    /* REMOVED DOT COMPLETELY - no ::before pseudo-element */
+    /* NO DOTS - removed completely */
     
     .nav-center a.active {
       color: #fff;
@@ -233,7 +231,6 @@
       .actions-bar { right: 2rem; bottom: 35%; }
     }
     
-    /* iOS Safari specific */
     @supports (-webkit-touch-callout: none) {
       .reel-slide video {
         object-fit: contain;
@@ -299,11 +296,15 @@
     const CACHE_KEY = 'reels_cache_v1';
     const CACHE_TTL = 5 * 60 * 1000;
     
-    // Fullscreen function - keeps scroll enabled
+    // FIXED: Mobile fullscreen function
     function toggleFullscreen(videoElement) {
       if (!videoElement) return;
       
-      if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement) {
+      // Check if currently in fullscreen
+      const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
+      
+      if (isFullscreen) {
+        // Exit fullscreen
         if (document.exitFullscreen) {
           document.exitFullscreen();
         } else if (document.webkitExitFullscreen) {
@@ -312,6 +313,7 @@
           document.mozCancelFullScreen();
         }
       } else {
+        // Enter fullscreen on video element
         const elem = videoElement;
         if (elem.requestFullscreen) {
           elem.requestFullscreen();
@@ -319,6 +321,8 @@
           elem.webkitRequestFullscreen();
         } else if (elem.mozRequestFullScreen) {
           elem.mozRequestFullScreen();
+        } else if (elem.msRequestFullscreen) {
+          elem.msRequestFullscreen();
         }
       }
     }

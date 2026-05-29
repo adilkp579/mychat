@@ -382,7 +382,7 @@
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('mainPage').style.display = 'flex';
     
-    // FIX 1 & 5: PROPER TURN + STUN SERVERS
+    // Safari-optimized ICE servers with TURN fallback
     const servers = {
       iceServers: [
         { urls: "stun:stun.l.google.com:19302" },
@@ -392,7 +392,10 @@
         { urls: "turn:standard.relay.metered.ca:80?transport=tcp", username: "a6b2ebd89a4174b7f3843634", credential: "xyEoZGCCUl7ZAQ4h" },
         { urls: "turn:standard.relay.metered.ca:443", username: "a6b2ebd89a4174b7f3843634", credential: "xyEoZGCCUl7ZAQ4h" },
         { urls: "turns:standard.relay.metered.ca:443?transport=tcp", username: "a6b2ebd89a4174b7f3843634", credential: "xyEoZGCCUl7ZAQ4h" }
-      ]
+      ],
+      iceCandidatePoolSize: 10,
+      bundlePolicy: "max-bundle",
+      rtcpMuxPolicy: "require"
     };
     
     const chatBox = document.getElementById('chatBox');
@@ -510,7 +513,7 @@
       let chatMessagesUnsub = null;
       let tokenTransferUnsub = null;
       let messageCache = new Set();
-      let pendingIceCandidates = []; // FIX 2: ICE candidate queue
+      let pendingIceCandidates = [];
       
       sendChatMessageFn = async (text) => {
         if (!roomId) { addChatMessage(text, true); return; }
@@ -526,7 +529,6 @@
         } catch(e) { tokenBalances[tokenType]++; updateTokenDisplay(); saveWalletBalances(); addChatMessage(`❌ Failed to send token.`, true); }
       };
       
-      // FIX 1: Proper cleanup function
       function cleanupRoomListeners() { unsubs.forEach(u => { try { u(); } catch(e){} }); unsubs = []; }
       
       function setButtonState(state) {
@@ -536,14 +538,18 @@
       async function startCamera() {
         try {
           if(localStream) localStream.getTracks().forEach(t => t.stop());
-          localStream = await navigator.mediaDevices.getUserMedia({ video: {width:480,height:640,facingMode:'user'}, audio: {echoCancellation: true, noiseSuppression: true} });
+          const constraints = { 
+            video: { width: { ideal: 480 }, height: { ideal: 640 }, facingMode: 'user' }, 
+            audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } 
+          };
+          localStream = await navigator.mediaDevices.getUserMedia(constraints);
           myFeed.srcObject = localStream;
           await myFeed.play();
           myFeed.style.display = 'block';
           myPlaceholder.style.display = 'none';
           myCameraEl.classList.add('active');
           return true;
-        } catch(e) { return false; }
+        } catch(e) { console.error('Camera error:', e); return false; }
       }
       
       function stopCamera() {
@@ -657,15 +663,22 @@
         } catch(e) {}
         showConnected(strangerUser);
         
-        cleanupRoomListeners(); // FIX 1: Proper cleanup
-        pendingIceCandidates = []; // FIX 2: Reset queue
+        cleanupRoomListeners();
+        pendingIceCandidates = [];
         
         pc = new RTCPeerConnection(servers);
-        localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
         
-        // FIX 7: Prevent multiple ontrack
+        // Safari fix: Add transceivers explicitly
+        if (localStream) {
+          localStream.getTracks().forEach(track => {
+            const transceiver = pc.addTransceiver(track, { direction: 'sendrecv' });
+            console.log('Added transceiver for:', track.kind);
+          });
+        }
+        
         let trackAdded = false;
         pc.ontrack = (e) => {
+          console.log('ontrack received:', e.track.kind);
           if(trackAdded) return;
           if(e.streams[0]) {
             trackAdded = true;
@@ -674,29 +687,37 @@
             strangerFeed.style.display = 'block';
             strangerPlaceholder.innerHTML = '';
             strangerCamera.classList.add('connected');
+            console.log('Remote stream attached successfully');
           }
         };
         
-        // FIX 4: Connection state handler
         pc.onconnectionstatechange = () => {
+          console.log('Connection state:', pc.connectionState);
           if(pc.connectionState === 'disconnected' || pc.connectionState === 'failed' || pc.connectionState === 'closed') {
             stopChat();
           }
         };
         
+        pc.oniceconnectionstatechange = () => {
+          console.log('ICE connection state:', pc.iceConnectionState);
+          if(pc.iceConnectionState === 'connected') {
+            console.log('ICE connected - call established');
+          }
+        };
+        
         pc.onicecandidate = async (e) => {
           if(e.candidate && roomId) {
+            console.log('ICE candidate generated');
             await addDoc(collection(doc(db,'rooms',roomId),'ice'), { sender: myId, candidate: e.candidate.toJSON() });
           }
         };
         
-        // FIX 2: ICE listener with queue
         unsubs.push(onSnapshot(collection(doc(db,'rooms',roomId),'ice'), async (snap) => {
           snap.docChanges().forEach(async (c) => {
             if(c.type === 'added' && c.doc.data().sender !== myId && pc && c.doc.data().candidate) {
               const candidate = new RTCIceCandidate(c.doc.data().candidate);
               if(pc.remoteDescription && pc.remoteDescription.type) {
-                try { await pc.addIceCandidate(candidate); } catch(e) {}
+                try { await pc.addIceCandidate(candidate); console.log('ICE candidate added'); } catch(e) { console.warn('ICE add error:', e); }
               } else {
                 pendingIceCandidates.push(candidate);
               }
@@ -705,16 +726,16 @@
         }));
         
         if(isCaller) {
-          const offer = await pc.createOffer({offerToReceiveVideo: true, offerToReceiveAudio: true});
+          const offer = await pc.createOffer();
           await pc.setLocalDescription(offer);
           await setDoc(doc(db,'invites',oId), { from: myId, fromUsername: currentUser, offer: {type: offer.type, sdp: offer.sdp} });
           unsubs.push(onSnapshot(doc(db,'invites',oId), async (snap) => {
             const d = snap.data();
             if(d?.answer && !pc.currentRemoteDescription) {
               await pc.setRemoteDescription(new RTCSessionDescription(d.answer));
-              // FIX 2: Process pending ICE candidates
               for(const cand of pendingIceCandidates) { try { await pc.addIceCandidate(cand); } catch(e){} }
               pendingIceCandidates = [];
+              console.log('Remote description set from answer');
             }
           }));
         }
@@ -733,14 +754,20 @@
           const strangerUser = d.fromUsername || 'Stranger';
           showConnected(strangerUser);
           
-          cleanupRoomListeners(); // FIX 1: Proper cleanup
+          cleanupRoomListeners();
           pendingIceCandidates = [];
           
           pc = new RTCPeerConnection(servers);
-          localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+          
+          if (localStream) {
+            localStream.getTracks().forEach(track => {
+              pc.addTransceiver(track, { direction: 'sendrecv' });
+            });
+          }
           
           let trackAdded = false;
           pc.ontrack = (e) => {
+            console.log('ontrack received (callee):', e.track.kind);
             if(trackAdded) return;
             if(e.streams[0]) {
               trackAdded = true;
@@ -753,6 +780,7 @@
           };
           
           pc.onconnectionstatechange = () => {
+            console.log('Connection state (callee):', pc.connectionState);
             if(pc.connectionState === 'disconnected' || pc.connectionState === 'failed' || pc.connectionState === 'closed') stopChat();
           };
           
@@ -778,9 +806,9 @@
             const answer = await pc.createAnswer();
             await pc.setLocalDescription(answer);
             await setDoc(doc(db,'invites',myId), { answer: {type: answer.type, sdp: answer.sdp} }, {merge: true});
-            // FIX 2: Process pending ICE candidates
             for(const cand of pendingIceCandidates) { try { await pc.addIceCandidate(cand); } catch(e){} }
             pendingIceCandidates = [];
+            console.log('Answer sent, remote description set');
           }
           
           listenForChatMessages();
@@ -796,7 +824,6 @@
         
         if(!(await startCamera())) { stopChat(); return; }
         
-        // FIX 3: Race condition prevention - atomic matching
         const snap = await getDocs(collection(db,'waiting'));
         let found = null;
         let foundDocRef = null;
@@ -820,14 +847,13 @@
       
       function stopChat() {
         if(pc) { pc.close(); pc = null; }
-        cleanupRoomListeners(); // FIX 1: Proper cleanup
+        cleanupRoomListeners();
         if(chatMessagesUnsub) { chatMessagesUnsub(); chatMessagesUnsub = null; }
         if(tokenTransferUnsub) { tokenTransferUnsub(); tokenTransferUnsub = null; }
         messageCache.clear();
         pendingIceCandidates = [];
         
         if(roomId) {
-          // FIX 6: Delay deletion to prevent race conditions
           setTimeout(async () => {
             try {
               const messagesSnap = await getDocs(collection(db,'rooms',roomId,'messages'));
@@ -853,7 +879,6 @@
         chatVisible = false;
       }
       
-      // Live functions (simplified)
       async function startLive() {
         if(!localStream) return;
         isLive = true;

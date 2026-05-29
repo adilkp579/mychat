@@ -30,19 +30,45 @@
       flex-shrink:0;
     }
     
-    /* VIDEO FIX: Full screen but NOT over-zoomed - maintains original aspect ratio */
+    /* VIDEO - Full screen but not over-zoomed */
     .reel-slide video {
       width:100%;
       height:100%;
-      object-fit:contain;  /* Maintains original aspect ratio, no cropping/zooming */
+      object-fit:contain;
       background:#000;
       position:absolute;
       top:0;
       left:0;
     }
     
-    /* For portrait videos, they will be centered with black bars on sides */
-    /* For landscape videos, they will be centered with black bars top/bottom */
+    /* Fullscreen mode - video takes full screen, scrolling still works */
+    .reel-slide video:fullscreen {
+      object-fit:contain;
+      width:100%;
+      height:100%;
+    }
+    .reel-slide video:-webkit-full-screen {
+      object-fit:contain;
+      width:100%;
+      height:100%;
+    }
+    .reel-slide video:-moz-full-screen {
+      object-fit:contain;
+      width:100%;
+      height:100%;
+    }
+    
+    /* Fullscreen mode - allow scrolling */
+    :fullscreen .reel-wrapper {
+      overflow-y:scroll !important;
+      scroll-snap-type:y mandatory !important;
+      -webkit-overflow-scrolling:touch !important;
+    }
+    :-webkit-full-screen .reel-wrapper {
+      overflow-y:scroll !important;
+      scroll-snap-type:y mandatory !important;
+      -webkit-overflow-scrolling:touch !important;
+    }
     
     .video-loading {
       position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
@@ -79,7 +105,7 @@
     .toast { position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:0.5rem 1rem;border-radius:2rem;font-size:0.7rem;z-index:400;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap; }
     .toast.show { opacity:1; }
 
-    /* 🌟 ULTRA TRANSPARENT GLASSMORPHISM NAVBAR - UNCHANGED */
+    /* 🌟 ULTRA TRANSPARENT GLASSMORPHISM NAVBAR - NO DOTS */
     .floating-nav {
       position: fixed;
       bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
@@ -100,6 +126,13 @@
       z-index: 100;
       transition: all 0.3s ease;
       pointer-events: auto;
+    }
+    
+    /* Hide navbar during fullscreen */
+    :fullscreen .floating-nav,
+    :-webkit-full-screen .floating-nav,
+    :-moz-full-screen .floating-nav {
+      display: none !important;
     }
     
     .floating-nav:hover {
@@ -142,28 +175,13 @@
       text-shadow: 0 0 12px rgba(0, 0, 0, 0.9), 0 0 20px rgba(0, 0, 0, 0.7);
     }
     
-    .nav-center a::before {
-      content: '';
-      position: absolute;
-      bottom: -2px;
-      left: 50%;
-      transform: translateX(-50%) scale(0);
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: #fff;
-      transition: all 0.3s;
-    }
+    /* REMOVED DOT COMPLETELY - no ::before pseudo-element */
     
     .nav-center a.active {
       color: #fff;
       background: rgba(255, 255, 255, 0.12);
       box-shadow: 0 0 15px rgba(255, 255, 255, 0.08);
       text-shadow: 0 0 14px rgba(0, 0, 0, 0.9), 0 0 24px rgba(0, 0, 0, 0.8);
-    }
-    
-    .nav-center a.active::before {
-      transform: translateX(-50%) scale(1);
     }
     
     .nav-upload, .nav-search { display: none !important; }
@@ -210,22 +228,12 @@
         width: 2.6rem;
         height: 2.6rem;
       }
-      .nav-center a::before {
-        bottom: auto;
-        right: -4px;
-        left: auto;
-        top: 50%;
-        transform: translateY(-50%) scale(0);
-      }
-      .nav-center a.active::before {
-        transform: translateY(-50%) scale(1);
-      }
       .reel-wrapper { margin-left: 5rem; }
       .reel-slide { max-width: 500px; margin: 0 auto; }
       .actions-bar { right: 2rem; bottom: 35%; }
     }
     
-    /* iOS Safari specific - maintain contain */
+    /* iOS Safari specific */
     @supports (-webkit-touch-callout: none) {
       .reel-slide video {
         object-fit: contain;
@@ -240,7 +248,7 @@
     </div>
     <div class="toast" id="toast"></div>
 
-    <!-- 🌟 Ultra Transparent Glassmorphism Navbar - EXACTLY AS IS -->
+    <!-- 🌟 Ultra Transparent Glassmorphism Navbar - NO DOTS -->
     <nav class="floating-nav">
       <div class="nav-center">
         <a href="index.html"><i class="fas fa-home"></i></a>
@@ -263,7 +271,6 @@
     import { getFirestore, collection, query, orderBy, limit, startAfter, getDocs, doc, updateDoc, increment, writeBatch } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
-    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",
       authDomain: "mychat-a97bf.firebaseapp.com",
@@ -273,7 +280,6 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    // ========== OPTIMIZED REEL PLAYER ==========
     const wrapper = document.getElementById('reelWrapper');
     const toast = document.getElementById('toast');
     const emptyState = document.getElementById('emptyState');
@@ -293,7 +299,30 @@
     const CACHE_KEY = 'reels_cache_v1';
     const CACHE_TTL = 5 * 60 * 1000;
     
-    // ========== HELPER FUNCTIONS ==========
+    // Fullscreen function - keeps scroll enabled
+    function toggleFullscreen(videoElement) {
+      if (!videoElement) return;
+      
+      if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement) {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+          document.mozCancelFullScreen();
+        }
+      } else {
+        const elem = videoElement;
+        if (elem.requestFullscreen) {
+          elem.requestFullscreen();
+        } else if (elem.webkitRequestFullscreen) {
+          elem.webkitRequestFullscreen();
+        } else if (elem.mozRequestFullScreen) {
+          elem.mozRequestFullScreen();
+        }
+      }
+    }
+    
     function escapeHTML(str) {
       if (!str) return '';
       const div = document.createElement('div');
@@ -315,7 +344,6 @@
              src.includes('firebasestorage.googleapis.com');
     }
     
-    // ========== VIDEO LOADING WITH RETRY ==========
     async function loadVideoWithRetry(videoElement, src, maxRetries = 2) {
       return new Promise((resolve) => {
         if (!videoElement || !src) {
@@ -359,7 +387,6 @@
         videoElement.onerror = () => {
           hideLoading();
           retryCounts.set(src, attempts + 1);
-          console.warn(`Video load error, retry ${attempts + 1}/${maxRetries}:`, src);
           if (attempts < maxRetries) {
             setTimeout(() => loadVideoWithRetry(videoElement, src, maxRetries), 500);
           } else {
@@ -390,7 +417,6 @@
       setTimeout(() => errorDiv.remove(), 3000);
     }
     
-    // ========== VIDEO PLAYBACK CONTROL ==========
     async function playVideo(index, forcePlay = false) {
       const slide = document.getElementById(`slide${index}`);
       if (!slide) return;
@@ -399,7 +425,6 @@
       const overlay = slide.querySelector('.play-overlay');
       
       if (!video) return;
-      
       if (!forcePlay && index !== currentIndex) return;
       
       const reel = reelData[index];
@@ -413,7 +438,6 @@
         if (overlay) overlay.style.opacity = '0';
         video._isPlaying = true;
       } catch (err) {
-        console.log('Play error:', err.message);
         if (overlay) overlay.style.opacity = '1';
         video._isPlaying = false;
       }
@@ -437,7 +461,6 @@
       }
     }
     
-    // ========== INTERSECTION OBSERVER ==========
     function setupVideoObserver() {
       if (videoObserver) videoObserver.disconnect();
       
@@ -471,7 +494,6 @@
       return videoObserver;
     }
     
-    // ========== RENDER SLIDE ==========
     function createSlideElement(reel, index) {
       const slide = document.createElement('div');
       slide.className = 'reel-slide';
@@ -498,6 +520,10 @@
             <i class="far fa-share-square"></i>
             <span>Share</span>
           </button>
+          <button class="action-btn" data-action="fullscreen">
+            <i class="fas fa-expand"></i>
+            <span>Full</span>
+          </button>
         </div>
         ${reel.caption ? `<div class="caption-bar"><div class="caption-text">${escapeHTML(reel.caption)}</div></div>` : ''}
       `;
@@ -505,6 +531,7 @@
       const likeBtn = slide.querySelector('[data-action="like"]');
       const commentBtn = slide.querySelector('[data-action="comment"]');
       const shareBtn = slide.querySelector('[data-action="share"]');
+      const fullscreenBtn = slide.querySelector('[data-action="fullscreen"]');
       const userTag = slide.querySelector('.user-tag');
       
       if (likeBtn) likeBtn.addEventListener('click', (e) => { e.stopPropagation(); handleLike(index); });
@@ -517,12 +544,17 @@
       if (video) {
         video.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(index); });
         if (overlay) overlay.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(index); });
+        if (fullscreenBtn) {
+          fullscreenBtn.addEventListener('click', (e) => { 
+            e.stopPropagation(); 
+            toggleFullscreen(video); 
+          });
+        }
       }
       
       return slide;
     }
     
-    // ========== LIKE HANDLER ==========
     let pendingLikeUpdates = new Map();
     let likeBatchTimer = null;
     
@@ -601,7 +633,6 @@
       }
     }
     
-    // ========== SCROLL HANDLER ==========
     let scrollRAF = null;
     
     function onScroll() {
@@ -683,7 +714,6 @@
       });
     }
     
-    // ========== FETCH WITH CACHE ==========
     async function fetchNextBatch() {
       if (isLoadingMore || allLoaded) return;
       isLoadingMore = true;
@@ -742,7 +772,6 @@
       }
     }
     
-    // ========== LOAD LOCAL CACHE ==========
     function loadFromCache() {
       try {
         const cached = localStorage.getItem(CACHE_KEY);
@@ -766,7 +795,6 @@
       } catch(e) {}
     }
     
-    // ========== INIT ==========
     async function init() {
       const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
       (profile.posts || []).filter(p => p.type === 'video').forEach(p => {

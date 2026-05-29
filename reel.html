@@ -40,7 +40,7 @@
       left:0;
     }
     
-    /* Fullscreen mode styles */
+    /* Fullscreen mode */
     .reel-slide video:fullscreen {
       object-fit:cover;
       width:100%;
@@ -92,7 +92,7 @@
     .toast { position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:0.5rem 1rem;border-radius:2rem;font-size:0.7rem;z-index:400;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap; }
     .toast.show { opacity:1; }
 
-    /* Navbar - NO DOTS */
+    /* Navbar - NO DOTS, will be hidden during fullscreen */
     .floating-nav {
       position: fixed;
       bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
@@ -120,6 +120,8 @@
     :-webkit-full-screen .floating-nav,
     :-moz-full-screen .floating-nav {
       display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
     }
     
     .floating-nav:hover {
@@ -231,7 +233,7 @@
     </div>
     <div class="toast" id="toast"></div>
 
-    <nav class="floating-nav">
+    <nav class="floating-nav" id="floatingNav">
       <div class="nav-center">
         <a href="index.html"><i class="fas fa-home"></i></a>
         <a href="web.html"><i class="fas fa-globe"></i></a>
@@ -265,6 +267,7 @@
     const wrapper = document.getElementById('reelWrapper');
     const toast = document.getElementById('toast');
     const emptyState = document.getElementById('emptyState');
+    const floatingNav = document.getElementById('floatingNav');
 
     let reelData = [];
     let mountedSlides = new Map();
@@ -281,15 +284,14 @@
     const CACHE_KEY = 'reels_cache_v1';
     const CACHE_TTL = 5 * 60 * 1000;
     
-    // FIXED: Mobile fullscreen function - works on iOS and Android
+    // Mobile fullscreen function - hides navbar automatically
     function toggleFullscreen(videoElement) {
       if (!videoElement) return;
       
-      // Check if currently in fullscreen
       const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
       
       if (isFullscreen) {
-        // Exit fullscreen - multiple methods for compatibility
+        // Exit fullscreen
         if (document.exitFullscreen) {
           document.exitFullscreen();
         } else if (document.webkitExitFullscreen) {
@@ -297,11 +299,13 @@
         } else if (document.mozCancelFullScreen) {
           document.mozCancelFullScreen();
         }
+        // Show navbar again
+        if (floatingNav) floatingNav.style.display = 'flex';
         // Change icon back to expand
         const fullscreenBtn = videoElement.closest('.reel-slide')?.querySelector('[data-action="fullscreen"] i');
         if (fullscreenBtn) fullscreenBtn.className = 'fas fa-expand';
       } else {
-        // Enter fullscreen on video element
+        // Enter fullscreen
         const elem = videoElement;
         if (elem.requestFullscreen) {
           elem.requestFullscreen();
@@ -312,23 +316,33 @@
         } else if (elem.msRequestFullscreen) {
           elem.msRequestFullscreen();
         }
+        // Hide navbar
+        if (floatingNav) floatingNav.style.display = 'none';
         // Change icon to compress
         const fullscreenBtn = videoElement.closest('.reel-slide')?.querySelector('[data-action="fullscreen"] i');
         if (fullscreenBtn) fullscreenBtn.className = 'fas fa-compress';
       }
     }
     
-    // Listen for fullscreen change events to update icon
-    document.addEventListener('fullscreenchange', updateFullscreenIcons);
-    document.addEventListener('webkitfullscreenchange', updateFullscreenIcons);
-    document.addEventListener('mozfullscreenchange', updateFullscreenIcons);
+    // Listen for fullscreen change events
+    document.addEventListener('fullscreenchange', updateFullscreenUI);
+    document.addEventListener('webkitfullscreenchange', updateFullscreenUI);
+    document.addEventListener('mozfullscreenchange', updateFullscreenUI);
     
-    function updateFullscreenIcons() {
+    function updateFullscreenUI() {
       const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
-      const iconClass = isFullscreen ? 'fas fa-compress' : 'fas fa-expand';
-      document.querySelectorAll('[data-action="fullscreen"] i').forEach(icon => {
-        icon.className = iconClass;
-      });
+      
+      if (isFullscreen) {
+        if (floatingNav) floatingNav.style.display = 'none';
+        document.querySelectorAll('[data-action="fullscreen"] i').forEach(icon => {
+          icon.className = 'fas fa-compress';
+        });
+      } else {
+        if (floatingNav) floatingNav.style.display = 'flex';
+        document.querySelectorAll('[data-action="fullscreen"] i').forEach(icon => {
+          icon.className = 'fas fa-expand';
+        });
+      }
     }
     
     function escapeHTML(str) {

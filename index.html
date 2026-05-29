@@ -61,7 +61,7 @@
     .share-quick-row::-webkit-scrollbar { height:0; }
     .share-quick-item { display:flex;flex-direction:column;align-items:center;gap:0.3rem;cursor:pointer;flex-shrink:0;min-width:60px;transition:all 0.2s; }
     .share-quick-item:active { transform:scale(0.9); }
-    .share-quick-avatar { width:56px;height:56px;border-radius:50%;background:#333;display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:#fff;overflow:hidden;border:2px solid transparent;transition:all 0.2s; }
+    .share-quick-avatar { width:56px;height:56px;border-radius:50%;background:#333;display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:#fff;overflow:hidden;border:2px solid transparent;transition:all 0.2s;position:relative; }
     .share-quick-item.selected .share-quick-avatar { border-color:#FFFC00; }
     .share-quick-check { position:absolute;bottom:-2px;right:-2px;width:20px;height:20px;border-radius:50%;background:#FFFC00;display:none;align-items:center;justify-content:center;font-size:0.5rem;color:#000;font-weight:700; }
     .share-quick-item.selected .share-quick-check { display:flex; }
@@ -146,24 +146,16 @@
       transform: translateX(-50%);
       width: 92%;
       max-width: 500px;
-      
-      /* Completely transparent background */
       background: transparent;
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
-      
       border-radius: 2.5rem;
       padding: 0.7rem 1.5rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      
-      /* Almost invisible border */
       border: 1px solid rgba(255, 255, 255, 0.04);
-      
-      /* No shadow - maximum visibility */
       box-shadow: none;
-      
       z-index: 100;
       transition: all 0.3s ease;
       pointer-events: auto;
@@ -199,7 +191,6 @@
       text-decoration: none;
       position: relative;
       background: transparent;
-      /* Strong text shadow for visibility on any background */
       text-shadow: 0 0 8px rgba(0, 0, 0, 0.8), 0 0 12px rgba(0, 0, 0, 0.6);
     }
     
@@ -239,7 +230,6 @@
     @media (min-width: 1024px) {
       .top-icons { display: none; }
       .nav-upload, .nav-search { display: flex !important; }
-      
       .floating-nav {
         position: fixed;
         top: 50%;
@@ -252,29 +242,23 @@
         border-radius: 2.5rem;
         padding: 1rem 0.6rem;
         flex-direction: column;
-        
-        /* Same ultra-transparent glass for desktop */
         background: transparent;
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
       }
-      
       .nav-center {
         flex-direction: column;
         gap: 1.2rem;
         max-width: none;
       }
-      
       .nav-center a {
         font-size: 1.4rem;
         width: 2.6rem;
         height: 2.6rem;
       }
-      
       .scrollable-content {
         padding: 0.5rem 0 1rem 5.5rem;
       }
-      
       .stories-section, .feed-section {
         max-width: 550px;
       }
@@ -393,11 +377,75 @@
     function cname(u) { return (u || '').replace(/^@/, ''); }
     function fmtDur(s) { const m = Math.floor(s/60), sec = Math.floor(s%60); return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0'); }
     function timeAgo(d) { if (!d) return ''; const n = new Date(); const df = n - d; if (df < 60000) return 'now'; if (df < 3600000) return Math.floor(df/60000)+'m'; if (df < 86400000) return Math.floor(df/3600000)+'h'; if (df < 604800000) return Math.floor(df/86400000)+'d'; return d.toLocaleDateString(); }
-    function loadUserFromLocalCache(username) { if (!username || username === '@anonymous') return null; const key = 'profile_' + username.replace('@',''); const cached = localStorage.getItem(key); if (cached) { try { return JSON.parse(cached); } catch(e) {} } const up = JSON.parse(localStorage.getItem('userProfile') || '{}'); if (up.username === username) return up; return null; }
+    
+    function loadUserFromLocalCache(username) { if (!username || username === '@anonymous') return null; const key = 'profile_' + username.replace('@',''); const cached = localStorage.getItem(key); if (cached) { try { return JSON.parse(cached); } catch(e) {} } return null; }
+    
     async function batchLoadProfiles(usernames) { const uniqueUsers = [...new Set(usernames)].filter(u => u && u !== '@anonymous' && !userCache.has(u)); if (uniqueUsers.length === 0) return; for (const u of uniqueUsers) { const local = loadUserFromLocalCache(u); if (local) userCache.set(u, { avatar: local.avatar || null, name: local.name || u }); } for (let i = 0; i < uniqueUsers.filter(u => !userCache.has(u)).length; i += 10) { const batch = uniqueUsers.filter(u => !userCache.has(u)).slice(i, i+10); if (batch.length === 0) break; try { const q = query(collection(db, 'users'), where('username', 'in', batch)); const snap = await getDocs(q); snap.forEach(doc => { const d = doc.data(); userCache.set(d.username, { avatar: d.avatar || null, name: d.name || d.username }); localStorage.setItem('profile_' + d.username.replace('@',''), JSON.stringify(d)); }); } catch(e) {} } updateAllAvatars(); }
+    
     function getAvtFromCache(username) { const p = userCache.get(username); if (p?.avatar && p.avatar !== 'null' && p.avatar !== 'undefined') return `<img src="${p.avatar}" alt="" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\\'fas fa-user\\'></i>';">`; return '<i class="fas fa-user"></i>'; }
     function updateAllAvatars() { document.querySelectorAll('[data-avatar-user]').forEach(el => { el.innerHTML = getAvtFromCache(el.dataset.avatarUser); }); }
-    function showToast(m, e) { const t = document.getElementById('toast'); t.textContent = m; t.className = 'toast '+(e?'error':''); t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2500); }
+    function showToast(m) { const t = document.getElementById('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2500); }
+
+    // ========== STORIES - FAST FROM PROFILE (NO EXTRA QUERIES) ==========
+    async function renderStories() {
+      const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+      // Get friends and besties directly from profile - NO FIRESTORE QUERY!
+      const friends = profile.friends || [];
+      const besties = profile.besties || [];
+      
+      // Combine and mark types
+      const storyUsers = [
+        ...friends.map(f => ({ name: f.name, type: 'friend', avatar: f.avatar })),
+        ...besties.map(b => ({ name: b.name, type: 'bestie', avatar: b.avatar }))
+      ];
+      
+      const bar = document.getElementById('storiesBar');
+      const ns = document.getElementById('noStories');
+      
+      if (storyUsers.length === 0) {
+        bar.style.display = 'none';
+        ns.style.display = 'block';
+        return;
+      }
+      
+      bar.style.display = 'flex';
+      ns.style.display = 'none';
+      
+      // Add current user's own story option at the beginning
+      const currentUserProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+      const ownAvatar = currentUserProfile.avatar || null;
+      const ownName = currentUserProfile.name || cname(currentUser);
+      
+      // Build stories HTML - all from localStorage, NO Firebase calls
+      bar.innerHTML = `
+        <div class="story-item" onclick="window.location.href='profile.html?user=${encodeURIComponent(currentUser)}'">
+          <div class="story-ring friend">
+            <div class="story-avatar">
+              ${ownAvatar ? `<img src="${ownAvatar}" alt="" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\\'fas fa-user\\'></i>';">` : '<i class="fas fa-user"></i>'}
+            </div>
+          </div>
+          <span class="story-name">Your Story</span>
+        </div>
+        ${storyUsers.map(s => {
+          const avatar = s.avatar || (userCache.get(s.name)?.avatar) || null;
+          return `<div class="story-item" onclick="window.location.href='profile.html?user=${encodeURIComponent(s.name)}'">
+            <div class="story-ring ${s.type}">
+              <div class="story-avatar">
+                ${avatar ? `<img src="${avatar}" alt="" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\\'fas fa-user\\'></i>';">` : '<i class="fas fa-user"></i>'}
+              </div>
+            </div>
+            <span class="story-name">${cname(s.name)}</span>
+          </div>`;
+        }).join('')}
+      `;
+      
+      // Cache avatars from profile for future use
+      storyUsers.forEach(s => {
+        if (s.avatar && !userCache.has(s.name)) {
+          userCache.set(s.name, { avatar: s.avatar, name: s.name });
+        }
+      });
+    }
 
     // Share functions
     window.openShare = async function(postId, src, caption) {
@@ -416,7 +464,7 @@
       const row = document.getElementById('shareQuickRow');
       row.innerHTML = users.map(u => {
         const isSelected = window._selectedUsers.includes(u.username);
-        return `<div class="share-quick-item ${isSelected ? 'selected' : ''}" onclick="toggleSelectUser('${u.username}')"><div class="share-quick-avatar" style="position:relative;">${u.avatar && u.avatar !== 'null' ? `<img src="${u.avatar}" alt="" onerror="this.style.display='none';this.innerHTML='${u.name.charAt(0)}';"` : u.name.charAt(0).toUpperCase()}<div class="share-quick-check">✓</div></div><span class="share-quick-name">${u.name}</span></div>`;
+        return `<div class="share-quick-item ${isSelected ? 'selected' : ''}" onclick="toggleSelectUser('${u.username}')"><div class="share-quick-avatar" style="position:relative;">${u.avatar && u.avatar !== 'null' ? `<img src="${u.avatar}" alt="" onerror="this.style.display='none';this.innerHTML='${u.name.charAt(0)}';">` : u.name.charAt(0).toUpperCase()}<div class="share-quick-check">✓</div></div><span class="share-quick-name">${u.name}</span></div>`;
       }).join('');
     }
 
@@ -448,7 +496,7 @@
       if (users.length === 0) { list.innerHTML = '<div style="text-align:center;color:#555;padding:1.5rem;font-size:0.7rem;">No users found</div>'; return; }
       list.innerHTML = users.map(u => {
         const isSelected = window._selectedUsers.includes(u.username);
-        return `<div class="share-user-item ${isSelected ? 'selected' : ''}" onclick="toggleSelectUser('${u.username}')"><div class="share-checkbox">${isSelected ? '✓' : ''}</div><div class="share-user-avatar">${u.avatar && u.avatar !== 'null' ? `<img src="${u.avatar}" alt="" onerror="this.style.display='none';this.innerHTML='${u.name.charAt(0)}';"` : u.name.charAt(0).toUpperCase()}</div><div class="share-user-info"><span class="share-user-name">${u.name}</span><span class="share-user-username">${u.username.replace('@','')}</span></div></div>`;
+        return `<div class="share-user-item ${isSelected ? 'selected' : ''}" onclick="toggleSelectUser('${u.username}')"><div class="share-checkbox">${isSelected ? '✓' : ''}</div><div class="share-user-avatar">${u.avatar && u.avatar !== 'null' ? `<img src="${u.avatar}" alt="" onerror="this.style.display='none';this.innerHTML='${u.name.charAt(0)}';">` : u.name.charAt(0).toUpperCase()}</div><div class="share-user-info"><span class="share-user-name">${u.name}</span><span class="share-user-username">${u.username.replace('@','')}</span></div></div>`;
       }).join('');
     }
 
@@ -456,7 +504,7 @@
       shareUserList = [];
       const profile = JSON.parse(localStorage.getItem('userProfile')||'{}');
       (profile.friends || []).forEach(f => { if (f.name !== currentUser) shareUserList.push({ username: f.name, name: cname(f.name), avatar: f.avatar || null }); });
-      try { const snap = await getDocs(collection(db, 'users')); snap.forEach(doc => { const d = doc.data(); if (d.username && d.username !== currentUser && !shareUserList.find(u => u.username === d.username)) { shareUserList.push({ username: d.username, name: d.name || cname(d.username), avatar: d.avatar || null }); } }); } catch(e) {}
+      (profile.besties || []).forEach(b => { if (b.name !== currentUser && !shareUserList.find(u => u.username === b.name)) shareUserList.push({ username: b.name, name: cname(b.name), avatar: b.avatar || null }); });
       for (const u of shareUserList) { const cached = loadUserFromLocalCache(u.username); if (cached?.avatar) u.avatar = cached.avatar; }
     }
 
@@ -480,17 +528,17 @@
 
     // Voice, Comments, Feed
     window.toggleMainMic = function() { if (voiceRecorder && voiceRecorder.state === 'recording') { sendRecording(); } else { startVoiceRecording(); } };
-    async function startVoiceRecording() { try { const stream = await navigator.mediaDevices.getUserMedia({ audio: true }); voiceRecorder = new MediaRecorder(stream, { audioBitsPerSecond: 32000 }); voiceChunks = []; voiceSeconds = 0; voiceRecorder.ondataavailable = e => { if (e.data.size > 0) voiceChunks.push(e.data); }; voiceRecorder.onstop = () => { stream.getTracks().forEach(t => t.stop()); }; voiceRecorder.start(100); document.getElementById('globalRecBar').classList.add('show'); document.getElementById('grecTimer').textContent = '00:00'; document.getElementById('mainMicBtn').classList.add('recording'); voiceTimer = setInterval(() => { voiceSeconds++; document.getElementById('grecTimer').textContent = fmtDur(voiceSeconds); if (voiceSeconds >= MAX_VOICE_SEC) sendRecording(); }, 1000); } catch(e) { showToast('Mic needed!', true); } }
+    async function startVoiceRecording() { try { const stream = await navigator.mediaDevices.getUserMedia({ audio: true }); voiceRecorder = new MediaRecorder(stream, { audioBitsPerSecond: 32000 }); voiceChunks = []; voiceSeconds = 0; voiceRecorder.ondataavailable = e => { if (e.data.size > 0) voiceChunks.push(e.data); }; voiceRecorder.onstop = () => { stream.getTracks().forEach(t => t.stop()); }; voiceRecorder.start(100); document.getElementById('globalRecBar').classList.add('show'); document.getElementById('grecTimer').textContent = '00:00'; document.getElementById('mainMicBtn').classList.add('recording'); voiceTimer = setInterval(() => { voiceSeconds++; document.getElementById('grecTimer').textContent = fmtDur(voiceSeconds); if (voiceSeconds >= MAX_VOICE_SEC) sendRecording(); }, 1000); } catch(e) { showToast('Mic needed!'); } }
     window.cancelRecording = function() { if (voiceRecorder && voiceRecorder.state === 'recording') { voiceRecorder.onstop = () => {}; voiceRecorder.stop(); voiceChunks = []; } clearInterval(voiceTimer); document.getElementById('globalRecBar').classList.remove('show'); document.getElementById('mainMicBtn').classList.remove('recording'); voiceRecorder = null; };
-    window.sendRecording = async function() { if (!voiceRecorder || voiceRecorder.state !== 'recording' || !activePostId) return; if (voiceSeconds < 1) { cancelRecording(); return; } const duration = voiceSeconds; voiceRecorder.onstop = async () => { const blob = new Blob(voiceChunks, { type: 'audio/webm' }); const reader = new FileReader(); reader.onload = async (e) => { try { await addDoc(collection(db, 'posts', activePostId, 'comments'), { audioUrl: e.target.result, audioDuration: duration, username: currentUser, parentId: null, createdAt: serverTimestamp(), type: 'voice' }); await updateDoc(doc(db, 'posts', activePostId), { comments: increment(1) }); await renderAllComments(activePostId); showToast('Voice posted! 🎤'); } catch(err) { showToast('Failed', true); } }; reader.readAsDataURL(blob); }; voiceRecorder.stop(); clearInterval(voiceTimer); document.getElementById('globalRecBar').classList.remove('show'); document.getElementById('mainMicBtn').classList.remove('recording'); voiceRecorder = null; };
+    window.sendRecording = async function() { if (!voiceRecorder || voiceRecorder.state !== 'recording' || !activePostId) return; if (voiceSeconds < 1) { cancelRecording(); return; } const duration = voiceSeconds; voiceRecorder.onstop = async () => { const blob = new Blob(voiceChunks, { type: 'audio/webm' }); const reader = new FileReader(); reader.onload = async (e) => { try { await addDoc(collection(db, 'posts', activePostId, 'comments'), { audioUrl: e.target.result, audioDuration: duration, username: currentUser, parentId: null, createdAt: serverTimestamp(), type: 'voice' }); await updateDoc(doc(db, 'posts', activePostId), { comments: increment(1) }); await renderAllComments(activePostId); showToast('Voice posted! 🎤'); } catch(err) { showToast('Failed'); } }; reader.readAsDataURL(blob); }; voiceRecorder.stop(); clearInterval(voiceTimer); document.getElementById('globalRecBar').classList.remove('show'); document.getElementById('mainMicBtn').classList.remove('recording'); voiceRecorder = null; };
     window.playVoiceComment = function(cmtId, audioUrl) { if (!audioUrl) return; const el = document.getElementById('cmt-' + cmtId); if (!el) return; const btn = el.querySelector('.vc-play-btn'); const icon = btn?.querySelector('i'); Object.values(window._voicePlayers).forEach(a => { if (a && !a.paused) { a.pause(); } }); document.querySelectorAll('.vc-play-btn i').forEach(i => { i.className = 'fas fa-play'; }); if (window._voicePlayers[cmtId] && !window._voicePlayers[cmtId].paused) { window._voicePlayers[cmtId].pause(); if (icon) icon.className = 'fas fa-play'; return; } let audio = window._voicePlayers[cmtId]; if (!audio) { audio = new Audio(); window._voicePlayers[cmtId] = audio; } if (audio.src !== audioUrl) { audio.src = audioUrl; } audio.onplay = () => { if (icon) icon.className = 'fas fa-pause'; }; audio.onpause = () => { if (icon) icon.className = 'fas fa-play'; }; audio.onended = () => { if (icon) icon.className = 'fas fa-play'; }; audio.play().catch(err => { if (icon) icon.className = 'fas fa-exclamation-triangle'; }); };
 
     async function renderAllComments(postId) { const list = document.getElementById('commentsList'); list.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;">Loading...</div>'; try { const q = query(collection(db, 'posts', postId, 'comments'), orderBy('createdAt', 'asc')); const snap = await getDocs(q); if (snap.empty) { list.innerHTML = '<div style="text-align:center;color:#555;padding:2rem;">No comments yet</div>'; return; } const allComments = []; snap.forEach(doc => { allComments.push({ id: doc.id, ...doc.data() }); }); await batchLoadProfiles([...new Set(allComments.map(c => c.username).filter(Boolean))]); list.innerHTML = ''; allComments.filter(c => !c.parentId).forEach(cmt => renderComment(cmt, allComments, list, 0)); } catch(e) { list.innerHTML = '<div style="text-align:center;color:#ef4444;padding:2rem;">Error</div>'; } }
     function renderComment(cmt, all, parent, depth) { const block = document.createElement('div'); block.className = 'cmt-block'; block.id = 'cmt-' + cmt.id; if (depth > 0) { block.style.marginLeft = '1.5rem'; block.style.borderLeft = '1px solid rgba(255,255,255,0.06)'; block.style.paddingLeft = '0.5rem'; } const time = cmt.createdAt ? timeAgo(cmt.createdAt.toDate()) : ''; const isOwner = cmt.username === currentUser; let contentHTML = ''; if (cmt.text) contentHTML = `<div class="cmt-content">${cmt.text}</div>`; if (cmt.audioUrl) { contentHTML += `<div class="vc-play-btn" onclick="event.stopPropagation();playVoiceComment('${cmt.id}','${cmt.audioUrl}')"><i class="fas fa-play"></i> Voice <span class="vc-duration">${fmtDur(cmt.audioDuration||0)}</span></div>`; } block.innerHTML = `<div class="cmt-row"><div class="cmt-avatar" data-avatar-user="${cmt.username}">${getAvtFromCache(cmt.username)}</div><div class="cmt-body"><div class="cmt-username">${cname(cmt.username)}</div>${contentHTML}<div class="cmt-meta"><span class="cmt-time">${time}</span><button class="cmt-btn reply-btn" onclick="toggleReplyBox('${cmt.id}')">Reply</button><button class="cmt-btn del-btn ${isOwner?'show':''}" onclick="deleteComment('${activePostId}','${cmt.id}')">Del</button></div><div class="reply-box" id="replyBox-${cmt.id}"><div class="reply-input-wrap"><input type="text" class="reply-input" id="replyInput-${cmt.id}" placeholder="Reply..."></div><button class="reply-post-btn" onclick="postReply('${activePostId}','${cmt.id}')">Reply</button></div><div class="replies-container" id="replies-${cmt.id}"></div></div></div>`; parent.appendChild(block); const children = all.filter(c => c.parentId === cmt.id); if (children.length > 0) { const rc = block.querySelector('.replies-container'); children.forEach(child => renderComment(child, all, rc, depth + 1)); } }
     window.toggleReplyBox = function(id) { const b = document.getElementById('replyBox-'+id); if(b){b.classList.toggle('show');if(b.classList.contains('show'))setTimeout(()=>document.getElementById('replyInput-'+id)?.focus(),100);} };
-    window.postMainComment = async function() { const t = document.getElementById('cmtInput').value.trim(); if(!t||!activePostId)return; try{await addDoc(collection(db,'posts',activePostId,'comments'),{text:t,username:currentUser,createdAt:serverTimestamp(),parentId:null});await updateDoc(doc(db,'posts',activePostId),{comments:increment(1)});document.getElementById('cmtInput').value='';await renderAllComments(activePostId);showToast('Posted!');}catch(e){showToast('Failed',true);} };
-    window.postReply = async function(pid,parentId) { const t = document.getElementById('replyInput-'+parentId)?.value.trim(); if(!t||!pid)return; try{await addDoc(collection(db,'posts',pid,'comments'),{text:t,username:currentUser,parentId,createdAt:serverTimestamp()});await updateDoc(doc(db,'posts',pid),{comments:increment(1)});document.getElementById('replyInput-'+parentId).value='';document.getElementById('replyBox-'+parentId)?.classList.remove('show');await renderAllComments(pid);showToast('Replied!');}catch(e){showToast('Failed',true);} };
-    window.deleteComment = async function(pid,cid) { if(!confirm('Delete?'))return; try{const all=await getDocs(collection(db,'posts',pid,'comments'));const del=[cid];const find=pids=>{all.forEach(d=>{if(pids.includes(d.data().parentId)){del.push(d.id);find([d.id]);}});};find([cid]);for(const id of del)await deleteDoc(doc(db,'posts',pid,'comments',id));await updateDoc(doc(db,'posts',pid),{comments:increment(-del.length)});await renderAllComments(pid);showToast('Deleted');}catch(e){showToast('Failed',true);} };
+    window.postMainComment = async function() { const t = document.getElementById('cmtInput').value.trim(); if(!t||!activePostId)return; try{await addDoc(collection(db,'posts',activePostId,'comments'),{text:t,username:currentUser,createdAt:serverTimestamp(),parentId:null});await updateDoc(doc(db,'posts',activePostId),{comments:increment(1)});document.getElementById('cmtInput').value='';await renderAllComments(activePostId);showToast('Posted!');}catch(e){showToast('Failed');} };
+    window.postReply = async function(pid,parentId) { const t = document.getElementById('replyInput-'+parentId)?.value.trim(); if(!t||!pid)return; try{await addDoc(collection(db,'posts',pid,'comments'),{text:t,username:currentUser,parentId,createdAt:serverTimestamp()});await updateDoc(doc(db,'posts',pid),{comments:increment(1)});document.getElementById('replyInput-'+parentId).value='';document.getElementById('replyBox-'+parentId)?.classList.remove('show');await renderAllComments(pid);showToast('Replied!');}catch(e){showToast('Failed');} };
+    window.deleteComment = async function(pid,cid) { if(!confirm('Delete?'))return; try{const all=await getDocs(collection(db,'posts',pid,'comments'));const del=[cid];const find=pids=>{all.forEach(d=>{if(pids.includes(d.data().parentId)){del.push(d.id);find([d.id]);}});};find([cid]);for(const id of del)await deleteDoc(doc(db,'posts',pid,'comments',id));await updateDoc(doc(db,'posts',pid),{comments:increment(-del.length)});await renderAllComments(pid);showToast('Deleted');}catch(e){showToast('Failed');} };
     window.openComments = async function(pid) { activePostId=pid;document.getElementById('commentsOverlay').classList.add('show');document.getElementById('cmtInput').value='';await renderAllComments(pid); };
     window.closeComments = function() { cancelRecording(); Object.values(window._voicePlayers).forEach(a => { if (a) { a.pause(); a.src = ''; } }); window._voicePlayers = {}; document.getElementById('commentsOverlay').classList.remove('show'); activePostId=null; };
 
@@ -500,12 +548,11 @@
     function setupInfiniteScroll() { const c=document.getElementById('mainContent');let t=false;c.addEventListener('scroll',()=>{if(!t){requestAnimationFrame(()=>{if(c.scrollHeight-c.scrollTop-c.clientHeight<500)loadMorePosts();t=false;});t=true;}},{passive:true}); }
     window.toggleLike=async function(pid){const b=document.getElementById('likeBtn-'+pid),l=document.getElementById('likes-'+pid);if(!b||!l)return;const liked=b.classList.contains('liked');if(liked){b.classList.remove('liked');b.querySelector('i').className='far fa-heart';l.textContent=(Math.max(0,parseInt(l.textContent)-1))+' likes';try{await updateDoc(doc(db,'posts',pid),{likes:increment(-1)});}catch(e){}}else{b.classList.add('liked');b.querySelector('i').className='fas fa-heart';l.textContent=(parseInt(l.textContent)+1)+' likes';try{await updateDoc(doc(db,'posts',pid),{likes:increment(1)});}catch(e){}}};
     window.openImageViewer=function(s){const o=document.createElement('div');o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:800;display:flex;align-items:center;justify-content:center;';o.innerHTML=`<img src="${s}" style="max-width:95%;max-height:90vh;object-fit:contain;"><button style="position:absolute;top:1rem;right:1rem;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.6);border:none;color:#fff;font-size:1rem;cursor:pointer;">✕</button>`;o.querySelector('button').onclick=()=>o.remove();o.onclick=e=>{if(e.target===o)o.remove();};document.body.appendChild(o);};
-    async function renderStories(){const p=JSON.parse(localStorage.getItem('userProfile')||'{}');const ps=[...(p.friends||[]).map(f=>({name:f.name,type:'friend'})),...(p.besties||[]).map(b=>({name:b.name,type:'bestie'}))];const bar=document.getElementById('storiesBar'),ns=document.getElementById('noStories');if(ps.length===0){bar.style.display='none';ns.style.display='block';return;}bar.style.display='flex';ns.style.display='none';await batchLoadProfiles(ps.map(s=>s.name));bar.innerHTML=ps.map(s=>`<div class="story-item" onclick="window.location.href='profile.html?user=${encodeURIComponent(s.name)}'"><div class="story-ring ${s.type}"><div class="story-avatar">${getAvtFromCache(s.name)}</div></div><span class="story-name">${cname(s.name)}</span></div>`).join('');}
 
     document.getElementById('cmtInput').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();postMainComment();}});
     document.getElementById('commentsOverlay').addEventListener('click',function(e){if(e.target===this)closeComments();});
 
-    async function bootApp(){const uid=localStorage.getItem("uid");if(!uid&&!auth.currentUser){await new Promise(r=>{const u=onAuthStateChanged(auth,(user)=>{u();if(user)localStorage.setItem("uid",user.uid);r();});});}if(!localStorage.getItem("uid")&&!auth.currentUser){window.location.replace("login.html");return;}document.getElementById('mainPage').style.display='flex';const lp=JSON.parse(localStorage.getItem('userProfile')||'{}');if(lp.username)userCache.set(lp.username,{avatar:lp.avatar||null,name:lp.name||lp.username});renderStories();setupInfiniteScroll();loadMorePosts();}
+    async function bootApp(){const uid=localStorage.getItem("uid");if(!uid&&!auth.currentUser){await new Promise(r=>{const u=onAuthStateChanged(auth,(user)=>{u();if(user)localStorage.setItem("uid",user.uid);r();});});}if(!localStorage.getItem("uid")&&!auth.currentUser){window.location.replace("login.html");return;}document.getElementById('mainPage').style.display='flex';const lp=JSON.parse(localStorage.getItem('userProfile')||'{}');if(lp.username)userCache.set(lp.username,{avatar:lp.avatar||null,name:lp.name||lp.username});await renderStories();setupInfiniteScroll();loadMorePosts();}
     bootApp();
   </script>
 </body>

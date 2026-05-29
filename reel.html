@@ -275,7 +275,7 @@
     const CACHE_KEY = 'reels_cache_v1';
     const CACHE_TTL = 5 * 60 * 1000;
     
-    // Fast toggle fullscreen - first tap removes navbar, second tap brings navbar back
+    // Fullscreen toggle - changes icon from expand to compress and back
     function toggleFullscreen(videoElement, fullscreenBtn) {
       if (!videoElement) return;
       
@@ -296,6 +296,8 @@
         if (fullscreenBtn) {
           const icon = fullscreenBtn.querySelector('i');
           if (icon) icon.className = 'fas fa-expand';
+          const span = fullscreenBtn.querySelector('span');
+          if (span) span.textContent = 'Full';
         }
       } else {
         // Enter fullscreen
@@ -315,6 +317,8 @@
         if (fullscreenBtn) {
           const icon = fullscreenBtn.querySelector('i');
           if (icon) icon.className = 'fas fa-compress';
+          const span = fullscreenBtn.querySelector('span');
+          if (span) span.textContent = 'Exit';
         }
       }
     }
@@ -332,10 +336,16 @@
         document.querySelectorAll('[data-action="fullscreen"] i').forEach(icon => {
           icon.className = 'fas fa-compress';
         });
+        document.querySelectorAll('[data-action="fullscreen"] span').forEach(span => {
+          span.textContent = 'Exit';
+        });
       } else {
         if (floatingNav) floatingNav.style.display = 'flex';
         document.querySelectorAll('[data-action="fullscreen"] i').forEach(icon => {
           icon.className = 'fas fa-expand';
+        });
+        document.querySelectorAll('[data-action="fullscreen"] span').forEach(span => {
+          span.textContent = 'Full';
         });
       }
     }

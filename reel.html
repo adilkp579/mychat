@@ -275,14 +275,14 @@
     const CACHE_KEY = 'reels_cache_v1';
     const CACHE_TTL = 5 * 60 * 1000;
     
-    // Fullscreen toggle - changes icon from expand to compress and back
+    // Fullscreen toggle - exit icon shows navbar when tapped
     function toggleFullscreen(videoElement, fullscreenBtn) {
       if (!videoElement) return;
       
       const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
       
       if (isFullscreen) {
-        // Exit fullscreen
+        // EXIT FULLSCREEN - second tap on exit icon
         if (document.exitFullscreen) {
           document.exitFullscreen();
         } else if (document.webkitExitFullscreen) {
@@ -300,7 +300,7 @@
           if (span) span.textContent = 'Full';
         }
       } else {
-        // Enter fullscreen
+        // ENTER FULLSCREEN - first tap on full icon
         const elem = videoElement;
         if (elem.requestFullscreen) {
           elem.requestFullscreen();
@@ -313,7 +313,7 @@
         }
         // Hide navbar
         if (floatingNav) floatingNav.style.display = 'none';
-        // Change icon to compress
+        // Change icon to compress (exit icon)
         if (fullscreenBtn) {
           const icon = fullscreenBtn.querySelector('i');
           if (icon) icon.className = 'fas fa-compress';

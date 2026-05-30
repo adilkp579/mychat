@@ -206,13 +206,11 @@
           <div class="crop-image-wrap" id="cropImageWrap">
             <img id="cropImage" src="" alt="crop">
           </div>
-          <!-- Grid overlay drawn via canvas -->
           <canvas class="crop-grid-overlay" id="cropGridOverlay"></canvas>
         </div>
       </div>
       
       <div class="crop-bottombar">
-        <!-- Aspect ratio chips -->
         <div class="crop-aspects" id="cropAspects">
           <button class="aspect-btn" onclick="setAspect(this, 1, 1)">1:1</button>
           <button class="aspect-btn" onclick="setAspect(this, 4, 5)">4:5</button>
@@ -221,7 +219,6 @@
           <button class="aspect-btn custom-btn" onclick="openCustomSize()">📐 Custom</button>
         </div>
         
-        <!-- Straighten slider -->
         <div class="straighten-slider" id="straightenSlider">
           <i class="fas fa-angle-left"></i>
           <input type="range" id="straightenRange" min="-45" max="45" value="0" step="0.1" oninput="updateStraighten()">
@@ -229,7 +226,6 @@
           <span class="straighten-value" id="straightenValue">0°</span>
         </div>
         
-        <!-- Tools: Rotate, Straighten, Reset -->
         <div class="crop-tools">
           <button class="crop-tool-btn" onclick="rotateImageLeft()">
             <i class="fas fa-undo-alt"></i>
@@ -292,14 +288,22 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
     const app = initializeApp({apiKey:"AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",authDomain:"mychat-a97bf.firebaseapp.com",projectId:"mychat-a97bf"});
     const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // ✅ BACKEND CONFIGURATION - Replace with your Railway backend URL
+    const BACKEND_URL = 'https://your-railway-app.up.railway.app'; // CHANGE THIS TO YOUR ACTUAL BACKEND URL
+    // Example: const BACKEND_URL = 'https://mychat-backend.up.railway.app';
 
     let currentUsername = localStorage.getItem('currentUser') || '@anonymous';
     let currentUserId = currentUsername.replace('@','');
     let selectedType = null, croppedImageData = null;
+    let uploadedFileUrl = null;
+    let uploadedFileKey = null;
     
     // Crop state
     let cropAspectW = 3, cropAspectH = 4;
@@ -309,6 +313,62 @@
     let lastPinchDist = 0;
     let imageNaturalW = 0, imageNaturalH = 0;
     let straightenVisible = false;
+
+    // ✅ Helper: Get Firebase Auth token for backend authentication
+    async function getAuthToken() {
+      const user = auth.currentUser;
+      if (user) {
+        return await user.getIdToken();
+      }
+      return localStorage.getItem('uid') || null;
+    }
+
+    // ✅ UPLOAD FILE TO S3 VIA BACKEND API
+    async function uploadFileToS3(fileBlob, fileName, fileType) {
+      try {
+        const token = await getAuthToken();
+        
+        // Convert dataURL to Blob if needed
+        let fileToUpload;
+        if (typeof fileBlob === 'string' && fileBlob.startsWith('data:')) {
+          // Convert dataURL to Blob
+          const response = await fetch(fileBlob);
+          fileToUpload = await response.blob();
+        } else {
+          fileToUpload = fileBlob;
+        }
+        
+        // Create FormData
+        const formData = new FormData();
+        formData.append('file', fileToUpload, fileName);
+        formData.append('type', selectedType === 'post' ? 'image' : 'video');
+        
+        const response = await fetch(`${BACKEND_URL}/api/upload`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Upload failed: ${response.status} - ${errorText}`);
+        }
+        
+        const data = await response.json();
+        console.log('✅ Upload successful:', data);
+        
+        return {
+          url: data.url,
+          key: data.key,
+          bucket: data.bucket
+        };
+      } catch (error) {
+        console.error('❌ Upload error:', error);
+        throw error;
+      }
+    }
 
     window.selectType = function(type) {
       if (!currentUsername || currentUsername === '@anonymous') {
@@ -407,7 +467,6 @@
       drawCropGrid();
     }
 
-    // ✅ Draw crop area grid
     function drawCropGrid() {
       const canvas = document.getElementById('cropGridOverlay');
       const viewport = document.getElementById('cropViewport');
@@ -431,14 +490,10 @@
       const cropLeft = (viewW - cropW) / 2;
       const cropTop = (viewH - cropH) / 2;
       
-      // Dim outside crop area
       ctx.fillStyle = 'rgba(0,0,0,0.6)';
       ctx.fillRect(0, 0, viewW, viewH);
-      
-      // Clear crop area
       ctx.clearRect(cropLeft, cropTop, cropW, cropH);
       
-      // Grid lines (3x3)
       ctx.strokeStyle = 'rgba(255,255,255,0.35)';
       ctx.lineWidth = 0.5;
       
@@ -454,12 +509,10 @@
         ctx.stroke();
       }
       
-      // Border
       ctx.strokeStyle = 'rgba(255,255,255,0.6)';
       ctx.lineWidth = 1;
       ctx.strokeRect(cropLeft, cropTop, cropW, cropH);
       
-      // Corner marks
       const cornerLen = 20;
       ctx.strokeStyle = '#fff';
       ctx.lineWidth = 2;
@@ -477,7 +530,6 @@
       });
     }
 
-    // ✅ Aspect ratio
     window.setAspect = function(btn, w, h) {
       document.querySelectorAll('.aspect-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
@@ -503,13 +555,11 @@
       document.getElementById('customSizeModal').classList.remove('show');
     };
 
-    // ✅ Rotate 90° left
     window.rotateImageLeft = function() {
       cropRotation = (cropRotation - 90) % 360;
       updateImageTransform();
     };
 
-    // ✅ Straighten toggle
     window.toggleStraighten = function() {
       straightenVisible = !straightenVisible;
       const slider = document.getElementById('straightenSlider');
@@ -534,13 +584,11 @@
       updateImageTransform();
     };
 
-    // ✅ Flip horizontal
     window.flipHorizontal = function() {
       flipH = !flipH;
       updateImageTransform();
     };
 
-    // ✅ Reset all
     window.resetCrop = function() {
       cropRotation = 0;
       straightenAngle = 0;
@@ -557,7 +605,6 @@
       positionImageToFit();
     };
 
-    // ✅ Pan / Pinch
     const viewport = document.getElementById('cropViewport');
     
     viewport.addEventListener('mousedown', e => {
@@ -608,7 +655,6 @@
     window.addEventListener('mouseup', () => isPanning = false);
     window.addEventListener('touchend', () => isPanning = false);
 
-    // ✅ Apply crop
     window.applyCropAndContinue = function() {
       const canvas = document.createElement('canvas');
       const img = document.getElementById('cropImage');
@@ -681,27 +727,38 @@
       document.getElementById('fileSizeText').textContent = `Size: ${(fileSize/1024).toFixed(1)}KB`;
     }
 
-    // ✅ SAVE TO CLOUD - Saves to posts collection AND updates user profile
+    // ✅ UPDATED: Save to Cloud via S3 Backend
     window.saveToCloud = async function() {
       if(!croppedImageData || !currentUsername) { showToast('Session expired.'); return; }
       const btn = document.getElementById('saveBtn'), status = document.getElementById('saveStatus');
-      btn.disabled = true; btn.textContent = 'Saving...';
+      btn.disabled = true; btn.textContent = 'Uploading to server...';
       
       try {
-        // 1. Save to Firestore 'posts' collection (for home page feed)
+        // Step 1: Upload file to S3 via backend API
+        status.textContent = 'Uploading to server...';
+        const fileName = `${currentUserId}_${Date.now()}.${selectedType === 'post' ? 'jpg' : 'mp4'}`;
+        const fileType = selectedType === 'post' ? 'image/jpeg' : 'video/mp4';
+        
+        const uploadResult = await uploadFileToS3(croppedImageData, fileName, fileType);
+        uploadedFileUrl = uploadResult.url;
+        uploadedFileKey = uploadResult.key;
+        
+        status.textContent = 'Saving to database...';
+        
+        // Step 2: Save to Firestore 'posts' collection with S3 URL
         const docRef = await addDoc(collection(db, 'posts'), {
           userId: currentUserId,
           username: currentUsername,
           type: selectedType === 'post' ? 'image' : selectedType,
-          data: croppedImageData,
+          data: uploadedFileUrl,  // ✅ S3 URL instead of base64
+          s3Key: uploadedFileKey,  // ✅ Store S3 key for future reference
           caption: '',
           likes: 0,
           comments: 0,
           createdAt: serverTimestamp()
         });
         
-        // 2. Update user profile in Firestore
-        const { getDoc, doc, setDoc } = await import("https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js");
+        // Step 3: Update user profile
         const userRef = doc(db, 'users', currentUserId);
         const userSnap = await getDoc(userRef);
         
@@ -709,7 +766,6 @@
         if (userSnap.exists()) {
           userProfile = userSnap.data();
         } else {
-          // Fallback to localStorage
           userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
         }
         
@@ -717,7 +773,8 @@
         
         const newPost = {
           type: selectedType === 'post' ? 'image' : (selectedType === 'reel' ? 'reel' : 'video'),
-          src: croppedImageData,
+          src: uploadedFileUrl,  // ✅ S3 URL
+          s3Key: uploadedFileKey,
           id: docRef.id,
           username: currentUsername,
           createdAt: new Date().toISOString(),
@@ -725,22 +782,20 @@
           likes: 0
         };
         
-        // Add to beginning of posts array
         userProfile.posts.unshift(newPost);
         
-        // Save to Firestore users collection
         await setDoc(userRef, {
           posts: userProfile.posts,
           updatedAt: serverTimestamp()
         }, { merge: true });
         
-        // 3. Also update localStorage for immediate UI update
+        // Step 4: Update localStorage
         const localProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
         if (!localProfile.posts) localProfile.posts = [];
         localProfile.posts.unshift(newPost);
         localStorage.setItem('userProfile', JSON.stringify(localProfile));
         
-        // 4. Update profile cache
+        // Step 5: Update profile cache
         const profileKey = 'profile_' + currentUserId;
         const cachedProfile = JSON.parse(localStorage.getItem(profileKey) || '{}');
         if (!cachedProfile.posts) cachedProfile.posts = [];
@@ -752,8 +807,9 @@
         
         setTimeout(goBackToMain, 1500);
       } catch(e) {
-        status.textContent = 'Error: ' + e.message;
         console.error('Upload error:', e);
+        status.textContent = 'Error: ' + e.message;
+        showToast('Upload failed: ' + e.message);
       }
       
       btn.disabled = false;
@@ -762,6 +818,8 @@
 
     window.goBackToMain = function() {
       croppedImageData = null;
+      uploadedFileUrl = null;
+      uploadedFileKey = null;
       document.getElementById('fileInput').value='';
       document.getElementById('previewContent').style.display='none';
       document.getElementById('mainContent').style.display='flex';
@@ -777,7 +835,6 @@
       if (e.target === this) this.classList.remove('show');
     });
 
-    // Resize handler
     window.addEventListener('resize', () => {
       if (document.getElementById('cropEditor').classList.contains('show')) {
         positionImageToFit();

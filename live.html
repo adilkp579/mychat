@@ -439,7 +439,7 @@
       font-size: 0.8rem;
     }
     
-    /* Bottom Bar - All in one line */
+    /* Bottom Bar - Like and Share on RIGHT side */
     .bottom-bar {
       position: absolute;
       bottom: 1rem;
@@ -447,53 +447,12 @@
       right: 1rem;
       z-index: 25;
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       gap: 0.8rem;
       pointer-events: none;
     }
     
-    /* Like and Share buttons */
-    .action-buttons {
-      display: flex;
-      gap: 0.8rem;
-      pointer-events: auto;
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(20px);
-      padding: 0.4rem 0.8rem;
-      border-radius: 2.5rem;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      flex-shrink: 0;
-    }
-    
-    .stream-action-btn {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.15rem;
-      background: none;
-      border: none;
-      color: #fff;
-      cursor: pointer;
-      font-size: 1.2rem;
-      padding: 0.15rem 0.4rem;
-      transition: all 0.2s;
-    }
-    
-    .stream-action-btn span {
-      font-size: 0.5rem;
-      font-weight: 500;
-      opacity: 0.8;
-    }
-    
-    .stream-action-btn:active {
-      transform: scale(0.95);
-    }
-    
-    .stream-action-btn.liked {
-      color: #ef4444;
-    }
-    
-    /* Comment section - takes remaining space */
+    /* Comment section - takes remaining space on left */
     .comment-section {
       flex: 1;
       display: flex;
@@ -587,6 +546,47 @@
       transform: scale(0.95);
     }
     
+    /* Like and Share buttons - RIGHT side vertical */
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      pointer-events: auto;
+      flex-shrink: 0;
+    }
+    
+    .stream-action-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.15rem;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 2rem;
+      color: #fff;
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 0.5rem 0.6rem;
+      transition: all 0.2s;
+      width: 3rem;
+    }
+    
+    .stream-action-btn span {
+      font-size: 0.5rem;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+    
+    .stream-action-btn:active {
+      transform: scale(0.95);
+    }
+    
+    .stream-action-btn.liked {
+      color: #ef4444;
+      border-color: rgba(239, 68, 68, 0.5);
+    }
+    
     /* Loading Overlay */
     .loading-overlay {
       position: fixed;
@@ -676,16 +676,10 @@
       .page-title {
         font-size: 1.3rem;
       }
-      .action-buttons {
-        padding: 0.3rem 0.6rem;
-        gap: 0.5rem;
-      }
       .stream-action-btn {
+        width: 2.5rem;
+        padding: 0.4rem 0.4rem;
         font-size: 1rem;
-        padding: 0.1rem 0.3rem;
-      }
-      .stream-action-btn span {
-        font-size: 0.45rem;
       }
       .comment-input-row input {
         font-size: 0.7rem;
@@ -755,9 +749,20 @@
       </div>
     </div>
     
-    <!-- Bottom Bar - Like, Share, Comment all in one line -->
+    <!-- Bottom Bar - Comment on left, Like/Share on right -->
     <div class="bottom-bar">
-      <!-- Like and Share buttons -->
+      <!-- Comment section (left side) -->
+      <div class="comment-section">
+        <div class="comment-list" id="commentList"></div>
+        <div class="comment-input-row">
+          <input type="text" id="commentInput" placeholder="Add a comment..." maxlength="150" autocomplete="off">
+          <button class="comment-send-btn" onclick="sendComment()">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Like and Share buttons (right side vertical) -->
       <div class="action-buttons">
         <button class="stream-action-btn" id="likeBtn" onclick="toggleLike()">
           <i class="far fa-heart"></i>
@@ -767,17 +772,6 @@
           <i class="fas fa-share"></i>
           <span>Share</span>
         </button>
-      </div>
-      
-      <!-- Comment section -->
-      <div class="comment-section">
-        <div class="comment-list" id="commentList"></div>
-        <div class="comment-input-row">
-          <input type="text" id="commentInput" placeholder="Add a comment..." maxlength="150" autocomplete="off">
-          <button class="comment-send-btn" onclick="sendComment()">
-            <i class="fas fa-paper-plane"></i>
-          </button>
-        </div>
       </div>
     </div>
   </div>

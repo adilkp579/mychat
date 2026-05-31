@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>Live Streams · Watch Live</title>
+  <title>Live Streams · Choicho Live</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     * {
@@ -40,6 +40,7 @@
       z-index: 100;
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 0.8rem;
     }
     
@@ -64,32 +65,40 @@
       background: rgba(255, 255, 255, 0.15);
     }
     
+    /* Choicho Style Title */
     .page-title {
-      font-size: 1.2rem;
+      font-size: 1.5rem;
       font-weight: 700;
-      color: #fff;
-      letter-spacing: 1px;
-      flex: 1;
+      background: linear-gradient(135deg, #FFFC00, #FFD700, #FFA500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 2px;
+      font-family: 'Segoe Script', 'Brush Script MT', 'Apple Chancery', cursive;
+      text-shadow: 0 0 20px rgba(255, 252, 0, 0.2);
     }
     
-    .refresh-btn {
-      width: 2.4rem;
-      height: 2.4rem;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 50%;
-      color: #fff;
-      font-size: 1rem;
-      cursor: pointer;
+    /* Live Count Badge - Top Right Corner */
+    .live-count-badge {
       display: flex;
       align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
+      gap: 0.4rem;
+      background: rgba(239, 68, 68, 0.15);
+      padding: 0.3rem 0.7rem;
+      border-radius: 2rem;
+      border: 1px solid rgba(239, 68, 68, 0.3);
       flex-shrink: 0;
     }
     
-    .refresh-btn:active {
-      transform: scale(0.95);
+    .live-count-badge i {
+      font-size: 0.5rem;
+      color: #ef4444;
+    }
+    
+    .live-count-badge span {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #ef4444;
     }
     
     /* Search Bar Below Header */
@@ -159,42 +168,7 @@
       flex: 1;
     }
     
-    .section-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 1rem;
-      padding: 0 0.2rem;
-    }
-    
-    .section-title {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: #aaa;
-      letter-spacing: 0.5px;
-    }
-    
-    .live-dot-badge {
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-      background: rgba(239, 68, 68, 0.15);
-      padding: 0.2rem 0.6rem;
-      border-radius: 1rem;
-    }
-    
-    .live-dot-badge i {
-      font-size: 0.4rem;
-      color: #ef4444;
-    }
-    
-    .live-dot-badge span {
-      font-size: 0.6rem;
-      color: #ef4444;
-      font-weight: 600;
-    }
-    
-    /* Grid Layout - 4 rows x 2 columns = 8 live streams */
+    /* Grid Layout - 2 columns, multiple rows */
     .live-users-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -299,21 +273,6 @@
       font-size: 0.75rem;
     }
     
-    /* Demo Note */
-    .demo-note {
-      text-align: center;
-      padding: 0.8rem;
-      background: rgba(255, 252, 0, 0.05);
-      margin-top: 0.5rem;
-      border-radius: 0.5rem;
-    }
-    
-    .demo-note p {
-      font-size: 0.65rem;
-      color: #FFFC00;
-      opacity: 0.7;
-    }
-    
     /* Scrollable Content */
     .scrollable-content {
       flex: 1;
@@ -356,6 +315,7 @@
       pointer-events: auto;
     }
     
+    /* Choicho Style Live Badge in Stream */
     .stream-info {
       display: flex;
       align-items: center;
@@ -364,7 +324,7 @@
       backdrop-filter: blur(20px);
       padding: 0.4rem 0.8rem;
       border-radius: 2rem;
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 252, 0, 0.3);
     }
     
     .stream-dot {
@@ -381,9 +341,12 @@
     }
     
     .stream-live-text {
-      color: #ef4444;
+      color: #FFFC00;
       font-size: 0.7rem;
       font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-shadow: 0 0 5px rgba(255, 252, 0, 0.5);
     }
     
     .stream-viewers {
@@ -606,9 +569,9 @@
     }
     
     .comment-send-btn {
-      background: #ef4444;
+      background: #FFFC00;
       border: none;
-      color: #fff;
+      color: #000;
       width: 2rem;
       height: 2rem;
       border-radius: 50%;
@@ -618,6 +581,7 @@
       cursor: pointer;
       font-size: 0.8rem;
       flex-shrink: 0;
+      font-weight: bold;
     }
     
     .comment-send-btn:active {
@@ -642,7 +606,7 @@
     
     .loading-overlay i {
       font-size: 2rem;
-      color: #ef4444;
+      color: #FFFC00;
       animation: spin 1s linear infinite;
     }
     
@@ -683,7 +647,7 @@
       transition: all 0.3s;
       pointer-events: none;
       white-space: nowrap;
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 252, 0, 0.3);
     }
     
     .toast.show {
@@ -706,6 +670,15 @@
         font-size: 0.5rem;
         padding: 0.15rem 0.4rem;
       }
+      .live-count-badge span {
+        font-size: 0.65rem;
+      }
+      .live-count-badge {
+        padding: 0.25rem 0.6rem;
+      }
+      .page-title {
+        font-size: 1.3rem;
+      }
     }
   </style>
 </head>
@@ -717,10 +690,11 @@
       <button class="back-btn" onclick="window.location.href='web.html'">
         <i class="fas fa-arrow-left"></i>
       </button>
-      <div class="page-title">LIVE</div>
-      <button class="refresh-btn" onclick="loadDemoStreams()">
-        <i class="fas fa-sync-alt"></i>
-      </button>
+      <div class="page-title">Choicho LIVE</div>
+      <div class="live-count-badge" id="liveCountBadge">
+        <i class="fas fa-circle"></i>
+        <span id="totalLiveCount">0</span>
+      </div>
     </div>
     
     <!-- Search Bar Below Header -->
@@ -734,20 +708,10 @@
     
     <div class="scrollable-content">
       <div class="live-users-section">
-        <div class="section-header">
-          <span class="section-title">🔴 LIVE NOW</span>
-          <div class="live-dot-badge">
-            <i class="fas fa-circle"></i>
-            <span id="liveCount">0</span>
-          </div>
-        </div>
         <div class="live-users-grid" id="liveUsersGrid"></div>
         <div class="empty-live" id="emptyLive" style="display: none;">
           <i class="fas fa-video-slash"></i>
           <p>No live streams found</p>
-        </div>
-        <div class="demo-note">
-          <p><i class="fas fa-info-circle"></i> 8 demo live streams • 4 rows • 2 per row</p>
         </div>
       </div>
     </div>
@@ -758,7 +722,7 @@
     <div class="stream-header">
       <div class="stream-info">
         <div class="stream-dot"></div>
-        <span class="stream-live-text">LIVE</span>
+        <span class="stream-live-text">CHOICHO LIVE</span>
         <span class="stream-viewers" id="streamViewerCount">0 watching</span>
       </div>
       <div class="stream-host-name" id="streamHostName">@user</div>
@@ -807,7 +771,7 @@
   <!-- Loading Overlay -->
   <div class="loading-overlay" id="loadingOverlay" style="display: none;">
     <i class="fas fa-spinner"></i>
-    <span id="loadingText">Connecting to live stream...</span>
+    <span id="loadingText">Connecting to Choicho Live...</span>
     <button onclick="closeStream()">Go Back</button>
   </div>
   
@@ -842,7 +806,7 @@
     let viewerId = localStorage.getItem('live_viewer_id') || crypto.randomUUID();
     localStorage.setItem('live_viewer_id', viewerId);
 
-    // 8 Demo Live Streams Data - 4 rows x 2 columns
+    // 8 Demo Live Streams Data - 4 rows x 2 columns = 8 total live streams
     const demoStreams = [
       // Row 1
       { userId: "alex_streamer", username: "@alex_streamer", viewers: 1234, avatar: "🎮", color: "#ef4444", category: "Gaming" },
@@ -866,17 +830,19 @@
       setTimeout(() => toast.classList.remove('show'), 2000);
     }
 
-    // Load demo live streams
-    window.loadDemoStreams = function() {
-      filterLiveStreams();
-    };
+    // Update total live count in header
+    function updateLiveCount(count) {
+      const countElement = document.getElementById('totalLiveCount');
+      if (countElement) {
+        countElement.textContent = count;
+      }
+    }
 
     // Filter live streams by search
     window.filterLiveStreams = function() {
       const searchTerm = document.getElementById('searchInput').value.toLowerCase().replace('@', '');
       const gridContainer = document.getElementById('liveUsersGrid');
       const emptyLive = document.getElementById('emptyLive');
-      const liveCount = document.getElementById('liveCount');
       
       let filteredStreams = demoStreams;
       if (searchTerm) {
@@ -886,15 +852,16 @@
         );
       }
       
+      // Update total live count in header
+      updateLiveCount(filteredStreams.length);
+      
       if (filteredStreams.length === 0) {
         gridContainer.innerHTML = '';
         emptyLive.style.display = 'block';
-        liveCount.textContent = '0';
         return;
       }
       
       emptyLive.style.display = 'none';
-      liveCount.textContent = filteredStreams.length;
       
       gridContainer.innerHTML = filteredStreams.map(stream => `
         <div class="live-user-card" onclick="openDemoStream('${stream.userId}')">
@@ -973,14 +940,14 @@
       // Load demo comments
       loadDemoComments(hostId);
       
-      showToast(`Watching ${stream.username}'s live stream 🔴`);
+      showToast(`Watching ${stream.username}'s Choicho Live stream 🔴`);
     };
 
     // Load demo comments
     function loadDemoComments(hostId) {
       const commentList = document.getElementById('commentList');
       const demoComments = [
-        { username: "@fan1", text: "🔥 Great stream!" },
+        { username: "@fan1", text: "🔥 Great Choicho Live stream!" },
         { username: "@viewer2", text: "Loving this content ❤️" },
         { username: "@supporter", text: "Keep it up!" },
         { username: "@new_fan", text: "First time here 👋" }
@@ -1023,7 +990,7 @@
         icon.className = 'fas fa-heart';
         const currentLikes = parseInt(document.getElementById('likeCount').textContent) || 0;
         document.getElementById('likeCount').textContent = currentLikes + 1;
-        showToast('❤️ You liked this stream!');
+        showToast('❤️ You liked this Choicho Live stream!');
       } else {
         isLiked = false;
         likeBtn.classList.remove('liked');
@@ -1042,8 +1009,8 @@
       if (navigator.share) {
         try {
           await navigator.share({
-            title: `🔴 LIVE: ${host}`,
-            text: `Watch ${host}'s live stream!`,
+            title: `🔴 CHOICHO LIVE: ${host}`,
+            text: `Watch ${host}'s Choicho Live stream!`,
             url: url
           });
         } catch (e) {}

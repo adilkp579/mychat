@@ -92,7 +92,7 @@
       transform: scale(0.95);
     }
     
-    /* Live Users Section - Grid Layout for 2 Rows */
+    /* Live Users Section */
     .live-users-section {
       padding: 1rem;
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -133,10 +133,10 @@
       font-weight: 600;
     }
     
-    /* Grid Layout - 2 Rows */
+    /* Grid Layout - 4 rows x 2 columns = 8 live streams */
     .live-users-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 1rem;
       padding-bottom: 0.5rem;
     }
@@ -161,10 +161,9 @@
       border: 2px solid rgba(239, 68, 68, 0.5);
     }
     
-    .live-avatar-container img, .live-avatar-container .avatar-placeholder {
+    .live-avatar-container .avatar-placeholder {
       width: 100%;
       height: 100%;
-      object-fit: cover;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -172,18 +171,18 @@
     }
     
     .live-avatar-container .avatar-placeholder i {
-      font-size: 2rem;
+      font-size: 2.5rem;
       color: rgba(255, 255, 255, 0.3);
     }
     
     .live-badge-corner {
       position: absolute;
-      top: 0.3rem;
-      left: 0.3rem;
+      top: 0.5rem;
+      left: 0.5rem;
       background: #ef4444;
-      padding: 0.15rem 0.4rem;
-      border-radius: 0.4rem;
-      font-size: 0.5rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.5rem;
+      font-size: 0.55rem;
       font-weight: 700;
       color: #fff;
       display: flex;
@@ -192,18 +191,18 @@
     }
     
     .live-badge-corner i {
-      font-size: 0.3rem;
+      font-size: 0.35rem;
     }
     
     .viewer-badge-corner {
       position: absolute;
-      bottom: 0.3rem;
-      right: 0.3rem;
+      bottom: 0.5rem;
+      right: 0.5rem;
       background: rgba(0, 0, 0, 0.6);
       backdrop-filter: blur(10px);
-      padding: 0.15rem 0.4rem;
-      border-radius: 0.4rem;
-      font-size: 0.5rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.5rem;
+      font-size: 0.55rem;
       color: #ccc;
       display: flex;
       align-items: center;
@@ -211,14 +210,15 @@
     }
     
     .live-user-name {
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       font-weight: 600;
       color: #fff;
       text-align: center;
-      margin-top: 0.4rem;
+      margin-top: 0.5rem;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      padding: 0 0.2rem;
     }
     
     /* Empty Live Users */
@@ -253,7 +253,7 @@
       opacity: 0.7;
     }
     
-    /* Scrollable Content - For more rows below */
+    /* Scrollable Content */
     .scrollable-content {
       flex: 1;
       overflow-y: auto;
@@ -632,11 +632,18 @@
     /* Responsive */
     @media (max-width: 480px) {
       .live-users-grid {
-        grid-template-columns: repeat(4, 1fr);
         gap: 0.8rem;
       }
       .live-user-name {
-        font-size: 0.65rem;
+        font-size: 0.7rem;
+      }
+      .live-badge-corner {
+        font-size: 0.5rem;
+        padding: 0.15rem 0.4rem;
+      }
+      .viewer-badge-corner {
+        font-size: 0.5rem;
+        padding: 0.15rem 0.4rem;
       }
     }
   </style>
@@ -669,7 +676,7 @@
           <p>No live streams at the moment</p>
         </div>
         <div class="demo-note">
-          <p><i class="fas fa-info-circle"></i> 8 Demo live streams added for preview</p>
+          <p><i class="fas fa-info-circle"></i> 8 demo live streams • 4 rows • 2 per row</p>
         </div>
       </div>
     </div>
@@ -738,22 +745,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { 
-      getFirestore, 
-      collection, 
-      query, 
-      where, 
-      getDocs, 
-      onSnapshot, 
-      doc, 
-      getDoc, 
-      setDoc, 
-      updateDoc, 
-      increment, 
-      serverTimestamp,
-      deleteDoc,
-      addDoc,
-      orderBy,
-      limit
+      getFirestore
     } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -781,16 +773,20 @@
     let viewerId = localStorage.getItem('live_viewer_id') || crypto.randomUUID();
     localStorage.setItem('live_viewer_id', viewerId);
 
-    // 8 Demo Live Streams Data - 2 rows of 4
+    // 8 Demo Live Streams Data - 4 rows x 2 columns
     const demoStreams = [
-      { userId: "alex_streamer", username: "@alex_streamer", viewers: 234, avatar: "🎮", color: "#ef4444" },
-      { userId: "music_mia", username: "@music_mia", viewers: 567, avatar: "🎵", color: "#f97316" },
-      { userId: "tech_john", username: "@tech_john", viewers: 189, avatar: "💻", color: "#eab308" },
-      { userId: "travel_girl", username: "@travel_girl", viewers: 892, avatar: "✈️", color: "#22c55e" },
-      { userId: "gaming_pro", username: "@gaming_pro", viewers: 1234, avatar: "🎯", color: "#06b6d4" },
-      { userId: "cook_master", username: "@cook_master", viewers: 445, avatar: "🍳", color: "#8b5cf6" },
-      { userId: "fitness_king", username: "@fitness_king", viewers: 678, avatar: "💪", color: "#ec4899" },
-      { userId: "vibes_only", username: "@vibes_only", viewers: 345, avatar: "✨", color: "#f43f5e" }
+      // Row 1
+      { userId: "alex_streamer", username: "@alex_streamer", viewers: 1234, avatar: "🎮", color: "#ef4444", category: "Gaming" },
+      { userId: "music_mia", username: "@music_mia", viewers: 567, avatar: "🎵", color: "#f97316", category: "Music" },
+      // Row 2
+      { userId: "tech_john", username: "@tech_john", viewers: 289, avatar: "💻", color: "#eab308", category: "Tech" },
+      { userId: "travel_girl", username: "@travel_girl", viewers: 1892, avatar: "✈️", color: "#22c55e", category: "Travel" },
+      // Row 3
+      { userId: "gaming_pro", username: "@gaming_pro", viewers: 2345, avatar: "🎯", color: "#06b6d4", category: "Gaming" },
+      { userId: "cook_master", username: "@cook_master", viewers: 445, avatar: "🍳", color: "#8b5cf6", category: "Cooking" },
+      // Row 4
+      { userId: "fitness_king", username: "@fitness_king", viewers: 678, avatar: "💪", color: "#ec4899", category: "Fitness" },
+      { userId: "vibes_only", username: "@vibes_only", viewers: 345, avatar: "✨", color: "#f43f5e", category: "Entertainment" }
     ];
 
     // Show toast message
@@ -801,7 +797,7 @@
       setTimeout(() => toast.classList.remove('show'), 2000);
     }
 
-    // Load demo live streams (8 streams - 2 rows)
+    // Load demo live streams (8 streams - 4 rows x 2 columns)
     window.loadDemoStreams = function() {
       const gridContainer = document.getElementById('liveUsersGrid');
       const emptyLive = document.getElementById('emptyLive');
@@ -821,7 +817,7 @@
         <div class="live-user-card" onclick="openDemoStream('${stream.userId}')">
           <div class="live-avatar-container" style="border-color: ${stream.color}80;">
             <div class="avatar-placeholder" style="background: linear-gradient(135deg, ${stream.color}40, ${stream.color}20);">
-              <i class="fas ${getIconForStream(stream.avatar)}" style="font-size: 2rem; color: ${stream.color};"></i>
+              <i class="fas ${getIconForStream(stream.avatar)}" style="font-size: 2.5rem; color: ${stream.color};"></i>
             </div>
             <div class="live-badge-corner">
               <i class="fas fa-circle"></i>
@@ -829,13 +825,18 @@
             </div>
             <div class="viewer-badge-corner">
               <i class="fas fa-eye"></i>
-              <span>${stream.viewers}</span>
+              <span>${formatNumber(stream.viewers)}</span>
             </div>
           </div>
           <div class="live-user-name">${stream.username}</div>
         </div>
       `).join('');
     };
+    
+    function formatNumber(num) {
+      if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
+      return num.toString();
+    }
 
     function getIconForStream(avatar) {
       const iconMap = {
@@ -862,8 +863,8 @@
       document.getElementById('mainPage').style.display = 'none';
       document.getElementById('streamPage').classList.add('active');
       document.getElementById('streamHostName').textContent = stream.username;
-      document.getElementById('streamViewerCount').textContent = `${stream.viewers} watching`;
-      document.getElementById('demoPreviewText').textContent = `${stream.username} is live now!`;
+      document.getElementById('streamViewerCount').textContent = `${formatNumber(stream.viewers)} watching`;
+      document.getElementById('demoPreviewText').innerHTML = `${stream.username}<br><span style="font-size:0.6rem;">${stream.category} stream</span>`;
       
       document.getElementById('loadingOverlay').style.display = 'none';
       
@@ -876,7 +877,7 @@
       // Load demo comments
       loadDemoComments(hostId);
       
-      showToast(`Watching ${stream.username}'s live stream (Demo Mode) 🔴`);
+      showToast(`Watching ${stream.username}'s live stream 🔴`);
     };
 
     // Load demo comments

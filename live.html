@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>Watch Live Stream</title>
+  <title>Live Streams · Watch Live</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     * {
@@ -15,23 +15,271 @@
       background: #000;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
+      overflow-x: hidden;
     }
+    
+    /* Main Page */
     .page {
       width: 100%;
-      height: 100vh;
-      height: 100dvh;
+      min-height: 100vh;
       background: #000;
       display: flex;
       flex-direction: column;
       position: relative;
+    }
+    
+    /* Top Header */
+    .top-header {
+      position: sticky;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #000;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 0.8rem 1rem;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+    
+    .back-btn {
+      width: 2.4rem;
+      height: 2.4rem;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    
+    .back-btn:active {
+      transform: scale(0.95);
+      background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .page-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 1px;
+      flex: 1;
+    }
+    
+    .refresh-btn {
+      width: 2.4rem;
+      height: 2.4rem;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    
+    .refresh-btn:active {
+      transform: scale(0.95);
+    }
+    
+    /* Live Users Section - Grid Layout for 2 Rows */
+    .live-users-section {
+      padding: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      padding: 0 0.2rem;
+    }
+    
+    .section-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #aaa;
+      letter-spacing: 0.5px;
+    }
+    
+    .live-dot-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: rgba(239, 68, 68, 0.15);
+      padding: 0.2rem 0.6rem;
+      border-radius: 1rem;
+    }
+    
+    .live-dot-badge i {
+      font-size: 0.4rem;
+      color: #ef4444;
+    }
+    
+    .live-dot-badge span {
+      font-size: 0.6rem;
+      color: #ef4444;
+      font-weight: 600;
+    }
+    
+    /* Grid Layout - 2 Rows */
+    .live-users-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      padding-bottom: 0.5rem;
+    }
+    
+    /* Live User Card */
+    .live-user-card {
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .live-user-card:active {
+      transform: scale(0.96);
+    }
+    
+    .live-avatar-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 1rem;
+      overflow: hidden;
+      background: linear-gradient(135deg, #1a1a1a, #0a0a0a);
+      border: 2px solid rgba(239, 68, 68, 0.5);
+    }
+    
+    .live-avatar-container img, .live-avatar-container .avatar-placeholder {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
+    }
+    
+    .live-avatar-container .avatar-placeholder i {
+      font-size: 2rem;
+      color: rgba(255, 255, 255, 0.3);
+    }
+    
+    .live-badge-corner {
+      position: absolute;
+      top: 0.3rem;
+      left: 0.3rem;
+      background: #ef4444;
+      padding: 0.15rem 0.4rem;
+      border-radius: 0.4rem;
+      font-size: 0.5rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.2rem;
+    }
+    
+    .live-badge-corner i {
+      font-size: 0.3rem;
+    }
+    
+    .viewer-badge-corner {
+      position: absolute;
+      bottom: 0.3rem;
+      right: 0.3rem;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(10px);
+      padding: 0.15rem 0.4rem;
+      border-radius: 0.4rem;
+      font-size: 0.5rem;
+      color: #ccc;
+      display: flex;
+      align-items: center;
+      gap: 0.2rem;
+    }
+    
+    .live-user-name {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #fff;
+      text-align: center;
+      margin-top: 0.4rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    /* Empty Live Users */
+    .empty-live {
+      text-align: center;
+      padding: 2rem;
+      color: #555;
+    }
+    
+    .empty-live i {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      opacity: 0.5;
+    }
+    
+    .empty-live p {
+      font-size: 0.75rem;
+    }
+    
+    /* Demo Note */
+    .demo-note {
+      text-align: center;
+      padding: 0.8rem;
+      background: rgba(255, 252, 0, 0.05);
+      margin-top: 0.5rem;
+      border-radius: 0.5rem;
+    }
+    
+    .demo-note p {
+      font-size: 0.65rem;
+      color: #FFFC00;
+      opacity: 0.7;
+    }
+    
+    /* Scrollable Content - For more rows below */
+    .scrollable-content {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 2rem;
+    }
+    
+    /* Selected Live Stream Page */
+    .stream-page {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #000;
+      z-index: 200;
+      display: none;
+      flex-direction: column;
       overflow: hidden;
     }
-    /* Header overlay */
-    .live-header {
+    
+    .stream-page.active {
+      display: flex;
+    }
+    
+    /* Stream Header */
+    .stream-header {
       position: absolute;
       top: max(1rem, env(safe-area-inset-top, 1rem));
       left: 1rem;
@@ -42,128 +290,157 @@
       z-index: 20;
       pointer-events: none;
     }
-    .live-header > * {
+    
+    .stream-header > * {
       pointer-events: auto;
     }
-    .live-badge-row {
+    
+    .stream-info {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0, 0, 0, 0.6);
       backdrop-filter: blur(20px);
       padding: 0.4rem 0.8rem;
       border-radius: 2rem;
-      border: 1px solid rgba(255,255,255,0.15);
+      border: 1px solid rgba(255, 255, 255, 0.15);
     }
-    .live-dot {
+    
+    .stream-dot {
       width: 8px;
       height: 8px;
       background: #ef4444;
       border-radius: 50%;
       animation: blink 1s infinite;
     }
+    
     @keyframes blink {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.3; }
     }
-    .live-text {
+    
+    .stream-live-text {
       color: #ef4444;
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 1px;
-    }
-    .viewer-count {
-      color: #ccc;
       font-size: 0.7rem;
-      font-weight: 500;
+      font-weight: 700;
     }
-    .host-name {
+    
+    .stream-viewers {
+      color: #ccc;
+      font-size: 0.65rem;
+    }
+    
+    .stream-host-name {
       color: #fff;
       font-size: 0.8rem;
       font-weight: 600;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0, 0, 0, 0.6);
       backdrop-filter: blur(20px);
       padding: 0.4rem 0.8rem;
       border-radius: 2rem;
-      border: 1px solid rgba(255,255,255,0.15);
+      border: 1px solid rgba(255, 255, 255, 0.15);
     }
-    /* Close button */
-    .close-btn {
-      position: absolute;
-      top: max(1rem, env(safe-area-inset-top, 1rem));
-      right: 1rem;
+    
+    .stream-close-btn {
       width: 2.5rem;
       height: 2.5rem;
       border-radius: 50%;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0, 0, 0, 0.6);
       backdrop-filter: blur(20px);
-      border: 1px solid rgba(255,255,255,0.15);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       color: #fff;
       font-size: 1rem;
       cursor: pointer;
-      z-index: 30;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.2s;
     }
-    .close-btn:hover {
-      background: rgba(239,68,68,0.3);
-    }
-    /* Main video container - full screen host video */
-    .main-video-container {
+    
+    /* Video Container */
+    .video-container {
       flex: 1;
       display: flex;
-      align-items: center;
-      justify-content: center;
+      flex-direction: column;
       background: #000;
       position: relative;
-      width: 100%;
-      height: 100%;
     }
-    .main-video-container video {
+    
+    .host-video-wrapper {
+      flex: 1;
+      position: relative;
+      background: #0a0a0a;
+      min-height: 0;
+    }
+    
+    .host-video-wrapper video {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      position: absolute;
-      top: 0;
-      left: 0;
+      background: #000;
     }
-    /* Video placeholder */
+    
     .video-placeholder {
-      text-align: center;
-      color: #555;
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
+      text-align: center;
+      color: #555;
     }
+    
     .video-placeholder i {
-      font-size: 4rem;
+      font-size: 3rem;
       display: block;
       margin-bottom: 0.5rem;
       opacity: 0.5;
     }
+    
     .video-placeholder p {
-      font-size: 0.8rem;
+      font-size: 0.7rem;
       opacity: 0.7;
     }
-    /* Bottom actions */
-    .bottom-actions {
+    
+    /* Demo Stream Preview */
+    .demo-stream-preview {
       position: absolute;
-      bottom: 2rem;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: #FFFC00;
+      background: rgba(0,0,0,0.7);
+      padding: 1rem 2rem;
+      border-radius: 1rem;
+      backdrop-filter: blur(20px);
+      z-index: 10;
+    }
+    
+    .demo-stream-preview i {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .demo-stream-preview p {
+      font-size: 0.8rem;
+    }
+    
+    /* Bottom Actions */
+    .stream-actions {
+      position: absolute;
+      bottom: 6rem;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
-      gap: 2rem;
+      gap: 1.5rem;
       z-index: 20;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0, 0, 0, 0.5);
       backdrop-filter: blur(20px);
-      padding: 0.8rem 2rem;
+      padding: 0.6rem 1.5rem;
       border-radius: 3rem;
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
-    .action-btn {
+    
+    .stream-action-btn {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -172,32 +449,29 @@
       border: none;
       color: #fff;
       cursor: pointer;
-      font-size: 1.4rem;
+      font-size: 1.3rem;
+      padding: 0.2rem;
       transition: all 0.2s;
-      padding: 0.3rem;
     }
-    .action-btn span {
-      font-size: 0.6rem;
+    
+    .stream-action-btn span {
+      font-size: 0.55rem;
       font-weight: 500;
       opacity: 0.8;
     }
-    .action-btn:hover {
-      transform: scale(1.1);
+    
+    .stream-action-btn:active {
+      transform: scale(0.95);
     }
-    .action-btn.liked {
+    
+    .stream-action-btn.liked {
       color: #ef4444;
     }
-    .action-btn.liked i {
-      animation: heartBeat 0.3s ease;
-    }
-    @keyframes heartBeat {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.3); }
-    }
-    /* Comment section */
+    
+    /* Comment Section */
     .comment-section {
       position: absolute;
-      bottom: 7rem;
+      bottom: 1rem;
       left: 1rem;
       right: 1rem;
       z-index: 25;
@@ -206,232 +480,278 @@
       gap: 0.5rem;
       pointer-events: none;
     }
+    
     .comment-list {
-      max-height: 200px;
+      max-height: 150px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 0.4rem;
+      gap: 0.3rem;
       padding: 0 0.3rem;
       pointer-events: auto;
       scrollbar-width: none;
-      -ms-overflow-style: none;
     }
+    
     .comment-list::-webkit-scrollbar {
       display: none;
     }
+    
     .comment-item {
-      background: rgba(0,0,0,0.5);
+      background: rgba(0, 0, 0, 0.5);
       backdrop-filter: blur(12px);
-      padding: 0.4rem 0.8rem;
-      border-radius: 1.2rem;
+      padding: 0.35rem 0.7rem;
+      border-radius: 1rem;
       color: #fff;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       align-self: flex-start;
       max-width: 85%;
       word-break: break-word;
-      border: 1px solid rgba(255,255,255,0.15);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       display: flex;
       align-items: baseline;
-      gap: 0.35rem;
+      gap: 0.3rem;
     }
+    
     .comment-username {
       font-weight: 700;
       color: #fbbf24;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       white-space: nowrap;
     }
+    
     .comment-input-row {
       display: flex;
       gap: 0.5rem;
       pointer-events: auto;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0, 0, 0, 0.6);
       backdrop-filter: blur(20px);
-      padding: 0.5rem;
+      padding: 0.4rem;
       border-radius: 2rem;
-      border: 1px solid rgba(255,255,255,0.2);
+      border: 1px solid rgba(255, 255, 255, 0.15);
     }
+    
     .comment-input-row input {
       flex: 1;
       background: transparent;
       border: none;
       color: #fff;
       padding: 0.4rem 0.8rem;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       outline: none;
-      min-width: 0;
     }
+    
     .comment-input-row input::placeholder {
-      color: #aaa;
+      color: #888;
     }
+    
     .comment-send-btn {
       background: #ef4444;
       border: none;
       color: #fff;
-      width: 2.2rem;
-      height: 2.2rem;
+      width: 2rem;
+      height: 2rem;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      font-size: 0.9rem;
-      transition: background 0.2s;
+      font-size: 0.8rem;
       flex-shrink: 0;
     }
-    .comment-send-btn:hover {
-      background: #dc2626;
+    
+    .comment-send-btn:active {
+      transform: scale(0.95);
     }
-    /* Loading overlay */
+    
+    /* Loading Overlay */
     .loading-overlay {
-      position: absolute;
+      position: fixed;
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0,0,0,0.95);
+      background: rgba(0, 0, 0, 0.95);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      z-index: 50;
+      z-index: 300;
       gap: 0.8rem;
     }
+    
     .loading-overlay i {
-      font-size: 2.5rem;
+      font-size: 2rem;
       color: #ef4444;
       animation: spin 1s linear infinite;
     }
+    
     @keyframes spin {
       from { transform: rotate(0deg); }
       to { transform: rotate(360deg); }
     }
+    
     .loading-overlay span {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       color: #ccc;
     }
+    
     .loading-overlay button {
       margin-top: 1rem;
-      padding: 0.6rem 2rem;
+      padding: 0.5rem 1.5rem;
       border-radius: 2rem;
       border: none;
       background: #333;
       color: #fff;
-      font-size: 0.8rem;
       cursor: pointer;
-      transition: all 0.2s;
     }
-    .loading-overlay button:hover {
-      background: #444;
-    }
+    
     /* Toast */
     .toast {
       position: fixed;
-      bottom: 10rem;
+      bottom: 8rem;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(255,255,255,0.15);
+      background: rgba(0, 0, 0, 0.9);
       backdrop-filter: blur(20px);
       color: #fff;
-      padding: 0.5rem 1.2rem;
+      padding: 0.4rem 1rem;
       border-radius: 2rem;
-      font-size: 0.75rem;
-      z-index: 60;
+      font-size: 0.7rem;
+      z-index: 350;
       opacity: 0;
       transition: all 0.3s;
       pointer-events: none;
       white-space: nowrap;
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
     }
+    
     .toast.show {
       opacity: 1;
     }
-    @media (max-width: 380px) {
-      .bottom-actions {
-        gap: 1.5rem;
-        padding: 0.7rem 1.5rem;
+    
+    /* Responsive */
+    @media (max-width: 480px) {
+      .live-users-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.8rem;
       }
-      .comment-section {
-        bottom: 6rem;
+      .live-user-name {
+        font-size: 0.65rem;
       }
     }
   </style>
 </head>
 <body>
-  <div class="page" id="mainPage" style="display:none;">
-    <!-- Header -->
-    <div class="live-header">
-      <div class="live-badge-row">
-        <div class="live-dot"></div>
-        <span class="live-text">LIVE</span>
-        <span class="viewer-count" id="viewerCount">0 watching</span>
-      </div>
-      <div class="host-name" id="hostName">@user</div>
+  <!-- Main Page -->
+  <div class="page" id="mainPage">
+    <div class="top-header">
+      <button class="back-btn" onclick="window.location.href='index.html'">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <div class="page-title">LIVE</div>
+      <button class="refresh-btn" onclick="loadDemoStreams()">
+        <i class="fas fa-sync-alt"></i>
+      </button>
     </div>
-
-    <!-- Close button -->
-    <button class="close-btn" onclick="closeLive()">
-      <i class="fas fa-times"></i>
-    </button>
     
-    <!-- Main video container (host only) -->
-    <div class="main-video-container" id="videoContainer">
-      <div class="video-placeholder" id="videoPlaceholder">
-        <i class="fas fa-video"></i>
-        <p>Waiting for stream...</p>
+    <div class="scrollable-content">
+      <div class="live-users-section">
+        <div class="section-header">
+          <span class="section-title">🔴 LIVE NOW</span>
+          <div class="live-dot-badge">
+            <i class="fas fa-circle"></i>
+            <span id="liveCount">0</span>
+          </div>
+        </div>
+        <div class="live-users-grid" id="liveUsersGrid"></div>
+        <div class="empty-live" id="emptyLive" style="display: none;">
+          <i class="fas fa-video-slash"></i>
+          <p>No live streams at the moment</p>
+        </div>
+        <div class="demo-note">
+          <p><i class="fas fa-info-circle"></i> 8 Demo live streams added for preview</p>
+        </div>
       </div>
-      <video id="remoteVideo" autoplay playsinline style="display:none;"></video>
     </div>
-
-    <!-- Comment section (replaces self-view) -->
+  </div>
+  
+  <!-- Live Stream Page -->
+  <div class="stream-page" id="streamPage">
+    <div class="stream-header">
+      <div class="stream-info">
+        <div class="stream-dot"></div>
+        <span class="stream-live-text">LIVE</span>
+        <span class="stream-viewers" id="streamViewerCount">0 watching</span>
+      </div>
+      <div class="stream-host-name" id="streamHostName">@user</div>
+      <button class="stream-close-btn" onclick="closeStream()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="video-container">
+      <div class="host-video-wrapper" id="hostVideoWrapper">
+        <div class="video-placeholder" id="videoPlaceholder">
+          <i class="fas fa-video"></i>
+          <p>Demo stream preview</p>
+        </div>
+        <div class="demo-stream-preview" id="demoPreview" style="display: none;">
+          <i class="fas fa-video"></i>
+          <p id="demoPreviewText">Demo Live Stream</p>
+          <p style="font-size:0.6rem; margin-top:0.3rem;">🎬 Test Mode</p>
+        </div>
+        <video id="remoteVideo" autoplay playsinline style="display:none;"></video>
+      </div>
+    </div>
+    
     <div class="comment-section">
       <div class="comment-list" id="commentList"></div>
       <div class="comment-input-row">
-        <input type="text" id="commentInput" placeholder="Add a comment..." maxlength="150" autocomplete="off" />
+        <input type="text" id="commentInput" placeholder="Add a comment..." maxlength="150" autocomplete="off">
         <button class="comment-send-btn" onclick="sendComment()">
           <i class="fas fa-paper-plane"></i>
         </button>
       </div>
     </div>
-
-    <!-- Bottom actions: only like and share (no mic/camera) -->
-    <div class="bottom-actions">
-      <button class="action-btn" id="likeBtn" onclick="toggleLike()">
+    
+    <div class="stream-actions">
+      <button class="stream-action-btn" id="likeBtn" onclick="toggleLike()">
         <i class="far fa-heart"></i>
         <span id="likeCount">Like</span>
       </button>
-      <button class="action-btn" onclick="shareLive()">
+      <button class="stream-action-btn" onclick="shareStream()">
         <i class="fas fa-share"></i>
         <span>Share</span>
       </button>
     </div>
-
-    <!-- Toast -->
-    <div class="toast" id="toast"></div>
   </div>
-
-  <!-- Loading overlay -->
-  <div class="loading-overlay" id="loadingOverlay">
+  
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay" style="display: none;">
     <i class="fas fa-spinner"></i>
     <span id="loadingText">Connecting to live stream...</span>
-    <button onclick="window.location.href='index.html'" style="display:none;" id="goBackBtn">Go Back</button>
+    <button onclick="closeStream()">Go Back</button>
   </div>
+  
+  <div class="toast" id="toast"></div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { 
       getFirestore, 
+      collection, 
+      query, 
+      where, 
+      getDocs, 
+      onSnapshot, 
       doc, 
       getDoc, 
-      onSnapshot, 
       setDoc, 
       updateDoc, 
       increment, 
       serverTimestamp,
       deleteDoc,
-      collection,
       addDoc,
-      query,
       orderBy,
       limit
     } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
@@ -448,113 +768,136 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Get parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    const liveUser = urlParams.get('user') || localStorage.getItem('currentUser') || '@user';
-    const viewerId = crypto.randomUUID();
-    const currentUser = localStorage.getItem('currentUser') || 'viewer';
+    const currentUser = localStorage.getItem('currentUser') || '@viewer';
+    const currentUserId = currentUser.replace('@', '');
 
-    // Set host name
-    document.getElementById('hostName').textContent = liveUser;
-    document.getElementById('loadingText').textContent = `Joining ${liveUser}'s live stream...`;
-
+    let currentStreamHost = null;
     let pc = null;
     let isLiked = false;
-    let likeCount = 0;
-    let commentsListener = null;
     let liveRef = null;
+    let commentsListener = null;
+    let liveStatusListener = null;
+    let isDemoMode = true;
+    let viewerId = localStorage.getItem('live_viewer_id') || crypto.randomUUID();
+    localStorage.setItem('live_viewer_id', viewerId);
 
-    // Toast function
-    function showToast(message) {
+    // 8 Demo Live Streams Data - 2 rows of 4
+    const demoStreams = [
+      { userId: "alex_streamer", username: "@alex_streamer", viewers: 234, avatar: "🎮", color: "#ef4444" },
+      { userId: "music_mia", username: "@music_mia", viewers: 567, avatar: "🎵", color: "#f97316" },
+      { userId: "tech_john", username: "@tech_john", viewers: 189, avatar: "💻", color: "#eab308" },
+      { userId: "travel_girl", username: "@travel_girl", viewers: 892, avatar: "✈️", color: "#22c55e" },
+      { userId: "gaming_pro", username: "@gaming_pro", viewers: 1234, avatar: "🎯", color: "#06b6d4" },
+      { userId: "cook_master", username: "@cook_master", viewers: 445, avatar: "🍳", color: "#8b5cf6" },
+      { userId: "fitness_king", username: "@fitness_king", viewers: 678, avatar: "💪", color: "#ec4899" },
+      { userId: "vibes_only", username: "@vibes_only", viewers: 345, avatar: "✨", color: "#f43f5e" }
+    ];
+
+    // Show toast message
+    function showToast(message, isError = false) {
       const toast = document.getElementById('toast');
       toast.textContent = message;
       toast.classList.add('show');
       setTimeout(() => toast.classList.remove('show'), 2000);
     }
 
-    // Create peer connection (receive only, no local media)
-    function createPeerConnection() {
-      const configuration = {
-        iceServers: [
-          { urls: "stun:stun.l.google.com:19302" },
-          { urls: "stun:stun1.l.google.com:19302" },
-          { urls: "stun:stun2.l.google.com:19302" }
-        ]
-      };
-
-      pc = new RTCPeerConnection(configuration);
-
-      // Handle incoming remote stream (host video)
-      pc.ontrack = (event) => {
-        console.log('Received remote track');
-        if (event.streams && event.streams[0]) {
-          const remoteVideo = document.getElementById('remoteVideo');
-          const placeholder = document.getElementById('videoPlaceholder');
-          
-          remoteVideo.srcObject = event.streams[0];
-          remoteVideo.style.display = 'block';
-          placeholder.style.display = 'none';
-          
-          // Hide loading and show main page
-          document.getElementById('loadingOverlay').style.display = 'none';
-          document.getElementById('mainPage').style.display = 'flex';
-          
-          showToast('Live stream connected! 🔴');
-        }
-      };
-
-      // Connection state changes
-      pc.onconnectionstatechange = () => {
-        console.log('Connection state:', pc.connectionState);
-        if (pc.connectionState === 'connected') {
-          document.getElementById('loadingOverlay').style.display = 'none';
-          document.getElementById('mainPage').style.display = 'flex';
-        } else if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
-          showErrorState('Connection lost. The stream may have ended.');
-        }
-      };
-
-      pc.oniceconnectionstatechange = () => {
-        console.log('ICE connection state:', pc.iceConnectionState);
-        if (pc.iceConnectionState === 'failed') {
-          showErrorState('Connection failed. Please try again.');
-        }
-      };
-
-      return pc;
-    }
-
-    function showErrorState(message) {
-      document.getElementById('loadingOverlay').style.display = 'flex';
-      document.getElementById('loadingText').textContent = message;
-      document.getElementById('loadingOverlay').querySelector('i').style.color = '#fbbf24';
-      document.getElementById('goBackBtn').style.display = 'block';
-    }
-
-    // Load comments from Firestore
-    function loadComments() {
-      const commentsQuery = query(
-        collection(db, 'live_comments', liveUser.replace('@', ''), 'messages'),
-        orderBy('timestamp', 'asc'),
-        limit(50)
-      );
+    // Load demo live streams (8 streams - 2 rows)
+    window.loadDemoStreams = function() {
+      const gridContainer = document.getElementById('liveUsersGrid');
+      const emptyLive = document.getElementById('emptyLive');
+      const liveCount = document.getElementById('liveCount');
       
-      commentsListener = onSnapshot(commentsQuery, (snapshot) => {
-        const commentList = document.getElementById('commentList');
-        commentList.innerHTML = '';
-        snapshot.forEach((doc) => {
-          const data = doc.data();
-          const commentDiv = document.createElement('div');
-          commentDiv.className = 'comment-item';
-          commentDiv.innerHTML = `<span class="comment-username">${data.username || 'user'}</span> ${data.text}`;
-          commentList.appendChild(commentDiv);
-        });
-        // Auto-scroll to bottom
-        commentList.scrollTop = commentList.scrollHeight;
-      });
+      if (demoStreams.length === 0) {
+        gridContainer.innerHTML = '';
+        emptyLive.style.display = 'block';
+        liveCount.textContent = '0';
+        return;
+      }
+      
+      emptyLive.style.display = 'none';
+      liveCount.textContent = demoStreams.length;
+      
+      gridContainer.innerHTML = demoStreams.map(stream => `
+        <div class="live-user-card" onclick="openDemoStream('${stream.userId}')">
+          <div class="live-avatar-container" style="border-color: ${stream.color}80;">
+            <div class="avatar-placeholder" style="background: linear-gradient(135deg, ${stream.color}40, ${stream.color}20);">
+              <i class="fas ${getIconForStream(stream.avatar)}" style="font-size: 2rem; color: ${stream.color};"></i>
+            </div>
+            <div class="live-badge-corner">
+              <i class="fas fa-circle"></i>
+              <span>LIVE</span>
+            </div>
+            <div class="viewer-badge-corner">
+              <i class="fas fa-eye"></i>
+              <span>${stream.viewers}</span>
+            </div>
+          </div>
+          <div class="live-user-name">${stream.username}</div>
+        </div>
+      `).join('');
+    };
+
+    function getIconForStream(avatar) {
+      const iconMap = {
+        '🎮': 'fa-gamepad',
+        '🎵': 'fa-music',
+        '💻': 'fa-laptop-code',
+        '✈️': 'fa-plane',
+        '🎯': 'fa-bullseye',
+        '🍳': 'fa-utensils',
+        '💪': 'fa-dumbbell',
+        '✨': 'fa-star'
+      };
+      return iconMap[avatar] || 'fa-user-circle';
     }
 
-    // Send comment
+    // Open demo stream
+    window.openDemoStream = async function(hostId) {
+      const stream = demoStreams.find(s => s.userId === hostId);
+      if (!stream) return;
+      
+      currentStreamHost = hostId;
+      isDemoMode = true;
+      
+      document.getElementById('mainPage').style.display = 'none';
+      document.getElementById('streamPage').classList.add('active');
+      document.getElementById('streamHostName').textContent = stream.username;
+      document.getElementById('streamViewerCount').textContent = `${stream.viewers} watching`;
+      document.getElementById('demoPreviewText').textContent = `${stream.username} is live now!`;
+      
+      document.getElementById('loadingOverlay').style.display = 'none';
+      
+      // Show demo preview
+      const demoPreview = document.getElementById('demoPreview');
+      const videoPlaceholder = document.getElementById('videoPlaceholder');
+      demoPreview.style.display = 'flex';
+      videoPlaceholder.style.display = 'none';
+      
+      // Load demo comments
+      loadDemoComments(hostId);
+      
+      showToast(`Watching ${stream.username}'s live stream (Demo Mode) 🔴`);
+    };
+
+    // Load demo comments
+    function loadDemoComments(hostId) {
+      const commentList = document.getElementById('commentList');
+      const demoComments = [
+        { username: "@fan1", text: "🔥 Great stream!" },
+        { username: "@viewer2", text: "Loving this content ❤️" },
+        { username: "@supporter", text: "Keep it up!" },
+        { username: "@new_fan", text: "First time here 👋" }
+      ];
+      
+      commentList.innerHTML = demoComments.map(c => `
+        <div class="comment-item">
+          <span class="comment-username">${c.username}</span>
+          ${c.text}
+        </div>
+      `).join('');
+    }
+
+    // Send comment (demo mode)
     window.sendComment = async function() {
       const input = document.getElementById('commentInput');
       const text = input.value.trim();
@@ -562,162 +905,18 @@
       
       input.value = '';
       
-      try {
-        await addDoc(collection(db, 'live_comments', liveUser.replace('@', ''), 'messages'), {
-          username: currentUser,
-          text: text,
-          timestamp: serverTimestamp()
-        });
-      } catch (e) {
-        console.error('Error sending comment:', e);
-        showToast('Failed to send comment');
-      }
-    };
-
-    // Allow sending comment with Enter key
-    document.addEventListener('DOMContentLoaded', () => {
-      const commentInput = document.getElementById('commentInput');
-      if (commentInput) {
-        commentInput.addEventListener('keypress', (e) => {
-          if (e.key === 'Enter') {
-            window.sendComment();
-          }
-        });
-      }
-    });
-
-    // Main connection logic (no local media)
-    async function connectToLive() {
-      try {
-        // Check if host is live
-        liveRef = doc(db, 'live', liveUser.replace('@', ''));
-        const liveSnap = await getDoc(liveRef);
-        
-        if (!liveSnap.exists() || !liveSnap.data()?.active) {
-          showErrorState('This live stream has ended.');
-          return;
-        }
-
-        // Update like count from Firestore
-        const liveData = liveSnap.data();
-        likeCount = liveData?.likes || 0;
-        document.getElementById('likeCount').textContent = likeCount > 0 ? likeCount : 'Like';
-
-        // Create peer connection (receive only)
-        createPeerConnection();
-        
-        // Create offer (receive only)
-        const offer = await pc.createOffer({
-          offerToReceiveVideo: true,
-          offerToReceiveAudio: true
-        });
-        await pc.setLocalDescription(offer);
-        
-        // Store viewer offer in Firestore
-        const viewerDocRef = doc(db, 'live_viewers', viewerId);
-        
-        const viewerData = {
-          liveUser: liveUser,
-          viewerId: viewerId,
-          viewerName: currentUser,
-          offer: {
-            type: offer.type,
-            sdp: offer.sdp
-          },
-          createdAt: serverTimestamp(),
-          active: true
-        };
-        
-        await setDoc(viewerDocRef, viewerData);
-
-        // Update viewer count
-        await updateDoc(liveRef, { 
-          viewers: increment(1),
-          lastViewerJoin: serverTimestamp()
-        });
-
-        // Listen for host's answer
-        onSnapshot(viewerDocRef, async (snap) => {
-          const data = snap.data();
-          
-          if (data?.answer && pc.signalingState !== 'stable') {
-            try {
-              await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
-              console.log('Remote description set successfully');
-            } catch (e) {
-              console.error('Error setting remote description:', e);
-            }
-          }
-          
-          // Check if host ended the stream
-          if (data?.streamEnded) {
-            showErrorState('Host ended the live stream.');
-            if (pc) pc.close();
-          }
-        });
-
-        // Listen for live status changes
-        onSnapshot(liveRef, (snap) => {
-          const liveData = snap.data();
-          if (liveData && !liveData.active) {
-            showErrorState('Live stream has ended.');
-            if (pc) pc.close();
-          }
-          
-          // Update viewer count display
-          if (liveData?.viewers) {
-            document.getElementById('viewerCount').textContent = 
-              `${liveData.viewers} watching`;
-          }
-          
-          // Update like count
-          if (liveData?.likes !== undefined) {
-            likeCount = liveData.likes;
-            document.getElementById('likeCount').textContent = likeCount > 0 ? likeCount : 'Like';
-          }
-        });
-
-        // Load comments
-        loadComments();
-
-      } catch (e) {
-        console.error('Connection error:', e);
-        showErrorState('Unable to connect to live stream. Please try again.');
-      }
-    }
-
-    // Close live
-    window.closeLive = async function() {
-      try {
-        if (pc) {
-          pc.close();
-          pc = null;
-        }
-        
-        // Remove viewer document
-        const viewerDocRef = doc(db, 'live_viewers', viewerId);
-        await deleteDoc(viewerDocRef).catch(() => {});
-        
-        // Update viewer count
-        if (liveRef) {
-          await updateDoc(liveRef, { 
-            viewers: increment(-1) 
-          }).catch(() => {});
-        }
-        
-        // Remove comments listener
-        if (commentsListener) {
-          commentsListener();
-        }
-        
-      } catch (e) {
-        console.error('Error closing live:', e);
-      }
+      // Add comment to list (demo)
+      const commentList = document.getElementById('commentList');
+      const commentDiv = document.createElement('div');
+      commentDiv.className = 'comment-item';
+      commentDiv.innerHTML = `<span class="comment-username">${currentUser}</span> ${text}`;
+      commentList.appendChild(commentDiv);
+      commentList.scrollTop = commentList.scrollHeight;
       
-      window.location.href = 'index.html';
+      showToast('Comment posted! 💬');
     };
 
-    // Toggle like
+    // Toggle like (demo mode)
     window.toggleLike = async function() {
       const likeBtn = document.getElementById('likeBtn');
       const icon = likeBtn.querySelector('i');
@@ -726,46 +925,32 @@
         isLiked = true;
         likeBtn.classList.add('liked');
         icon.className = 'fas fa-heart';
-        
-        try {
-          if (liveRef) {
-            await updateDoc(liveRef, { likes: increment(1) });
-          }
-        } catch (e) {
-          console.error('Error updating like:', e);
-        }
+        const currentLikes = parseInt(document.getElementById('likeCount').textContent) || 0;
+        document.getElementById('likeCount').textContent = currentLikes + 1;
         showToast('❤️ You liked this stream!');
       } else {
-        // Unlike
         isLiked = false;
         likeBtn.classList.remove('liked');
         icon.className = 'far fa-heart';
-        
-        try {
-          if (liveRef) {
-            await updateDoc(liveRef, { likes: increment(-1) });
-          }
-        } catch (e) {
-          console.error('Error updating unlike:', e);
-        }
+        const currentLikes = parseInt(document.getElementById('likeCount').textContent) || 0;
+        document.getElementById('likeCount').textContent = Math.max(0, currentLikes - 1);
         showToast('Like removed');
       }
     };
 
-    // Share live
-    window.shareLive = async function() {
-      const url = window.location.href;
+    // Share stream
+    window.shareStream = async function() {
+      const host = currentStreamHost || 'live_stream';
+      const url = `${window.location.origin}/live.html?user=${host}`;
       
       if (navigator.share) {
         try {
           await navigator.share({
-            title: `🔴 LIVE: ${liveUser}`,
-            text: `Watch ${liveUser}'s live stream!`,
+            title: `🔴 LIVE: ${host}`,
+            text: `Watch ${host}'s live stream!`,
             url: url
           });
-        } catch (e) {
-          console.log('Share cancelled');
-        }
+        } catch (e) {}
       } else {
         try {
           await navigator.clipboard.writeText(url);
@@ -776,21 +961,42 @@
       }
     };
 
-    // Handle page unload
-    window.addEventListener('beforeunload', () => {
-      if (pc) pc.close();
-      const viewerDocRef = doc(db, 'live_viewers', viewerId);
-      deleteDoc(viewerDocRef).catch(() => {});
-      if (liveRef) {
-        updateDoc(liveRef, { viewers: increment(-1) }).catch(() => {});
-      }
-      if (commentsListener) {
-        commentsListener();
+    // Close stream
+    window.closeStream = async function() {
+      document.getElementById('streamPage').classList.remove('active');
+      document.getElementById('mainPage').style.display = 'block';
+      document.getElementById('remoteVideo').style.display = 'none';
+      document.getElementById('videoPlaceholder').style.display = 'flex';
+      document.getElementById('demoPreview').style.display = 'none';
+      document.getElementById('loadingOverlay').style.display = 'none';
+      document.getElementById('commentList').innerHTML = '';
+      document.getElementById('likeCount').textContent = 'Like';
+      isLiked = false;
+      document.getElementById('likeBtn').classList.remove('liked');
+      document.getElementById('likeBtn').querySelector('i').className = 'far fa-heart';
+      
+      loadDemoStreams();
+    };
+
+    // Enter key for comment
+    document.addEventListener('DOMContentLoaded', () => {
+      const commentInput = document.getElementById('commentInput');
+      if (commentInput) {
+        commentInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            sendComment();
+          }
+        });
       }
     });
 
-    // Start connection
-    connectToLive();
+    // Handle page unload
+    window.addEventListener('beforeunload', () => {
+      if (pc) pc.close();
+    });
+
+    // Load demo streams on page load
+    loadDemoStreams();
   </script>
 </body>
 </html>

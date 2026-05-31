@@ -92,10 +92,71 @@
       transform: scale(0.95);
     }
     
+    /* Search Bar Below Header */
+    .search-container {
+      padding: 0.8rem 1rem;
+      background: #000;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      position: sticky;
+      top: 4rem;
+      z-index: 99;
+    }
+    
+    .search-wrapper {
+      position: relative;
+      width: 100%;
+    }
+    
+    .search-wrapper i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #666;
+      font-size: 0.85rem;
+      pointer-events: none;
+    }
+    
+    .search-input {
+      width: 100%;
+      padding: 0.7rem 1rem 0.7rem 2.5rem;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 2rem;
+      color: #fff;
+      font-size: 0.85rem;
+      outline: none;
+      transition: all 0.2s;
+    }
+    
+    .search-input:focus {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 252, 0, 0.3);
+    }
+    
+    .search-input::placeholder {
+      color: #666;
+    }
+    
+    .clear-search {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #666;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: none;
+    }
+    
+    .clear-search.show {
+      display: block;
+    }
+    
     /* Live Users Section */
     .live-users-section {
       padding: 1rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      flex: 1;
     }
     
     .section-header {
@@ -221,7 +282,7 @@
       padding: 0 0.2rem;
     }
     
-    /* Empty Live Users */
+    /* Empty State */
     .empty-live {
       text-align: center;
       padding: 2rem;
@@ -651,14 +712,24 @@
 <body>
   <!-- Main Page -->
   <div class="page" id="mainPage">
+    <!-- Top Header -->
     <div class="top-header">
-      <button class="back-btn" onclick="window.location.href='index.html'">
+      <button class="back-btn" onclick="window.location.href='web.html'">
         <i class="fas fa-arrow-left"></i>
       </button>
       <div class="page-title">LIVE</div>
       <button class="refresh-btn" onclick="loadDemoStreams()">
         <i class="fas fa-sync-alt"></i>
       </button>
+    </div>
+    
+    <!-- Search Bar Below Header -->
+    <div class="search-container">
+      <div class="search-wrapper">
+        <i class="fas fa-search"></i>
+        <input type="text" class="search-input" id="searchInput" placeholder="Search live streams by username..." oninput="filterLiveStreams()">
+        <i class="fas fa-times clear-search" id="clearSearch" onclick="clearSearch()"></i>
+      </div>
     </div>
     
     <div class="scrollable-content">
@@ -673,7 +744,7 @@
         <div class="live-users-grid" id="liveUsersGrid"></div>
         <div class="empty-live" id="emptyLive" style="display: none;">
           <i class="fas fa-video-slash"></i>
-          <p>No live streams at the moment</p>
+          <p>No live streams found</p>
         </div>
         <div class="demo-note">
           <p><i class="fas fa-info-circle"></i> 8 demo live streams • 4 rows • 2 per row</p>
@@ -744,9 +815,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { 
-      getFirestore
-    } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC2JA1K-fvsPUkWUfvSFhkC-ET8dpPOr0M",
@@ -797,13 +866,27 @@
       setTimeout(() => toast.classList.remove('show'), 2000);
     }
 
-    // Load demo live streams (8 streams - 4 rows x 2 columns)
+    // Load demo live streams
     window.loadDemoStreams = function() {
+      filterLiveStreams();
+    };
+
+    // Filter live streams by search
+    window.filterLiveStreams = function() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase().replace('@', '');
       const gridContainer = document.getElementById('liveUsersGrid');
       const emptyLive = document.getElementById('emptyLive');
       const liveCount = document.getElementById('liveCount');
       
-      if (demoStreams.length === 0) {
+      let filteredStreams = demoStreams;
+      if (searchTerm) {
+        filteredStreams = demoStreams.filter(stream => 
+          stream.username.toLowerCase().includes(searchTerm) ||
+          stream.userId.toLowerCase().includes(searchTerm)
+        );
+      }
+      
+      if (filteredStreams.length === 0) {
         gridContainer.innerHTML = '';
         emptyLive.style.display = 'block';
         liveCount.textContent = '0';
@@ -811,9 +894,9 @@
       }
       
       emptyLive.style.display = 'none';
-      liveCount.textContent = demoStreams.length;
+      liveCount.textContent = filteredStreams.length;
       
-      gridContainer.innerHTML = demoStreams.map(stream => `
+      gridContainer.innerHTML = filteredStreams.map(stream => `
         <div class="live-user-card" onclick="openDemoStream('${stream.userId}')">
           <div class="live-avatar-container" style="border-color: ${stream.color}80;">
             <div class="avatar-placeholder" style="background: linear-gradient(135deg, ${stream.color}40, ${stream.color}20);">
@@ -831,6 +914,19 @@
           <div class="live-user-name">${stream.username}</div>
         </div>
       `).join('');
+      
+      // Show/hide clear button
+      const clearBtn = document.getElementById('clearSearch');
+      if (searchTerm) {
+        clearBtn.classList.add('show');
+      } else {
+        clearBtn.classList.remove('show');
+      }
+    };
+    
+    window.clearSearch = function() {
+      document.getElementById('searchInput').value = '';
+      filterLiveStreams();
     };
     
     function formatNumber(num) {
@@ -906,7 +1002,6 @@
       
       input.value = '';
       
-      // Add comment to list (demo)
       const commentList = document.getElementById('commentList');
       const commentDiv = document.createElement('div');
       commentDiv.className = 'comment-item';
@@ -917,7 +1012,7 @@
       showToast('Comment posted! 💬');
     };
 
-    // Toggle like (demo mode)
+    // Toggle like
     window.toggleLike = async function() {
       const likeBtn = document.getElementById('likeBtn');
       const icon = likeBtn.querySelector('i');
@@ -976,7 +1071,7 @@
       document.getElementById('likeBtn').classList.remove('liked');
       document.getElementById('likeBtn').querySelector('i').className = 'far fa-heart';
       
-      loadDemoStreams();
+      filterLiveStreams();
     };
 
     // Enter key for comment
@@ -997,7 +1092,7 @@
     });
 
     // Load demo streams on page load
-    loadDemoStreams();
+    filterLiveStreams();
   </script>
 </body>
 </html>

@@ -160,19 +160,22 @@
       display: block;
     }
     
-    /* Live Users Section */
+    /* Live Users Section - Scrollable */
     .live-users-section {
       padding: 1rem;
       flex: 1;
+      overflow-y: auto;
     }
     
+    /* Grid Layout - 2 columns, multiple rows */
     .live-users-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 1rem;
-      padding-bottom: 0.5rem;
+      padding-bottom: 1rem;
     }
     
+    /* Live User Card */
     .live-user-card {
       cursor: pointer;
       transition: all 0.2s;
@@ -266,12 +269,6 @@
     
     .empty-live p {
       font-size: 0.75rem;
-    }
-    
-    .scrollable-content {
-      flex: 1;
-      overflow-y: auto;
-      padding-bottom: 2rem;
     }
     
     /* Selected Live Stream Page */
@@ -439,7 +436,7 @@
       font-size: 0.8rem;
     }
     
-    /* Bottom Bar - Like and Share on RIGHT side */
+    /* Bottom Bar - Comment on left, Like/Share on right */
     .bottom-bar {
       position: absolute;
       bottom: 1rem;
@@ -452,7 +449,7 @@
       pointer-events: none;
     }
     
-    /* Comment section - takes remaining space on left */
+    /* Comment section - left side */
     .comment-section {
       flex: 1;
       display: flex;
@@ -709,13 +706,12 @@
       </div>
     </div>
     
-    <div class="scrollable-content">
-      <div class="live-users-section">
-        <div class="live-users-grid" id="liveUsersGrid"></div>
-        <div class="empty-live" id="emptyLive" style="display: none;">
-          <i class="fas fa-video-slash"></i>
-          <p>No live streams found</p>
-        </div>
+    <!-- Scrollable Live Users Grid - 2 per row, 4 visible on first screen -->
+    <div class="live-users-section" id="liveUsersSection">
+      <div class="live-users-grid" id="liveUsersGrid"></div>
+      <div class="empty-live" id="emptyLive" style="display: none;">
+        <i class="fas fa-video-slash"></i>
+        <p>No live streams found</p>
       </div>
     </div>
   </div>
@@ -751,7 +747,6 @@
     
     <!-- Bottom Bar - Comment on left, Like/Share on right -->
     <div class="bottom-bar">
-      <!-- Comment section (left side) -->
       <div class="comment-section">
         <div class="comment-list" id="commentList"></div>
         <div class="comment-input-row">
@@ -762,7 +757,6 @@
         </div>
       </div>
       
-      <!-- Like and Share buttons (right side vertical) -->
       <div class="action-buttons">
         <button class="stream-action-btn" id="likeBtn" onclick="toggleLike()">
           <i class="far fa-heart"></i>
@@ -813,13 +807,18 @@
     let viewerId = localStorage.getItem('live_viewer_id') || crypto.randomUUID();
     localStorage.setItem('live_viewer_id', viewerId);
 
+    // 8 Demo Live Streams - 2 per row, 4 rows total
     const demoStreams = [
+      // Row 1
       { userId: "alex_streamer", username: "@alex_streamer", viewers: 1234, avatar: "🎮", color: "#ef4444", category: "Gaming" },
       { userId: "music_mia", username: "@music_mia", viewers: 567, avatar: "🎵", color: "#f97316", category: "Music" },
+      // Row 2
       { userId: "tech_john", username: "@tech_john", viewers: 289, avatar: "💻", color: "#eab308", category: "Tech" },
       { userId: "travel_girl", username: "@travel_girl", viewers: 1892, avatar: "✈️", color: "#22c55e", category: "Travel" },
+      // Row 3
       { userId: "gaming_pro", username: "@gaming_pro", viewers: 2345, avatar: "🎯", color: "#06b6d4", category: "Gaming" },
       { userId: "cook_master", username: "@cook_master", viewers: 445, avatar: "🍳", color: "#8b5cf6", category: "Cooking" },
+      // Row 4
       { userId: "fitness_king", username: "@fitness_king", viewers: 678, avatar: "💪", color: "#ec4899", category: "Fitness" },
       { userId: "vibes_only", username: "@vibes_only", viewers: 345, avatar: "✨", color: "#f43f5e", category: "Entertainment" }
     ];

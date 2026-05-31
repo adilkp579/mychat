@@ -65,7 +65,6 @@
       background: rgba(255, 255, 255, 0.15);
     }
     
-    /* Choicho Style Title */
     .page-title {
       font-size: 1.5rem;
       font-weight: 700;
@@ -78,7 +77,6 @@
       text-shadow: 0 0 20px rgba(255, 252, 0, 0.2);
     }
     
-    /* Live Count Badge - Top Right Corner */
     .live-count-badge {
       display: flex;
       align-items: center;
@@ -168,7 +166,6 @@
       flex: 1;
     }
     
-    /* Grid Layout - 2 columns, multiple rows */
     .live-users-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -176,7 +173,6 @@
       padding-bottom: 0.5rem;
     }
     
-    /* Live User Card */
     .live-user-card {
       cursor: pointer;
       transition: all 0.2s;
@@ -256,7 +252,6 @@
       padding: 0 0.2rem;
     }
     
-    /* Empty State */
     .empty-live {
       text-align: center;
       padding: 2rem;
@@ -273,7 +268,6 @@
       font-size: 0.75rem;
     }
     
-    /* Scrollable Content */
     .scrollable-content {
       flex: 1;
       overflow-y: auto;
@@ -298,7 +292,6 @@
       display: flex;
     }
     
-    /* Stream Header */
     .stream-header {
       position: absolute;
       top: max(1rem, env(safe-area-inset-top, 1rem));
@@ -315,7 +308,6 @@
       pointer-events: auto;
     }
     
-    /* Choicho Style Live Badge in Stream */
     .stream-info {
       display: flex;
       align-items: center;
@@ -424,7 +416,6 @@
       opacity: 0.7;
     }
     
-    /* Demo Stream Preview */
     .demo-stream-preview {
       position: absolute;
       top: 50%;
@@ -448,20 +439,30 @@
       font-size: 0.8rem;
     }
     
-    /* Bottom Actions */
-    .stream-actions {
+    /* Bottom Bar - Like, Share, Comment all in one line */
+    .bottom-bar {
       position: absolute;
-      bottom: 6rem;
-      left: 50%;
-      transform: translateX(-50%);
+      bottom: 1rem;
+      left: 1rem;
+      right: 1rem;
+      z-index: 25;
       display: flex;
-      gap: 1.5rem;
-      z-index: 20;
+      align-items: center;
+      gap: 0.8rem;
+      pointer-events: none;
+    }
+    
+    /* Like and Share buttons */
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      pointer-events: auto;
       background: rgba(0, 0, 0, 0.5);
       backdrop-filter: blur(20px);
-      padding: 0.6rem 1.5rem;
+      padding: 0.5rem 1rem;
       border-radius: 3rem;
       border: 1px solid rgba(255, 255, 255, 0.1);
+      flex-shrink: 0;
     }
     
     .stream-action-btn {
@@ -474,7 +475,7 @@
       color: #fff;
       cursor: pointer;
       font-size: 1.3rem;
-      padding: 0.2rem;
+      padding: 0.2rem 0.5rem;
       transition: all 0.2s;
     }
     
@@ -492,26 +493,23 @@
       color: #ef4444;
     }
     
-    /* Comment Section */
+    /* Comment section - takes remaining space */
     .comment-section {
-      position: absolute;
-      bottom: 1rem;
-      left: 1rem;
-      right: 1rem;
-      z-index: 25;
+      flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
+      gap: 0.4rem;
       pointer-events: none;
+      min-width: 0;
     }
     
     .comment-list {
-      max-height: 150px;
+      max-height: 100px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
       gap: 0.3rem;
-      padding: 0 0.3rem;
+      padding: 0 0.2rem;
       pointer-events: auto;
       scrollbar-width: none;
     }
@@ -523,12 +521,12 @@
     .comment-item {
       background: rgba(0, 0, 0, 0.5);
       backdrop-filter: blur(12px);
-      padding: 0.35rem 0.7rem;
+      padding: 0.3rem 0.6rem;
       border-radius: 1rem;
       color: #fff;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       align-self: flex-start;
-      max-width: 85%;
+      max-width: 100%;
       word-break: break-word;
       border: 1px solid rgba(255, 255, 255, 0.1);
       display: flex;
@@ -539,7 +537,7 @@
     .comment-username {
       font-weight: 700;
       color: #fbbf24;
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       white-space: nowrap;
     }
     
@@ -549,7 +547,7 @@
       pointer-events: auto;
       background: rgba(0, 0, 0, 0.6);
       backdrop-filter: blur(20px);
-      padding: 0.4rem;
+      padding: 0.35rem;
       border-radius: 2rem;
       border: 1px solid rgba(255, 255, 255, 0.15);
     }
@@ -559,27 +557,28 @@
       background: transparent;
       border: none;
       color: #fff;
-      padding: 0.4rem 0.8rem;
-      font-size: 0.8rem;
+      padding: 0.35rem 0.7rem;
+      font-size: 0.75rem;
       outline: none;
     }
     
     .comment-input-row input::placeholder {
       color: #888;
+      font-size: 0.7rem;
     }
     
     .comment-send-btn {
       background: #FFFC00;
       border: none;
       color: #000;
-      width: 2rem;
-      height: 2rem;
+      width: 1.8rem;
+      height: 1.8rem;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      font-size: 0.8rem;
+      font-size: 0.7rem;
       flex-shrink: 0;
       font-weight: bold;
     }
@@ -630,7 +629,6 @@
       cursor: pointer;
     }
     
-    /* Toast */
     .toast {
       position: fixed;
       bottom: 8rem;
@@ -654,7 +652,6 @@
       opacity: 1;
     }
     
-    /* Responsive */
     @media (max-width: 480px) {
       .live-users-grid {
         gap: 0.8rem;
@@ -679,13 +676,26 @@
       .page-title {
         font-size: 1.3rem;
       }
+      .action-buttons {
+        padding: 0.35rem 0.7rem;
+        gap: 0.7rem;
+      }
+      .stream-action-btn {
+        font-size: 1.1rem;
+        padding: 0.15rem 0.3rem;
+      }
+      .stream-action-btn span {
+        font-size: 0.5rem;
+      }
+      .comment-input-row input {
+        font-size: 0.7rem;
+        padding: 0.3rem 0.5rem;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- Main Page -->
   <div class="page" id="mainPage">
-    <!-- Top Header -->
     <div class="top-header">
       <button class="back-btn" onclick="window.location.href='web.html'">
         <i class="fas fa-arrow-left"></i>
@@ -697,7 +707,6 @@
       </div>
     </div>
     
-    <!-- Search Bar Below Header -->
     <div class="search-container">
       <div class="search-wrapper">
         <i class="fas fa-search"></i>
@@ -746,29 +755,33 @@
       </div>
     </div>
     
-    <div class="comment-section">
-      <div class="comment-list" id="commentList"></div>
-      <div class="comment-input-row">
-        <input type="text" id="commentInput" placeholder="Add a comment..." maxlength="150" autocomplete="off">
-        <button class="comment-send-btn" onclick="sendComment()">
-          <i class="fas fa-paper-plane"></i>
+    <!-- Bottom Bar - Like, Share, Comment all in one line -->
+    <div class="bottom-bar">
+      <!-- Like and Share buttons -->
+      <div class="action-buttons">
+        <button class="stream-action-btn" id="likeBtn" onclick="toggleLike()">
+          <i class="far fa-heart"></i>
+          <span id="likeCount">Like</span>
+        </button>
+        <button class="stream-action-btn" onclick="shareStream()">
+          <i class="fas fa-share"></i>
+          <span>Share</span>
         </button>
       </div>
-    </div>
-    
-    <div class="stream-actions">
-      <button class="stream-action-btn" id="likeBtn" onclick="toggleLike()">
-        <i class="far fa-heart"></i>
-        <span id="likeCount">Like</span>
-      </button>
-      <button class="stream-action-btn" onclick="shareStream()">
-        <i class="fas fa-share"></i>
-        <span>Share</span>
-      </button>
+      
+      <!-- Comment section -->
+      <div class="comment-section">
+        <div class="comment-list" id="commentList"></div>
+        <div class="comment-input-row">
+          <input type="text" id="commentInput" placeholder="Add a comment..." maxlength="150" autocomplete="off">
+          <button class="comment-send-btn" onclick="sendComment()">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
   
-  <!-- Loading Overlay -->
   <div class="loading-overlay" id="loadingOverlay" style="display: none;">
     <i class="fas fa-spinner"></i>
     <span id="loadingText">Connecting to Choicho Live...</span>
@@ -806,39 +819,29 @@
     let viewerId = localStorage.getItem('live_viewer_id') || crypto.randomUUID();
     localStorage.setItem('live_viewer_id', viewerId);
 
-    // 8 Demo Live Streams Data - 4 rows x 2 columns = 8 total live streams
     const demoStreams = [
-      // Row 1
       { userId: "alex_streamer", username: "@alex_streamer", viewers: 1234, avatar: "🎮", color: "#ef4444", category: "Gaming" },
       { userId: "music_mia", username: "@music_mia", viewers: 567, avatar: "🎵", color: "#f97316", category: "Music" },
-      // Row 2
       { userId: "tech_john", username: "@tech_john", viewers: 289, avatar: "💻", color: "#eab308", category: "Tech" },
       { userId: "travel_girl", username: "@travel_girl", viewers: 1892, avatar: "✈️", color: "#22c55e", category: "Travel" },
-      // Row 3
       { userId: "gaming_pro", username: "@gaming_pro", viewers: 2345, avatar: "🎯", color: "#06b6d4", category: "Gaming" },
       { userId: "cook_master", username: "@cook_master", viewers: 445, avatar: "🍳", color: "#8b5cf6", category: "Cooking" },
-      // Row 4
       { userId: "fitness_king", username: "@fitness_king", viewers: 678, avatar: "💪", color: "#ec4899", category: "Fitness" },
       { userId: "vibes_only", username: "@vibes_only", viewers: 345, avatar: "✨", color: "#f43f5e", category: "Entertainment" }
     ];
 
-    // Show toast message
-    function showToast(message, isError = false) {
+    function showToast(message) {
       const toast = document.getElementById('toast');
       toast.textContent = message;
       toast.classList.add('show');
       setTimeout(() => toast.classList.remove('show'), 2000);
     }
 
-    // Update total live count in header
     function updateLiveCount(count) {
       const countElement = document.getElementById('totalLiveCount');
-      if (countElement) {
-        countElement.textContent = count;
-      }
+      if (countElement) countElement.textContent = count;
     }
 
-    // Filter live streams by search
     window.filterLiveStreams = function() {
       const searchTerm = document.getElementById('searchInput').value.toLowerCase().replace('@', '');
       const gridContainer = document.getElementById('liveUsersGrid');
@@ -852,7 +855,6 @@
         );
       }
       
-      // Update total live count in header
       updateLiveCount(filteredStreams.length);
       
       if (filteredStreams.length === 0) {
@@ -882,7 +884,6 @@
         </div>
       `).join('');
       
-      // Show/hide clear button
       const clearBtn = document.getElementById('clearSearch');
       if (searchTerm) {
         clearBtn.classList.add('show');
@@ -915,7 +916,6 @@
       return iconMap[avatar] || 'fa-user-circle';
     }
 
-    // Open demo stream
     window.openDemoStream = async function(hostId) {
       const stream = demoStreams.find(s => s.userId === hostId);
       if (!stream) return;
@@ -931,19 +931,15 @@
       
       document.getElementById('loadingOverlay').style.display = 'none';
       
-      // Show demo preview
       const demoPreview = document.getElementById('demoPreview');
       const videoPlaceholder = document.getElementById('videoPlaceholder');
       demoPreview.style.display = 'flex';
       videoPlaceholder.style.display = 'none';
       
-      // Load demo comments
       loadDemoComments(hostId);
-      
       showToast(`Watching ${stream.username}'s Choicho Live stream 🔴`);
     };
 
-    // Load demo comments
     function loadDemoComments(hostId) {
       const commentList = document.getElementById('commentList');
       const demoComments = [
@@ -961,7 +957,6 @@
       `).join('');
     }
 
-    // Send comment (demo mode)
     window.sendComment = async function() {
       const input = document.getElementById('commentInput');
       const text = input.value.trim();
@@ -975,11 +970,9 @@
       commentDiv.innerHTML = `<span class="comment-username">${currentUser}</span> ${text}`;
       commentList.appendChild(commentDiv);
       commentList.scrollTop = commentList.scrollHeight;
-      
       showToast('Comment posted! 💬');
     };
 
-    // Toggle like
     window.toggleLike = async function() {
       const likeBtn = document.getElementById('likeBtn');
       const icon = likeBtn.querySelector('i');
@@ -1001,7 +994,6 @@
       }
     };
 
-    // Share stream
     window.shareStream = async function() {
       const host = currentStreamHost || 'live_stream';
       const url = `${window.location.origin}/live.html?user=${host}`;
@@ -1024,7 +1016,6 @@
       }
     };
 
-    // Close stream
     window.closeStream = async function() {
       document.getElementById('streamPage').classList.remove('active');
       document.getElementById('mainPage').style.display = 'block';
@@ -1041,7 +1032,6 @@
       filterLiveStreams();
     };
 
-    // Enter key for comment
     document.addEventListener('DOMContentLoaded', () => {
       const commentInput = document.getElementById('commentInput');
       if (commentInput) {
@@ -1053,12 +1043,10 @@
       }
     });
 
-    // Handle page unload
     window.addEventListener('beforeunload', () => {
       if (pc) pc.close();
     });
 
-    // Load demo streams on page load
     filterLiveStreams();
   </script>
 </body>
